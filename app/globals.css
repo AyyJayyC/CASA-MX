@@ -1,0 +1,60 @@
+/*
+  Global Tailwind CSS import and small base styles
+  UI language: Spanish
+  Casa MX Design System
+*/
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Gold palette */
+    --color-gold: #FBBF24;
+    --color-gold-dark: #F59E0B;
+    --color-gold-darker: #D97706;
+    
+    /* Light mode */
+    --bg-primary: #FAFAFA;
+    --bg-surface: #FFFFFF;
+    --border-color: #E5E5E5;
+    --text-primary: #171717;
+    --text-secondary: #525252;
+    
+    /* Semantic colors */
+    --color-success: #10B981;
+    --color-error: #EF4444;
+    --color-warning: #F59E0B;
+    --color-info: #3B82F6;
+  }
+  
+  .dark {
+    /* Dark mode */
+    --bg-primary: #0A0A0A;
+    --bg-surface: #171717;
+    --border-color: #262626;
+    --text-primary: #FAFAFA;
+    --text-secondary: #A3A3A3;
+  }
+  
+  html {
+    @apply antialiased;
+  }
+  
+  body {
+    @apply bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100;
+  }
+}
+
+html, body, #__next {
+  height: 100%;
+}
+
+.container {
+  @apply mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Smooth transitions for theme switching */
+* {
+  @apply transition-colors duration-200;
+}

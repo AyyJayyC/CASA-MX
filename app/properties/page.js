@@ -1,0 +1,350 @@
+/**
+ * Properties listing page
+ * Purpose: Show property search and cards (Spanish UI).
+ * Design: Hero section with search, sidebar filters (desktop), responsive grid
+ * Checkpoint 4: Buy/Rent tabs, rental filters (rent range, furnished)
+ */
+'use client';
+import { useState } from 'react';
+import PropertyList from '../../components/PropertyList.jsx';
+import { useProperties } from '../../lib/queries/properties';
+
+export default function PropertiesPage() {
+  const { data = [] } = useProperties();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [listingType, setListingType] = useState('for_sale'); // 'for_sale' or 'for_rent'
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [minRent, setMinRent] = useState('5000');
+  const [maxRent, setMaxRent] = useState('50000');
+  const [furnished, setFurnished] = useState(false);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    // Search functionality will be handled by PropertyList component
+  };
+
+  const clearFilters = () => {
+    if (listingType === 'for_sale') {
+      setMinPrice('');
+      setMaxPrice('');
+    } else {
+      setMinRent('5000');
+      setMaxRent('50000');
+      setFurnished(false);
+    }
+    setSearchQuery('');
+  };
+
+  const hasFilters = listingType === 'for_sale' 
+    ? (minPrice || maxPrice) 
+    : (minRent !== '5000' || maxRent !== '50000' || furnished);
+
+  return (
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
+      {/* Hero Section */}
+      <section className="
+        bg-gradient-to-br from-amber-50 to-yellow-50 
+        dark:from-neutral-900 dark:to-neutral-800
+        border-b border-neutral-200 dark:border-neutral-800
+      ">
+        <div className="container max-w-7xl py-12 sm:py-16">
+          {/* Heading */}
+          <div className="mb-8">
+            <h1 className="
+              text-3xl sm:text-4xl 
+              font-bold 
+              text-neutral-900 dark:text-neutral-100
+              mb-3
+            ">
+              Encuentra tu hogar ideal
+            </h1>
+            <p className="
+              text-base sm:text-lg 
+              text-neutral-600 dark:text-neutral-400
+              mb-6
+            ">
+              {data.length} {data.length === 1 ? 'propiedad disponible' : 'propiedades disponibles'}
+            </p>
+
+            {/* Buy/Rent Tabs */}
+            <div className="flex gap-2 mt-6">
+              <button
+                onClick={() => setListingType('for_sale')}
+                className={`
+                  px-6 py-2.5
+                  font-semibold
+                  rounded-lg
+                  transition-all
+                  focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2
+                  ${listingType === 'for_sale'
+                    ? 'bg-gradient-to-br from-amber-400 to-yellow-600 text-white shadow-md'
+                    : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-700 hover:border-amber-400 dark:hover:border-amber-400'
+                  }
+                `}
+              >
+                Comprar
+              </button>
+              <button
+                onClick={() => setListingType('for_rent')}
+                className={`
+                  px-6 py-2.5
+                  font-semibold
+                  rounded-lg
+                  transition-all
+                  focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2
+                  ${listingType === 'for_rent'
+                    ? 'bg-gradient-to-br from-amber-400 to-yellow-600 text-white shadow-md'
+                    : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-700 hover:border-amber-400 dark:hover:border-amber-400'
+                  }
+                `}
+              >
+                Rentar
+              </button>
+            </div>
+          </div>
+
+          {/* Search Bar */}
+          <form onSubmit={handleSearch} className="max-w-3xl">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Buscar por ubicación, colonia o características..."
+                className="
+                  flex-1
+                  px-4 py-3
+                  bg-white dark:bg-neutral-900
+                  border border-neutral-300 dark:border-neutral-700
+                  rounded-lg
+                  text-neutral-900 dark:text-neutral-100
+                  placeholder:text-neutral-500
+                  focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                  text-base
+                "
+              />
+              <button
+                type="submit"
+                className="
+                  px-6 py-3
+                  bg-gradient-to-br from-amber-400 to-yellow-600
+                  hover:from-amber-500 hover:to-yellow-700
+                  text-white
+                  font-semibold
+                  rounded-lg
+                  transition-all
+                  focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2
+                  whitespace-nowrap
+                "
+              >
+                Buscar
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      {/* Main Content with Sidebar */}
+      <div className="container max-w-7xl py-8 lg:py-12">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Filters Sidebar - Desktop Only */}
+          <aside className="hidden lg:block lg:w-64 flex-shrink-0">
+            <div className="
+              sticky top-8
+              bg-white dark:bg-neutral-900
+              border border-neutral-200 dark:border-neutral-800
+              rounded-lg
+              p-6
+              space-y-6
+            ">
+              {/* Heading */}
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+                  Filtros
+                </h2>
+                {hasFilters && (
+                  <button
+                    onClick={clearFilters}
+                    className="
+                      text-xs 
+                      text-amber-600 dark:text-amber-400
+                      hover:text-amber-700 dark:hover:text-amber-300
+                      font-medium
+                    "
+                  >
+                    Limpiar
+                  </button>
+                )}
+              </div>
+
+              {/* Price Range Filter (For Sale) */}
+              {listingType === 'for_sale' && (
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
+                    Rango de precio
+                  </label>
+                  <div className="space-y-3">
+                    <div>
+                      <label htmlFor="min-price" className="block text-xs text-neutral-600 dark:text-neutral-400 mb-1">
+                        Mínimo
+                      </label>
+                      <input
+                        id="min-price"
+                        type="number"
+                        value={minPrice}
+                        onChange={(e) => setMinPrice(e.target.value)}
+                        placeholder="$ 0"
+                        className="
+                          w-full
+                          px-3 py-2
+                          bg-white dark:bg-neutral-950
+                          border border-neutral-300 dark:border-neutral-700
+                          rounded-md
+                          text-sm
+                          text-neutral-900 dark:text-neutral-100
+                          placeholder:text-neutral-500
+                          focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                        "
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="max-price" className="block text-xs text-neutral-600 dark:text-neutral-400 mb-1">
+                        Máximo
+                      </label>
+                      <input
+                        id="max-price"
+                        type="number"
+                        value={maxPrice}
+                        onChange={(e) => setMaxPrice(e.target.value)}
+                        placeholder="$ Sin límite"
+                        className="
+                          w-full
+                          px-3 py-2
+                          bg-white dark:bg-neutral-950
+                          border border-neutral-300 dark:border-neutral-700
+                          rounded-md
+                          text-sm
+                          text-neutral-900 dark:text-neutral-100
+                          placeholder:text-neutral-500
+                          focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                        "
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Rent Range Filter (For Rent) */}
+              {listingType === 'for_rent' && (
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
+                    Rango de renta mensual
+                  </label>
+                  <div className="space-y-3">
+                    <div>
+                      <label htmlFor="min-rent" className="block text-xs text-neutral-600 dark:text-neutral-400 mb-1">
+                        Mínimo
+                      </label>
+                      <input
+                        id="min-rent"
+                        type="number"
+                        value={minRent}
+                        onChange={(e) => setMinRent(e.target.value)}
+                        min="5000"
+                        max="50000"
+                        step="1000"
+                        className="
+                          w-full
+                          px-3 py-2
+                          bg-white dark:bg-neutral-950
+                          border border-neutral-300 dark:border-neutral-700
+                          rounded-md
+                          text-sm
+                          text-neutral-900 dark:text-neutral-100
+                          placeholder:text-neutral-500
+                          focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                        "
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="max-rent" className="block text-xs text-neutral-600 dark:text-neutral-400 mb-1">
+                        Máximo
+                      </label>
+                      <input
+                        id="max-rent"
+                        type="number"
+                        value={maxRent}
+                        onChange={(e) => setMaxRent(e.target.value)}
+                        min="5000"
+                        max="50000"
+                        step="1000"
+                        className="
+                          w-full
+                          px-3 py-2
+                          bg-white dark:bg-neutral-950
+                          border border-neutral-300 dark:border-neutral-700
+                          rounded-md
+                          text-sm
+                          text-neutral-900 dark:text-neutral-100
+                          placeholder:text-neutral-500
+                          focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                        "
+                      />
+                    </div>
+                    <div className="text-xs text-neutral-500 dark:text-neutral-500 text-center">
+                      MXN {parseInt(minRent).toLocaleString('es-MX')} - {parseInt(maxRent).toLocaleString('es-MX')}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Furnished Checkbox (For Rent Only) */}
+              {listingType === 'for_rent' && (
+                <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={furnished}
+                      onChange={(e) => setFurnished(e.target.checked)}
+                      className="
+                        w-4 h-4
+                        text-amber-600
+                        bg-white dark:bg-neutral-950
+                        border-neutral-300 dark:border-neutral-700
+                        rounded
+                        focus:ring-2 focus:ring-amber-400 focus:ring-offset-0
+                      "
+                    />
+                    <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                      Solo amuebladas
+                    </span>
+                  </label>
+                </div>
+              )}
+
+              {/* Additional Filter Sections Can Be Added Here */}
+              <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
+                <p className="text-xs text-neutral-500 dark:text-neutral-500 text-center">
+                  Más filtros próximamente
+                </p>
+              </div>
+            </div>
+          </aside>
+
+          {/* Main Content Area */}
+          <main className="flex-1 min-w-0">
+            <PropertyList 
+              listingType={listingType}
+              minPrice={minPrice}
+              maxPrice={maxPrice}
+              minRent={minRent}
+              maxRent={maxRent}
+              furnished={furnished}
+            />
+          </main>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,462 @@
+/**
+ * ApplicationsTable component
+ * Purpose: Display rental applications in a table with approve/reject actions
+ * Design: Responsive table with action modals and status updates
+ * Checkpoint 6: Integrates with backend API for application management
+ */
+'use client';
+import { useState, useEffect } from 'react';
+import { z } from 'zod';
+import dynamic from 'next/dynamic';
+
+const ApproveRejectModal = dynamic(() => import('./ApproveRejectModal.jsx'), { ssr: false });
+
+const statusBadgeConfig = {
+  pending: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-800 dark:text-yellow-300', label: 'Pendiente' },
+  under_review: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-800 dark:text-blue-300', label: 'En revisión' },
+  approved: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-800 dark:text-green-300', label: 'Aprobada' },
+  rejected: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-800 dark:text-red-300', label: 'Rechazada' },
+};
+
+export default function ApplicationsTable({ propertyId, statusFilter }) {
+  const [applications, setApplications] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedApp, setSelectedApp] = useState(null);
+  const [actionType, setActionType] = useState(null); // 'approve' or 'reject'
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const fetchApplications = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        // TODO: Replace with actual API call
+        // const response = await fetch(
+        //   `${process.env.NEXT_PUBLIC_API_URL}/applications/property/${propertyId}`,
+        //   {
+        //     headers: { 'Authorization': `Bearer ${token}` }
+        //   }
+        // );
+        // if (!response.ok) throw new Error('Failed to fetch applications');
+        // const data = await response.json();
+        // setApplications(data);
+
+        // For MVP, set empty array
+        setApplications([]);
+      } catch (err) {
+        setError(err.message || 'Error al cargar solicitudes');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (propertyId) {
+      fetchApplications();
+    }
+  }, [propertyId]);
+
+  const filteredApplications = statusFilter === 'all'
+    ? applications
+    : applications.filter(app => app.status === statusFilter);
+
+  const handleApproveReject = async (action, note) => {
+    if (!selectedApp) return;
+
+    setIsSubmitting(true);
+    try {
+      // TODO: Replace with actual API call
+      // const response = await fetch(
+      //   `${process.env.NEXT_PUBLIC_API_URL}/applications/${selectedApp.id}`,
+      //   {
+      //     method: 'PATCH',
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //       'Authorization': `Bearer ${token}`
+      //     },
+      //     body: JSON.stringify({
+      //       status: action === 'approve' ? 'approved' : 'rejected',
+      //       landlordNote: note
+      //     })
+      //   }
+      // );
+
+      // if (!response.ok) throw new Error('Failed to update application');
+      // const updatedApp = await response.json();
+
+      // Update local state
+      setApplications(apps =>
+        apps.map(app =>
+          app.id === selectedApp.id
+            ? {
+              ...app,
+              status: action === 'approve' ? 'approved' : 'rejected',
+              landlordNote: note,
+              updatedAt: new Date().toISOString()
+            }
+            : app
+        )
+      );
+
+      setSelectedApp(null);
+      setActionType(null);
+    } catch (err) {
+      alert('Error: ' + (err.message || 'Error al actualizar solicitud'));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <svg className="animate-spin h-8 w-8 text-amber-600" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+        </svg>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-800 dark:text-red-300 text-sm">
+        {error}
+      </div>
+    );
+  }
+
+  if (filteredApplications.length === 0) {
+    return (
+      <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-12 text-center">
+        <svg className="w-16 h-16 text-neutral-400 dark:text-neutral-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
+        </svg>
+        <h3 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 mb-2">
+          No hay solicitudes
+        </h3>
+        <p className="text-neutral-600 dark:text-neutral-400">
+          {statusFilter === 'all' 
+            ? 'No hay solicitudes para esta propiedad'
+            : `No hay solicitudes con estado "${statusBadgeConfig[statusFilter]?.label}"`
+          }
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Desktop Table */}
+      <div className="hidden lg:block bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-hidden">
+        <table className="w-full">
+          <thead className="bg-neutral-50 dark:bg-neutral-800/50 border-b border-neutral-200 dark:border-neutral-700">
+            <tr>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">Solicitante</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">Contacto</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">Ingreso</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">Estado</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">Acciones</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
+            {filteredApplications.map((app) => {
+              const statusConfig = statusBadgeConfig[app.status];
+              return (
+                <tr key={app.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-800/30 transition-colors">
+                  <td className="px-6 py-4">
+                    <div>
+                      <div className="font-medium text-neutral-900 dark:text-neutral-100">
+                        {app.fullName}
+                      </div>
+                      <div className="text-sm text-neutral-600 dark:text-neutral-400">
+                        Inquilinos: {app.numberOfOccupants}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm">
+                      <div className="text-neutral-900 dark:text-neutral-100">{app.email}</div>
+                      <div className="text-neutral-600 dark:text-neutral-400">{app.phone}</div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm text-neutral-900 dark:text-neutral-100">
+                      ${app.monthlyIncome?.toLocaleString('es-MX')} MXN
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${statusConfig.bg} ${statusConfig.text}`}>
+                      {statusConfig.label}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex gap-2">
+                      {(app.status === 'pending' || app.status === 'under_review') && (
+                        <>
+                          <button
+                            onClick={() => { setSelectedApp(app); setActionType('approve'); }}
+                            className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors"
+                          >
+                            Aprobar
+                          </button>
+                          <button
+                            onClick={() => { setSelectedApp(app); setActionType('reject'); }}
+                            className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-medium rounded hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+                          >
+                            Rechazar
+                          </button>
+                        </>
+                      )}
+                      <button
+                        onClick={() => setSelectedApp(app)}
+                        className="px-3 py-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-xs font-medium rounded hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+                      >
+                        Detalles
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile Cards */}
+      <div className="lg:hidden space-y-4">
+        {filteredApplications.map((app) => {
+          const statusConfig = statusBadgeConfig[app.status];
+          return (
+            <div
+              key={app.id}
+              className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-4 space-y-3"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="font-medium text-neutral-900 dark:text-neutral-100">
+                    {app.fullName}
+                  </div>
+                  <div className="text-sm text-neutral-600 dark:text-neutral-400">
+                    {app.email} • {app.phone}
+                  </div>
+                </div>
+                <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-semibold whitespace-nowrap ${statusConfig.bg} ${statusConfig.text}`}>
+                  {statusConfig.label}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <div className="text-neutral-600 dark:text-neutral-400">Ingreso</div>
+                  <div className="font-medium text-neutral-900 dark:text-neutral-100">
+                    ${app.monthlyIncome?.toLocaleString('es-MX')}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-neutral-600 dark:text-neutral-400">Ocupantes</div>
+                  <div className="font-medium text-neutral-900 dark:text-neutral-100">
+                    {app.numberOfOccupants}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                {(app.status === 'pending' || app.status === 'under_review') && (
+                  <>
+                    <button
+                      onClick={() => { setSelectedApp(app); setActionType('approve'); }}
+                      className="flex-1 px-3 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors"
+                    >
+                      Aprobar
+                    </button>
+                    <button
+                      onClick={() => { setSelectedApp(app); setActionType('reject'); }}
+                      className="flex-1 px-3 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-medium rounded hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+                    >
+                      Rechazar
+                    </button>
+                  </>
+                )}
+                <button
+                  onClick={() => setSelectedApp(app)}
+                  className="flex-1 px-3 py-2 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-xs font-medium rounded hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+                >
+                  Detalles
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Modal for Approve/Reject */}
+      {selectedApp && actionType && (
+        <ApproveRejectModal
+          application={selectedApp}
+          action={actionType}
+          isSubmitting={isSubmitting}
+          onSubmit={handleApproveReject}
+          onClose={() => { setSelectedApp(null); setActionType(null); }}
+        />
+      )}
+
+      {/* Details Modal */}
+      {selectedApp && !actionType && (
+        <ApplicationDetailsModal
+          application={selectedApp}
+          onClose={() => setSelectedApp(null)}
+          onApprove={() => setActionType('approve')}
+          onReject={() => setActionType('reject')}
+        />
+      )}
+    </div>
+  );
+}
+
+// Application Details Modal Component
+function ApplicationDetailsModal({ application, onClose, onApprove, onReject }) {
+  const statusBadgeConfig = {
+    pending: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-800 dark:text-yellow-300', label: 'Pendiente' },
+    under_review: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-800 dark:text-blue-300', label: 'En revisión' },
+    approved: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-800 dark:text-green-300', label: 'Aprobada' },
+    rejected: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-800 dark:text-red-300', label: 'Rechazada' },
+  };
+
+  const statusConfig = statusBadgeConfig[application.status];
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-neutral-900 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="sticky top-0 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 p-6 flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+            Detalles de solicitud
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 space-y-6">
+          {/* Personal Info */}
+          <div>
+            <h3 className="font-semibold text-neutral-900 dark:text-neutral-100 mb-3">
+              Información Personal
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <div className="text-sm text-neutral-600 dark:text-neutral-400">Nombre</div>
+                <div className="font-medium text-neutral-900 dark:text-neutral-100">{application.fullName}</div>
+              </div>
+              <div>
+                <div className="text-sm text-neutral-600 dark:text-neutral-400">Email</div>
+                <div className="font-medium text-neutral-900 dark:text-neutral-100">{application.email}</div>
+              </div>
+              <div>
+                <div className="text-sm text-neutral-600 dark:text-neutral-400">Teléfono</div>
+                <div className="font-medium text-neutral-900 dark:text-neutral-100">{application.phone}</div>
+              </div>
+              <div>
+                <div className="text-sm text-neutral-600 dark:text-neutral-400">Ocupantes</div>
+                <div className="font-medium text-neutral-900 dark:text-neutral-100">{application.numberOfOccupants}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Employment Info */}
+          <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
+            <h3 className="font-semibold text-neutral-900 dark:text-neutral-100 mb-3">
+              Información Laboral
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <div className="text-sm text-neutral-600 dark:text-neutral-400">Empleador</div>
+                <div className="font-medium text-neutral-900 dark:text-neutral-100">{application.employer}</div>
+              </div>
+              <div>
+                <div className="text-sm text-neutral-600 dark:text-neutral-400">Puesto</div>
+                <div className="font-medium text-neutral-900 dark:text-neutral-100">{application.jobTitle}</div>
+              </div>
+              <div>
+                <div className="text-sm text-neutral-600 dark:text-neutral-400">Ingreso Mensual</div>
+                <div className="font-medium text-neutral-900 dark:text-neutral-100">
+                  ${application.monthlyIncome?.toLocaleString('es-MX')} MXN
+                </div>
+              </div>
+              <div>
+                <div className="text-sm text-neutral-600 dark:text-neutral-400">Tiempo en Empleo</div>
+                <div className="font-medium text-neutral-900 dark:text-neutral-100">{application.employmentDuration}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Rental Details */}
+          <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
+            <h3 className="font-semibold text-neutral-900 dark:text-neutral-100 mb-3">
+              Detalles de Renta
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <div className="text-sm text-neutral-600 dark:text-neutral-400">Fecha de Mudanza</div>
+                <div className="font-medium text-neutral-900 dark:text-neutral-100">
+                  {new Date(application.desiredMoveInDate).toLocaleDateString('es-MX')}
+                </div>
+              </div>
+              <div>
+                <div className="text-sm text-neutral-600 dark:text-neutral-400">Término de Contrato</div>
+                <div className="font-medium text-neutral-900 dark:text-neutral-100">
+                  {application.desiredLeaseTerm} meses
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Status */}
+          <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-neutral-600 dark:text-neutral-400">Estado:</span>
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${statusConfig.bg} ${statusConfig.text}`}>
+                {statusConfig.label}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer with Actions */}
+        {(application.status === 'pending' || application.status === 'under_review') && (
+          <div className="sticky bottom-0 bg-neutral-50 dark:bg-neutral-800/50 border-t border-neutral-200 dark:border-neutral-700 p-6 flex gap-3">
+            <button
+              onClick={onReject}
+              className="flex-1 px-4 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 font-medium rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+            >
+              Rechazar
+            </button>
+            <button
+              onClick={onApprove}
+              className="flex-1 px-4 py-2 bg-gradient-to-br from-green-400 to-green-600 text-white font-medium rounded-lg hover:from-green-500 hover:to-green-700 transition-colors"
+            >
+              Aprobar
+            </button>
+          </div>
+        )}
+
+        <div className="bg-neutral-50 dark:bg-neutral-800/50 border-t border-neutral-200 dark:border-neutral-700 p-6">
+          <button
+            onClick={onClose}
+            className="w-full px-4 py-2 text-neutral-700 dark:text-neutral-300 font-medium hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-lg transition-colors"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
