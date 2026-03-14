@@ -1,106 +1,123 @@
 /**
- * Tests for Auth API (real backend integration)
+ * Tests for Auth API client behavior
  */
+import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import { register, login, getSession, logout, getUserById } from '../../lib/api/auth';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-const isBackendAvailable = await (async () => {
-  try {
-    const response = await fetch(`${BACKEND_URL}/health`);
-    return response.ok;
-  } catch {
-    return false;
-  }
-})();
+describe('Auth API', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.restoreAllMocks();
+    global.fetch = vi.fn();
+  });
 
-const describeIfBackend = isBackendAvailable ? describe : describe.skip;
-
-describeIfBackend('Auth API', () => {
-  // Note: These tests use real backend calls
-  // Backend must be running on localhost:3001
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
   it('registers a new user with pending roles', async () => {
-    const testEmail = `test-${Date.now()}@example.com`;
-    
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        user: {
+          id: 'user-1',
+          name: 'John Doe',
+          email: 'john@example.com',
+          roles: [
+            { roleName: 'buyer', status: 'pending' },
+            { roleName: 'seller', status: 'pending' },
+          ],
+        },
+      }),
+    });
+
     const result = await register({
       name: 'John Doe',
-      email: testEmail,
+      email: 'john@example.com',
       password: 'TestPassword123',
-      roles: ['buyer', 'seller'], // Specify roles to register
+      roles: ['buyer', 'seller'],
     });
 
-    expect(result.user).toBeDefined();
-    expect(result.user).toHaveProperty('id');
-    expect(result.user.name).toBe('John Doe');
-    expect(result.user.email).toBe(testEmail);
-    expect(result.user.roles.length).toBeGreaterThanOrEqual(2); // buyer + seller requested
-    expect(result.user.roles[0].status).toBe('pending');
-  }, 10000);
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(result.user).toEqual({
+      id: 'user-1',
+      name: 'John Doe',
+      email: 'john@example.com',
+      roles: [
+        { type: 'buyer', status: 'pending' },
+        { type: 'seller', status: 'pending' },
+      ],
+    });
+  });
 
   it('logs in with correct credentials', async () => {
-    const testEmail = `login-${Date.now()}@example.com`;
-    
-    // Register first
-    await register({
-      name: 'Login Test',
-      email: testEmail,
-      password: 'TestPassword123',
-      roles: ['buyer'],
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        user: {
+          id: 'user-2',
+          name: 'Login Test',
+          email: 'login@example.com',
+          roles: [
+            { roleName: 'buyer', status: 'approved' },
+            { roleName: 'seller', status: 'pending' },
+          ],
+        },
+        token: 'access-token',
+        refreshToken: 'refresh-token',
+      }),
     });
 
-    // Note: Can't test approved user without admin approval
-    // This will fail until roles are approved
-    try {
-      await login({
-        email: testEmail,
-        password: 'TestPassword123'
-      });
-      // If we get here, user has no approved roles, so login should return no roles
-    } catch (err) {
-      // Expected - user has no approved roles yet
-      expect(err.message).toContain('Invalid email or password');
-    }
-  }, 10000);
+    const result = await login({
+      email: 'login@example.com',
+      password: 'TestPassword123',
+    });
+
+    expect(localStorage.getItem('accessToken')).toBe('access-token');
+    expect(localStorage.getItem('refreshToken')).toBe('refresh-token');
+    expect(result.user.activeRole).toBe('buyer');
+    expect(result.user.roles).toEqual([{ type: 'buyer', status: 'approved' }]);
+  });
 
   it('rejects login with wrong password', async () => {
-    const testEmail = `wrong-${Date.now()}@example.com`;
-    
-    await register({
-      name: 'Wrong Password Test',
-      email: testEmail,
-      password: 'CorrectPassword123',
-      roles: ['buyer'],
+    fetch.mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ error: 'Invalid email or password' }),
     });
 
-    await expect(login({
-      email: testEmail,
-      password: 'WrongPassword'
-    })).rejects.toThrow();
-  }, 10000);
+    await expect(
+      login({
+        email: 'wrong@example.com',
+        password: 'WrongPassword',
+      })
+    ).rejects.toThrow('Invalid email or password');
+  });
 
   it('returns null session when no token', async () => {
-    // Clear any existing tokens
-    localStorage.clear();
-    
     const session = await getSession();
     expect(session).toBeNull();
+    expect(fetch).not.toHaveBeenCalled();
   });
 
   it('clears session on logout', async () => {
-    // Store a fake token
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ success: true }),
+    });
+
     localStorage.setItem('accessToken', 'fake-token');
-    
+    localStorage.setItem('refreshToken', 'fake-refresh-token');
+
     await logout();
 
-    // Token should be cleared
-    const token = localStorage.getItem('accessToken');
-    expect(token).toBeNull();
+    expect(localStorage.getItem('accessToken')).toBeNull();
+    expect(localStorage.getItem('refreshToken')).toBeNull();
+    expect(fetch).toHaveBeenCalledTimes(1);
   });
 
   it('getUserById returns null without valid token', async () => {
-    localStorage.clear();
-    
     const user = await getUserById('some-id');
     expect(user).toBeNull();
+    expect(fetch).not.toHaveBeenCalled();
   });
 });

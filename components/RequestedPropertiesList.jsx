@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { useRequestedProperties } from '../lib/queries/requests';
 
 export default function RequestedPropertiesList() {
-  const { data = [], isLoading } = useRequestedProperties('buyer-demo');
+  const { data = [], isLoading } = useRequestedProperties();
 
   if (isLoading) {
     return (
@@ -73,16 +73,16 @@ export default function RequestedPropertiesList() {
                     </h3>
                     <div className="space-y-1 text-sm text-neutral-600 dark:text-neutral-400">
                       <p className="flex items-center gap-2">
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        {req.name}
+                        {new Date(req.createdAt).toLocaleDateString('es-MX')}
                       </p>
                       <p className="flex items-center gap-2">
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                          <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.754 2 11.416 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zm-8-3a1 1 0 100 2h.01a1 1 0 100-2H10zm-3 1a1 1 0 011-1h.01a1 1 0 110 2H8a1 1 0 01-1-1zm6 0a1 1 0 011-1h.01a1 1 0 110 2H14a1 1 0 01-1-1z" clipRule="evenodd" />
                         </svg>
-                        {req.phone}
+                        {req.message ? 'Información enviada' : 'Solicitud enviada'}
                       </p>
                     </div>
                   </div>

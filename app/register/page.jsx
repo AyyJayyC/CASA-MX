@@ -319,7 +319,7 @@ export default function RegisterPage() {
           ¿Ya tienes cuenta?{' '}
           <a 
             href="/login" 
-            className="font-semibold text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 transition-colors"
+            className="font-semibold text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 transition-colors"
           >
             Inicia sesión aquí
           </a>

@@ -24,7 +24,8 @@ test.describe('Rental Flow E2E Tests', () => {
 
   test('Scenario 1: Tenant browses rental properties with filters', async ({ page }) => {
     // Navigate to properties page
-    await page.goto('/properties');
+    await page.goto('/properties', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('networkidle').catch(() => {});
     
     // Wait for properties to load
     await expect(page.locator('text=Propiedades')).toBeVisible({ timeout: 5000 }).catch(() => {});

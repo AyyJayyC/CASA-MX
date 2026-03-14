@@ -178,13 +178,13 @@ Added structured JSON logging for 500 errors with request tracking, ready for in
    docker-compose up -d
    ```
 
-2. **Run Backend Tests** (expect 186/186 passing):
+2. **Run Backend Tests** (expect 214/214 passing):
    ```bash
    cd casa-mx-backend
    npm test
    ```
 
-3. **Run Frontend Tests** (expect 17/17 passing):
+3. **Run Frontend Tests** (expect 53/53 passing):
    ```bash
    cd casa-mx
    npm test -- --run

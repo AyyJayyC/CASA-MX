@@ -20,6 +20,19 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+### Daily command reference
+
+```bash
+# Unit/integration tests
+npm test -- --run
+
+# E2E (auto-starts dev server)
+npm run test:e2e:auto
+
+# Production build
+npm run build
+```
+
 ## Tests
 
 Unit tests (Vitest):
@@ -332,10 +345,11 @@ docker-compose exec backend npx prisma db execute --stdin <<< "SELECT 1"
 
 ---
 
-## Important: Mock Data
+## Data and environment notes
 
-**Mock data is in-memory and resets on refresh.** All properties, requests, and uploads stored during a session will be lost on page reload. This will be replaced by backend persistence in Phase 2+.
-
-## Next steps
-
-Implement features per Phase 2 plan in the product roadmap.
+- Frontend uses backend APIs for system-of-record data; localStorage is used for client session/cache behavior.
+- Use `NEXT_PUBLIC_API_URL` in `.env.local` to point the frontend at your backend.
+- For consolidated project status, validation, and release notes, see:
+   - `docs/STATUS_AND_RELEASE_NOTES.md`
+   - `docs/VALIDATION_AND_READINESS.md`
+   - `COMPLETE_PROJECT_DOCUMENTATION.md`

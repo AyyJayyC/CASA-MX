@@ -3,22 +3,28 @@
  * Purpose: Collect name and phone to request more info about a property.
  */
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { requestSchema } from '../lib/validation/requestSchema';
-import { addRequest } from '../lib/mock/requests';
+import { addRequest } from '../lib/api/requests';
 
 /**
  * @param {{propertyId:string,onSuccess?:function}} props
  */
 export default function RequestInfoForm({ propertyId, onSuccess = () => {} }) {
+  const [submitError, setSubmitError] = useState(null);
   const { register, handleSubmit, formState: { errors }, reset } = useForm({ resolver: zodResolver(requestSchema) });
 
   async function onSubmit(values) {
-    const entry = await addRequest({ propertyId, ...values });
-    onSuccess(entry);
-    reset();
+    try {
+      setSubmitError(null);
+      const entry = await addRequest({ propertyId, ...values });
+      onSuccess(entry);
+      reset();
+    } catch (error) {
+      setSubmitError(error.message || 'No se pudo enviar la solicitud');
+    }
   }
 
   return (
@@ -38,6 +44,8 @@ export default function RequestInfoForm({ propertyId, onSuccess = () => {} }) {
       <div className="flex gap-3">
         <button type="submit" className="px-3 py-1 bg-blue-600 text-white rounded">Enviar</button>
       </div>
+
+      {submitError && <p className="text-sm text-red-600">{submitError}</p>}
     </form>
   );
 }

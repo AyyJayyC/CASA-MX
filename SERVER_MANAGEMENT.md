@@ -2,7 +2,18 @@
 
 > **Documentation note:** Operational runbook lives here, but canonical project status/history is maintained in `COMPLETE_PROJECT_DOCUMENTATION.md`.
 
-**Last Updated**: March 9, 2026
+**Last Updated**: March 10, 2026
+
+## Runtime Prerequisite
+
+✅ **Required Node.js version**: 18.x, 19.x, or 20.x  
+❌ **Unsupported for this stack**: Node 24.x
+
+Check your version before starting servers:
+
+```powershell
+node -v
+```
 
 ## Current Status
 
@@ -44,6 +55,11 @@ npm run dev
 cd c:\Users\axelj\casa-mx
 npm run dev
 ```
+
+### `start-servers.ps1` Behavior
+
+- Attempts automatic `nvm` switch to Node `20.19.0` when `nvm-windows` is installed.
+- Then validates runtime compatibility before launching backend/frontend processes.
 
 ---
 
@@ -120,6 +136,8 @@ Start-Sleep -Seconds 3
 - Stabilized backend container startup (Prisma runtime compatibility via Debian slim image)
 - Fixed backend ESM runtime import issue for maps routes by using `.js` extensions in TS imports
 - Verified backend health endpoint responds on `http://localhost:3001/health`
+- Added runtime guards to fail fast when Node version is unsupported
+- Migrated request flow from frontend mock storage to backend `/requests` API routes
 
 ---
 

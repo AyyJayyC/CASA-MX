@@ -2,10 +2,13 @@
   "name": "casa-mx-frontend",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=18 <=20"
+  },
   "scripts": {
-    "dev": "next dev -p 3000",
-    "build": "next build",
-    "start": "next start",
+    "dev": "node scripts/check-node-version.js && next dev -p 3000",
+    "build": "node scripts/check-node-version.js && next build",
+    "start": "node scripts/check-node-version.js && next start",
     "test": "node scripts/run-with-timeout.js vitest run --no-coverage",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",

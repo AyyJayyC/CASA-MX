@@ -1,11 +1,11 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import RequestInfoModal from '../../components/RequestInfoModal.jsx';
-import * as mockRequests from '../../lib/mock/requests';
+import * as requestsApi from '../../lib/api/requests';
 
 describe('Request flow integration', () => {
   it('opens modal and submits request', async () => {
-    const spy = vi.spyOn(mockRequests, 'addRequest').mockResolvedValue({ id: 'req-2' });
+    const spy = vi.spyOn(requestsApi, 'addRequest').mockResolvedValue({ id: 'req-2' });
     render(<RequestInfoModal propertyId="prop-1" />);
 
     fireEvent.click(screen.getByRole('button', { name: /Solicitar más información/i }));

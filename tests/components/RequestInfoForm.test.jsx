@@ -1,11 +1,11 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import RequestInfoForm from '../../components/RequestInfoForm.jsx';
-import * as mockRequests from '../../lib/mock/requests';
+import * as requestsApi from '../../lib/api/requests';
 
 describe('RequestInfoForm', () => {
   it('validates inputs and calls addRequest', async () => {
-    const spy = vi.spyOn(mockRequests, 'addRequest').mockResolvedValue({ id: 'req-1' });
+    const spy = vi.spyOn(requestsApi, 'addRequest').mockResolvedValue({ id: 'req-1' });
     const onSuccess = vi.fn();
 
     render(<RequestInfoForm propertyId="prop-1" onSuccess={onSuccess} />);

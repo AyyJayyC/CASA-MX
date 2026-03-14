@@ -1,14 +1,14 @@
 # Casa MX - Complete Project Documentation
 ## From Phase 1 Step 1 to Phase 2 Completion
 
-> **Documentation source of truth:** This file is the canonical project record. Keep implementation/status updates centralized here first, then mirror concise summaries into `PROJECT_COMPLETE.md` and `SERVER_MANAGEMENT.md`.
+> **Documentation source of truth:** This file is the canonical project record. Keep implementation/status updates centralized here first, then mirror concise summaries into `docs/STATUS_AND_RELEASE_NOTES.md` and `SERVER_MANAGEMENT.md`.
 
 **Project Status**: ✅ **COMPLETE** - All 7 Checkpoints Finished
-- **Backend Tests**: 133/133 passing
-- **Frontend Tests**: 29/29 passing
-- **Total Tests**: 162/162 passing
+- **Backend Tests**: 214/214 passing
+- **Frontend Tests**: 53/53 passing
+- **Total Tests**: 267/267 passing
 - **Date Completed**: January 14, 2026
-- **Last Updated**: March 9, 2026
+- **Last Updated**: March 10, 2026
 
 ### Recent Updates (Feb–Mar 2026)
 
@@ -34,6 +34,51 @@
     - `casa-mx-backend/Dockerfile`
     - `casa-mx-backend/src/routes/admin/maps.ts`
     - `casa-mx-backend/src/routes/maps.ts`
+
+- ✅ **Runtime compatibility guards added (Node 18–20)**
+  - Added startup checks that fail fast for unsupported Node versions to prevent silent frontend/backend crashes.
+  - Added engine constraints and `.nvmrc` files in both repositories.
+  - Updated files:
+    - `package.json`
+    - `scripts/check-node-version.js`
+    - `start-servers.ps1`
+    - `.nvmrc`
+
+- ✅ **Request flow migrated from mocks to backend API**
+  - Added backend `/requests` endpoints (authenticated create + buyer list).
+  - Replaced frontend request mock/localStorage usage with real API integration.
+  - Added request form submission error handling for auth and API failures.
+  - Updated files:
+    - `casa-mx-backend/src/routes/requests.ts`
+    - `casa-mx-backend/src/app.ts`
+    - `lib/api/requests.js`
+    - `lib/queries/requests.js`
+    - `components/RequestInfoForm.jsx`
+    - `components/RequestedPropertiesList.jsx`
+
+- ✅ **Auth registration resilience fix applied**
+  - User registration now auto-creates missing default roles (`buyer`, `seller`) when database seeds are incomplete.
+  - Prevents fresh-environment registration failures due to missing role rows.
+  - Updated file:
+    - `casa-mx-backend/src/services/auth.service.ts`
+
+- ✅ **Phase 4 test-layer migration completed**
+  - Replaced remaining test imports from `lib/mock/*` with API/query-based mocks and local fixtures.
+  - Added backend `/requests` endpoint tests and verified full pass.
+  - Validation status:
+    - Frontend targeted suite: 6 files passed, 7 tests passed.
+    - Backend requests suite: 1 file passed, 6 tests passed.
+
+- ✅ **Final no-skip validation and production build verification (March 10, 2026)**
+  - Frontend Vitest: **53/53 passed, 0 skipped**.
+  - Playwright E2E: **32/32 passed, 0 skipped**.
+  - Backend Vitest: **214/214 passed, 0 skipped**.
+  - Frontend production build (`next build`): passed.
+  - Backend production build (`tsc`): passed.
+  - Test-suite hardening updates:
+    - `tests/lib/auth.test.js` converted from environment/rate-limit-dependent integration behavior to deterministic API-client tests.
+    - `tests/e2e/integrity.spec.ts` no longer conditionally skips the rental-validation adversarial case.
+    - `casa-mx-backend/src/app.ts` local-environment global rate-limit ceiling increased to avoid local acceptance-suite exhaustion.
 
 ---
 
@@ -67,7 +112,7 @@ The application manages property listings, user roles, admin approvals, and anal
 - Analytics event tracking and reporting
 - CORS protection, rate limiting, input validation
 - Environment-specific configuration (test vs production)
-- Comprehensive test coverage (162 tests)
+- Comprehensive automated test coverage (299 total checks including E2E)
 
 ---
 
@@ -1919,10 +1964,169 @@ cd casa-mx && .\run-all-tests.ps1
 
 ---
 
+## 🏗️ CASA MX - Complete Master Rebuild Prompt
+
+**Date**: March 10, 2026  
+**Project**: Casa MX Rental Property Management Platform  
+**Status**: Complete Rebuild from Scratch  
+**Memory Sections**: 9
+
+### Mission Statement
+
+Rebuild Casa MX from scratch with the same stack, prioritizing:
+
+1. Complete API integration (no mock fallbacks)
+2. Proper error handling and recovery
+3. Database health checks and resilience
+4. All identified bugs fixed
+5. Production-ready code and full test coverage
+
+### Section 1: Technology Stack (Locked)
+
+**Backend**
+- Node.js 18+ LTS
+- TypeScript 5.5.4
+- Fastify 4.28.1
+- Prisma 5.19.0
+- PostgreSQL 16 (Docker)
+- Zod, JWT (`@fastify/jwt`), bcrypt, rate limiting, CORS
+- Pino + pino-pretty
+- Vitest
+
+**Frontend**
+- Next.js 13.5.11 (App Router)
+- React 18.2.0 + JavaScript/JSX
+- Tailwind CSS (dark mode)
+- Fetch/Axios
+- React Hook Form + Zod
+- React Context + custom hooks
+- Playwright
+
+**Infrastructure**
+- Docker + Docker Compose
+- postgres:16-alpine for local DB
+- npm 9+
+
+### Section 2: Database Schema (Complete)
+
+Required models and relationships:
+- `User`
+- `Role`
+- `UserRole` (unique constraint on `userId + roleId`, approval workflow)
+- `Property` (sale + rental fields)
+- `RentalApplication` (26 fields)
+- `Request`
+- `AnalyticsEvent`
+- `AuditLog` (immutable)
+
+### Section 3: API Endpoints (40+)
+
+Required endpoint groups:
+- Authentication: register/login/me/refresh/logout
+- Properties: list/create/get by id
+- Applications: submit/list/list by property/update status
+- Admin: pending roles/approve/deny/users/audit logs
+- Analytics: event ingestion + admin reports
+- Health: `GET /health` with DB connectivity status
+
+### Section 4: Frontend Structure
+
+Critical pages:
+- `/`, `/login`, `/register`, `/properties`, `/properties/:id`
+- `/dashboard/applications`
+- `/admin/approvals`
+
+Key components:
+- `NavBar`, `PropertyCard`, `PropertyList`
+- `RentalApplicationForm`, `ApplicationsTable`, `ApproveRejectModal`
+- App-level error boundary and recovery paths
+
+### Execution Note
+
+This section is the active rebuild spec and should be used as implementation criteria for future milestone work.
+
+---
+
 **Project Status**: ✅ COMPLETE & PRODUCTION READY
 **Date Completed**: January 14, 2026
-**Last Updated**: January 26, 2026
-**Test Results**: 162/162 passing (133 backend + 29 frontend)
+**Last Updated**: March 10, 2026
+**Test Results**: 299/299 passing (214 backend + 53 frontend + 32 E2E)
 **Time Investment**: Phase 1, Phase 2, Phase 4 Backend - Full Development Cycle
 
 *This document is the complete source of truth for the Casa MX project. Share this with any team member who needs to understand the full project scope and implementation.*
+
+---
+
+## End-of-Day Handoff (March 9, 2026)
+
+### Completed Today
+- Closed remaining backend checkpoint regressions tied to role seeding and rental integrity behaviors.
+- Added shared backend test setup to guarantee required baseline roles and seeded users in test runs.
+- Confirmed request-flow migration and related frontend integration tests remain green.
+
+### Verified Test Runs
+- Full backend suite: 214/214 passing.
+- Full frontend suite: 53/53 passing.
+
+### Resume Plan for Tomorrow
+1. Continue from master prompt post-validation tasks.
+2. Execute any remaining E2E/manual acceptance checks required for final closeout.
+3. Finalize documentation sync across all checkpoint and completion files.
+
+---
+
+## Continuation Session (March 10, 2026)
+
+### Objective Executed
+Continue master prompt from saved handoff and run remaining acceptance validation.
+
+### Validation Outcomes
+- Playwright E2E (`npm run test:e2e`): 32 passed, 0 skipped, 0 failed.
+- Frontend tests (`npm test -- --run`): 53 passed, 0 skipped, 0 failed.
+
+### Key Adjustments Made
+- Removed stale mock dependency in frontend property detail query path.
+- Hardened E2E tests for auth redirect timing and Spanish-language auth button labels.
+- Fixed auth-link contrast class on login/register for accessibility checks.
+- Added safer null-return behavior for invalid property detail lookups.
+
+### Ready Next
+Proceed to the next master-prompt implementation block from this validated baseline.
+
+---
+
+## Continuation Session (March 10, 2026 - Block 3)
+
+### Phase 4 Gap Closed
+Implemented missing Users endpoints from the Phase 4 endpoint matrix:
+
+- `GET /users/me`
+- `PATCH /users/me`
+- `GET /users/:id`
+
+Security behavior:
+- JWT required on all users routes.
+- `GET /users/:id` allows self-access and admin-access; rejects other cross-user access.
+- Validation for patch payload and user-id params via Zod.
+
+### Validation
+- New test file added for users routes and executed successfully.
+- Focused regression run (`checkpoint2`, `checkpoint3`, `users`) result: 35/35 passing.
+
+---
+
+## Continuation Session (March 10, 2026 - Block 4)
+
+### Frontend API Migration Completed
+`lib/api/users.js` now uses backend APIs instead of localStorage mocks.
+
+Integrated backend endpoints:
+- `GET /admin/pending-roles`
+- `POST /admin/roles/:userRoleId/approve`
+- `POST /admin/roles/:userRoleId/deny`
+- `GET /users/me`
+- `GET /users/:id`
+- `PATCH /users/me`
+
+### Validation
+- Full frontend test suite executed after migration: 53/53 passing.
