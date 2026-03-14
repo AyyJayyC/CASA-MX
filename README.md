@@ -352,4 +352,5 @@ docker-compose exec backend npx prisma db execute --stdin <<< "SELECT 1"
 - For consolidated project status, validation, and release notes, see:
    - `docs/STATUS_AND_RELEASE_NOTES.md`
    - `docs/VALIDATION_AND_READINESS.md`
+   - `docs/POST_RELEASE_ACTIONS.md`
    - `COMPLETE_PROJECT_DOCUMENTATION.md`
