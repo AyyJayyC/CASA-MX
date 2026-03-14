@@ -6,8 +6,8 @@
 
 # CASA MX — Frontend (Phase 1)
 
-![Unit Tests](https://github.com/YOUR_USERNAME/casa-mx/workflows/Unit%20Tests/badge.svg)
-![Playwright E2E](https://github.com/YOUR_USERNAME/casa-mx/workflows/Playwright%20E2E/badge.svg)
+![CI](https://github.com/AyyJayyC/CASA-MX/actions/workflows/main_ci.yml/badge.svg)
+![E2E Tests](https://github.com/AyyJayyC/CASA-MX/actions/workflows/e2e.yml/badge.svg)
 
 This repository contains the Phase 1 frontend scaffold for CASA MX.
 
