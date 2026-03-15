@@ -95,12 +95,26 @@ export default function PropertyUploadForm() {
         if (ciudad) setValue('ciudad', ciudad);
         if (colonia) setValue('colonia', colonia);
         if (cp) setValue('codigoPostal', cp);
-        if (lat) setValue('lat', lat);
-        if (lng) setValue('lng', lng);
+        if (lat) setValue('latitude', lat);
+        if (lng) setValue('longitude', lng);
         setAddressSearch(fullAddress);
       } else if (result.display_name) {
         // Nominatim fallback
         setValue('address', result.display_name);
+        const nomAddress = result.address || {};
+        const estado = nomAddress.state || nomAddress.province || '';
+        const ciudad = nomAddress.city || nomAddress.town || nomAddress.village || nomAddress.county || '';
+        const colonia = nomAddress.neighbourhood || nomAddress.suburb || '';
+        const cp = nomAddress.postcode || '';
+        const lat = result.lat ? Number(result.lat) : null;
+        const lon = result.lon ? Number(result.lon) : null;
+
+        if (estado) setValue('estado', estado);
+        if (ciudad) setValue('ciudad', ciudad);
+        if (colonia) setValue('colonia', colonia);
+        if (cp) setValue('codigoPostal', cp);
+        if (lat) setValue('latitude', lat);
+        if (lon) setValue('longitude', lon);
         setAddressSearch(result.display_name);
       }
     } catch (e) {
@@ -372,6 +386,7 @@ export default function PropertyUploadForm() {
                     type="button"
                     onClick={async () => {
                       setShowAddressSuggestions(false);
+                      setAddressSuggestions([]);
                       await fillFromGeocode(s.description);
                     }}
                     className="w-full text-left px-4 py-3 text-sm hover:bg-amber-50 dark:hover:bg-amber-900/20 border-b border-neutral-100 dark:border-neutral-700 last:border-0 transition-colors"
