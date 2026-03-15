@@ -5,7 +5,7 @@
  * Uses React Hook Form + Zod for validation. Submissions go to backend via `addProperty`.
  */
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { propertySchema, propertyFormDefaults } from '../lib/validation/propertySchema';
@@ -21,6 +21,26 @@ import Link from 'next/link';
 export default function PropertyUploadForm() {
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [addressSearch, setAddressSearch] = useState('');
+  const [addressSuggestions, setAddressSuggestions] = useState([]);
+  const [addressSearchLoading, setAddressSearchLoading] = useState(false);
+  const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
+  const addressSearchRef = useRef(null);
+  const addressDebounce = useRef(null);
+
+  const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+  // Close suggestions on outside click
+  useEffect(() => {
+    function handleClick(e) {
+      if (addressSearchRef.current && !addressSearchRef.current.contains(e.target)) {
+        setShowAddressSuggestions(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
   const invalidateProperties = useInvalidateProperties();
 
   // Initialize React Hook Form with Zod resolver
@@ -35,6 +55,58 @@ export default function PropertyUploadForm() {
     defaultValues: propertyFormDefaults,
     resolver: zodResolver(propertySchema)
   });
+
+  const getComponent = (components, type) =>
+    components?.find(c => c.types?.includes(type))?.long_name || '';
+
+  const fillFromGeocode = useCallback(async (description) => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/maps/geocode`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: description }),
+      });
+      const { result } = await res.json();
+      if (!result) return;
+
+      if (result.address_components) {
+        // Google Maps result
+        const comps = result.address_components;
+        const streetNum = getComponent(comps, 'street_number');
+        const route = getComponent(comps, 'route');
+        const colonia =
+          getComponent(comps, 'sublocality_level_1') ||
+          getComponent(comps, 'neighborhood') ||
+          getComponent(comps, 'sublocality');
+        const ciudad =
+          getComponent(comps, 'locality') ||
+          getComponent(comps, 'administrative_area_level_2');
+        const estado = getComponent(comps, 'administrative_area_level_1');
+        const cp = getComponent(comps, 'postal_code');
+        const lat = result.geometry?.location?.lat;
+        const lng = result.geometry?.location?.lng;
+
+        const street = route && streetNum ? `${route} ${streetNum}` : route || streetNum;
+        const locationParts = [colonia, ciudad, estado, cp ? `C.P. ${cp}` : ''].filter(Boolean).join(', ');
+        const fullAddress = street ? `${street}, ${locationParts}` : (result.formatted_address || locationParts);
+
+        setValue('address', fullAddress);
+        if (estado) setValue('estado', estado);
+        if (ciudad) setValue('ciudad', ciudad);
+        if (colonia) setValue('colonia', colonia);
+        if (cp) setValue('codigoPostal', cp);
+        if (lat) setValue('lat', lat);
+        if (lng) setValue('lng', lng);
+        setAddressSearch(fullAddress);
+      } else if (result.display_name) {
+        // Nominatim fallback
+        setValue('address', result.display_name);
+        setAddressSearch(result.display_name);
+      }
+    } catch (e) {
+      console.error('Geocode fill error:', e);
+    }
+  }, [BACKEND_URL, setValue]);
 
   async function onSubmit(values) {
     try {
@@ -246,7 +318,77 @@ export default function PropertyUploadForm() {
             Ubicación
           </h2>
 
-          {/* Address Autocomplete */}
+          {/* Google Places Search */}
+          <div className="relative" ref={addressSearchRef}>
+            <label className={labelClass}>
+              Buscar dirección <span className="text-red-500">*</span>
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                value={addressSearch}
+                onChange={e => {
+                  const v = e.target.value;
+                  setAddressSearch(v);
+                  setValue('address', v);
+                  setShowAddressSuggestions(true);
+                  clearTimeout(addressDebounce.current);
+                  if (v.length >= 4) {
+                    setAddressSearchLoading(true);
+                    addressDebounce.current = setTimeout(async () => {
+                      try {
+                        const r = await fetch(`${BACKEND_URL}/maps/autocomplete?input=${encodeURIComponent(v)}`);
+                        const { predictions } = await r.json();
+                        setAddressSuggestions(predictions || []);
+                      } catch {
+                        setAddressSuggestions([]);
+                      } finally {
+                        setAddressSearchLoading(false);
+                      }
+                    }, 400);
+                  } else {
+                    setAddressSuggestions([]);
+                    setAddressSearchLoading(false);
+                  }
+                }}
+                onFocus={() => addressSuggestions.length > 0 && setShowAddressSuggestions(true)}
+                placeholder="Ej: San Miguel de Horcasitas 36, Hermosillo"
+                className={inputClass}
+              />
+              {addressSearchLoading && (
+                <div className="absolute right-3 top-3">
+                  <svg className="animate-spin h-4 w-4 text-amber-500" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                </div>
+              )}
+            </div>
+            {showAddressSuggestions && addressSuggestions.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-lg z-20 max-h-60 overflow-y-auto">
+                {addressSuggestions.map((s, i) => (
+                  <button
+                    key={s.place_id || i}
+                    type="button"
+                    onClick={async () => {
+                      setShowAddressSuggestions(false);
+                      await fillFromGeocode(s.description);
+                    }}
+                    className="w-full text-left px-4 py-3 text-sm hover:bg-amber-50 dark:hover:bg-amber-900/20 border-b border-neutral-100 dark:border-neutral-700 last:border-0 transition-colors"
+                  >
+                    <div className="flex items-start gap-2">
+                      <svg className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-neutral-700 dark:text-neutral-300">{s.description}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Manual override — pre-filled from search, editable */}
           <AddressAutocomplete
             value={{
               estado: watch('estado'),
@@ -259,6 +401,28 @@ export default function PropertyUploadForm() {
               if (addressData.ciudad !== undefined) setValue('ciudad', addressData.ciudad);
               if (addressData.colonia !== undefined) setValue('colonia', addressData.colonia);
               if (addressData.codigoPostal !== undefined) setValue('codigoPostal', addressData.codigoPostal);
+
+              // Auto-compose the full address field when location parts are all present
+              const estado = addressData.estado ?? watch('estado');
+              const ciudad = addressData.ciudad ?? watch('ciudad');
+              const colonia = addressData.colonia ?? watch('colonia');
+              const cp = addressData.codigoPostal ?? watch('codigoPostal');
+              if (estado && ciudad && colonia) {
+                // Preserve whatever the user typed as the street prefix
+                const currentAddress = watch('address') || '';
+                // Strip any previously auto-composed location suffix so we don't duplicate it
+                const prevColonia = watch('colonia');
+                const prevCiudad = watch('ciudad');
+                const prevEstado = watch('estado');
+                const autoSuffixPattern = new RegExp(
+                  ',?\\s*' + [prevColonia, prevCiudad, prevEstado].filter(Boolean).map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('.*'),
+                  'i'
+                );
+                const streetPart = currentAddress ? currentAddress.replace(autoSuffixPattern, '').trim().replace(/,\s*$/, '') : '';
+                const locationParts = [colonia, ciudad, estado, cp ? `C.P. ${cp}` : ''].filter(Boolean).join(', ');
+                const composed = streetPart ? `${streetPart}, ${locationParts}` : locationParts;
+                setValue('address', composed);
+              }
             }}
             onValidationChange={() => {}}
             showHistory={true}
@@ -267,14 +431,14 @@ export default function PropertyUploadForm() {
           {/* Address */}
           <div>
             <label htmlFor="address" className={labelClass}>
-              Dirección completa *
+              Dirección completa <span className="text-neutral-400 text-xs font-normal">(auto-completada, editable)</span>
             </label>
             <input 
               id="address" 
               type="text"
               {...register('address')} 
               className={inputClass}
-              placeholder="Calle, número, delegación/municipio, estado"
+              placeholder="Se llena al buscar en Google Maps arriba"
             />
             {errors.address && (
               <p className={errorClass}>

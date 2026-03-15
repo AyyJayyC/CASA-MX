@@ -178,9 +178,9 @@ export default function NavBar() {
                   Buscar Propiedades
                 </Link>
 
-                {isAuthenticated && user?.roles.some((r) => ['seller', 'wholesaler'].includes(r.type) && r.status === 'approved') && (
+                {isAuthenticated && user?.roles.some((r) => ['seller', 'wholesaler', 'admin'].includes(r.type) && r.status === 'approved') && (
                   <Link
-                    href="/upload"
+                    href="/publish-property"
                     onClick={() => setPropertiesDropdownOpen(false)}
                     className="
                       flex items-center gap-3 px-4 py-3
@@ -393,9 +393,9 @@ export default function NavBar() {
               Propiedades
             </Link>
 
-            {isAuthenticated && user?.roles.some((r) => ['seller', 'wholesaler'].includes(r.type) && r.status === 'approved') && (
+            {isAuthenticated && user?.roles.some((r) => ['seller', 'wholesaler', 'admin'].includes(r.type) && r.status === 'approved') && (
               <Link
-                href="/upload"
+                href="/publish-property"
                 onClick={() => setMobileMenuOpen(false)}
                 className={`
                   block px-4 py-2 rounded-lg text-sm font-medium transition-colors
