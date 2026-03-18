@@ -102,6 +102,15 @@ LocalPort  State
    npm run dev
    ```
 
+### Intermittent E2E redirect on protected upload routes
+
+If Playwright intermittently lands on home/login instead of upload pages (for example `/upload/sale`), verify:
+
+1. Frontend and backend are both reachable before tests start.
+2. Auth session hydration has completed before asserting protected-route content.
+
+This was stabilized in Mar 2026 by gating protected-route redirects until auth hydration is ready.
+
 ### Kill All Node Processes (Nuclear Option)
 
 If servers are stuck:

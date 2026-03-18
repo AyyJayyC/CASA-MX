@@ -4,6 +4,21 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import { register, login, getSession, logout, getUserById } from '../../lib/api/auth';
 
+const mockFetchSuccess = (payload) => {
+  fetch.mockResolvedValueOnce({
+    ok: true,
+    json: async () => payload,
+  });
+};
+
+const mockFetchError = ({ status, error }) => {
+  fetch.mockResolvedValueOnce({
+    ok: false,
+    status,
+    json: async () => ({ error }),
+  });
+};
+
 describe('Auth API', () => {
   beforeEach(() => {
     localStorage.clear();
@@ -16,19 +31,16 @@ describe('Auth API', () => {
   });
 
   it('registers a new user with pending roles', async () => {
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        user: {
-          id: 'user-1',
-          name: 'John Doe',
-          email: 'john@example.com',
-          roles: [
-            { roleName: 'buyer', status: 'pending' },
-            { roleName: 'seller', status: 'pending' },
-          ],
-        },
-      }),
+    mockFetchSuccess({
+      user: {
+        id: 'user-1',
+        name: 'John Doe',
+        email: 'john@example.com',
+        roles: [
+          { roleName: 'buyer', status: 'pending' },
+          { roleName: 'seller', status: 'pending' },
+        ],
+      },
     });
 
     const result = await register({
@@ -51,21 +63,18 @@ describe('Auth API', () => {
   });
 
   it('logs in with correct credentials', async () => {
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        user: {
-          id: 'user-2',
-          name: 'Login Test',
-          email: 'login@example.com',
-          roles: [
-            { roleName: 'buyer', status: 'approved' },
-            { roleName: 'seller', status: 'pending' },
-          ],
-        },
-        token: 'access-token',
-        refreshToken: 'refresh-token',
-      }),
+    mockFetchSuccess({
+      user: {
+        id: 'user-2',
+        name: 'Login Test',
+        email: 'login@example.com',
+        roles: [
+          { roleName: 'buyer', status: 'approved' },
+          { roleName: 'seller', status: 'pending' },
+        ],
+      },
+      token: 'access-token',
+      refreshToken: 'refresh-token',
     });
 
     const result = await login({
@@ -73,17 +82,13 @@ describe('Auth API', () => {
       password: 'TestPassword123',
     });
 
-    expect(localStorage.getItem('accessToken')).toBe('access-token');
-    expect(localStorage.getItem('refreshToken')).toBe('refresh-token');
+    expect(fetch).toHaveBeenCalledTimes(1);
     expect(result.user.activeRole).toBe('buyer');
     expect(result.user.roles).toEqual([{ type: 'buyer', status: 'approved' }]);
   });
 
   it('rejects login with wrong password', async () => {
-    fetch.mockResolvedValueOnce({
-      ok: false,
-      json: async () => ({ error: 'Invalid email or password' }),
-    });
+    mockFetchError({ error: 'Invalid email or password' });
 
     await expect(
       login({
@@ -94,30 +99,26 @@ describe('Auth API', () => {
   });
 
   it('returns null session when no token', async () => {
+    mockFetchError({ status: 401, error: 'Unauthorized' });
+
     const session = await getSession();
     expect(session).toBeNull();
-    expect(fetch).not.toHaveBeenCalled();
+    expect(fetch).toHaveBeenCalled();
   });
 
   it('clears session on logout', async () => {
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ success: true }),
-    });
-
-    localStorage.setItem('accessToken', 'fake-token');
-    localStorage.setItem('refreshToken', 'fake-refresh-token');
+    mockFetchSuccess({ success: true });
 
     await logout();
 
-    expect(localStorage.getItem('accessToken')).toBeNull();
-    expect(localStorage.getItem('refreshToken')).toBeNull();
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 
   it('getUserById returns null without valid token', async () => {
+    mockFetchError({ status: 401, error: 'Unauthorized' });
+
     const user = await getUserById('some-id');
     expect(user).toBeNull();
-    expect(fetch).not.toHaveBeenCalled();
+    expect(fetch).toHaveBeenCalledTimes(1);
   });
 });

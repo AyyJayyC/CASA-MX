@@ -66,6 +66,7 @@ npx playwright install --with-deps
 
 - The `test:e2e:auto` script uses `start-server-and-test` to start the Next dev server and wait for http://localhost:3000 before running tests.
 - For CI, use `npm run test:e2e:auto` or add a similar step in your pipeline that starts the app and runs Playwright tests in a dedicated job.
+- Stability note (Mar 2026): an intermittent E2E redirect issue in protected upload routes was fixed by waiting for auth hydration before redirecting unauthenticated users. If similar flakes appear, verify both services are up and session hydration completes before asserting route content.
 
 CI: A GitHub Actions workflow is included at `.github/workflows/e2e.yml` which runs the Playwright E2E tests on push and pull requests and uploads the Playwright report as an artifact.
 

@@ -7,24 +7,6 @@ vi.mock('../../lib/queries/properties', () => ({
   useInvalidateProperties: () => vi.fn(),
 }));
 
-vi.mock('../../components/AddressAutocomplete', () => ({
-  default: ({ onChange }) => (
-    <button
-      type="button"
-      onClick={() =>
-        onChange({
-          estado: 'Ciudad de México',
-          ciudad: 'Ciudad de México',
-          colonia: 'Int Colonia',
-          codigoPostal: '02000',
-        })
-      }
-    >
-      Validar dirección
-    </button>
-  ),
-}));
-
 describe('Upload integration', () => {
   it('submits a full property through API adapter', async () => {
     const spy = vi.spyOn(propertiesApi, 'addProperty').mockResolvedValue({ id: 'prop-new', title: 'Integration Prop' });
@@ -35,10 +17,13 @@ describe('Upload integration', () => {
     fireEvent.change(screen.getByLabelText(/Descripción/), { target: { value: 'Integración descripción...' } });
     fireEvent.change(screen.getByLabelText(/Precio/), { target: { value: '2000000' } });
     fireEvent.change(screen.getByLabelText(/Dirección/), { target: { value: 'Calle Int 2' } });
+    fireEvent.change(screen.getByLabelText(/^Estado$/i), { target: { value: 'Ciudad de México' } });
+    fireEvent.change(screen.getByLabelText(/^Ciudad$/i), { target: { value: 'Ciudad de México' } });
+    fireEvent.change(screen.getByLabelText(/^Colonia$/i), { target: { value: 'Int Colonia' } });
+    fireEvent.change(screen.getByLabelText(/Código Postal/i), { target: { value: '02000' } });
     fireEvent.change(screen.getByLabelText(/Tipo/), { target: { value: 'Departamento' } });
     fireEvent.change(screen.getByLabelText(/Metros cuadrados/), { target: { value: '80' } });
 
-    fireEvent.click(screen.getByRole('button', { name: /Validar dirección/i }));
     fireEvent.click(screen.getByRole('button', { name: /Publicar propiedad/i }));
 
     await waitFor(() => expect(spy).toHaveBeenCalled());

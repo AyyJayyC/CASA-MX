@@ -3,26 +3,41 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import PropertyFilters from '@/components/PropertyFilters';
+import * as propertiesApi from '@/lib/api/properties';
 
-// Mock fetch
-global.fetch = vi.fn();
+vi.mock('@/lib/api/properties', () => ({
+  getLocationsCatalog: vi.fn(),
+}));
 
-const mockFilterOptions = {
-  estados: ['Ciudad de México', 'Jalisco', 'Nuevo León'],
-  ciudadesPorEstado: {
-    'Ciudad de México': ['Benito Juárez', 'Cuauhtémoc', 'Miguel Hidalgo'],
-    'Jalisco': ['Guadalajara', 'Zapopan', 'Tonalá'],
-    'Nuevo León': ['Monterrey', 'San Pedro Garza García', 'Santa Catarina'],
-  },
+const mockCatalog = {
+  estados: [
+    {
+      nombre: 'Ciudad de México',
+      ciudades: [
+        { nombre: 'Benito Juárez', colonias: ['Del Valle', 'Narvarte'] },
+        { nombre: 'Cuauhtémoc', colonias: ['Roma Norte', 'Condesa'] },
+      ],
+    },
+    {
+      nombre: 'Jalisco',
+      ciudades: [
+        { nombre: 'Guadalajara', colonias: ['Providencia', 'Centro'] },
+        { nombre: 'Zapopan', colonias: ['Puerta de Hierro', 'Arcos'] },
+      ],
+    },
+    {
+      nombre: 'Nuevo León',
+      ciudades: [
+        { nombre: 'Monterrey', colonias: ['Cumbres', 'Contry'] },
+      ],
+    },
+  ],
 };
 
 describe('PropertyFilters Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    global.fetch.mockResolvedValue({
-      ok: true,
-      json: async () => mockFilterOptions,
-    });
+    propertiesApi.getLocationsCatalog.mockResolvedValue(mockCatalog);
   });
 
   describe('Rendering', () => {
@@ -41,7 +56,7 @@ describe('PropertyFilters Component', () => {
     });
 
     it('should display loading state initially', () => {
-      global.fetch.mockImplementationOnce(() => new Promise(() => {})); // Never resolves
+      propertiesApi.getLocationsCatalog.mockImplementationOnce(() => new Promise(() => {})); // Never resolves
       const onFilterChange = vi.fn();
       render(<PropertyFilters onFilterChange={onFilterChange} />);
 
@@ -50,7 +65,7 @@ describe('PropertyFilters Component', () => {
 
     it('should display error message if fetch fails', async () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      global.fetch.mockRejectedValueOnce(new Error('Network error'));
+      propertiesApi.getLocationsCatalog.mockRejectedValueOnce(new Error('Network error'));
       const onFilterChange = vi.fn();
       render(<PropertyFilters onFilterChange={onFilterChange} />);
 
@@ -167,15 +182,21 @@ describe('PropertyFilters Component', () => {
   });
 
   describe('Colonia Input', () => {
-    it('should handle colonia text input', async () => {
+    it('should handle colonia selection', async () => {
       const onFilterChange = vi.fn();
       render(<PropertyFilters onFilterChange={onFilterChange} />);
 
-      const coloniaInput = await screen.findByPlaceholderText(/Roma Norte/);
-      fireEvent.change(coloniaInput, { target: { value: 'Polanco' } });
+      const estadoSelect = await screen.findByLabelText(/Estado \*/);
+      fireEvent.change(estadoSelect, { target: { value: 'Jalisco' } });
+
+      const ciudadSelect = await screen.findByLabelText(/Ciudad/);
+      fireEvent.change(ciudadSelect, { target: { value: 'Guadalajara' } });
+
+      const coloniaSelect = await screen.findByLabelText(/Colonia/);
+      fireEvent.change(coloniaSelect, { target: { value: 'Providencia' } });
 
       expect(onFilterChange).toHaveBeenCalledWith(
-        expect.objectContaining({ colonia: 'Polanco' })
+        expect.objectContaining({ colonia: 'Providencia' })
       );
     });
   });
@@ -321,14 +342,13 @@ describe('PropertyFilters Component', () => {
       render(<PropertyFilters onFilterChange={onFilterChange} />);
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith('/api/properties/filter-options');
+        expect(propertiesApi.getLocationsCatalog).toHaveBeenCalled();
       });
     });
 
     it('should handle network errors gracefully', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      global.fetch.mockReset();
-      global.fetch.mockRejectedValueOnce(new Error('Network error'));
+      propertiesApi.getLocationsCatalog.mockRejectedValueOnce(new Error('Network error'));
 
       const onFilterChange = vi.fn();
       render(<PropertyFilters onFilterChange={onFilterChange} />);

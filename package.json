@@ -12,6 +12,7 @@
     "test": "node scripts/run-with-timeout.js vitest run --no-coverage",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
+    "test:e2e:upload:headed": "playwright test tests/e2e/publish-upload-live.spec.ts --headed",
     "test:e2e:auto": "start-server-and-test 'npm run dev' http://localhost:3000 'npm run test:e2e'"
   },
   "dependencies": {

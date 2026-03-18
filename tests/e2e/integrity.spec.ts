@@ -77,12 +77,17 @@ test.describe('E2E Integrity - Adversarial Tests', () => {
   test.describe('B - Input Validation: Invalid Data Must Be Rejected', () => {
     test('ADVERSARIAL: Rental application with missing required field returns 400', async ({ request, page }) => {
       // First, login to get a token
-      const loginRes = await request.post(`${BACKEND_URL}/auth/login`, {
-        data: {
-          email: 'admin@casamx.local',
-          password: 'admin123',
-        },
-      });
+      let loginRes;
+      for (let attempt = 0; attempt < 8; attempt += 1) {
+        loginRes = await request.post(`${BACKEND_URL}/auth/login`, {
+          data: {
+            email: 'admin@casamx.local',
+            password: 'admin123',
+          },
+        });
+        if (loginRes.status() !== 429) break;
+        await page.waitForTimeout(1200 + attempt * 400);
+      }
 
       expect(loginRes.status()).toBe(200);
 
