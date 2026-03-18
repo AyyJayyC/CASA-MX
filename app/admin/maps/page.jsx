@@ -14,16 +14,15 @@ export default function AdminMapsPage(){
   useEffect(()=>{ fetchAll() }, [])
 
   function authHeader(){
-    const token = typeof window !== 'undefined' && localStorage.getItem('token')
-    return token ? { 'Authorization': `Bearer ${token}` } : {}
+    return { 'Content-Type': 'application/json' }
   }
 
   async function fetchAll(){
     setLoading(true)
     try{
       const [r1, r2] = await Promise.all([
-        fetch(`${API_BASE}/admin/maps/limits`, { headers: {...authHeader()} }),
-        fetch(`${API_BASE}/admin/maps/usage`, { headers: {...authHeader()} }),
+        fetch(`${API_BASE}/admin/maps/limits`, { headers: {...authHeader()}, credentials: 'include' }),
+        fetch(`${API_BASE}/admin/maps/usage`, { headers: {...authHeader()}, credentials: 'include' }),
       ])
       if(!r1.ok || !r2.ok) throw new Error('Failed to fetch')
       setLimits(await r1.json())
@@ -37,7 +36,7 @@ export default function AdminMapsPage(){
   async function toggle(serviceType, enable){
     try{
       const url = `${API_BASE}/admin/maps/service/${serviceType}/${enable? 'enable':'disable'}`
-      const res = await fetch(url, { method: 'PATCH', headers: {...authHeader(), 'Content-Type':'application/json'} })
+      const res = await fetch(url, { method: 'PATCH', headers: {...authHeader()}, credentials: 'include' })
       if(!res.ok) throw new Error('failed')
       await fetchAll()
     }catch(e){ alert('Action failed') }
@@ -51,7 +50,8 @@ export default function AdminMapsPage(){
     try{
       const res = await fetch(`${API_BASE}/admin/maps/limits/${limit.serviceType}`,{
         method: 'PATCH',
-        headers: {...authHeader(), 'Content-Type':'application/json'},
+        headers: {...authHeader()},
+        credentials: 'include',
         body: JSON.stringify({ limitValue: val, alertThreshold: limit.alertThreshold, hardStop: limit.hardStop })
       })
       if(!res.ok) throw new Error('failed')
@@ -61,7 +61,7 @@ export default function AdminMapsPage(){
 
   async function downloadHistory(serviceType){
     try{
-      const res = await fetch(`${API_BASE}/admin/maps/usage/history?service=${serviceType}`, { headers: {...authHeader()} })
+      const res = await fetch(`${API_BASE}/admin/maps/usage/history?service=${serviceType}`, { headers: {...authHeader()}, credentials: 'include' })
       if(!res.ok) throw new Error('failed')
       const rows = await res.json()
       const csv = rows.map(r => [r.id, r.serviceType, r.action, r.provider, r.requestAt, r.meta ? JSON.stringify(r.meta):''].join(',')).join('\n')
