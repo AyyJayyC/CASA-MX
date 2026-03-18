@@ -5,19 +5,113 @@
  * Checkpoint 4: Buy/Rent tabs, rental filters (rent range, furnished)
  */
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import PropertyList from '../../components/PropertyList.jsx';
 import { useProperties } from '../../lib/queries/properties';
+import { getLocationsCatalog } from '../../lib/api/properties';
+
+const MEXICO_STATES = [
+  'Aguascalientes',
+  'Baja California',
+  'Baja California Sur',
+  'Campeche',
+  'Chiapas',
+  'Chihuahua',
+  'Ciudad de México',
+  'Coahuila',
+  'Colima',
+  'Durango',
+  'Estado de México',
+  'Guanajuato',
+  'Guerrero',
+  'Hidalgo',
+  'Jalisco',
+  'Michoacán',
+  'Morelos',
+  'Nayarit',
+  'Nuevo León',
+  'Oaxaca',
+  'Puebla',
+  'Querétaro',
+  'Quintana Roo',
+  'San Luis Potosí',
+  'Sinaloa',
+  'Sonora',
+  'Tabasco',
+  'Tamaulipas',
+  'Tlaxcala',
+  'Veracruz',
+  'Yucatán',
+  'Zacatecas',
+];
 
 export default function PropertiesPage() {
   const { data = [] } = useProperties();
+  const [locationsCatalog, setLocationsCatalog] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [listingType, setListingType] = useState('for_sale'); // 'for_sale' or 'for_rent'
+  const [estado, setEstado] = useState('');
+  const [ciudad, setCiudad] = useState('');
+  const [colonia, setColonia] = useState('');
+  const [codigoPostal, setCodigoPostal] = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [minRent, setMinRent] = useState('5000');
   const [maxRent, setMaxRent] = useState('50000');
   const [furnished, setFurnished] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+
+    (async () => {
+      const catalog = await getLocationsCatalog();
+      if (active && catalog) {
+        setLocationsCatalog(catalog);
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const estadosCatalogo = (locationsCatalog?.estados || []).map((e) => e?.nombre).filter(Boolean);
+  const estadosDisponibles = [...new Set([...MEXICO_STATES, ...estadosCatalogo])].sort((a, b) =>
+    a.localeCompare(b, 'es-MX')
+  );
+
+  const estadoCatalogo = (locationsCatalog?.estados || []).find(
+    (e) => String(e?.nombre || '').toLowerCase() === String(estado || '').toLowerCase()
+  );
+  const ciudadesCatalogo = (estadoCatalogo?.ciudades || []).map((c) => c?.nombre).filter(Boolean);
+  const ciudadesDesdeDatos = [
+    ...new Set(
+      data
+        .filter((p) => !estado || p.estado === estado)
+        .map((p) => p.ciudad)
+        .filter(Boolean)
+    ),
+  ];
+  const ciudadesDisponibles = [...new Set([...ciudadesCatalogo, ...ciudadesDesdeDatos])].sort((a, b) =>
+    a.localeCompare(b, 'es-MX')
+  );
+
+  const ciudadCatalogo = (estadoCatalogo?.ciudades || []).find(
+    (c) => String(c?.nombre || '').toLowerCase() === String(ciudad || '').toLowerCase()
+  );
+  const coloniasCatalogo = (ciudadCatalogo?.colonias || []).filter(Boolean);
+  const coloniasDesdeDatos = [
+    ...new Set(
+      data
+        .filter((p) => !estado || p.estado === estado)
+        .filter((p) => !ciudad || p.ciudad === ciudad)
+        .map((p) => p.colonia)
+        .filter(Boolean)
+    ),
+  ];
+  const coloniasDisponibles = [...new Set([...coloniasCatalogo, ...coloniasDesdeDatos])].sort((a, b) =>
+    a.localeCompare(b, 'es-MX')
+  );
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -25,6 +119,10 @@ export default function PropertiesPage() {
   };
 
   const clearFilters = () => {
+    setEstado('');
+    setCiudad('');
+    setColonia('');
+    setCodigoPostal('');
     if (listingType === 'for_sale') {
       setMinPrice('');
       setMaxPrice('');
@@ -37,8 +135,21 @@ export default function PropertiesPage() {
   };
 
   const hasFilters = listingType === 'for_sale' 
-    ? (minPrice || maxPrice) 
-    : (minRent !== '5000' || maxRent !== '50000' || furnished);
+    ? (estado || ciudad || colonia || codigoPostal || minPrice || maxPrice)
+    : (estado || ciudad || colonia || codigoPostal || minRent !== '5000' || maxRent !== '50000' || furnished);
+  const activeFiltersCount = Object.values({
+    estado,
+    ciudad,
+    colonia,
+    codigoPostal,
+    ...(listingType === 'for_sale'
+      ? { minPrice, maxPrice }
+      : {
+          minRent: minRent !== '5000' ? minRent : '',
+          maxRent: maxRent !== '50000' ? maxRent : '',
+          furnished: furnished ? '1' : '',
+        }),
+  }).filter(Boolean).length;
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
@@ -323,19 +434,355 @@ export default function PropertiesPage() {
                 </div>
               )}
 
-              {/* Additional Filter Sections Can Be Added Here */}
+              {/* Area Filters */}
               <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
-                <p className="text-xs text-neutral-500 dark:text-neutral-500 text-center">
-                  Más filtros próximamente
-                </p>
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
+                  Zona
+                </label>
+                <div className="space-y-3">
+                  <div>
+                    <label htmlFor="estado-filter" className="block text-xs text-neutral-600 dark:text-neutral-400 mb-1">
+                      Estado
+                    </label>
+                    <select
+                      id="estado-filter"
+                      value={estado}
+                      onChange={(e) => {
+                        const nextEstado = e.target.value;
+                        setEstado(nextEstado);
+                        setCiudad('');
+                        setColonia('');
+                      }}
+                      className="
+                        w-full
+                        px-3 py-2
+                        bg-white dark:bg-neutral-950
+                        border border-neutral-300 dark:border-neutral-700
+                        rounded-md
+                        text-sm
+                        text-neutral-900 dark:text-neutral-100
+                        focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                      "
+                    >
+                      <option value="">Todos</option>
+                      {estadosDisponibles.map((item) => (
+                        <option key={item} value={item}>{item}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="ciudad-filter" className="block text-xs text-neutral-600 dark:text-neutral-400 mb-1">
+                      Ciudad
+                    </label>
+                    <select
+                      id="ciudad-filter"
+                      value={ciudad}
+                      onChange={(e) => {
+                        setCiudad(e.target.value);
+                        setColonia('');
+                      }}
+                      disabled={!estado}
+                      className="
+                        w-full
+                        px-3 py-2
+                        bg-white dark:bg-neutral-950
+                        border border-neutral-300 dark:border-neutral-700
+                        rounded-md
+                        text-sm
+                        text-neutral-900 dark:text-neutral-100
+                        focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                        disabled:opacity-60
+                      "
+                    >
+                      <option value="">Todas</option>
+                      {ciudadesDisponibles.map((item) => (
+                        <option key={item} value={item}>{item}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="colonia-filter" className="block text-xs text-neutral-600 dark:text-neutral-400 mb-1">
+                      Colonia
+                    </label>
+                    <select
+                      id="colonia-filter"
+                      value={colonia}
+                      onChange={(e) => setColonia(e.target.value)}
+                      disabled={!estado || !ciudad}
+                      className="
+                        w-full
+                        px-3 py-2
+                        bg-white dark:bg-neutral-950
+                        border border-neutral-300 dark:border-neutral-700
+                        rounded-md
+                        text-sm
+                        text-neutral-900 dark:text-neutral-100
+                        focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                        disabled:opacity-60
+                      "
+                    >
+                      <option value="">Todas</option>
+                      {coloniasDisponibles.map((item) => (
+                        <option key={item} value={item}>{item}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="cp-filter" className="block text-xs text-neutral-600 dark:text-neutral-400 mb-1">
+                      Código postal
+                    </label>
+                    <input
+                      id="cp-filter"
+                      type="text"
+                      value={codigoPostal}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (!/^\d{0,5}$/.test(value)) return;
+                        setCodigoPostal(value);
+                      }}
+                      maxLength={5}
+                      placeholder="Ej: 06700"
+                      className="
+                        w-full
+                        px-3 py-2
+                        bg-white dark:bg-neutral-950
+                        border border-neutral-300 dark:border-neutral-700
+                        rounded-md
+                        text-sm
+                        text-neutral-900 dark:text-neutral-100
+                        placeholder:text-neutral-500
+                        focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                      "
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </aside>
 
           {/* Main Content Area */}
           <main className="flex-1 min-w-0">
+            {/* Mobile Filters */}
+            <div className="lg:hidden mb-6">
+              <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+                    Filtros
+                  </h2>
+                  <div className="flex items-center gap-3">
+                    {hasFilters && (
+                      <span className="text-xs text-neutral-600 dark:text-neutral-400">
+                        {activeFiltersCount} filtro(s) activo(s)
+                      </span>
+                    )}
+                    {hasFilters && (
+                      <button
+                        onClick={clearFilters}
+                        className="text-xs text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 font-medium"
+                      >
+                        Limpiar
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Price Range Filter (For Sale) */}
+                {listingType === 'for_sale' && (
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
+                      Rango de precio
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label htmlFor="min-price-mobile" className="block text-xs text-neutral-600 dark:text-neutral-400 mb-1">
+                          Mínimo
+                        </label>
+                        <input
+                          id="min-price-mobile"
+                          type="number"
+                          value={minPrice}
+                          onChange={(e) => setMinPrice(e.target.value)}
+                          placeholder="$ 0"
+                          className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="max-price-mobile" className="block text-xs text-neutral-600 dark:text-neutral-400 mb-1">
+                          Máximo
+                        </label>
+                        <input
+                          id="max-price-mobile"
+                          type="number"
+                          value={maxPrice}
+                          onChange={(e) => setMaxPrice(e.target.value)}
+                          placeholder="$ Sin límite"
+                          className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Rent Range + Furnished (For Rent) */}
+                {listingType === 'for_rent' && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
+                        Rango de renta mensual
+                      </label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label htmlFor="min-rent-mobile" className="block text-xs text-neutral-600 dark:text-neutral-400 mb-1">
+                            Mínimo
+                          </label>
+                          <input
+                            id="min-rent-mobile"
+                            type="number"
+                            value={minRent}
+                            onChange={(e) => setMinRent(e.target.value)}
+                            min="5000"
+                            max="50000"
+                            step="1000"
+                            className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="max-rent-mobile" className="block text-xs text-neutral-600 dark:text-neutral-400 mb-1">
+                            Máximo
+                          </label>
+                          <input
+                            id="max-rent-mobile"
+                            type="number"
+                            value={maxRent}
+                            onChange={(e) => setMaxRent(e.target.value)}
+                            min="5000"
+                            max="50000"
+                            step="1000"
+                            className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                          />
+                        </div>
+                      </div>
+                      <div className="text-xs text-neutral-500 dark:text-neutral-500 text-center mt-2">
+                        MXN {parseInt(minRent).toLocaleString('es-MX')} - {parseInt(maxRent).toLocaleString('es-MX')}
+                      </div>
+                    </div>
+
+                    <div className="pt-2">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={furnished}
+                          onChange={(e) => setFurnished(e.target.checked)}
+                          className="w-4 h-4 text-amber-600 bg-white dark:bg-neutral-950 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-amber-400 focus:ring-offset-0"
+                        />
+                        <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                          Solo amuebladas
+                        </span>
+                      </label>
+                    </div>
+                  </>
+                )}
+
+                {/* Area Filters */}
+                <div className="pt-2 border-t border-neutral-200 dark:border-neutral-800">
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
+                    Zona
+                  </label>
+                  <div className="space-y-3">
+                    <div>
+                      <label htmlFor="estado-filter-mobile" className="block text-xs text-neutral-600 dark:text-neutral-400 mb-1">
+                        Estado
+                      </label>
+                      <select
+                        id="estado-filter-mobile"
+                        value={estado}
+                        onChange={(e) => {
+                          const nextEstado = e.target.value;
+                          setEstado(nextEstado);
+                          setCiudad('');
+                          setColonia('');
+                        }}
+                        className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                      >
+                        <option value="">Todos</option>
+                        {estadosDisponibles.map((item) => (
+                          <option key={item} value={item}>{item}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label htmlFor="ciudad-filter-mobile" className="block text-xs text-neutral-600 dark:text-neutral-400 mb-1">
+                        Ciudad
+                      </label>
+                      <select
+                        id="ciudad-filter-mobile"
+                        value={ciudad}
+                        onChange={(e) => {
+                          setCiudad(e.target.value);
+                          setColonia('');
+                        }}
+                        disabled={!estado}
+                        className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent disabled:opacity-60"
+                      >
+                        <option value="">Todas</option>
+                        {ciudadesDisponibles.map((item) => (
+                          <option key={item} value={item}>{item}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label htmlFor="colonia-filter-mobile" className="block text-xs text-neutral-600 dark:text-neutral-400 mb-1">
+                        Colonia
+                      </label>
+                      <select
+                        id="colonia-filter-mobile"
+                        value={colonia}
+                        onChange={(e) => setColonia(e.target.value)}
+                        disabled={!estado || !ciudad}
+                        className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent disabled:opacity-60"
+                      >
+                        <option value="">Todas</option>
+                        {coloniasDisponibles.map((item) => (
+                          <option key={item} value={item}>{item}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label htmlFor="cp-filter-mobile" className="block text-xs text-neutral-600 dark:text-neutral-400 mb-1">
+                        Código postal
+                      </label>
+                      <input
+                        id="cp-filter-mobile"
+                        type="text"
+                        value={codigoPostal}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (!/^\d{0,5}$/.test(value)) return;
+                          setCodigoPostal(value);
+                        }}
+                        maxLength={5}
+                        placeholder="Ej: 06700"
+                        className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <PropertyList 
               listingType={listingType}
+              searchQuery={searchQuery}
+              estado={estado}
+              ciudad={ciudad}
+              colonia={colonia}
+              codigoPostal={codigoPostal}
               minPrice={minPrice}
               maxPrice={maxPrice}
               minRent={minRent}

@@ -9,24 +9,26 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { propertySchema, propertyFormDefaults } from '../lib/validation/propertySchema';
-import { addProperty as addPropertyAPI } from '../lib/api/properties';
+import { addProperty as addPropertyAPI, getLocationsCatalog } from '../lib/api/properties';
 import { useInvalidateProperties } from '../lib/queries/properties';
 import { addAddressToCache } from '../lib/services/addressCache';
-import AddressAutocomplete from './AddressAutocomplete';
+import { getValidEstados, getCitiesForEstado, getColoniasForCity } from '../lib/utils/addressValidation';
 import Link from 'next/link';
 
 /**
  * @returns {JSX.Element}
  */
-export default function PropertyUploadForm() {
+export default function PropertyUploadForm({ listingType = 'for_sale' }) {
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [locationsCatalog, setLocationsCatalog] = useState(null);
   const [addressSearch, setAddressSearch] = useState('');
   const [addressSuggestions, setAddressSuggestions] = useState([]);
   const [addressSearchLoading, setAddressSearchLoading] = useState(false);
   const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
   const addressSearchRef = useRef(null);
   const addressDebounce = useRef(null);
+  const photoInputRef = useRef(null);
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -41,6 +43,21 @@ export default function PropertyUploadForm() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
+  useEffect(() => {
+    let active = true;
+
+    (async () => {
+      const catalog = await getLocationsCatalog();
+      if (active && catalog) {
+        setLocationsCatalog(catalog);
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const invalidateProperties = useInvalidateProperties();
 
   // Initialize React Hook Form with Zod resolver
@@ -50,14 +67,125 @@ export default function PropertyUploadForm() {
     formState: { errors },
     reset,
     setValue,
+    getValues,
     watch
   } = useForm({
-    defaultValues: propertyFormDefaults,
+    defaultValues: {
+      ...propertyFormDefaults,
+      listingType,
+    },
     resolver: zodResolver(propertySchema)
   });
 
   const getComponent = (components, type) =>
     components?.find(c => c.types?.includes(type))?.long_name || '';
+
+  const getTypedStreetPrefix = (typed) => {
+    const v = String(typed || '').trim();
+    if (!v) return '';
+    // Heuristic: if user typed a number, treat it as street-level intent
+    return /\d/.test(v) ? v : '';
+  };
+
+  const selectedEstado = watch('estado');
+  const selectedCiudad = watch('ciudad');
+  const photoFiles = watch('photos') || [];
+
+  const handlePhotoFiles = async (event) => {
+    const files = Array.from(event.target.files || []);
+    if (!files.length) return;
+
+    const imageFiles = files.filter((file) => file.type.startsWith('image/'));
+    const encodedFiles = await Promise.all(
+      imageFiles.map(
+        (file) =>
+          new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          })
+      )
+    );
+
+    const currentPhotos = getValues('photos') || [];
+    const merged = [...currentPhotos, ...encodedFiles].slice(0, 10);
+    setValue('photos', merged, { shouldDirty: true, shouldValidate: true });
+
+    if (photoInputRef.current) {
+      photoInputRef.current.value = '';
+    }
+  };
+
+  const removePhotoAt = (index) => {
+    const currentPhotos = getValues('photos') || [];
+    const nextPhotos = currentPhotos.filter((_, idx) => idx !== index);
+    setValue('photos', nextPhotos, { shouldDirty: true, shouldValidate: true });
+  };
+
+  const estadosCatalogo = (locationsCatalog?.estados || []).map((e) => e?.nombre).filter(Boolean);
+  const estadosDisponibles = [...new Set([...getValidEstados(), ...estadosCatalogo])].sort((a, b) =>
+    a.localeCompare(b, 'es-MX')
+  );
+
+  const estadoCatalogo = (locationsCatalog?.estados || []).find(
+    (e) => String(e?.nombre || '').toLowerCase() === String(selectedEstado || '').toLowerCase()
+  );
+  const ciudadesCatalogo = (estadoCatalogo?.ciudades || []).map((c) => c?.nombre).filter(Boolean);
+  const ciudadesFallback = selectedEstado ? getCitiesForEstado(selectedEstado) : [];
+  const ciudadesDisponibles = [...new Set([...ciudadesFallback, ...ciudadesCatalogo])].sort((a, b) =>
+    a.localeCompare(b, 'es-MX')
+  );
+
+  const ciudadCatalogo = (estadoCatalogo?.ciudades || []).find(
+    (c) => String(c?.nombre || '').toLowerCase() === String(selectedCiudad || '').toLowerCase()
+  );
+  const coloniasCatalogo = (ciudadCatalogo?.colonias || []).filter(Boolean);
+  const coloniasFallback = selectedEstado && selectedCiudad ? getColoniasForCity(selectedEstado, selectedCiudad) : [];
+  const coloniasDisponibles = [...new Set([...coloniasFallback, ...coloniasCatalogo])].sort((a, b) =>
+    a.localeCompare(b, 'es-MX')
+  );
+
+  const syncFullAddressFromLocation = useCallback(() => {
+    const currentAddress = String(getValues('address') || '').trim();
+    const estado = String(getValues('estado') || '').trim();
+    const ciudad = String(getValues('ciudad') || '').trim();
+    const colonia = String(getValues('colonia') || '').trim();
+    const codigoPostal = String(getValues('codigoPostal') || '').trim();
+
+    const locationParts = [colonia, ciudad, estado, codigoPostal ? `C.P. ${codigoPostal}` : '']
+      .filter(Boolean)
+      .join(', ');
+
+    if (!locationParts) return;
+
+    const previousParts = [
+      String(getValues('colonia') || '').trim(),
+      String(getValues('ciudad') || '').trim(),
+      String(getValues('estado') || '').trim(),
+      String(getValues('codigoPostal') || '').trim()
+        ? `C.P. ${String(getValues('codigoPostal') || '').trim()}`
+        : '',
+    ]
+      .filter(Boolean)
+      .join(', ');
+
+    let streetPart = currentAddress;
+    if (previousParts) {
+      const idx = currentAddress.toLowerCase().indexOf(previousParts.toLowerCase());
+      if (idx >= 0) {
+        streetPart = currentAddress.slice(0, idx).trim().replace(/,\s*$/, '');
+      }
+    }
+
+    if (!streetPart && currentAddress.includes(',')) {
+      streetPart = currentAddress.split(',')[0].trim();
+    }
+
+    const composedAddress = streetPart ? `${streetPart}, ${locationParts}` : locationParts;
+    setValue('address', composedAddress, { shouldDirty: true });
+    setAddressSearch(composedAddress);
+  }, [getValues, setValue]);
 
   const fillFromGeocode = useCallback(async (description) => {
     try {
@@ -88,7 +216,12 @@ export default function PropertyUploadForm() {
 
         const street = route && streetNum ? `${route} ${streetNum}` : route || streetNum;
         const locationParts = [colonia, ciudad, estado, cp ? `C.P. ${cp}` : ''].filter(Boolean).join(', ');
-        const fullAddress = street ? `${street}, ${locationParts}` : (result.formatted_address || locationParts);
+        const typedStreet = getTypedStreetPrefix(addressSearch);
+        const fullAddress = street
+          ? `${street}, ${locationParts}`
+          : typedStreet
+            ? `${typedStreet}, ${locationParts || result.formatted_address || ''}`.replace(/,\s*$/, '')
+            : (result.formatted_address || locationParts);
 
         setValue('address', fullAddress);
         if (estado) setValue('estado', estado);
@@ -100,12 +233,18 @@ export default function PropertyUploadForm() {
         setAddressSearch(fullAddress);
       } else if (result.display_name) {
         // Nominatim fallback
-        setValue('address', result.display_name);
+        const typedStreet = getTypedStreetPrefix(addressSearch);
         const nomAddress = result.address || {};
         const estado = nomAddress.state || nomAddress.province || '';
         const ciudad = nomAddress.city || nomAddress.town || nomAddress.village || nomAddress.county || '';
         const colonia = nomAddress.neighbourhood || nomAddress.suburb || '';
         const cp = nomAddress.postcode || '';
+        const locationParts = [colonia, ciudad, estado, cp ? `C.P. ${cp}` : ''].filter(Boolean).join(', ');
+        const composedAddress = typedStreet
+          ? `${typedStreet}, ${locationParts || result.display_name || ''}`.replace(/,\s*$/, '')
+          : result.display_name;
+
+        setValue('address', composedAddress);
         const lat = result.lat ? Number(result.lat) : null;
         const lon = result.lon ? Number(result.lon) : null;
 
@@ -115,7 +254,7 @@ export default function PropertyUploadForm() {
         if (cp) setValue('codigoPostal', cp);
         if (lat) setValue('latitude', lat);
         if (lon) setValue('longitude', lon);
-        setAddressSearch(result.display_name);
+        setAddressSearch(composedAddress);
       }
     } catch (e) {
       console.error('Geocode fill error:', e);
@@ -126,16 +265,29 @@ export default function PropertyUploadForm() {
     try {
       setLoading(true);
       
-      // Get token from localStorage (assuming it was stored during login)
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-      
       const payload = {
         ...values,
+        listingType,
+        imageUrls: values.photos || [],
+        ...(listingType === 'for_sale'
+          ? {
+              price: values.price,
+            }
+          : {
+              monthlyRent: values.monthlyRent,
+              ...(values.securityDeposit ? { securityDeposit: values.securityDeposit } : {}),
+              ...(values.leaseTermMonths ? { leaseTermMonths: values.leaseTermMonths } : {}),
+              ...(values.availableFrom ? { availableFrom: values.availableFrom } : {}),
+              furnished: Boolean(values.furnished),
+              utilitiesIncluded: Boolean(values.utilitiesIncluded),
+            }),
+        lat: values.latitude ?? null,
+        lng: values.longitude ?? null,
         uploadedBy: { id: 'user-demo', name: 'Demo Seller' }
       };
 
       // Call real backend API
-      const created = await addPropertyAPI(payload, token);
+      const created = await addPropertyAPI(payload);
 
       // Save address to cache for future suggestions
       const addressData = {
@@ -147,7 +299,10 @@ export default function PropertyUploadForm() {
       addAddressToCache(addressData);
 
       setSuccess(created);
-      reset(propertyFormDefaults);
+      reset({ ...propertyFormDefaults, listingType, photos: [] });
+      if (photoInputRef.current) {
+        photoInputRef.current.value = '';
+      }
 
       // Invalidate properties cache to trigger refetch in PropertyList
       invalidateProperties();
@@ -280,26 +435,51 @@ export default function PropertyUploadForm() {
             )}
           </div>
 
-          {/* Price and Square Meters */}
+          {/* Price/Rent and Square Meters */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="price" className={labelClass}>
-                Precio (MXN) *
-              </label>
-              <input 
-                id="price" 
-                type="number"
-                {...register('price', { valueAsNumber: true })} 
-                className={inputClass}
-                placeholder="0"
-              />
-              {errors.price && (
-                <p className={errorClass}>
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                  {errors.price.message}
-                </p>
+              {listingType === 'for_sale' ? (
+                <>
+                  <label htmlFor="price" className={labelClass}>
+                    Precio (MXN) *
+                  </label>
+                  <input 
+                    id="price" 
+                    type="number"
+                    {...register('price', { valueAsNumber: true })} 
+                    className={inputClass}
+                    placeholder="0"
+                  />
+                  {errors.price && (
+                    <p className={errorClass}>
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      {errors.price.message}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <>
+                  <label htmlFor="monthlyRent" className={labelClass}>
+                    Renta mensual (MXN) *
+                  </label>
+                  <input 
+                    id="monthlyRent" 
+                    type="number"
+                    {...register('monthlyRent', { valueAsNumber: true })} 
+                    className={inputClass}
+                    placeholder="0"
+                  />
+                  {errors.monthlyRent && (
+                    <p className={errorClass}>
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      {errors.monthlyRent.message}
+                    </p>
+                  )}
+                </>
               )}
             </div>
 
@@ -365,6 +545,27 @@ export default function PropertyUploadForm() {
                     setAddressSearchLoading(false);
                   }
                 }}
+                onKeyDown={async (e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+
+                    if (showAddressSuggestions && addressSuggestions.length > 0) {
+                      const first = addressSuggestions[0];
+                      if (first?.description) {
+                        setShowAddressSuggestions(false);
+                        setAddressSuggestions([]);
+                        await fillFromGeocode(first.description);
+                        return;
+                      }
+                    }
+
+                    if ((addressSearch || '').trim().length >= 4) {
+                      setShowAddressSuggestions(false);
+                      setAddressSuggestions([]);
+                      await fillFromGeocode(addressSearch.trim());
+                    }
+                  }
+                }}
                 onFocus={() => addressSuggestions.length > 0 && setShowAddressSuggestions(true)}
                 placeholder="Ej: San Miguel de Horcasitas 36, Hermosillo"
                 className={inputClass}
@@ -403,46 +604,6 @@ export default function PropertyUploadForm() {
             )}
           </div>
 
-          {/* Manual override — pre-filled from search, editable */}
-          <AddressAutocomplete
-            value={{
-              estado: watch('estado'),
-              ciudad: watch('ciudad'),
-              colonia: watch('colonia'),
-              codigoPostal: watch('codigoPostal'),
-            }}
-            onChange={(addressData) => {
-              if (addressData.estado !== undefined) setValue('estado', addressData.estado);
-              if (addressData.ciudad !== undefined) setValue('ciudad', addressData.ciudad);
-              if (addressData.colonia !== undefined) setValue('colonia', addressData.colonia);
-              if (addressData.codigoPostal !== undefined) setValue('codigoPostal', addressData.codigoPostal);
-
-              // Auto-compose the full address field when location parts are all present
-              const estado = addressData.estado ?? watch('estado');
-              const ciudad = addressData.ciudad ?? watch('ciudad');
-              const colonia = addressData.colonia ?? watch('colonia');
-              const cp = addressData.codigoPostal ?? watch('codigoPostal');
-              if (estado && ciudad && colonia) {
-                // Preserve whatever the user typed as the street prefix
-                const currentAddress = watch('address') || '';
-                // Strip any previously auto-composed location suffix so we don't duplicate it
-                const prevColonia = watch('colonia');
-                const prevCiudad = watch('ciudad');
-                const prevEstado = watch('estado');
-                const autoSuffixPattern = new RegExp(
-                  ',?\\s*' + [prevColonia, prevCiudad, prevEstado].filter(Boolean).map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('.*'),
-                  'i'
-                );
-                const streetPart = currentAddress ? currentAddress.replace(autoSuffixPattern, '').trim().replace(/,\s*$/, '') : '';
-                const locationParts = [colonia, ciudad, estado, cp ? `C.P. ${cp}` : ''].filter(Boolean).join(', ');
-                const composed = streetPart ? `${streetPart}, ${locationParts}` : locationParts;
-                setValue('address', composed);
-              }
-            }}
-            onValidationChange={() => {}}
-            showHistory={true}
-          />
-
           {/* Address */}
           <div>
             <label htmlFor="address" className={labelClass}>
@@ -463,6 +624,79 @@ export default function PropertyUploadForm() {
                 {errors.address.message}
               </p>
             )}
+          </div>
+
+          {/* Auto-filled location parts */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="estado" className={labelClass}>
+                Estado
+              </label>
+              <input
+                id="estado"
+                type="text"
+                list="estado-options"
+                {...register('estado', { onBlur: syncFullAddressFromLocation })}
+                className={inputClass}
+                placeholder="Se llena automáticamente"
+              />
+              <datalist id="estado-options">
+                {estadosDisponibles.map((item) => (
+                  <option key={item} value={item} />
+                ))}
+              </datalist>
+            </div>
+
+            <div>
+              <label htmlFor="ciudad" className={labelClass}>
+                Ciudad
+              </label>
+              <input
+                id="ciudad"
+                type="text"
+                list="ciudad-options"
+                {...register('ciudad', { onBlur: syncFullAddressFromLocation })}
+                className={inputClass}
+                placeholder="Se llena automáticamente"
+              />
+              <datalist id="ciudad-options">
+                {ciudadesDisponibles.map((item) => (
+                  <option key={item} value={item} />
+                ))}
+              </datalist>
+            </div>
+
+            <div>
+              <label htmlFor="colonia" className={labelClass}>
+                Colonia
+              </label>
+              <input
+                id="colonia"
+                type="text"
+                list="colonia-options"
+                {...register('colonia', { onBlur: syncFullAddressFromLocation })}
+                className={inputClass}
+                placeholder="Se llena automáticamente"
+              />
+              <datalist id="colonia-options">
+                {coloniasDisponibles.map((item) => (
+                  <option key={item} value={item} />
+                ))}
+              </datalist>
+            </div>
+
+            <div>
+              <label htmlFor="codigoPostal" className={labelClass}>
+                Código Postal
+              </label>
+              <input
+                id="codigoPostal"
+                type="text"
+                {...register('codigoPostal', { onBlur: syncFullAddressFromLocation })}
+                className={inputClass}
+                placeholder="Se llena automáticamente"
+              />
+            </div>
           </div>
         </div>
 
@@ -522,9 +756,126 @@ export default function PropertyUploadForm() {
               />
             </div>
           </div>
+
+          {/* Rental Details */}
+          {listingType === 'for_rent' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="securityDeposit" className={labelClass}>
+                  Depósito de seguridad (MXN)
+                </label>
+                <input
+                  id="securityDeposit"
+                  type="number"
+                  {...register('securityDeposit', { valueAsNumber: true })}
+                  className={inputClass}
+                  placeholder="Opcional"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="leaseTermMonths" className={labelClass}>
+                  Plazo de contrato (meses)
+                </label>
+                <input
+                  id="leaseTermMonths"
+                  type="number"
+                  {...register('leaseTermMonths', { valueAsNumber: true })}
+                  className={inputClass}
+                  placeholder="Ej: 12"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="availableFrom" className={labelClass}>
+                  Disponible desde
+                </label>
+                <input
+                  id="availableFrom"
+                  type="date"
+                  {...register('availableFrom')}
+                  className={inputClass}
+                />
+              </div>
+
+              <div className="flex items-end gap-6 pb-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    id="furnished"
+                    type="checkbox"
+                    {...register('furnished')}
+                    className="w-4 h-4 text-amber-600 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-amber-400"
+                  />
+                  <span className="text-sm text-neutral-700 dark:text-neutral-300">Amueblada</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    id="utilitiesIncluded"
+                    type="checkbox"
+                    {...register('utilitiesIncluded')}
+                    className="w-4 h-4 text-amber-600 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-amber-400"
+                  />
+                  <span className="text-sm text-neutral-700 dark:text-neutral-300">Servicios incluidos</span>
+                </label>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Photos Section */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 pb-2 border-b border-neutral-200 dark:border-neutral-800">
+            Fotos de la propiedad
+          </h2>
+
+          <div>
+            <label htmlFor="photos-upload" className={labelClass}>
+              Subir imágenes <span className="text-neutral-400 text-xs font-normal">(máximo 10)</span>
+            </label>
+            <input
+              id="photos-upload"
+              ref={photoInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handlePhotoFiles}
+              className="block w-full text-sm text-neutral-700 dark:text-neutral-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100"
+            />
+            <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
+              La primera imagen será la portada en listados.
+            </p>
+          </div>
+
+          {photoFiles.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              {photoFiles.map((photo, index) => (
+                <div key={`${index}-${String(photo).slice(0, 24)}`} className="relative rounded-lg overflow-hidden border border-neutral-200 dark:border-neutral-700">
+                  <img
+                    src={photo}
+                    alt={`Foto ${index + 1}`}
+                    className="w-full h-28 object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removePhotoAt(index)}
+                    className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/70 text-white text-xs hover:bg-black"
+                    aria-label={`Eliminar foto ${index + 1}`}
+                  >
+                    ✕
+                  </button>
+                  {index === 0 && (
+                    <span className="absolute bottom-1 left-1 text-[10px] px-2 py-0.5 rounded bg-amber-500 text-white font-medium">
+                      Portada
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Financing Options Section */}
+        {listingType === 'for_sale' && (
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 pb-2 border-b border-neutral-200 dark:border-neutral-800">
             Opciones de financiamiento
@@ -599,6 +950,7 @@ export default function PropertyUploadForm() {
             </div>
           </div>
         </div>
+        )}
 
         {/* Form Actions */}
         <input type="hidden" {...register('latitude', { valueAsNumber: true })} />
@@ -634,8 +986,11 @@ export default function PropertyUploadForm() {
           <button 
             type="button" 
             onClick={() => {
-              reset(propertyFormDefaults);
+              reset({ ...propertyFormDefaults, listingType, photos: [] });
               setSuccess(null);
+              if (photoInputRef.current) {
+                photoInputRef.current.value = '';
+              }
             }}
             className="
               flex-1 sm:flex-none

@@ -45,7 +45,14 @@ export default async function PropertyDetail({ params }) {
 
   // Fallback values
   const fallbackImage = `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900"><rect width="100%" height="100%" fill="#e5e5e5"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#737373" font-family="Arial" font-size="40">Casa MX</text></svg>')}`;
-  const imageUrl = property.imageUrl || fallbackImage;
+  const galleryImages = property.imageUrls?.length
+    ? property.imageUrls
+    : property.photos?.length
+      ? property.photos
+      : property.imageUrl
+        ? [property.imageUrl]
+        : [fallbackImage];
+  const imageUrl = galleryImages[0] || fallbackImage;
   const isRental = property.listingType === 'for_rent';
   
   const features = [
@@ -103,7 +110,7 @@ export default async function PropertyDetail({ params }) {
               rounded-md
               text-sm font-medium
             ">
-              1 / 1
+              1 / {galleryImages.length}
             </div>
           </div>
         </div>

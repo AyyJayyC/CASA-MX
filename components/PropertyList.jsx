@@ -87,6 +87,11 @@ function EmptyState({ hasQuery }) {
 
 export default function PropertyList({ 
   listingType = 'for_sale',
+  searchQuery = '',
+  estado = '',
+  ciudad = '',
+  colonia = '',
+  codigoPostal = '',
   minPrice = '',
   maxPrice = '',
   minRent = '5000',
@@ -94,14 +99,30 @@ export default function PropertyList({
   furnished = false
 }) {
   const { data = [], isLoading } = useProperties();
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(searchQuery || '');
+
+  React.useEffect(() => {
+    setQuery(searchQuery || '');
+  }, [searchQuery]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     
     return data.filter((p) => {
+      const normalizedTitle = String(p.title || '').toLowerCase();
+      const normalizedColonia = String(p.colonia || '').toLowerCase();
+      const normalizedEstado = String(p.estado || '').toLowerCase();
+      const normalizedCiudad = String(p.ciudad || '').toLowerCase();
+      const normalizedCP = String(p.codigoPostal || '');
+
       // Text search filter
-      const matchesQuery = !q || p.title.toLowerCase().includes(q) || p.colonia.toLowerCase().includes(q);
+      const matchesQuery = !q || normalizedTitle.includes(q) || normalizedColonia.includes(q) || normalizedCiudad.includes(q);
+
+      // Area filters
+      const matchesEstado = !estado || normalizedEstado === String(estado).toLowerCase();
+      const matchesCiudad = !ciudad || normalizedCiudad === String(ciudad).toLowerCase();
+      const matchesColonia = !colonia || normalizedColonia.includes(String(colonia).toLowerCase());
+      const matchesCodigoPostal = !codigoPostal || normalizedCP === String(codigoPostal);
       
       // Listing type filter
       const matchesListingType = p.listingType === listingType;
@@ -121,9 +142,31 @@ export default function PropertyList({
       // Furnished filter (only for rentals)
       const matchesFurnished = listingType === 'for_sale' || !furnished || p.furnished === true;
       
-      return matchesQuery && matchesListingType && matchesPriceRange && matchesFurnished;
+      return (
+        matchesQuery &&
+        matchesEstado &&
+        matchesCiudad &&
+        matchesColonia &&
+        matchesCodigoPostal &&
+        matchesListingType &&
+        matchesPriceRange &&
+        matchesFurnished
+      );
     });
-  }, [data, query, listingType, minPrice, maxPrice, minRent, maxRent, furnished]);
+  }, [
+    data,
+    query,
+    estado,
+    ciudad,
+    colonia,
+    codigoPostal,
+    listingType,
+    minPrice,
+    maxPrice,
+    minRent,
+    maxRent,
+    furnished,
+  ]);
 
   return (
     <div className="space-y-6">

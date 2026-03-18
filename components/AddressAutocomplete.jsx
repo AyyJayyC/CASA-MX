@@ -8,6 +8,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import React from 'react';
+import { getLocationsCatalog } from '../lib/api/properties';
 import {
   validateField,
   getValidEstados,
@@ -33,6 +34,7 @@ export default function AddressAutocomplete({
     colonia: [],
   });
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [locationsCatalog, setLocationsCatalog] = useState(null);
   const [validation, setValidation] = useState({
     estado: { errors: [], warnings: [] },
     ciudad: { errors: [], warnings: [] },
@@ -48,6 +50,21 @@ export default function AddressAutocomplete({
       setRecentAddresses(getCachedAddresses().slice(0, 5));
     }
   }, [showHistory]);
+
+  useEffect(() => {
+    let active = true;
+
+    (async () => {
+      const catalog = await getLocationsCatalog();
+      if (active && catalog) {
+        setLocationsCatalog(catalog);
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   // Handle outside click to close dropdown
   useEffect(() => {
@@ -65,6 +82,34 @@ export default function AddressAutocomplete({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [activeDropdown]);
 
+  const getStates = () => {
+    const fromCatalog = (locationsCatalog?.estados || []).map((e) => e?.nombre).filter(Boolean);
+    return [...new Set([...getValidEstados(), ...fromCatalog])].sort((a, b) => a.localeCompare(b, 'es-MX'));
+  };
+
+  const getCities = (estado) => {
+    if (!estado) return [];
+    const estadoCatalog = (locationsCatalog?.estados || []).find(
+      (e) => String(e?.nombre || '').toLowerCase() === String(estado).toLowerCase()
+    );
+    const fromCatalog = (estadoCatalog?.ciudades || []).map((c) => c?.nombre).filter(Boolean);
+    const fallback = getCitiesForEstado(estado);
+    return [...new Set([...fallback, ...fromCatalog])].sort((a, b) => a.localeCompare(b, 'es-MX'));
+  };
+
+  const getColonias = (estado, ciudad) => {
+    if (!estado || !ciudad) return [];
+    const estadoCatalog = (locationsCatalog?.estados || []).find(
+      (e) => String(e?.nombre || '').toLowerCase() === String(estado).toLowerCase()
+    );
+    const ciudadCatalog = (estadoCatalog?.ciudades || []).find(
+      (c) => String(c?.nombre || '').toLowerCase() === String(ciudad).toLowerCase()
+    );
+    const fromCatalog = (ciudadCatalog?.colonias || []).filter(Boolean);
+    const fallback = getColoniasForCity(estado, ciudad);
+    return [...new Set([...fallback, ...fromCatalog])].sort((a, b) => a.localeCompare(b, 'es-MX'));
+  };
+
   const handleFieldChange = (field, value) => {
     const updated = { ...address, [field]: value };
     setAddress(updated);
@@ -81,23 +126,23 @@ export default function AddressAutocomplete({
     if (field === 'estado' && value) {
       setSuggestions(prev => ({
         ...prev,
-        estado: getValidEstados().filter(e =>
+        estado: getStates().filter(e =>
           e.toLowerCase().includes(value.toLowerCase())
         ),
-        ciudad: getCitiesForEstado(value),
+        ciudad: getCities(value),
       }));
     } else if (field === 'ciudad' && updated.estado) {
       setSuggestions(prev => ({
         ...prev,
-        ciudad: getCitiesForEstado(updated.estado).filter(c =>
+        ciudad: getCities(updated.estado).filter(c =>
           c.toLowerCase().includes(value.toLowerCase())
         ),
-        colonia: getColoniasForCity(updated.estado, value),
+        colonia: getColonias(updated.estado, value),
       }));
     } else if (field === 'colonia' && updated.estado && updated.ciudad) {
       setSuggestions(prev => ({
         ...prev,
-        colonia: getColoniasForCity(updated.estado, updated.ciudad).filter(
+        colonia: getColonias(updated.estado, updated.ciudad).filter(
           c => c.toLowerCase().includes(value.toLowerCase())
         ),
       }));

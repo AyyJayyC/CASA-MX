@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { getLocationsCatalog } from '../lib/api/properties';
+import { getValidEstados, getCitiesForEstado, getColoniasForCity } from '../lib/utils/addressValidation';
 
 export default function PropertyFilters({ onFilterChange, initialFilters = {} }) {
   const [filters, setFilters] = useState({
@@ -15,6 +17,7 @@ export default function PropertyFilters({ onFilterChange, initialFilters = {} })
   const [filterOptions, setFilterOptions] = useState({
     estados: [],
     ciudadesPorEstado: {},
+    coloniasPorEstadoCiudad: {},
   });
 
   const [loading, setLoading] = useState(true);
@@ -25,18 +28,50 @@ export default function PropertyFilters({ onFilterChange, initialFilters = {} })
     const fetchFilterOptions = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/properties/filter-options');
-        if (!response.ok) {
-          throw new Error('Failed to fetch filter options');
-        }
-        const data = await response.json();
+        const catalog = await getLocationsCatalog();
+
+        const estadosFallback = getValidEstados();
+        const estadosCatalog = (catalog?.estados || []).map((e) => e?.nombre).filter(Boolean);
+        const estados = [...new Set([...estadosFallback, ...estadosCatalog])].sort((a, b) =>
+          a.localeCompare(b, 'es-MX')
+        );
+
+        const ciudadesPorEstado = {};
+        const coloniasPorEstadoCiudad = {};
+
+        estados.forEach((estado) => {
+          const estadoCatalog = (catalog?.estados || []).find(
+            (e) => String(e?.nombre || '').toLowerCase() === String(estado).toLowerCase()
+          );
+
+          const ciudadesCatalog = (estadoCatalog?.ciudades || []).map((c) => c?.nombre).filter(Boolean);
+          const ciudadesFallback = getCitiesForEstado(estado);
+          const ciudades = [...new Set([...ciudadesFallback, ...ciudadesCatalog])].sort((a, b) =>
+            a.localeCompare(b, 'es-MX')
+          );
+          ciudadesPorEstado[estado] = ciudades;
+
+          ciudades.forEach((ciudad) => {
+            const ciudadCatalog = (estadoCatalog?.ciudades || []).find(
+              (c) => String(c?.nombre || '').toLowerCase() === String(ciudad).toLowerCase()
+            );
+            const coloniasCatalog = (ciudadCatalog?.colonias || []).filter(Boolean);
+            const coloniasFallback = getColoniasForCity(estado, ciudad);
+            const colonias = [...new Set([...coloniasFallback, ...coloniasCatalog])].sort((a, b) =>
+              a.localeCompare(b, 'es-MX')
+            );
+            coloniasPorEstadoCiudad[`${estado}::${ciudad}`] = colonias;
+          });
+        });
+
         setFilterOptions({
-          estados: data.estados || [],
-          ciudadesPorEstado: data.ciudadesPorEstado || {},
+          estados,
+          ciudadesPorEstado,
+          coloniasPorEstadoCiudad,
         });
         setError(null);
       } catch (err) {
-        setError(err.message);
+        setError(err.message || 'Error loading filter options');
         console.error('Error fetching filter options:', err);
       } finally {
         setLoading(false);
@@ -125,6 +160,11 @@ export default function PropertyFilters({ onFilterChange, initialFilters = {} })
       ? filterOptions.ciudadesPorEstado[filters.estado]
       : [];
 
+  const coloniasDisponibles =
+    filters.estado && filters.ciudad
+      ? filterOptions.coloniasPorEstadoCiudad[`${filters.estado}::${filters.ciudad}`] || []
+      : [];
+
   const hasActiveFilters =
     filters.estado ||
     filters.ciudad ||
@@ -190,19 +230,25 @@ export default function PropertyFilters({ onFilterChange, initialFilters = {} })
             </select>
           </div>
 
-          {/* Colonia (Text Input) */}
+          {/* Colonia (Cascading) */}
           <div>
             <label htmlFor="colonia" className="block text-sm font-medium text-gray-700 mb-1">
               Colonia / Delegación
             </label>
-            <input
+            <select
               id="colonia"
-              type="text"
               value={filters.colonia}
               onChange={handleColoniaChange}
-              placeholder="Ej: Roma Norte"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            />
+              disabled={!filters.estado || !filters.ciudad}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+            >
+              <option value="">Seleccionar colonia...</option>
+              {coloniasDisponibles.map((colonia) => (
+                <option key={colonia} value={colonia}>
+                  {colonia}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Código Postal */}
