@@ -15,13 +15,17 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   // Hydrate session from storage on mount
   useEffect(() => {
     const hydrate = async () => {
       try {
         // Only run on client side
-        if (typeof window === 'undefined') return;
+        if (typeof window === 'undefined') {
+          setIsHydrated(true);
+          return;
+        }
         
         const session = await authAPI.getSession();
         if (session) {
@@ -32,6 +36,8 @@ export function AuthProvider({ children }) {
       } catch (err) {
         console.error('Failed to hydrate session:', err);
         setError('Failed to load session');
+      } finally {
+        setIsHydrated(true);
       }
     };
 
@@ -136,6 +142,7 @@ export function AuthProvider({ children }) {
     session,
     user,
     loading,
+    isHydrated,
     error,
     isAuthenticated: !!session,
     register,

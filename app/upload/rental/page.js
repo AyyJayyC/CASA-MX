@@ -6,19 +6,23 @@ import { useAuth } from '../../../lib/auth/useAuth';
 import PropertyUploadForm from '../../../components/PropertyUploadForm';
 
 export default function RentalUploadPage() {
-  const { user } = useAuth();
+  const { user, isHydrated } = useAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!isHydrated) {
+      return;
+    }
+
     if (!user) {
       router.push('/login');
       return;
     }
     setIsLoading(false);
-  }, [user, router]);
+  }, [isHydrated, user, router]);
 
-  if (isLoading || !user) {
+  if (isLoading || !isHydrated || !user) {
     return (
       <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center">
         <div className="text-center">
