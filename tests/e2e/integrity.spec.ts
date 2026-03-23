@@ -31,9 +31,14 @@ test.describe('E2E Integrity - Adversarial Tests', () => {
       await page.fill('input[name="name"]', 'E2E Test User');
       
       // Select buyer role only
-      const buyerRoleButton = page.locator('button:has-text("Comprador")');
+      const buyerRoleButton = page.locator('button:has-text("Comprar")');
       if (await buyerRoleButton.isVisible().catch(() => false)) {
         await buyerRoleButton.click();
+      }
+
+      const legalConsentCheckbox = page.locator('input[type="checkbox"]').first();
+      if (await legalConsentCheckbox.isVisible().catch(() => false)) {
+        await legalConsentCheckbox.check();
       }
       
       // Submit registration

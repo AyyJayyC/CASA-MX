@@ -12,13 +12,18 @@ const registerSchema = z.object({
   name: z.string().min(2, 'Nombre debe tener al menos 2 caracteres'),
   email: z.string().email('Email inválido'),
   password: z.string().min(8, 'Contraseña debe tener al menos 8 caracteres'),
-  roles: z.array(z.string()).min(1, 'Selecciona al menos un rol')
+  roles: z.array(z.string()).min(1, 'Selecciona al menos un rol'),
+  acceptLegal: z.literal(true, {
+    errorMap: () => ({ message: 'Debes aceptar Términos y Privacidad para continuar' }),
+  })
 });
 
 const AVAILABLE_ROLES = [
-  { value: 'buyer', label: 'Comprador - Buscar propiedades' },
-  { value: 'seller', label: 'Vendedor - Vender mis propiedades' },
-  { value: 'wholesaler', label: 'Intermediario - Listar propiedades' }
+  { value: 'buyer', label: 'Comprar propiedad' },
+  { value: 'tenant', label: 'Rentar propiedad' },
+  { value: 'seller', label: 'Vender propiedad' },
+  { value: 'landlord', label: 'Publicar renta' },
+  { value: 'wholesaler', label: 'Intermediar oportunidades' }
 ];
 
 export default function RegisterPage() {
@@ -35,7 +40,8 @@ export default function RegisterPage() {
   } = useForm({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      roles: selectedRoles
+      roles: selectedRoles,
+      acceptLegal: false,
     }
   });
 
@@ -69,14 +75,20 @@ export default function RegisterPage() {
         name: data.name,
         email: data.email,
         password: data.password,
-        roles: selectedRoles
+        roles: selectedRoles,
+        acceptLegal: data.acceptLegal,
       });
 
       // Debugging logs to surface behavior in browser console
       console.log('Register result:', result);
       console.log('Register successful — attempting redirect to /login');
 
-      alert('¡Registro exitoso! Tus roles están pendientes de aprobación del administrador.');
+      const requiresApproval = selectedRoles.some((role) => ['seller', 'landlord', 'wholesaler'].includes(role));
+      alert(
+        requiresApproval
+          ? '¡Registro exitoso! Algunos roles están pendientes de aprobación del administrador.'
+          : '¡Registro exitoso! Ya puedes iniciar sesión.'
+      );
       router.push('/login');
 
       // If router.push doesn't navigate for some reason, log current URL after a short delay
@@ -211,7 +223,7 @@ export default function RegisterPage() {
             {/* Roles Selection */}
             <div>
               <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
-                Selecciona tus roles
+                ¿Qué quieres hacer en Casa MX?
               </label>
               <div className="space-y-2">
                 {AVAILABLE_ROLES.map((role) => {
@@ -271,6 +283,27 @@ export default function RegisterPage() {
                 <p className="text-red-700 dark:text-red-400 text-sm">{registerError}</p>
               </div>
             )}
+
+            <div>
+              <label className="flex items-start gap-3 text-sm text-neutral-700 dark:text-neutral-300">
+                <input
+                  type="checkbox"
+                  {...register('acceptLegal')}
+                  className="mt-0.5 h-4 w-4 rounded border-neutral-300 dark:border-neutral-700 text-amber-500 focus:ring-amber-400"
+                />
+                <span>
+                  Acepto los <a href="/terms" className="text-amber-700 dark:text-amber-400 hover:underline">Términos de Servicio</a> y la <a href="/privacy" className="text-amber-700 dark:text-amber-400 hover:underline">Política de Privacidad</a>.
+                </span>
+              </label>
+              {errors.acceptLegal && (
+                <p className="text-red-600 dark:text-red-400 text-sm mt-2 flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  {errors.acceptLegal.message}
+                </p>
+              )}
+            </div>
 
             {/* Submit */}
             <button

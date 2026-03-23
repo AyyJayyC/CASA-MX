@@ -33,7 +33,7 @@ describe('RegisterPage', () => {
     expect(submit).toBeDisabled();
 
     // select role
-    const buyerButton = screen.getByRole('button', { name: /Comprador - Buscar propiedades/i });
+    const buyerButton = screen.getByRole('button', { name: /Comprar propiedad/i });
     fireEvent.click(buyerButton);
 
     expect(submit).toBeEnabled();
@@ -42,6 +42,7 @@ describe('RegisterPage', () => {
     fireEvent.change(screen.getByLabelText(/Nombre Completo/i), { target: { value: 'Test' } });
     fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'test@example.com' } });
     fireEvent.change(screen.getByLabelText(/Contraseña/i), { target: { value: 'TestPassword123' } });
+    fireEvent.click(screen.getByRole('checkbox'));
 
     fireEvent.click(submit);
 
