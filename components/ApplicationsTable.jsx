@@ -6,8 +6,11 @@
  */
 'use client';
 import { useState, useEffect } from 'react';
-import { z } from 'zod';
 import dynamic from 'next/dynamic';
+import LeaveReviewModal from './LeaveReviewModal.jsx';
+import ReviewSummaryCard from './ReviewSummaryCard.jsx';
+import { getPropertyApplications, updateApplicationStatus } from '@/lib/api/applications';
+import { getMyAuthoredReviews, getReviewSummary } from '@/lib/api/reviews';
 
 const ApproveRejectModal = dynamic(() => import('./ApproveRejectModal.jsx'), { ssr: false });
 
@@ -18,13 +21,15 @@ const statusBadgeConfig = {
   rejected: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-800 dark:text-red-300', label: 'Rechazada' },
 };
 
-export default function ApplicationsTable({ propertyId, statusFilter }) {
+export default function ApplicationsTable({ propertyId, propertyTitle, statusFilter }) {
   const [applications, setApplications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedApp, setSelectedApp] = useState(null);
   const [actionType, setActionType] = useState(null); // 'approve' or 'reject'
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [reviewModalApp, setReviewModalApp] = useState(null);
+  const [reviewedApplicationIds, setReviewedApplicationIds] = useState([]);
 
   useEffect(() => {
     const fetchApplications = async () => {
@@ -32,19 +37,17 @@ export default function ApplicationsTable({ propertyId, statusFilter }) {
         setIsLoading(true);
         setError(null);
 
-        // TODO: Replace with actual API call
-        // const response = await fetch(
-        //   `${process.env.NEXT_PUBLIC_API_URL}/applications/property/${propertyId}`,
-        //   {
-        //     headers: { 'Authorization': `Bearer ${token}` }
-        //   }
-        // );
-        // if (!response.ok) throw new Error('Failed to fetch applications');
-        // const data = await response.json();
-        // setApplications(data);
+        const [applicationsData, reviewsData] = await Promise.all([
+          getPropertyApplications(propertyId),
+          getMyAuthoredReviews('landlord'),
+        ]);
 
-        // For MVP, set empty array
-        setApplications([]);
+        setApplications(applicationsData || []);
+        setReviewedApplicationIds(
+          (reviewsData || [])
+            .map((review) => review.rentalApplicationId)
+            .filter(Boolean)
+        );
       } catch (err) {
         setError(err.message || 'Error al cargar solicitudes');
       } finally {
@@ -66,35 +69,16 @@ export default function ApplicationsTable({ propertyId, statusFilter }) {
 
     setIsSubmitting(true);
     try {
-      // TODO: Replace with actual API call
-      // const response = await fetch(
-      //   `${process.env.NEXT_PUBLIC_API_URL}/applications/${selectedApp.id}`,
-      //   {
-      //     method: 'PATCH',
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //       'Authorization': `Bearer ${token}`
-      //     },
-      //     body: JSON.stringify({
-      //       status: action === 'approve' ? 'approved' : 'rejected',
-      //       landlordNote: note
-      //     })
-      //   }
-      // );
-
-      // if (!response.ok) throw new Error('Failed to update application');
-      // const updatedApp = await response.json();
+      const updatedApp = await updateApplicationStatus(selectedApp.id, {
+        status: action === 'approve' ? 'approved' : 'rejected',
+        landlordNote: note,
+      });
 
       // Update local state
       setApplications(apps =>
         apps.map(app =>
           app.id === selectedApp.id
-            ? {
-              ...app,
-              status: action === 'approve' ? 'approved' : 'rejected',
-              landlordNote: note,
-              updatedAt: new Date().toISOString()
-            }
+            ? { ...app, ...updatedApp }
             : app
         )
       );
@@ -309,21 +293,29 @@ export default function ApplicationsTable({ propertyId, statusFilter }) {
           onClose={() => setSelectedApp(null)}
           onApprove={() => setActionType('approve')}
           onReject={() => setActionType('reject')}
+          onReview={() => setReviewModalApp(selectedApp)}
+          hasSubmittedReview={reviewedApplicationIds.includes(selectedApp.id)}
         />
       )}
+
+      <LeaveReviewModal
+        isOpen={Boolean(reviewModalApp)}
+        onClose={() => setReviewModalApp(null)}
+        rentalApplicationId={reviewModalApp?.id}
+        reviewerRole="landlord"
+        revieweeName={reviewModalApp?.fullName}
+        propertyTitle={reviewModalApp?.property?.title || propertyTitle}
+        onSubmitted={() => {
+          if (!reviewModalApp) return;
+          setReviewedApplicationIds((current) => [...new Set([...current, reviewModalApp.id])]);
+        }}
+      />
     </div>
   );
 }
 
 // Application Details Modal Component
-function ApplicationDetailsModal({ application, onClose, onApprove, onReject }) {
-  const statusBadgeConfig = {
-    pending: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-800 dark:text-yellow-300', label: 'Pendiente' },
-    under_review: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-800 dark:text-blue-300', label: 'En revisión' },
-    approved: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-800 dark:text-green-300', label: 'Aprobada' },
-    rejected: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-800 dark:text-red-300', label: 'Rechazada' },
-  };
-
+function ApplicationDetailsModal({ application, onClose, onApprove, onReject, onReview, hasSubmittedReview }) {
   const statusConfig = statusBadgeConfig[application.status];
 
   return (
@@ -428,6 +420,10 @@ function ApplicationDetailsModal({ application, onClose, onApprove, onReject }) 
               </span>
             </div>
           </div>
+
+          {application.applicantId && (
+            <ApplicantReviewSummary applicantId={application.applicantId} />
+          )}
         </div>
 
         {/* Footer with Actions */}
@@ -448,6 +444,18 @@ function ApplicationDetailsModal({ application, onClose, onApprove, onReject }) 
           </div>
         )}
 
+        {application.status === 'approved' && application.applicantId && (
+          <div className="bg-neutral-50 dark:bg-neutral-800/50 border-t border-neutral-200 dark:border-neutral-700 p-6">
+            <button
+              onClick={onReview}
+              disabled={hasSubmittedReview}
+              className="w-full px-4 py-2 bg-gradient-to-br from-amber-400 to-yellow-600 text-white font-medium rounded-lg hover:from-amber-500 hover:to-yellow-700 disabled:opacity-60 transition-colors"
+            >
+              {hasSubmittedReview ? 'Reseña enviada para este inquilino' : 'Calificar inquilino'}
+            </button>
+          </div>
+        )}
+
         <div className="bg-neutral-50 dark:bg-neutral-800/50 border-t border-neutral-200 dark:border-neutral-700 p-6">
           <button
             onClick={onClose}
@@ -457,6 +465,55 @@ function ApplicationDetailsModal({ application, onClose, onApprove, onReject }) 
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function ApplicantReviewSummary({ applicantId }) {
+  const [summary, setSummary] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadSummary = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await getReviewSummary(applicantId, 'tenant');
+
+        if (!cancelled) {
+          setSummary(data);
+        }
+      } catch (loadError) {
+        if (!cancelled) {
+          setError(loadError.message || 'No se pudo cargar la reputación del inquilino');
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadSummary();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [applicantId]);
+
+  return (
+    <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
+      <ReviewSummaryCard
+        summary={summary}
+        role="tenant"
+        loading={loading}
+        error={error}
+        title="Reputación del inquilino"
+        emptyMessage="Este inquilino aún no tiene reseñas verificadas en Casa MX."
+      />
     </div>
   );
 }

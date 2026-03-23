@@ -8,46 +8,54 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import { RequireRole } from '@/components/guards/RequireRole.jsx';
+import { getMyProperties } from '@/lib/api/properties';
 
 const ApplicationsTable = dynamic(() => import('../../../components/ApplicationsTable.jsx'), { ssr: false });
 
 export default function LandlordDashboard() {
+  return (
+    <RequireRole roles={['landlord']}>
+      <LandlordDashboardContent />
+    </RequireRole>
+  );
+}
+
+function LandlordDashboardContent() {
   const [properties, setProperties] = useState([]);
-  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [selectedPropertyId, setSelectedPropertyId] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all'); // all, pending, under_review, approved, rejected
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [timeoutError, setTimeoutError] = useState(null);
 
   useEffect(() => {
-    // In production, fetch landlord's properties from backend
-    // For now, use mock data from localStorage (from property uploads)
     const loadProperties = async () => {
       const timeoutMs = 10000;
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('timeout')), timeoutMs);
+      });
 
       try {
         setIsLoading(true);
         setTimeoutError(null);
-        // TODO: Replace with actual API call to get landlord's properties
-        // const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/properties/my-properties`, {
-        //   headers: { 'Authorization': `Bearer ${token}` },
-        //   signal: controller.signal,
-        // });
-        
-        // For MVP, we'll show a message that this feature requires backend integration
-        setProperties([]);
+
+        const data = await Promise.race([
+          getMyProperties({ listingType: 'for_rent', limit: 50 }),
+          timeoutPromise,
+        ]);
+
+        setProperties(data || []);
+        setSelectedPropertyId((current) => current || data?.[0]?.id || null);
         setError(null);
       } catch (err) {
-        if (err?.name === 'AbortError') {
+        if (err?.message === 'timeout') {
           setTimeoutError('La carga está tardando demasiado. Intenta de nuevo.');
           setError(null);
         } else {
           setError('Error loading properties: ' + err.message);
         }
       } finally {
-        clearTimeout(timeoutId);
         setIsLoading(false);
       }
     };
@@ -62,6 +70,8 @@ export default function LandlordDashboard() {
     { value: 'approved', label: 'Aprobadas' },
     { value: 'rejected', label: 'Rechazadas' },
   ];
+
+  const selectedProperty = properties.find((property) => property.id === selectedPropertyId) || null;
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
@@ -160,10 +170,10 @@ export default function LandlordDashboard() {
                 {properties.map((prop) => (
                   <button
                     key={prop.id}
-                    onClick={() => setSelectedProperty(prop.id)}
+                    onClick={() => setSelectedPropertyId(prop.id)}
                     className={`
                       p-4 rounded-lg border-2 transition-all
-                      ${selectedProperty === prop.id
+                      ${selectedPropertyId === prop.id
                         ? 'border-amber-400 bg-amber-50 dark:bg-amber-900/20'
                         : 'border-neutral-200 dark:border-neutral-700 hover:border-amber-400'
                       }
@@ -211,7 +221,8 @@ export default function LandlordDashboard() {
 
                 {/* Applications Table */}
                 <ApplicationsTable
-                  propertyId={selectedProperty}
+                  propertyId={selectedProperty.id}
+                  propertyTitle={selectedProperty.title}
                   statusFilter={statusFilter}
                 />
               </>

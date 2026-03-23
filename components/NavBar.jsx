@@ -215,6 +215,51 @@ export default function NavBar() {
               </Link>
             )}
 
+            {isAuthenticated && user?.roles.some((r) => r.type === 'tenant' && r.status === 'approved') && (
+              <Link
+                href="/dashboard/rental-applications"
+                className={`
+                  px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                  ${isActivePath('/dashboard/rental-applications')
+                    ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
+                    : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                  }
+                `}
+              >
+                Mis rentas
+              </Link>
+            )}
+
+            {isAuthenticated && user?.roles.some((r) => r.type === 'landlord' && r.status === 'approved') && (
+              <Link
+                href="/dashboard/applications"
+                className={`
+                  px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                  ${isActivePath('/dashboard/applications')
+                    ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
+                    : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                  }
+                `}
+              >
+                Solicitudes renta
+              </Link>
+            )}
+
+            {isAuthenticated && user?.roles.some((r) => ['tenant', 'landlord'].includes(r.type) && r.status === 'approved') && (
+              <Link
+                href="/reviews"
+                className={`
+                  px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                  ${isActivePath('/reviews')
+                    ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
+                    : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                  }
+                `}
+              >
+                Reseñas
+              </Link>
+            )}
+
             {isAuthenticated && user?.roles.some((r) => r.type === 'admin' && r.status === 'approved') && (
               <>
                 <Link
@@ -422,6 +467,54 @@ export default function NavBar() {
                 `}
               >
                 Mis Solicitudes
+              </Link>
+            )}
+
+            {isAuthenticated && user?.roles.some((r) => r.type === 'tenant' && r.status === 'approved') && (
+              <Link
+                href="/dashboard/rental-applications"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`
+                  block px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                  ${isActivePath('/dashboard/rental-applications')
+                    ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
+                    : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                  }
+                `}
+              >
+                Mis rentas
+              </Link>
+            )}
+
+            {isAuthenticated && user?.roles.some((r) => r.type === 'landlord' && r.status === 'approved') && (
+              <Link
+                href="/dashboard/applications"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`
+                  block px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                  ${isActivePath('/dashboard/applications')
+                    ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
+                    : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                  }
+                `}
+              >
+                Solicitudes renta
+              </Link>
+            )}
+
+            {isAuthenticated && user?.roles.some((r) => ['tenant', 'landlord'].includes(r.type) && r.status === 'approved') && (
+              <Link
+                href="/reviews"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`
+                  block px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                  ${isActivePath('/reviews')
+                    ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
+                    : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                  }
+                `}
+              >
+                Reseñas
               </Link>
             )}
 
