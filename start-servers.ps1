@@ -1,56 +1,77 @@
 # Casa MX - Start Backend and Frontend Servers
-# Run this script from the casa-mx directory
 
-Write-Host "🚀 Starting Casa MX Servers..." -ForegroundColor Cyan
+param(
+    [switch]$SkipDocker
+)
+
+$frontendPath = (Resolve-Path -Path $PSScriptRoot).Path
+$workspaceRoot = Split-Path -Path $frontendPath -Parent
+$backendPath = Join-Path -Path $workspaceRoot -ChildPath 'casa-mx-backend'
+$checkNodeScript = Join-Path -Path $frontendPath -ChildPath 'scripts\check-node-version.js'
+
+if (-not (Test-Path $backendPath)) {
+    Write-Host "Backend folder not found: $backendPath" -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "Starting Casa MX servers..." -ForegroundColor Cyan
 
 # Attempt to switch to Node 20 automatically via nvm-windows (if installed)
-$nvmExe = "$env:LOCALAPPDATA\nvm\nvm.exe"
+$nvmExe = Join-Path -Path $env:LOCALAPPDATA -ChildPath 'nvm\nvm.exe'
 if (Test-Path $nvmExe) {
-    Write-Host "`n🧭 nvm detected. Switching to Node 20.19.0..." -ForegroundColor Yellow
-    $env:NVM_HOME = "$env:LOCALAPPDATA\nvm"
-    $env:NVM_SYMLINK = "C:\nvm4w\nodejs"
+    Write-Host "`nnvm detected. Switching to Node 20.19.0..." -ForegroundColor Yellow
+    $env:NVM_HOME = Join-Path -Path $env:LOCALAPPDATA -ChildPath 'nvm'
+    $env:NVM_SYMLINK = 'C:\nvm4w\nodejs'
     $env:Path = "$env:NVM_HOME;$env:NVM_SYMLINK;" + $env:Path
     & $nvmExe use 20.19.0 | Out-Null
 }
 
 # Validate Node version for both apps (requires 18-20)
-Write-Host "`n🔎 Validating Node.js version compatibility..." -ForegroundColor Yellow
-node .\scripts\check-node-version.js
+Write-Host "`nValidating Node.js version compatibility..." -ForegroundColor Yellow
+node $checkNodeScript
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "❌ Incompatible Node version detected. Use Node 18-20 and retry." -ForegroundColor Red
+    Write-Host "Incompatible Node version detected. Use Node 18-20 and retry." -ForegroundColor Red
     exit 1
 }
-Write-Host "✅ Node.js version is compatible" -ForegroundColor Green
+Write-Host "Node.js version is compatible" -ForegroundColor Green
 
-# Start PostgreSQL via Docker in backend
-Write-Host "`n📦 Starting PostgreSQL database..." -ForegroundColor Yellow
-Push-Location ..\casa-mx-backend
-docker compose up -d
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "❌ Failed to start PostgreSQL" -ForegroundColor Red
+if (-not $SkipDocker) {
+    Write-Host "`nStarting PostgreSQL and Redis via Docker..." -ForegroundColor Yellow
+    Push-Location $backendPath
+    docker compose up -d postgres redis
+    $composeExitCode = $LASTEXITCODE
     Pop-Location
-    exit 1
-}
-Write-Host "✅ PostgreSQL started" -ForegroundColor Green
 
-# Wait for database to be ready
-Write-Host "`n⏳ Waiting for database to be ready..." -ForegroundColor Yellow
-Start-Sleep -Seconds 3
+    if ($composeExitCode -ne 0) {
+        Write-Host "Failed to start Docker services. Use -SkipDocker if services are already running." -ForegroundColor Red
+        exit 1
+    }
+
+    Write-Host "Docker services started" -ForegroundColor Green
+    Write-Host "`nWaiting for services to initialize..." -ForegroundColor Yellow
+    Start-Sleep -Seconds 3
+}
 
 # Start backend server
-Write-Host "`n🔧 Starting backend server on port 3001..." -ForegroundColor Yellow
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd ..\casa-mx-backend; npm run dev" -WindowStyle Normal
+Write-Host "`nStarting backend server on port 3001..." -ForegroundColor Yellow
+Start-Process -FilePath 'powershell' -ArgumentList @(
+    '-NoExit',
+    '-Command',
+    "Set-Location '$backendPath'; npm run dev"
+) -WindowStyle Normal
 
-# Wait for backend to start
-Start-Sleep -Seconds 5
-
-Pop-Location
+# Give backend a short head start
+Start-Sleep -Seconds 3
 
 # Start frontend server
-Write-Host "`n🎨 Starting frontend server on port 3000..." -ForegroundColor Yellow
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd $PWD; npm run dev" -WindowStyle Normal
+Write-Host "`nStarting frontend server on port 3000..." -ForegroundColor Yellow
+Start-Process -FilePath 'powershell' -ArgumentList @(
+    '-NoExit',
+    '-Command',
+    "Set-Location '$frontendPath'; npm run dev"
+) -WindowStyle Normal
 
-Write-Host "`n✅ All servers started!" -ForegroundColor Green
-Write-Host "`nBackend:  http://localhost:3001" -ForegroundColor Cyan
+Write-Host "`nAll servers start commands executed." -ForegroundColor Green
+Write-Host "Backend:  http://localhost:3001" -ForegroundColor Cyan
 Write-Host "Frontend: http://localhost:3000" -ForegroundColor Cyan
-Write-Host "`nPress Ctrl+C in each PowerShell window to stop servers" -ForegroundColor Yellow
+Write-Host "Use Ctrl+C in each launched PowerShell window to stop servers." -ForegroundColor Yellow

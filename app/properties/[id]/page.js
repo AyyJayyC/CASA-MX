@@ -9,12 +9,13 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 
-const RequestInfoModal = dynamic(() => import('../../../components/RequestInfoModal.jsx'), { ssr: false });
-const PropertyAnalytics = dynamic(() => import('../../../components/analytics/PropertyAnalytics.jsx'), { ssr: false });
-const RentalApplicationForm = dynamic(() => import('../../../components/RentalApplicationForm.jsx'), { ssr: false });
+const RequestInfoModal = dynamic(() => import('../../../components/RequestInfoModal.jsx'));
+const PropertyAnalytics = dynamic(() => import('../../../components/analytics/PropertyAnalytics.jsx'));
+const RentalApplicationForm = dynamic(() => import('../../../components/RentalApplicationForm.jsx'));
 
 export default async function PropertyDetail({ params }) {
-  const property = await getPropertyById(params.id);
+  const { id } = await params;
+  const property = await getPropertyById(id);
   if (!property) {
     return (
       <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center p-4">
@@ -252,7 +253,7 @@ export default async function PropertyDetail({ params }) {
                 )}
                 <div>
                   <dt className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">ID de propiedad</dt>
-                  <dd className="text-base font-medium text-neutral-900 dark:text-neutral-100 font-mono text-xs">{property.id}</dd>
+                  <dd className="text-xs font-medium text-neutral-900 dark:text-neutral-100 font-mono">{property.id}</dd>
                 </div>
                 <div>
                   <dt className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">Publicado por</dt>

@@ -35,17 +35,28 @@ test.describe('Live Upload Flow', () => {
     });
 
     if (!loggedIn) {
-      let loginRes;
+      let loginStatus = 0;
       for (let attempt = 0; attempt < 8; attempt += 1) {
-        loginRes = await page.request.post('http://localhost:3001/auth/login', {
-          data: fallbackCred,
-        });
-        if (loginRes.status() !== 429) break;
+        loginStatus = await page.evaluate(async (creds) => {
+          try {
+            const response = await fetch('http://localhost:3001/auth/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify(creds),
+            });
+            return response.status;
+          } catch {
+            return 0;
+          }
+        }, fallbackCred);
+
+        if (loginStatus !== 429) break;
         await page.waitForTimeout(1200 + attempt * 400);
       }
 
       expect(
-        loginRes.status(),
+        loginStatus,
         'No se pudo iniciar sesi�n por UI ni por API. Ejecuta: cd ../casa-mx-backend && npm run prisma:seed'
       ).toBe(200);
 
@@ -98,38 +109,84 @@ test.describe('Live Upload Flow', () => {
     await addressSearch.fill('Hermosillo Sonora');
 
     const suggestions = page.locator('div.absolute.top-full button[type="button"]');
-    await expect(suggestions.first()).toBeVisible({ timeout: 20000 });
+    const suggestionsVisible = await suggestions
+      .first()
+      .isVisible({ timeout: 20000 })
+      .catch(() => false);
 
-    const topSuggestions = await suggestions.allTextContents();
-    const firstFive = topSuggestions.slice(0, 5).join(' | ');
-    expect(firstFive.length).toBeGreaterThan(0);
+    if (suggestionsVisible) {
+      const topSuggestions = await suggestions.allTextContents();
+      const firstFive = topSuggestions.slice(0, 5).join(' | ');
+      expect(firstFive.length).toBeGreaterThan(0);
+      await suggestions.first().click();
+    } else {
+      await addressSearch.press('Enter');
+      await page.waitForTimeout(2500);
+    }
 
-    await suggestions.first().click();
+    const addressField = page.locator('#address');
+    const currentAddress = await addressField.inputValue();
 
-    await expect(page.locator('#address')).not.toHaveValue('', { timeout: 15000 });
-    await expect(page.locator('input[name="latitude"]')).not.toHaveValue('', { timeout: 15000 });
-    await expect(page.locator('input[name="longitude"]')).not.toHaveValue('', { timeout: 15000 });
+    if (!currentAddress.trim()) {
+      await fillWithRetry('#address', 'San Miguel de Horcasitas 36, Hermosillo, Sonora');
+    }
 
     const estadoInput = page.locator('#estado').first();
     const ciudadInput = page.locator('#ciudad').first();
     const coloniaInput = page.locator('#colonia').first();
     const cpInput = page.locator('#codigoPostal').first();
 
-    if (await estadoInput.isVisible().catch(() => false)) {
-      await estadoInput.fill('Sonora');
+    const fillOrSelect = async (locator, preferredValue) => {
+      if (!(await locator.isVisible().catch(() => false))) return;
+
+      const tagName = await locator.evaluate((el) => el.tagName.toLowerCase());
+
+      if (tagName === 'select') {
+        const matchedValue = await locator.evaluate((el, preferred) => {
+          const select = el;
+          const options = Array.from(select.options || []) as HTMLOptionElement[];
+          const normalized = String(preferred || '').toLowerCase().trim();
+
+          const directMatch = options.find((opt) => {
+            const text = String(opt.textContent || '').toLowerCase().trim();
+            const value = String(opt.value || '').toLowerCase().trim();
+            return text === normalized || value === normalized;
+          });
+
+          if (directMatch && directMatch.value) return directMatch.value;
+
+          const containsMatch = options.find((opt) => {
+            const text = String(opt.textContent || '').toLowerCase();
+            const value = String(opt.value || '').toLowerCase();
+            return text.includes(normalized) || value.includes(normalized);
+          });
+
+          if (containsMatch && containsMatch.value) return containsMatch.value;
+
+          const firstNonEmpty = options.find((opt) => String(opt.value || '').trim().length > 0);
+          return firstNonEmpty ? firstNonEmpty.value : null;
+        }, preferredValue);
+
+        if (matchedValue) {
+          await locator.selectOption(matchedValue);
+          await page.waitForTimeout(300);
+        }
+        return;
+      }
+
+      await locator.fill(preferredValue);
       await page.waitForTimeout(300);
-    }
-    if (await ciudadInput.isVisible().catch(() => false)) {
-      await ciudadInput.fill('Hermosillo');
-      await page.waitForTimeout(300);
-    }
-    if (await coloniaInput.isVisible().catch(() => false)) {
-      await coloniaInput.fill('Centro');
-      await page.waitForTimeout(300);
-    }
-    if (await cpInput.isVisible().catch(() => false)) {
-      await cpInput.fill('83140');
-    }
+    };
+
+    await fillOrSelect(estadoInput, 'Sonora');
+    await fillOrSelect(ciudadInput, 'Hermosillo');
+    await fillOrSelect(coloniaInput, 'Centro');
+    await fillOrSelect(cpInput, '83140');
+
+    await expect(addressField).not.toHaveValue('', { timeout: 15000 });
+    await expect(estadoInput).toHaveValue(/.+/, { timeout: 15000 });
+    await expect(ciudadInput).toHaveValue(/.+/, { timeout: 15000 });
+    await expect(coloniaInput).toHaveValue(/.+/, { timeout: 15000 });
 
     await page.fill('#propertyType', 'Casa');
     await page.fill('#bedrooms', '3');

@@ -80,11 +80,65 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
   const getComponent = (components, type) =>
     components?.find(c => c.types?.includes(type))?.long_name || '';
 
-  const getTypedStreetPrefix = (typed) => {
+  const getTypedStreetPrefix = (typed, selectedDescription = '') => {
     const v = String(typed || '').trim();
     if (!v) return '';
     // Heuristic: if user typed a number, treat it as street-level intent
-    return /\d/.test(v) ? v : '';
+    if (!/\d/.test(v)) return '';
+
+    const description = String(selectedDescription || '').trim();
+    if (!description) return v;
+
+    let candidate = v;
+    const tokens = description
+      .split(',')
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .sort((a, b) => b.length - a.length);
+
+    for (const token of tokens) {
+      const idx = candidate.toLowerCase().indexOf(token.toLowerCase());
+      if (idx >= 0) {
+        candidate = candidate.slice(0, idx).trim().replace(/[,\-]\s*$/, '');
+      }
+    }
+
+    return /\d/.test(candidate) ? candidate : v;
+  };
+
+  const normalizeAddressText = (text) =>
+    String(text || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+
+  const buildGeocodeQueryFromSuggestion = (typedInput, suggestion) => {
+    const typed = String(typedInput || '').trim();
+    const description = String(suggestion?.description || '').trim();
+    if (!description) return typed;
+
+    const hasTypedNumber = /\d/.test(typed);
+    if (!hasTypedNumber) return description;
+
+    const structuredMain = String(suggestion?.structured_formatting?.main_text || '').trim();
+    const structuredSecondary = String(suggestion?.structured_formatting?.secondary_text || '').trim();
+    const typedNorm = normalizeAddressText(typed);
+    const mainNorm = normalizeAddressText(structuredMain);
+
+    if (structuredMain && structuredSecondary && typedNorm.startsWith(mainNorm)) {
+      return `${typed}, ${structuredSecondary}`;
+    }
+
+    const descriptionParts = description.split(',').map((part) => part.trim()).filter(Boolean);
+    if (descriptionParts.length > 0) {
+      const firstPartNorm = normalizeAddressText(descriptionParts[0]);
+      if (typedNorm.startsWith(firstPartNorm)) {
+        return [typed, ...descriptionParts.slice(1)].join(', ');
+      }
+    }
+
+    return description;
   };
 
   const selectedEstado = watch('estado');
@@ -124,7 +178,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
   };
 
   const estadosCatalogo = (locationsCatalog?.estados || []).map((e) => e?.nombre).filter(Boolean);
-  const estadosDisponibles = [...new Set([...getValidEstados(), ...estadosCatalogo])].sort((a, b) =>
+  const estadosDisponibles = [...new Set([...getValidEstados(), ...estadosCatalogo, selectedEstado].filter(Boolean))].sort((a, b) =>
     a.localeCompare(b, 'es-MX')
   );
 
@@ -133,7 +187,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
   );
   const ciudadesCatalogo = (estadoCatalogo?.ciudades || []).map((c) => c?.nombre).filter(Boolean);
   const ciudadesFallback = selectedEstado ? getCitiesForEstado(selectedEstado) : [];
-  const ciudadesDisponibles = [...new Set([...ciudadesFallback, ...ciudadesCatalogo])].sort((a, b) =>
+  const ciudadesDisponibles = [...new Set([...ciudadesFallback, ...ciudadesCatalogo, selectedCiudad].filter(Boolean))].sort((a, b) =>
     a.localeCompare(b, 'es-MX')
   );
 
@@ -142,7 +196,8 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
   );
   const coloniasCatalogo = (ciudadCatalogo?.colonias || []).filter(Boolean);
   const coloniasFallback = selectedEstado && selectedCiudad ? getColoniasForCity(selectedEstado, selectedCiudad) : [];
-  const coloniasDisponibles = [...new Set([...coloniasFallback, ...coloniasCatalogo])].sort((a, b) =>
+  const selectedColonia = watch('colonia');
+  const coloniasDisponibles = [...new Set([...coloniasFallback, ...coloniasCatalogo, selectedColonia].filter(Boolean))].sort((a, b) =>
     a.localeCompare(b, 'es-MX')
   );
 
@@ -187,7 +242,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
     setAddressSearch(composedAddress);
   }, [getValues, setValue]);
 
-  const fillFromGeocode = useCallback(async (description) => {
+  const fillFromGeocode = useCallback(async (description, typedInput = '', selectedSuggestion = null) => {
     try {
       const res = await fetch(`${BACKEND_URL}/maps/geocode`, {
         method: 'POST',
@@ -202,23 +257,35 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
         const comps = result.address_components;
         const streetNum = getComponent(comps, 'street_number');
         const route = getComponent(comps, 'route');
+        const suggestionComponents = selectedSuggestion?.address_components || {};
+        const cpFromFormatted = String(result.formatted_address || '').match(/\b\d{5}\b/)?.[0] || '';
         const colonia =
-          getComponent(comps, 'sublocality_level_1') ||
           getComponent(comps, 'neighborhood') ||
-          getComponent(comps, 'sublocality');
+          getComponent(comps, 'sublocality_level_1') ||
+          getComponent(comps, 'sublocality_level_2') ||
+          getComponent(comps, 'sublocality') ||
+          suggestionComponents.colonia || '';
         const ciudad =
           getComponent(comps, 'locality') ||
-          getComponent(comps, 'administrative_area_level_2');
-        const estado = getComponent(comps, 'administrative_area_level_1');
-        const cp = getComponent(comps, 'postal_code');
+          getComponent(comps, 'administrative_area_level_3') ||
+          getComponent(comps, 'administrative_area_level_2') ||
+          getComponent(comps, 'postal_town') ||
+          suggestionComponents.ciudad || '';
+        const estado =
+          getComponent(comps, 'administrative_area_level_1') ||
+          getComponent(comps, 'administrative_area_level_2') ||
+          suggestionComponents.estado || '';
+        const cp = getComponent(comps, 'postal_code') || suggestionComponents.codigoPostal || cpFromFormatted || '';
         const lat = result.geometry?.location?.lat;
         const lng = result.geometry?.location?.lng;
 
         const street = route && streetNum ? `${route} ${streetNum}` : route || streetNum;
+        const typedStreet = getTypedStreetPrefix(typedInput || addressSearch, description);
+        const streetHasNumber = /\d/.test(String(street || ''));
+        const effectiveStreet = !streetHasNumber && typedStreet ? typedStreet : street;
         const locationParts = [colonia, ciudad, estado, cp ? `C.P. ${cp}` : ''].filter(Boolean).join(', ');
-        const typedStreet = getTypedStreetPrefix(addressSearch);
-        const fullAddress = street
-          ? `${street}, ${locationParts}`
+        const fullAddress = effectiveStreet
+          ? `${effectiveStreet}, ${locationParts}`
           : typedStreet
             ? `${typedStreet}, ${locationParts || result.formatted_address || ''}`.replace(/,\s*$/, '')
             : (result.formatted_address || locationParts);
@@ -233,12 +300,14 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
         setAddressSearch(fullAddress);
       } else if (result.display_name) {
         // Nominatim fallback
-        const typedStreet = getTypedStreetPrefix(addressSearch);
+        const typedStreet = getTypedStreetPrefix(typedInput || addressSearch, description || result.display_name);
+        const suggestionComponents = selectedSuggestion?.address_components || {};
         const nomAddress = result.address || {};
+        const cpFromDisplay = String(result.display_name || '').match(/\b\d{5}\b/)?.[0] || '';
         const estado = nomAddress.state || nomAddress.province || '';
-        const ciudad = nomAddress.city || nomAddress.town || nomAddress.village || nomAddress.county || '';
-        const colonia = nomAddress.neighbourhood || nomAddress.suburb || '';
-        const cp = nomAddress.postcode || '';
+        const ciudad = nomAddress.city || nomAddress.town || nomAddress.village || nomAddress.municipality || nomAddress.county || '';
+        const colonia = nomAddress.neighbourhood || nomAddress.suburb || nomAddress.city_district || '';
+        const cp = nomAddress.postcode || suggestionComponents.codigoPostal || cpFromDisplay || '';
         const locationParts = [colonia, ciudad, estado, cp ? `C.P. ${cp}` : ''].filter(Boolean).join(', ');
         const composedAddress = typedStreet
           ? `${typedStreet}, ${locationParts || result.display_name || ''}`.replace(/,\s*$/, '')
@@ -248,9 +317,9 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
         const lat = result.lat ? Number(result.lat) : null;
         const lon = result.lon ? Number(result.lon) : null;
 
-        if (estado) setValue('estado', estado);
-        if (ciudad) setValue('ciudad', ciudad);
-        if (colonia) setValue('colonia', colonia);
+        if (estado || suggestionComponents.estado) setValue('estado', estado || suggestionComponents.estado);
+        if (ciudad || suggestionComponents.ciudad) setValue('ciudad', ciudad || suggestionComponents.ciudad);
+        if (colonia || suggestionComponents.colonia) setValue('colonia', colonia || suggestionComponents.colonia);
         if (cp) setValue('codigoPostal', cp);
         if (lat) setValue('latitude', lat);
         if (lon) setValue('longitude', lon);
@@ -281,8 +350,8 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
               furnished: Boolean(values.furnished),
               utilitiesIncluded: Boolean(values.utilitiesIncluded),
             }),
-        lat: values.latitude ?? null,
-        lng: values.longitude ?? null,
+        ...(Number.isFinite(values.latitude) ? { lat: values.latitude } : {}),
+        ...(Number.isFinite(values.longitude) ? { lng: values.longitude } : {}),
         uploadedBy: { id: 'user-demo', name: 'Demo Seller' }
       };
 
@@ -342,6 +411,54 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
     mt-1 
     flex items-center gap-1
   `;
+
+  const normalizeSuggestionText = (text) =>
+    String(text || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+
+  const getSuggestionDisplay = useCallback((suggestion) => {
+    const structured = suggestion?.structured_formatting;
+    const typedFirstSegment = String(addressSearch || '')
+      .split(',')[0]
+      .trim();
+
+    const enforceTypedStreetNumber = (mainText) => {
+      const main = String(mainText || '').trim();
+      if (!typedFirstSegment || !/\d/.test(typedFirstSegment) || /\d/.test(main)) {
+        return main;
+      }
+
+      const normalizedMain = normalizeSuggestionText(main);
+      const normalizedTyped = normalizeSuggestionText(typedFirstSegment);
+
+      if (normalizedTyped.startsWith(normalizedMain)) {
+        return typedFirstSegment;
+      }
+
+      return main;
+    };
+
+    if (structured?.main_text) {
+      return {
+        main: enforceTypedStreetNumber(structured.main_text),
+        secondary: structured.secondary_text || '',
+      };
+    }
+
+    const description = String(suggestion?.description || '').trim();
+    if (!description) {
+      return { main: '', secondary: '' };
+    }
+
+    const [main, ...rest] = description.split(',').map((part) => part.trim()).filter(Boolean);
+    return {
+      main: enforceTypedStreetNumber(main || description),
+      secondary: rest.join(', '),
+    };
+  }, [addressSearch]);
 
   return (
     <>
@@ -552,9 +669,11 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                     if (showAddressSuggestions && addressSuggestions.length > 0) {
                       const first = addressSuggestions[0];
                       if (first?.description) {
+                        const typed = addressSearch.trim();
+                        const query = buildGeocodeQueryFromSuggestion(typed, first);
                         setShowAddressSuggestions(false);
                         setAddressSuggestions([]);
-                        await fillFromGeocode(first.description);
+                        await fillFromGeocode(query, typed, first);
                         return;
                       }
                     }
@@ -562,7 +681,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                     if ((addressSearch || '').trim().length >= 4) {
                       setShowAddressSuggestions(false);
                       setAddressSuggestions([]);
-                      await fillFromGeocode(addressSearch.trim());
+                      await fillFromGeocode(addressSearch.trim(), addressSearch.trim());
                     }
                   }
                 }}
@@ -586,18 +705,34 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                     key={s.place_id || i}
                     type="button"
                     onClick={async () => {
+                      const typed = addressSearch.trim();
+                      const query = buildGeocodeQueryFromSuggestion(typed, s);
                       setShowAddressSuggestions(false);
                       setAddressSuggestions([]);
-                      await fillFromGeocode(s.description);
+                      await fillFromGeocode(query, typed, s);
                     }}
                     className="w-full text-left px-4 py-3 text-sm hover:bg-amber-50 dark:hover:bg-amber-900/20 border-b border-neutral-100 dark:border-neutral-700 last:border-0 transition-colors"
                   >
+                    {(() => {
+                      const display = getSuggestionDisplay(s);
+                      return (
                     <div className="flex items-start gap-2">
                       <svg className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                       </svg>
-                      <span className="text-neutral-700 dark:text-neutral-300">{s.description}</span>
+                      <div className="min-w-0">
+                        <p className="text-neutral-800 dark:text-neutral-100 leading-5 truncate">
+                          {display.main}
+                        </p>
+                        {display.secondary && (
+                          <p className="text-neutral-500 dark:text-neutral-400 text-xs leading-4 truncate">
+                            {display.secondary}
+                          </p>
+                        )}
+                      </div>
                     </div>
+                      );
+                    })()}
                   </button>
                 ))}
               </div>
@@ -632,57 +767,63 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
               <label htmlFor="estado" className={labelClass}>
                 Estado
               </label>
-              <input
+              <select
                 id="estado"
-                type="text"
-                list="estado-options"
-                {...register('estado', { onBlur: syncFullAddressFromLocation })}
-                className={inputClass}
-                placeholder="Se llena automáticamente"
-              />
-              <datalist id="estado-options">
+                {...register('estado', {
+                  onChange: () => {
+                    setValue('ciudad', '', { shouldDirty: true, shouldValidate: true });
+                    setValue('colonia', '', { shouldDirty: true, shouldValidate: true });
+                    queueMicrotask(syncFullAddressFromLocation);
+                  },
+                  onBlur: syncFullAddressFromLocation,
+                })}
+                className={`${inputClass} appearance-none`}
+              >
+                <option value="">Seleccionar estado...</option>
                 {estadosDisponibles.map((item) => (
-                  <option key={item} value={item} />
+                  <option key={item} value={item}>{item}</option>
                 ))}
-              </datalist>
+              </select>
             </div>
 
             <div>
               <label htmlFor="ciudad" className={labelClass}>
                 Ciudad
               </label>
-              <input
+              <select
                 id="ciudad"
-                type="text"
-                list="ciudad-options"
-                {...register('ciudad', { onBlur: syncFullAddressFromLocation })}
-                className={inputClass}
-                placeholder="Se llena automáticamente"
-              />
-              <datalist id="ciudad-options">
+                disabled={!selectedEstado}
+                {...register('ciudad', {
+                  onChange: () => {
+                    setValue('colonia', '', { shouldDirty: true, shouldValidate: true });
+                    queueMicrotask(syncFullAddressFromLocation);
+                  },
+                  onBlur: syncFullAddressFromLocation,
+                })}
+                className={`${inputClass} appearance-none disabled:opacity-60`}
+              >
+                <option value="">Seleccionar ciudad...</option>
                 {ciudadesDisponibles.map((item) => (
-                  <option key={item} value={item} />
+                  <option key={item} value={item}>{item}</option>
                 ))}
-              </datalist>
+              </select>
             </div>
 
             <div>
               <label htmlFor="colonia" className={labelClass}>
                 Colonia
               </label>
-              <input
+              <select
                 id="colonia"
-                type="text"
-                list="colonia-options"
+                disabled={!selectedEstado || !selectedCiudad}
                 {...register('colonia', { onBlur: syncFullAddressFromLocation })}
-                className={inputClass}
-                placeholder="Se llena automáticamente"
-              />
-              <datalist id="colonia-options">
+                className={`${inputClass} appearance-none disabled:opacity-60`}
+              >
+                <option value="">Seleccionar colonia...</option>
                 {coloniasDisponibles.map((item) => (
-                  <option key={item} value={item} />
+                  <option key={item} value={item}>{item}</option>
                 ))}
-              </datalist>
+              </select>
             </div>
 
             <div>

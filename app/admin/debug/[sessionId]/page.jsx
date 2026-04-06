@@ -5,6 +5,8 @@ import { RequireRole } from '@/components/guards/RequireRole.jsx';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+
 export default function SessionDetailPage() {
   const params = useParams();
   const sessionId = params.sessionId;
@@ -26,7 +28,7 @@ export default function SessionDetailPage() {
       const token = localStorage.getItem('token');
       
       const response = await fetch(
-        `http://localhost:3001/admin/debug/sessions/${sessionId}`,
+        `${API_BASE}/admin/debug/sessions/${sessionId}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -54,7 +56,7 @@ export default function SessionDetailPage() {
       const token = localStorage.getItem('token');
       
       const response = await fetch(
-        `http://localhost:3001/admin/debug/sessions/${sessionId}/export`,
+        `${API_BASE}/admin/debug/sessions/${sessionId}/export`,
         {
           method: 'POST',
           headers: {
@@ -95,7 +97,7 @@ export default function SessionDetailPage() {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `http://localhost:3001/admin/debug/errors/${errorId}/resolve`,
+        `${API_BASE}/admin/debug/errors/${errorId}/resolve`,
         {
           method: 'PATCH',
           headers: {
@@ -136,7 +138,7 @@ export default function SessionDetailPage() {
 
   if (loading) {
     return (
-      <RequireRole roles={["admin"]}>
+      <RequireRole roles={["admin"]} allowInProduction={false}>
         <div className="container mx-auto p-6">
           <div className="text-center py-8">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -149,7 +151,7 @@ export default function SessionDetailPage() {
 
   if (error || !session) {
     return (
-      <RequireRole roles={["admin"]}>
+      <RequireRole roles={["admin"]} allowInProduction={false}>
         <div className="container mx-auto p-6">
           <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded">
             {error || 'Session not found'}
@@ -165,7 +167,7 @@ export default function SessionDetailPage() {
   const timeline = session.timeline || [];
 
   return (
-    <RequireRole roles={["admin"]}>
+    <RequireRole roles={["admin"]} allowInProduction={false}>
       <div className="container mx-auto p-6">
         {/* Header */}
         <div className="mb-6">

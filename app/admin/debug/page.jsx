@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { RequireRole } from '@/components/guards/RequireRole.jsx';
 import Link from 'next/link';
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+
 export default function AdminDebugPage() {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +40,7 @@ export default function AdminDebugPage() {
       if (filters.endDate) params.append('endDate', new Date(filters.endDate).toISOString());
 
       const response = await fetch(
-        `http://localhost:3001/admin/debug/sessions?${params}`,
+        `${API_BASE}/admin/debug/sessions?${params}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -83,7 +85,7 @@ export default function AdminDebugPage() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/admin/debug/cleanup', {
+      const response = await fetch(`${API_BASE}/admin/debug/cleanup`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -103,7 +105,7 @@ export default function AdminDebugPage() {
   };
 
   return (
-    <RequireRole roles={["admin"]}>
+    <RequireRole roles={["admin"]} allowInProduction={false}>
       <div className="container mx-auto p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Debug Sessions</h1>

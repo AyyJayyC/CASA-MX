@@ -11,15 +11,15 @@ import { useAuth } from '@/lib/auth/useAuth';
 
 export function RequireAuth({ children }) {
   const router = useRouter();
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, isHydrated } = useAuth();
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
+    if (!loading && isHydrated && !isAuthenticated) {
       router.push('/login');
     }
-  }, [loading, isAuthenticated, router]);
+  }, [loading, isHydrated, isAuthenticated, router]);
 
-  if (loading) {
+  if (loading || !isHydrated) {
     return <div className="text-center py-12">Cargando...</div>;
   }
 

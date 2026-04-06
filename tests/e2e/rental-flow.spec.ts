@@ -15,6 +15,51 @@
 
 const { test, expect } = require('@playwright/test');
 
+const sellerCreds = { email: 'seller@casamx.local', password: 'seller123' };
+
+async function loginAsLandlord(page) {
+  await page.goto('/login', { waitUntil: 'domcontentloaded' });
+  await page.fill('input[type="email"]', sellerCreds.email);
+  await page.fill('input[type="password"]', sellerCreds.password);
+
+  page.once('dialog', async (dialog) => {
+    try {
+      await dialog.dismiss();
+    } catch {}
+  });
+
+  await page.click('button[type="submit"]');
+  await page.waitForTimeout(3000);
+
+  const logoutVisible = await page.locator('button:has-text("Salir")').isVisible().catch(() => false);
+  if (logoutVisible) {
+    return;
+  }
+
+  let loginStatus = 0;
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    loginStatus = await page.evaluate(async (creds) => {
+      try {
+        const response = await fetch('http://localhost:3001/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(creds),
+        });
+        return response.status;
+      } catch {
+        return 0;
+      }
+    }, sellerCreds);
+
+    if (loginStatus !== 429) break;
+    await page.waitForTimeout(1200 + attempt * 400);
+  }
+
+  expect(loginStatus).toBe(200);
+  await page.goto('/properties', { waitUntil: 'domcontentloaded' });
+}
+
 test.describe('Rental Flow E2E Tests', () => {
   test.beforeEach(async ({ page }) => {
     // Clear storage before each test
@@ -72,6 +117,8 @@ test.describe('Rental Flow E2E Tests', () => {
   });
 
   test('Scenario 3: Landlord dashboard loads successfully', async ({ page }) => {
+    await loginAsLandlord(page);
+
     // Navigate to dashboard
     await page.goto('/dashboard/applications');
     
@@ -87,6 +134,7 @@ test.describe('Rental Flow E2E Tests', () => {
   });
 
   test('Scenario 4: Dashboard has property selector component', async ({ page }) => {
+    await loginAsLandlord(page);
     await page.goto('/dashboard/applications');
     
     // Verify page loads
@@ -101,6 +149,7 @@ test.describe('Rental Flow E2E Tests', () => {
   });
 
   test('Scenario 5: Status filter buttons are interactive', async ({ page }) => {
+    await loginAsLandlord(page);
     await page.goto('/dashboard/applications');
     
     await page.waitForTimeout(1000);
@@ -169,6 +218,7 @@ test.describe('Rental Flow E2E Tests', () => {
   });
 
   test('Scenario 8: Dashboard responsive on mobile', async ({ page }) => {
+    await loginAsLandlord(page);
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 812 });
     
@@ -194,6 +244,7 @@ test.describe('Rental Flow E2E Tests', () => {
   });
 
   test('Scenario 10: Dark mode support on dashboard', async ({ page }) => {
+    await loginAsLandlord(page);
     // Set dark mode preference
     await page.emulateMedia({ colorScheme: 'dark' });
     

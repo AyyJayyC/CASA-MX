@@ -10,8 +10,23 @@ vi.mock('../../lib/queries/properties', () => ({
 describe('Upload integration', () => {
   it('submits a full property through API adapter', async () => {
     const spy = vi.spyOn(propertiesApi, 'addProperty').mockResolvedValue({ id: 'prop-new', title: 'Integration Prop' });
+    vi.spyOn(propertiesApi, 'getLocationsCatalog').mockResolvedValue({
+      estados: [
+        {
+          nombre: 'Ciudad de México',
+          ciudades: [
+            {
+              nombre: 'Ciudad de México',
+              colonias: ['Demo Colonia', 'Int Colonia'],
+            },
+          ],
+        },
+      ],
+    });
 
     render(<PropertyUploadForm />);
+
+    await screen.findByRole('option', { name: 'Ciudad de México' });
 
     fireEvent.change(screen.getByLabelText(/Título/), { target: { value: 'Integration Prop' } });
     fireEvent.change(screen.getByLabelText(/Descripción/), { target: { value: 'Integración descripción...' } });

@@ -10,8 +10,23 @@ vi.mock('../../lib/queries/properties', () => ({
 describe('PropertyUploadForm', () => {
   it('validates required fields and submits successfully', async () => {
     const spy = vi.spyOn(propertiesApi, 'addProperty').mockResolvedValue({ id: 'prop-x', title: 'Test' });
+    vi.spyOn(propertiesApi, 'getLocationsCatalog').mockResolvedValue({
+      estados: [
+        {
+          nombre: 'Ciudad de México',
+          ciudades: [
+            {
+              nombre: 'Ciudad de México',
+              colonias: ['Demo Colonia', 'Int Colonia'],
+            },
+          ],
+        },
+      ],
+    });
 
     render(<PropertyUploadForm />);
+
+    await screen.findByRole('option', { name: 'Ciudad de México' });
 
     // Try submitting empty form — should show validation errors
     fireEvent.click(screen.getByRole('button', { name: /Publicar propiedad/i }));

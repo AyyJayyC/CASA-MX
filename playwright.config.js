@@ -7,7 +7,7 @@ module.exports = {
   retries: process.env.CI ? 1 : 0,
   testDir: './tests/e2e',
   use: {
-    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000',
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000',
     headless: true,
     viewport: { width: 1280, height: 720 },
     actionTimeout: 5000,

@@ -8,9 +8,27 @@
 - **Frontend Tests**: 53/53 passing
 - **Total Tests**: 267/267 passing
 - **Date Completed**: January 14, 2026
-- **Last Updated**: March 10, 2026
+- **Last Updated**: March 19, 2026
 
 ### Recent Updates (Feb–Mar 2026)
+
+- ✅ **Address search/autofill reliability + Google-only maps hardening (March 19, 2026)**
+  - Upload address suggestions now display in Google-style primary/secondary format and preserve typed house-number context.
+  - Address selection flow improved to better populate `estado`, `ciudad`, `colonia`, and `codigoPostal` from geocoding results.
+  - Backend maps autocomplete/geocode path is now Google-only (Nominatim fallback removed for these flows).
+  - Added non-test startup fail-fast checks for maps configuration (`MAPS_API_KEY`, `ENABLE_BILLABLE_MAPS=true`) plus clearer maps route error statuses.
+  - Resolved local login outage caused by missing `ENABLE_BILLABLE_MAPS` in backend runtime env; backend health restored to 200.
+  - Validation run after fixes:
+    - Frontend targeted test: `tests/components/PropertyUploadForm.test.jsx` (1/1 passed)
+    - Backend targeted tests: `checkpoint-filters-1` + `checkpoint-filters-2` (40/40 passed)
+    - Playwright targeted flow: `tests/e2e/publish-upload-live.spec.ts` (1/1 passed)
+  - Updated files:
+    - `components/PropertyUploadForm.jsx`
+    - `casa-mx-backend/src/services/maps.service.ts`
+    - `casa-mx-backend/src/config/env.ts`
+    - `casa-mx-backend/src/routes/maps.ts`
+    - `casa-mx-backend/.env.example`
+    - `tests/e2e/publish-upload-live.spec.ts`
 
 - ✅ **Property publishing now appears in listings immediately**
   - Frontend properties query switched from mock data to backend API source.

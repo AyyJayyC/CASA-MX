@@ -9,12 +9,18 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/useAuth';
 
-export function RequireRole({ children, roles = [] }) {
+export function RequireRole({ children, roles = [], allowInProduction = true }) {
   const router = useRouter();
-  const { isAuthenticated, loading, user } = useAuth();
+  const { isAuthenticated, loading, user, isHydrated } = useAuth();
+  const isProduction = process.env.NODE_ENV === 'production';
 
   useEffect(() => {
-    if (!loading) {
+    if (!loading && isHydrated) {
+      if (!allowInProduction && isProduction) {
+        router.push('/');
+        return;
+      }
+
       if (!isAuthenticated) {
         router.push('/login');
         return;
@@ -31,13 +37,17 @@ export function RequireRole({ children, roles = [] }) {
         }
       }
     }
-  }, [loading, isAuthenticated, user, roles, router]);
+  }, [loading, isHydrated, isAuthenticated, user, roles, router, allowInProduction, isProduction]);
 
-  if (loading) {
+  if (loading || !isHydrated) {
     return <div className="text-center py-12">Cargando...</div>;
   }
 
   if (!isAuthenticated) {
+    return null;
+  }
+
+  if (!allowInProduction && isProduction) {
     return null;
   }
 

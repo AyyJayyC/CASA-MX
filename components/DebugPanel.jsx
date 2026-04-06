@@ -6,22 +6,26 @@
 
 'use client';
 
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { logger } from '@/lib/logging/logger';
+import { useAuth } from '@/lib/auth/useAuth';
 
 export default function DebugPanel() {
+  const { isAuthenticated, isHydrated, user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [logs, setLogs] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterLevel, setFilterLevel] = useState('ALL');
-  const [sessionId, setSessionId] = useState(null);
-  const [isEnabled, setIsEnabled] = useState(true);
 
-  // Get session ID from localStorage
-  useEffect(() => {
-    const sid = localStorage.getItem('debug_session_id');
-    setSessionId(sid);
-  }, []);
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isAdmin = Boolean(
+    user?.roles?.some((role) => role.type === 'admin' && role.status === 'approved')
+  );
+
+  if (isProduction || !isHydrated || !isAuthenticated || !isAdmin) {
+    return null;
+  }
 
   // Refresh logs every second
   useEffect(() => {
