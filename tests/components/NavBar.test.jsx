@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { vi } from 'vitest';
 
 // Mock Next.js router
@@ -34,6 +34,7 @@ describe('NavBar role-aware links', () => {
   });
 
   it('shows user info and logout button when authenticated', () => {
+    const switchRole = vi.fn();
     const mockAuthValue = {
       isAuthenticated: true,
       user: {
@@ -47,7 +48,7 @@ describe('NavBar role-aware links', () => {
       },
       loading: false,
       logout: vi.fn(),
-      switchRole: vi.fn()
+      switchRole
     };
 
     render(
@@ -58,5 +59,7 @@ describe('NavBar role-aware links', () => {
 
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.getByText('Salir')).toBeInTheDocument();
+    fireEvent.change(screen.getByDisplayValue('seller'), { target: { value: 'buyer' } });
+    expect(switchRole).toHaveBeenCalledWith('buyer');
   });
 });

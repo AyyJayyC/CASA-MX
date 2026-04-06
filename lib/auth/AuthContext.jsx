@@ -117,26 +117,31 @@ export function AuthProvider({ children }) {
 
     try {
       setError(null);
-      const result = await authAPI.login({
-        email: user.email,
-        role: roleType
-      });
+      setSession((currentSession) => {
+        if (!currentSession) {
+          return currentSession;
+        }
 
-      if (result.error) {
-        setError(result.error);
-        return;
-      }
-
-      setSession({
-        ...session,
-        activeRole: roleType
+        return {
+          ...currentSession,
+          activeRole: roleType,
+        };
       });
-      setUser(result.user);
+      setUser((currentUser) => {
+        if (!currentUser) {
+          return currentUser;
+        }
+
+        return {
+          ...currentUser,
+          activeRole: roleType,
+        };
+      });
     } catch (err) {
       setError(err.message);
       throw err;
     }
-  }, [user, session]);
+  }, [user]);
 
   const value = {
     session,
