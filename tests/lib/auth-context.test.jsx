@@ -30,8 +30,6 @@ describe('AuthContext', () => {
           { type: 'landlord', status: 'approved' },
         ],
       },
-      token: 'access-token',
-      refreshToken: 'refresh-token',
     });
 
     const { result } = renderHook(() => React.useContext(AuthContext), { wrapper });

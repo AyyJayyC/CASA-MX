@@ -10,20 +10,28 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { propertySchema, propertyFormDefaults } from '../lib/validation/propertySchema';
 import { addProperty as addPropertyAPI, getLocationsCatalog } from '../lib/api/properties';
+import { useAuth } from '../lib/auth/useAuth';
 import { useInvalidateProperties } from '../lib/queries/properties';
 import { addAddressToCache } from '../lib/services/addressCache';
 import { getValidEstados, getCitiesForEstado, getColoniasForCity } from '../lib/utils/addressValidation';
+import useNumericInput from '../lib/hooks/useNumericInput';
 import Link from 'next/link';
+import PropertyImageGallery from './PropertyImageGallery.jsx';
+import PropertyTypeSelector from './PropertyTypeSelector.jsx';
+import RentalServicesSelector from './RentalServicesSelector.jsx';
+import PropertyAmenitiesSelector from './PropertyAmenitiesSelector.jsx';
 
 /**
  * @returns {JSX.Element}
  */
 export default function PropertyUploadForm({ listingType = 'for_sale' }) {
+  const { session } = useAuth();
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
   const [locationsCatalog, setLocationsCatalog] = useState(null);
   const [addressSearch, setAddressSearch] = useState('');
   const [addressSuggestions, setAddressSuggestions] = useState([]);
+  const [addressSearchError, setAddressSearchError] = useState('');
   const [addressSearchLoading, setAddressSearchLoading] = useState(false);
   const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
   const addressSearchRef = useRef(null);
@@ -77,6 +85,12 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
     resolver: zodResolver(propertySchema)
   });
 
+  useEffect(() => {
+    register('propertyType');
+    register('includedServices');
+    register('amenities');
+  }, [register]);
+
   const getComponent = (components, type) =>
     components?.find(c => c.types?.includes(type))?.long_name || '';
 
@@ -113,6 +127,18 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
       .toLowerCase()
       .trim();
 
+  const getMapsErrorMessage = (payload, fallbackMessage) => {
+    if (payload && typeof payload.message === 'string' && payload.message.trim()) {
+      return payload.message.trim();
+    }
+
+    if (payload && typeof payload.error === 'string' && payload.error.trim()) {
+      return payload.error.trim();
+    }
+
+    return fallbackMessage;
+  };
+
   const buildGeocodeQueryFromSuggestion = (typedInput, suggestion) => {
     const typed = String(typedInput || '').trim();
     const description = String(suggestion?.description || '').trim();
@@ -143,7 +169,47 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
 
   const selectedEstado = watch('estado');
   const selectedCiudad = watch('ciudad');
+  const selectedPropertyType = watch('propertyType');
+  const selectedIncludedServices = watch('includedServices') || [];
+  const selectedAmenities = watch('amenities') || [];
   const photoFiles = watch('photos') || [];
+
+  const updateNumericField = useCallback(
+    (fieldName) => (nextValue) => {
+      setValue(fieldName, nextValue, { shouldDirty: true, shouldValidate: true });
+    },
+    [setValue]
+  );
+
+  const priceRegister = register('price', { valueAsNumber: true });
+  const monthlyRentRegister = register('monthlyRent', { valueAsNumber: true });
+  const squareMetersRegister = register('squareMeters', { valueAsNumber: true });
+  const bedroomsRegister = register('bedrooms', { valueAsNumber: true });
+  const bathroomsRegister = register('bathrooms', { valueAsNumber: true });
+  const securityDepositRegister = register('securityDeposit', { valueAsNumber: true });
+  const leaseTermMonthsRegister = register('leaseTermMonths', { valueAsNumber: true });
+
+  const priceInput = useNumericInput({ value: watch('price'), onValueChange: updateNumericField('price') });
+  const monthlyRentInput = useNumericInput({ value: watch('monthlyRent'), onValueChange: updateNumericField('monthlyRent') });
+  const squareMetersInput = useNumericInput({ value: watch('squareMeters'), onValueChange: updateNumericField('squareMeters') });
+  const bedroomsInput = useNumericInput({ value: watch('bedrooms'), onValueChange: updateNumericField('bedrooms'), max: 20 });
+  const bathroomsInput = useNumericInput({ value: watch('bathrooms'), onValueChange: updateNumericField('bathrooms'), max: 20 });
+  const securityDepositInput = useNumericInput({ value: watch('securityDeposit'), onValueChange: updateNumericField('securityDeposit') });
+  const leaseTermMonthsInput = useNumericInput({ value: watch('leaseTermMonths'), onValueChange: updateNumericField('leaseTermMonths'), max: 120 });
+
+  const getNumericInputProps = (registration, numericInput) => ({
+    ...registration,
+    type: 'text',
+    inputMode: 'numeric',
+    pattern: '[0-9]*',
+    value: numericInput.value,
+    onChange: numericInput.handlers.onChange,
+    onFocus: numericInput.handlers.onFocus,
+    onBlur: (event) => {
+      numericInput.handlers.onBlur(event);
+      registration.onBlur(event);
+    },
+  });
 
   const handlePhotoFiles = async (event) => {
     const files = Array.from(event.target.files || []);
@@ -249,8 +315,18 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ address: description }),
       });
-      const { result } = await res.json();
-      if (!result) return;
+      const payload = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        throw new Error(getMapsErrorMessage(payload, 'No se pudo buscar la direccion.'));
+      }
+
+      const { result } = payload || {};
+      if (!result) {
+        throw new Error('No se obtuvo una ubicacion valida para esta direccion.');
+      }
+
+      setAddressSearchError('');
 
       if (result.address_components) {
         // Google Maps result
@@ -327,6 +403,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
       }
     } catch (e) {
       console.error('Geocode fill error:', e);
+      setAddressSearchError(e instanceof Error ? e.message : 'No se pudo buscar la direccion.');
     }
   }, [BACKEND_URL, setValue]);
 
@@ -348,15 +425,16 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
               ...(values.leaseTermMonths ? { leaseTermMonths: values.leaseTermMonths } : {}),
               ...(values.availableFrom ? { availableFrom: values.availableFrom } : {}),
               furnished: Boolean(values.furnished),
-              utilitiesIncluded: Boolean(values.utilitiesIncluded),
+              utilitiesIncluded: (values.includedServices || []).length > 0,
+              includedServices: values.includedServices || [],
+              amenities: values.amenities || [],
             }),
         ...(Number.isFinite(values.latitude) ? { lat: values.latitude } : {}),
         ...(Number.isFinite(values.longitude) ? { lng: values.longitude } : {}),
-        uploadedBy: { id: 'user-demo', name: 'Demo Seller' }
       };
 
       // Call real backend API
-      const created = await addPropertyAPI(payload);
+          const created = await addPropertyAPI(payload);
 
       // Save address to cache for future suggestions
       const addressData = {
@@ -562,8 +640,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                   </label>
                   <input 
                     id="price" 
-                    type="number"
-                    {...register('price', { valueAsNumber: true })} 
+                    {...getNumericInputProps(priceRegister, priceInput)}
                     className={inputClass}
                     placeholder="0"
                   />
@@ -583,8 +660,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                   </label>
                   <input 
                     id="monthlyRent" 
-                    type="number"
-                    {...register('monthlyRent', { valueAsNumber: true })} 
+                    {...getNumericInputProps(monthlyRentRegister, monthlyRentInput)}
                     className={inputClass}
                     placeholder="0"
                   />
@@ -606,8 +682,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
               </label>
               <input 
                 id="squareMeters" 
-                type="number"
-                {...register('squareMeters', { valueAsNumber: true })} 
+                {...getNumericInputProps(squareMetersRegister, squareMetersInput)}
                 className={inputClass}
                 placeholder="0"
               />
@@ -641,6 +716,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                 onChange={e => {
                   const v = e.target.value;
                   setAddressSearch(v);
+                  setAddressSearchError('');
                   setValue('address', v);
                   setShowAddressSuggestions(true);
                   clearTimeout(addressDebounce.current);
@@ -649,16 +725,23 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                     addressDebounce.current = setTimeout(async () => {
                       try {
                         const r = await fetch(`${BACKEND_URL}/maps/autocomplete?input=${encodeURIComponent(v)}`);
-                        const { predictions } = await r.json();
+                        const payload = await r.json().catch(() => null);
+                        if (!r.ok) {
+                          throw new Error(getMapsErrorMessage(payload, 'No se pudo autocompletar la direccion.'));
+                        }
+                        const { predictions } = payload || {};
                         setAddressSuggestions(predictions || []);
-                      } catch {
+                        setAddressSearchError('');
+                      } catch (error) {
                         setAddressSuggestions([]);
+                        setAddressSearchError(error instanceof Error ? error.message : 'No se pudo autocompletar la direccion.');
                       } finally {
                         setAddressSearchLoading(false);
                       }
                     }, 400);
                   } else {
                     setAddressSuggestions([]);
+                    setAddressSearchError('');
                     setAddressSearchLoading(false);
                   }
                 }}
@@ -698,6 +781,14 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                 </div>
               )}
             </div>
+            {addressSearchError && (
+              <p className={errorClass}>
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                {addressSearchError}
+              </p>
+            )}
             {showAddressSuggestions && addressSuggestions.length > 0 && (
               <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-lg z-20 max-h-60 overflow-y-auto">
                 {addressSuggestions.map((s, i) => (
@@ -849,15 +940,12 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
 
           {/* Property Type */}
           <div>
-            <label htmlFor="propertyType" className={labelClass}>
+            <label className={labelClass}>
               Tipo de propiedad *
             </label>
-            <input 
-              id="propertyType" 
-              type="text"
-              {...register('propertyType')} 
-              className={inputClass}
-              placeholder="Ej: Casa, Departamento, Terreno"
+            <PropertyTypeSelector
+              value={selectedPropertyType}
+              onChange={(nextValue) => setValue('propertyType', nextValue, { shouldDirty: true, shouldValidate: true })}
             />
             {errors.propertyType && (
               <p className={errorClass}>
@@ -877,8 +965,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
               </label>
               <input 
                 id="bedrooms" 
-                type="number"
-                {...register('bedrooms', { valueAsNumber: true })} 
+                {...getNumericInputProps(bedroomsRegister, bedroomsInput)}
                 className={inputClass}
                 placeholder="0"
               />
@@ -890,8 +977,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
               </label>
               <input 
                 id="bathrooms" 
-                type="number"
-                {...register('bathrooms', { valueAsNumber: true })} 
+                {...getNumericInputProps(bathroomsRegister, bathroomsInput)}
                 className={inputClass}
                 placeholder="0"
               />
@@ -907,10 +993,9 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                 </label>
                 <input
                   id="securityDeposit"
-                  type="number"
-                  {...register('securityDeposit', { valueAsNumber: true })}
+                  {...getNumericInputProps(securityDepositRegister, securityDepositInput)}
                   className={inputClass}
-                  placeholder="Opcional"
+                  placeholder="0"
                 />
               </div>
 
@@ -920,10 +1005,9 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                 </label>
                 <input
                   id="leaseTermMonths"
-                  type="number"
-                  {...register('leaseTermMonths', { valueAsNumber: true })}
+                  {...getNumericInputProps(leaseTermMonthsRegister, leaseTermMonthsInput)}
                   className={inputClass}
-                  placeholder="Ej: 12"
+                  placeholder="12"
                 />
               </div>
 
@@ -949,15 +1033,32 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                   />
                   <span className="text-sm text-neutral-700 dark:text-neutral-300">Amueblada</span>
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    id="utilitiesIncluded"
-                    type="checkbox"
-                    {...register('utilitiesIncluded')}
-                    className="w-4 h-4 text-amber-600 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-amber-400"
-                  />
-                  <span className="text-sm text-neutral-700 dark:text-neutral-300">Servicios incluidos</span>
-                </label>
+              </div>
+
+              <div className="sm:col-span-2 space-y-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50/70 dark:bg-neutral-900/50 p-4">
+                <div>
+                  <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Servicios incluidos</h3>
+                  <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                    Marca exactamente qué paga el propietario en esta renta.
+                  </p>
+                </div>
+                <RentalServicesSelector
+                  selectedServices={selectedIncludedServices}
+                  onChange={(nextValue) => setValue('includedServices', nextValue, { shouldDirty: true, shouldValidate: true })}
+                />
+              </div>
+
+              <div className="sm:col-span-2 space-y-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50/70 dark:bg-neutral-900/50 p-4">
+                <div>
+                  <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Amenidades y equipamiento</h3>
+                  <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                    Incluye equipo y comodidades comunes en rentas amuebladas o largas estancias.
+                  </p>
+                </div>
+                <PropertyAmenitiesSelector
+                  selectedAmenities={selectedAmenities}
+                  onChange={(nextValue) => setValue('amenities', nextValue, { shouldDirty: true, shouldValidate: true })}
+                />
               </div>
             </div>
           )}
@@ -985,32 +1086,38 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
             <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
               La primera imagen será la portada en listados.
             </p>
+            <p className="mt-2 text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              {photoFiles.length} de 10 fotos cargadas
+            </p>
           </div>
 
           {photoFiles.length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-              {photoFiles.map((photo, index) => (
-                <div key={`${index}-${String(photo).slice(0, 24)}`} className="relative rounded-lg overflow-hidden border border-neutral-200 dark:border-neutral-700">
-                  <img
-                    src={photo}
-                    alt={`Foto ${index + 1}`}
-                    className="w-full h-28 object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removePhotoAt(index)}
-                    className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/70 text-white text-xs hover:bg-black"
-                    aria-label={`Eliminar foto ${index + 1}`}
-                  >
-                    ✕
-                  </button>
-                  {index === 0 && (
-                    <span className="absolute bottom-1 left-1 text-[10px] px-2 py-0.5 rounded bg-amber-500 text-white font-medium">
-                      Portada
-                    </span>
-                  )}
-                </div>
-              ))}
+            <div className="space-y-4">
+              <PropertyImageGallery images={photoFiles} title="Vista previa" />
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                {photoFiles.map((photo, index) => (
+                  <div key={`${index}-${String(photo).slice(0, 24)}`} className="relative overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-700">
+                    <img
+                      src={photo}
+                      alt={`Foto ${index + 1}`}
+                      className="h-28 w-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removePhotoAt(index)}
+                      className="absolute right-1 top-1 h-6 w-6 rounded-full bg-black/70 text-xs text-white hover:bg-black"
+                      aria-label={`Eliminar foto ${index + 1}`}
+                    >
+                      ✕
+                    </button>
+                    {index === 0 && (
+                      <span className="absolute bottom-1 left-1 rounded bg-amber-500 px-2 py-0.5 text-[10px] font-medium text-white">
+                        Portada
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>

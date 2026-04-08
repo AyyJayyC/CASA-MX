@@ -9,6 +9,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { getAmenityMeta, getServiceMeta } from '../lib/constants/propertyServices';
 
 /**
  * @param {{property: Object}} props
@@ -22,6 +23,11 @@ export default function PropertyCard({ property }) {
   const description = property.description || 'Sin descripción disponible';
   const owner = property.owner || 'Propietario';
   const isRental = property.listingType === 'for_rent';
+  const includedServices = Array.isArray(property.includedServices) ? property.includedServices : [];
+  const amenities = Array.isArray(property.amenities) ? property.amenities : [];
+  const visibleAmenities = amenities.slice(0, 5).map((amenity) => getAmenityMeta(amenity));
+  const remainingAmenities = Math.max(0, amenities.length - visibleAmenities.length);
+  const visibleServices = includedServices.slice(0, 4).map((service) => getServiceMeta(service));
 
   return (
     <Link 
@@ -101,7 +107,7 @@ export default function PropertyCard({ property }) {
             mb-3
           ">
             <span className="sr-only">Ubicación:</span>
-            {property.colonia} • {property.propertyType}
+            {property.colonia} • {property.propertyType || 'Propiedad'}
           </p>
 
           {/* Rental Badges (Furnished & Utilities) */}
@@ -136,6 +142,43 @@ export default function PropertyCard({ property }) {
                   </svg>
                   Servicios incluidos
                 </span>
+              )}
+            </div>
+          )}
+
+          {(visibleServices.length > 0 || visibleAmenities.length > 0) && (
+            <div className="mb-3 space-y-2">
+              {visibleServices.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {visibleServices.map((service) => (
+                    <span
+                      key={service.value}
+                      className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-1 text-[11px] font-medium text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
+                    >
+                      <span aria-hidden="true">{service.emoji}</span>
+                      <span className="truncate">{service.label}</span>
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {visibleAmenities.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {visibleAmenities.map((amenity) => (
+                    <span
+                      key={amenity.value}
+                      title={amenity.label}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-amber-50 text-sm ring-1 ring-amber-200 dark:bg-amber-900/20 dark:ring-amber-800"
+                    >
+                      <span aria-hidden="true">{amenity.emoji}</span>
+                    </span>
+                  ))}
+                  {remainingAmenities > 0 && (
+                    <span className="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-1 text-[11px] font-medium text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200">
+                      +{remainingAmenities} más
+                    </span>
+                  )}
+                </div>
               )}
             </div>
           )}

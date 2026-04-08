@@ -6,6 +6,16 @@ import Link from 'next/link';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
 
+function buildRequestOptions(options = {}) {
+  return {
+    credentials: 'include',
+    ...options,
+    headers: {
+      ...(options.headers || {}),
+    },
+  };
+}
+
 export default function AdminDebugPage() {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,7 +37,6 @@ export default function AdminDebugPage() {
   const fetchSessions = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
       
       const params = new URLSearchParams({
         limit: limit.toString(),
@@ -41,11 +50,7 @@ export default function AdminDebugPage() {
 
       const response = await fetch(
         `${API_BASE}/admin/debug/sessions?${params}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }
+        buildRequestOptions()
       );
 
       if (!response.ok) {
@@ -84,12 +89,9 @@ export default function AdminDebugPage() {
     }
 
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`${API_BASE}/admin/debug/cleanup`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        ...buildRequestOptions(),
       });
 
       if (!response.ok) {

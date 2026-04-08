@@ -7,6 +7,12 @@ vi.mock('../../lib/queries/properties', () => ({
   useInvalidateProperties: () => vi.fn(),
 }));
 
+vi.mock('../../lib/auth/useAuth', () => ({
+  useAuth: () => ({
+    session: { token: 'test-token' },
+  }),
+}));
+
 describe('Upload integration', () => {
   it('submits a full property through API adapter', async () => {
     const spy = vi.spyOn(propertiesApi, 'addProperty').mockResolvedValue({ id: 'prop-new', title: 'Integration Prop' });
@@ -36,7 +42,7 @@ describe('Upload integration', () => {
     fireEvent.change(screen.getByLabelText(/^Ciudad$/i), { target: { value: 'Ciudad de México' } });
     fireEvent.change(screen.getByLabelText(/^Colonia$/i), { target: { value: 'Int Colonia' } });
     fireEvent.change(screen.getByLabelText(/Código Postal/i), { target: { value: '02000' } });
-    fireEvent.change(screen.getByLabelText(/Tipo/), { target: { value: 'Departamento' } });
+    fireEvent.click(screen.getByLabelText('Departamento'));
     fireEvent.change(screen.getByLabelText(/Metros cuadrados/), { target: { value: '80' } });
 
     fireEvent.click(screen.getByRole('button', { name: /Publicar propiedad/i }));

@@ -7,6 +7,16 @@ import { useParams } from 'next/navigation';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
 
+function buildRequestOptions(options = {}) {
+  return {
+    credentials: 'include',
+    ...options,
+    headers: {
+      ...(options.headers || {}),
+    },
+  };
+}
+
 export default function SessionDetailPage() {
   const params = useParams();
   const sessionId = params.sessionId;
@@ -25,15 +35,10 @@ export default function SessionDetailPage() {
   const fetchSession = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
       
       const response = await fetch(
         `${API_BASE}/admin/debug/sessions/${sessionId}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }
+        buildRequestOptions()
       );
 
       if (!response.ok) {
@@ -53,16 +58,10 @@ export default function SessionDetailPage() {
   const handleExport = async () => {
     try {
       setExporting(true);
-      const token = localStorage.getItem('token');
       
       const response = await fetch(
         `${API_BASE}/admin/debug/sessions/${sessionId}/export`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }
+        buildRequestOptions({ method: 'POST' })
       );
 
       if (!response.ok) {
@@ -95,17 +94,13 @@ export default function SessionDetailPage() {
     const note = prompt('Enter resolution note (optional):');
     
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(
         `${API_BASE}/admin/debug/errors/${errorId}/resolve`,
-        {
+        buildRequestOptions({
           method: 'PATCH',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ note: note || undefined })
-        }
+        })
       );
 
       if (!response.ok) {

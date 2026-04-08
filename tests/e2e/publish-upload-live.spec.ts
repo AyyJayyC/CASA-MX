@@ -1,13 +1,18 @@
 import { test, expect } from '@playwright/test';
 
-test.use({ baseURL: 'http://localhost:3000' });
+const FRONTEND_URL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000';
+const API_URL = (process.env.PLAYWRIGHT_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001').replace(/\/$/, '');
+const LOGIN_EMAIL = process.env.PLAYWRIGHT_LOGIN_EMAIL || 'seller@casamx.local';
+const LOGIN_PASSWORD = process.env.PLAYWRIGHT_LOGIN_PASSWORD || 'seller123';
+
+test.use({ baseURL: FRONTEND_URL });
 
 test.describe('Live Upload Flow', () => {
   test.setTimeout(120000);
 
   test('logs in via UI, selects Mexico address, and submits property', async ({ page }) => {
     const uniqueTitle = `E2E Casa ${Date.now()}`;
-    const fallbackCred = { email: 'seller@casamx.local', password: 'seller123' };
+    const fallbackCred = { email: LOGIN_EMAIL, password: LOGIN_PASSWORD };
 
     await page.goto('/login', { waitUntil: 'domcontentloaded' });
     await page.fill('input[type="email"]', fallbackCred.email);
@@ -22,9 +27,9 @@ test.describe('Live Upload Flow', () => {
     await page.click('button[type="submit"]');
     await page.waitForTimeout(3000);
 
-    let loggedIn = await page.evaluate(async () => {
+    let loggedIn = await page.evaluate(async (apiUrl) => {
       try {
-        const response = await fetch('http://localhost:3001/auth/me', {
+        const response = await fetch(`${apiUrl}/auth/me`, {
           method: 'GET',
           credentials: 'include',
         });
@@ -37,9 +42,9 @@ test.describe('Live Upload Flow', () => {
     if (!loggedIn) {
       let loginStatus = 0;
       for (let attempt = 0; attempt < 8; attempt += 1) {
-        loginStatus = await page.evaluate(async (creds) => {
+        loginStatus = await page.evaluate(async ({ creds, apiUrl }) => {
           try {
-            const response = await fetch('http://localhost:3001/auth/login', {
+            const response = await fetch(`${apiUrl}/auth/login`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               credentials: 'include',
@@ -49,7 +54,7 @@ test.describe('Live Upload Flow', () => {
           } catch {
             return 0;
           }
-        }, fallbackCred);
+        }, { creds: fallbackCred, apiUrl: API_URL });
 
         if (loginStatus !== 429) break;
         await page.waitForTimeout(1200 + attempt * 400);
@@ -57,7 +62,7 @@ test.describe('Live Upload Flow', () => {
 
       expect(
         loginStatus,
-        'No se pudo iniciar sesi�n por UI ni por API. Ejecuta: cd ../casa-mx-backend && npm run prisma:seed'
+        'No se pudo iniciar sesi�n por UI ni por API. Proporciona credenciales v�lidas o ejecuta: cd ../casa-mx-backend && npm run prisma:seed'
       ).toBe(200);
 
       loggedIn = true;
@@ -188,7 +193,7 @@ test.describe('Live Upload Flow', () => {
     await expect(ciudadInput).toHaveValue(/.+/, { timeout: 15000 });
     await expect(coloniaInput).toHaveValue(/.+/, { timeout: 15000 });
 
-    await page.fill('#propertyType', 'Casa');
+    await page.locator('label:has(#propertyType-Casa)').click();
     await page.fill('#bedrooms', '3');
     await page.fill('#bathrooms', '2');
 
@@ -198,7 +203,7 @@ test.describe('Live Upload Flow', () => {
     for (let attempt = 0; attempt < 2; attempt += 1) {
       const publishResponsePromise = page.waitForResponse(
         (resp) =>
-          resp.url().includes('localhost:3001/properties') &&
+          resp.url().startsWith(`${API_URL}/properties`) &&
           resp.request().method() === 'POST',
         { timeout: 20000 }
       );

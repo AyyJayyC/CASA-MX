@@ -71,8 +71,6 @@ export function AuthProvider({ children }) {
         name: result.user.name,
         activeRole: result.user.activeRole,
         roles: result.user.roles,
-        token: result.token,
-        refreshToken: result.refreshToken,
       });
       setUser(result.user);
       setLoading(false);

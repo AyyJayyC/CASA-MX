@@ -4,13 +4,82 @@
 > **Documentation source of truth:** This file is the canonical project record. Keep implementation/status updates centralized here first, then mirror concise summaries into `docs/STATUS_AND_RELEASE_NOTES.md` and `SERVER_MANAGEMENT.md`.
 
 **Project Status**: ✅ **COMPLETE** - All 7 Checkpoints Finished
-- **Backend Tests**: 214/214 passing
-- **Frontend Tests**: 53/53 passing
-- **Total Tests**: 267/267 passing
+- **Backend Tests**: 230/230 passing
+- **Frontend Tests**: 66/66 passing
+- **Playwright E2E**: 33/33 passing
+- **Total Verified This Session**: 329/329 passing
 - **Date Completed**: January 14, 2026
-- **Last Updated**: March 19, 2026
+- **Last Updated**: April 8, 2026
 
-### Recent Updates (Feb–Mar 2026)
+### Recent Updates (Feb–Apr 2026)
+
+- ✅ **Frontend auth hardening switched to cookie-first sessions (April 8, 2026)**
+  - Removed browser localStorage persistence of access and refresh tokens from the frontend auth client.
+  - Property, analytics, and admin debug requests now rely on `credentials: 'include'` and backend cookie verification instead of browser-stored bearer tokens.
+  - Updated React Query auth refresh behavior to rotate cookie-backed sessions without requiring a refresh token argument.
+  - Validation run after hardening:
+    - `tests/lib/auth.test.js` + `tests/lib/auth-context.test.jsx` + `tests/integration/Upload.test.jsx` + `tests/components/PropertyUploadForm.test.jsx` -> **11/11 passed**
+    - `tests/e2e/publish-upload-live.spec.ts` -> **1/1 passed** after the cookie-only auth change
+  - Release implication:
+    - the main remaining auth validation is live cookie behavior between `https://casa-mx.com` and `https://api.casa-mx.com`
+
+- ⚠️ **Public production smoke check found stale frontend deployment (April 8, 2026)**
+  - Added reusable public smoke coverage in `tests/e2e/production-smoke.spec.ts`.
+  - Local smoke validation passed.
+  - Public production smoke validation confirmed:
+    - `https://casa-mx.com` is reachable
+    - `https://api.casa-mx.com/health` is reachable
+    - `https://api.casa-mx.com/version` is reachable and reports `environment: production`
+  - Public production smoke validation failed on the frontend legal surfaces:
+    - homepage footer legal links are missing from the deployed site
+    - `https://casa-mx.com/privacy` returns 404
+    - `https://casa-mx.com/terms` returns 404
+    - `https://casa-mx.com/cookie` returns 404
+  - Repo state is correct locally (`app/privacy/page.js`, `app/terms/page.js`, `app/cookie/page.js`, footer links in `app/layout.js`), so this points to a stale or incomplete frontend deployment rather than a missing implementation in the codebase.
+
+- ✅ **Launch-readiness validation rerun completed (April 8, 2026)**
+  - Rebuilt both repos successfully with production build commands:
+    - Frontend: `next build`
+    - Backend: `tsc` + static asset copy + `prisma generate`
+  - Recovered and started Docker Desktop, then brought up the backend Compose stack successfully:
+    - PostgreSQL healthy on `5432`
+    - Redis healthy on `6379`
+    - Backend healthy on `3001`
+  - Re-ran the previously DB-blocked backend suites after Docker recovery:
+    - `tests/checkpoint-rentals-2.test.ts` + `tests/checkpoint5.test.ts` -> **45/45 passed**
+  - Re-ran the full automated regression baseline:
+    - Full frontend Vitest suite -> **66/66 passed**
+    - Full backend Vitest suite -> **230/230 passed**
+  - Re-ran the full Playwright browser suite against the real frontend (`localhost:3000`) and Docker-backed backend (`localhost:3001`):
+    - Full Playwright suite -> **33/33 passed**
+    - Includes the live publish flow in `tests/e2e/publish-upload-live.spec.ts`
+  - Compatibility fix applied during E2E hardening:
+    - restored stable `propertyType-*` ids on the property type selector
+    - updated the Playwright flow to click the visible selection card instead of the hidden radio input
+  - Remaining production-launch caveats identified:
+    - local backend Compose runtime is still running with `NODE_ENV=development`
+    - local backend `.env` still contains a placeholder maps key and should not be treated as production-ready
+
+- ✅ **Publish-flow stabilization + rental metadata expansion revalidated (April 6, 2026)**
+  - Restored frontend validation baseline after dependency drift by reinstalling the missing Vitest package tree.
+  - Fixed the upload-form test harness after `PropertyUploadForm` started depending on `useAuth()`.
+  - Stabilized the maps autocomplete error test by removing fake-timer brittleness and waiting on the real debounced failure path.
+  - Fixed backend maps fallback typing so local coordinate helpers return the expected geometry shape during TypeScript build.
+  - Added and validated recent property-publishing UX/data work already present in code:
+    - image gallery with previous/next controls
+    - zero-clearing numeric inputs on focus
+    - property-type radio selection
+    - rental included-services and amenities metadata
+  - Docker Desktop was reinstalled and relaunched locally, restoring PostgreSQL/Redis-backed backend validation.
+  - Restored the missing backend container build files and corrected local Docker Compose defaults so the backend now boots in development mode without production-only maps credentials.
+  - Validation run after fixes:
+    - Frontend targeted test: `tests/components/PropertyUploadForm.test.jsx` (2/2 passed)
+    - Frontend production build: `next build` passed
+    - Backend production build: `npm run build` passed
+    - Backend targeted tests: `checkpoint-rentals-2` + `checkpoint-filters-2` + `checkpoint7` (68/68 passed)
+    - Containerized backend health: `docker compose up -d backend` + `GET /health` passed (`database: ok`, `cache: ok`)
+    - Full backend Vitest suite: 230/230 passed
+    - Full frontend Vitest suite: 57/57 passed at that time; later expanded to 66/66 after Phase 4 frontend coverage additions
 
 - ✅ **Address search/autofill reliability + Google-only maps hardening (March 19, 2026)**
   - Upload address suggestions now display in Google-style primary/secondary format and preserve typed house-number context.
@@ -893,14 +962,14 @@ casa-mx/
    export async function refreshAccessToken()  // POST /auth/refresh
    ```
    - Replaced mock storage with HTTP calls
-   - Handles JWT tokens in localStorage
+  - Uses httpOnly cookies plus `credentials: 'include'`
    - Proper error handling and validation
 
 2. **Auth Context Updates** (`lib/auth/AuthContext.jsx`)
    - Synced with backend authentication
-   - Stores access token + refresh token
-   - Auto-refresh on token expiry
-   - Logout clears tokens
+  - Stores authenticated user/session metadata only
+  - Auto-refresh on cookie-backed session expiry
+  - Logout clears the backend cookies
 
 3. **Login Form** (`app/login/page.js`)
    ```jsx
@@ -1076,16 +1145,16 @@ All errors return JSON:
 ```json
 {
   "success": false,
-  "error": "Description of what went wrong",
+  - Tokens stored in HTTP-only cookies
   "details": {} // Optional validation details
 }
-```
+  - Accepts refresh token from cookie or body
 
 **Security Summary**:
 - ✅ All inputs validated with Zod
 - ✅ Passwords hashed with bcrypt (10 rounds)
 - ✅ JWTs signed and verified
-- ✅ Rate limiting enabled
+  - Accepts a valid auth cookie or Authorization header
 - ✅ CORS configured
 - ✅ SQL injection prevented via Prisma ORM
 - ✅ XSS protected via React + Content-Type headers
@@ -1320,10 +1389,6 @@ Response 401: No valid token
 ```
 POST /auth/refresh
 Content-Type: application/json
-
-{
-  "refreshToken": "eyJhbGciOiJIUzI1NiIs..."
-}
 
 Response 200:
 {

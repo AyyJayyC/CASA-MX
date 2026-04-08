@@ -6,8 +6,9 @@
  */
 import { getPropertyById } from '../../../lib/queries/properties';
 import dynamic from 'next/dynamic';
-import Image from 'next/image';
 import Link from 'next/link';
+import PropertyImageGallery from '../../../components/PropertyImageGallery.jsx';
+import { getAmenityMeta, getServiceMeta, groupAmenitiesByCategory } from '../../../lib/constants/propertyServices';
 
 const RequestInfoModal = dynamic(() => import('../../../components/RequestInfoModal.jsx'));
 const PropertyAnalytics = dynamic(() => import('../../../components/analytics/PropertyAnalytics.jsx'));
@@ -53,14 +54,16 @@ export default async function PropertyDetail({ params }) {
       : property.imageUrl
         ? [property.imageUrl]
         : [fallbackImage];
-  const imageUrl = galleryImages[0] || fallbackImage;
   const isRental = property.listingType === 'for_rent';
+  const includedServices = Array.isArray(property.includedServices) ? property.includedServices : [];
+  const amenities = Array.isArray(property.amenities) ? property.amenities : [];
+  const groupedAmenities = groupAmenitiesByCategory(amenities);
   
   const features = [
-    { icon: '🛏️', label: 'Recámaras', value: property.bedrooms || '3' },
-    { icon: '🚿', label: 'Baños', value: property.bathrooms || '2' },
-    { icon: '📐', label: 'Área', value: property.area ? `${property.area} m²` : '120 m²' },
-    { icon: '🚗', label: 'Estacionamiento', value: property.parking || '2' },
+    { icon: '🛏️', label: 'Recámaras', value: property.bedrooms ?? 'N/D' },
+    { icon: '🚿', label: 'Baños', value: property.bathrooms ?? 'N/D' },
+    { icon: '📐', label: 'Área', value: property.squareMeters ? `${property.squareMeters} m²` : 'N/D' },
+    { icon: '🚗', label: 'Estacionamiento', value: includedServices.includes('Estacionamiento') ? 'Incluido' : 'No incluido' },
   ];
 
   return (
@@ -91,29 +94,7 @@ export default async function PropertyDetail({ params }) {
       {/* Image Gallery Section */}
       <section className="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800">
         <div className="container max-w-7xl py-0">
-          {/* Featured Image - 21:9 aspect ratio */}
-          <div className="relative aspect-[21/9] bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
-            <Image
-              src={imageUrl}
-              alt={property.title}
-              fill
-              sizes="100vw"
-              className="object-cover"
-              priority
-            />
-            {/* Image Counter Badge */}
-            <div className="
-              absolute bottom-4 right-4
-              bg-neutral-900/80 dark:bg-neutral-950/80
-              backdrop-blur-sm
-              text-white
-              px-3 py-1.5
-              rounded-md
-              text-sm font-medium
-            ">
-              1 / {galleryImages.length}
-            </div>
-          </div>
+          <PropertyImageGallery images={galleryImages} title={property.title} />
         </div>
       </section>
 
@@ -132,7 +113,7 @@ export default async function PropertyDetail({ params }) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                <span className="text-base">{property.colonia} • {property.propertyType}</span>
+                <span className="text-base">{property.colonia} • {property.propertyType || 'Propiedad'}</span>
               </div>
               <div className="text-4xl font-bold text-amber-600 dark:text-amber-400">
                 {isRental 
@@ -172,6 +153,18 @@ export default async function PropertyDetail({ params }) {
                         <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd"/>
                       </svg>
                       Servicios incluidos
+                    </span>
+                  )}
+                  {includedServices.includes('Internet') && (
+                    <span className="
+                      inline-flex items-center gap-1
+                      px-3 py-1
+                      bg-violet-100 dark:bg-violet-900/30
+                      text-violet-700 dark:text-violet-400
+                      text-sm font-medium
+                      rounded-md
+                    ">
+                      Internet incluido
                     </span>
                   )}
                 </div>
@@ -229,7 +222,7 @@ export default async function PropertyDetail({ params }) {
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <dt className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">Tipo</dt>
-                  <dd className="text-base font-medium text-neutral-900 dark:text-neutral-100">{property.propertyType}</dd>
+                  <dd className="text-base font-medium text-neutral-900 dark:text-neutral-100">{property.propertyType || 'Propiedad'}</dd>
                 </div>
                 <div>
                   <dt className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">Ubicación</dt>
@@ -261,6 +254,72 @@ export default async function PropertyDetail({ params }) {
                 </div>
               </dl>
             </div>
+
+            {isRental && includedServices.length > 0 && (
+              <div className="
+                p-6
+                bg-white dark:bg-neutral-900
+                border border-neutral-200 dark:border-neutral-800
+                rounded-lg
+                space-y-4
+              ">
+                <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+                  Servicios incluidos
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {includedServices.map((service) => {
+                    const meta = getServiceMeta(service);
+
+                    return (
+                    <span
+                      key={service}
+                      className="rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+                    >
+                      <span className="mr-1" aria-hidden="true">{meta.emoji}</span>
+                      {meta.label}
+                    </span>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {isRental && amenities.length > 0 && (
+              <div className="
+                p-6
+                bg-white dark:bg-neutral-900
+                border border-neutral-200 dark:border-neutral-800
+                rounded-lg
+                space-y-4
+              ">
+                <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+                  Amenidades y equipamiento
+                </h2>
+                <div className="space-y-5">
+                  {Object.entries(groupedAmenities).map(([categoryLabel, categoryAmenities]) => (
+                    <div key={categoryLabel} className="space-y-3">
+                      <div className="text-sm font-semibold uppercase tracking-[0.2em] text-neutral-500 dark:text-neutral-400">
+                        {categoryLabel}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {categoryAmenities.map((amenity) => {
+                          const meta = getAmenityMeta(amenity.value);
+                          return (
+                            <span
+                              key={meta.value}
+                              className="inline-flex items-center gap-2 rounded-full bg-neutral-100 px-3 py-1 text-sm font-medium text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
+                            >
+                              <span aria-hidden="true">{meta.emoji}</span>
+                              <span>{meta.label}</span>
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right Column - Contact Card or Rental Application */}

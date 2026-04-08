@@ -175,13 +175,13 @@ The project includes a production-optimized Docker Compose configuration with:
 
 ```bash
 cd casa-mx-backend
-docker-compose up -d
+docker compose up -d
 ```
 
 **Verify services are healthy:**
 
 ```bash
-docker-compose ps
+docker compose ps
 ```
 
 All services should show status `Up (healthy)`.
@@ -190,11 +190,11 @@ All services should show status `Up (healthy)`.
 
 ```bash
 # All services
-docker-compose logs -f
+docker compose logs -f
 
 # Specific service
-docker-compose logs -f backend
-docker-compose logs -f redis
+docker compose logs -f backend
+docker compose logs -f redis
 ```
 
 ### Step 3: Database Migrations
@@ -202,13 +202,13 @@ docker-compose logs -f redis
 Migrations run automatically on backend startup, but you can run them manually:
 
 ```bash
-docker-compose exec backend npx prisma migrate deploy
+docker compose exec backend npx prisma migrate deploy
 ```
 
 **Seed initial data (admin user, roles):**
 
 ```bash
-docker-compose exec backend npx prisma db seed
+docker compose exec backend npx prisma db seed
 ```
 
 ### Step 4: Verify Redis Caching
@@ -228,10 +228,14 @@ Check if Redis is caching location filter data:
 
 3. **Check Redis directly:**
    ```bash
-   docker-compose exec redis redis-cli
+   docker compose exec redis redis-cli
    > KEYS location:filter:*
    > TTL location:filter:options
    ```
+
+Production note:
+- The local Compose stack is appropriate for validation and smoke checks.
+- For an actual launch, promote the backend to `NODE_ENV=production`, use a real server-side `MAPS_API_KEY`, keep `ENABLE_BILLABLE_MAPS=true`, and replace all local/default secrets, URLs, and database hosts.
 
 4. **Cache invalidation** happens automatically when:
    - New property created (POST /properties)

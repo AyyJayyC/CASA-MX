@@ -2,7 +2,7 @@
  * Tests for Auth API client behavior
  */
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
-import { register, login, getSession, logout, getUserById } from '../../lib/api/auth';
+import { register, login, getSession, logout, getUserById, refreshAccessToken } from '../../lib/api/auth';
 
 const mockFetchSuccess = (payload) => {
   fetch.mockResolvedValueOnce({
@@ -21,7 +21,6 @@ const mockFetchError = ({ status, error }) => {
 
 describe('Auth API', () => {
   beforeEach(() => {
-    localStorage.clear();
     vi.restoreAllMocks();
     global.fetch = vi.fn();
   });
@@ -73,8 +72,6 @@ describe('Auth API', () => {
           { roleName: 'seller', status: 'pending' },
         ],
       },
-      token: 'access-token',
-      refreshToken: 'refresh-token',
     });
 
     const result = await login({
@@ -98,12 +95,13 @@ describe('Auth API', () => {
     ).rejects.toThrow('Invalid email or password');
   });
 
-  it('returns null session when no token', async () => {
+  it('returns null session when auth cookie is missing', async () => {
+    mockFetchError({ status: 401, error: 'Unauthorized' });
     mockFetchError({ status: 401, error: 'Unauthorized' });
 
     const session = await getSession();
     expect(session).toBeNull();
-    expect(fetch).toHaveBeenCalled();
+    expect(fetch).toHaveBeenCalledTimes(2);
   });
 
   it('clears session on logout', async () => {
@@ -120,5 +118,20 @@ describe('Auth API', () => {
     const user = await getUserById('some-id');
     expect(user).toBeNull();
     expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('refreshes access token using cookies only', async () => {
+    mockFetchSuccess({ success: true });
+
+    await refreshAccessToken();
+
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringMatching(/\/auth\/refresh$/),
+      expect.objectContaining({
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify({}),
+      })
+    );
   });
 });
