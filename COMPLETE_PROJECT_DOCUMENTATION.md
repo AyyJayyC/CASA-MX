@@ -26,16 +26,49 @@
 - ⚠️ **Public production smoke check found stale frontend deployment (April 8, 2026)**
   - Added reusable public smoke coverage in `tests/e2e/production-smoke.spec.ts`.
   - Local smoke validation passed.
-  - Public production smoke validation confirmed:
+  - Initial public production smoke validation confirmed:
     - `https://casa-mx.com` is reachable
     - `https://api.casa-mx.com/health` is reachable
     - `https://api.casa-mx.com/version` is reachable and reports `environment: production`
-  - Public production smoke validation failed on the frontend legal surfaces:
+  - Initial public production smoke validation failed on the frontend legal surfaces:
     - homepage footer legal links are missing from the deployed site
     - `https://casa-mx.com/privacy` returns 404
     - `https://casa-mx.com/terms` returns 404
     - `https://casa-mx.com/cookie` returns 404
   - Repo state is correct locally (`app/privacy/page.js`, `app/terms/page.js`, `app/cookie/page.js`, footer links in `app/layout.js`), so this points to a stale or incomplete frontend deployment rather than a missing implementation in the codebase.
+  - After pushing commit `3d6e3264` and redeploying Vercel, the public smoke check passed:
+    - `tests/e2e/production-smoke.spec.ts` -> **1/1 passed** against production
+    - `https://casa-mx.com/privacy` returns 200
+    - `https://casa-mx.com/terms` returns 200
+    - `https://casa-mx.com/cookie` returns 200
+  - Remaining release gap after the redeploy:
+    - authenticated production publish-flow validation still needs a real seller account
+
+- ✅ **Authenticated production publish-flow smoke passed (April 8, 2026)**
+  - Promoted `5axelj@gmail.com` to approved admin in production and used the admin approvals flow to review the seller validation account.
+  - Approved the production seller validation account `casamxtestseller@gmail.com` after confirming its pending `seller` role in Railway Postgres.
+  - Ran the live production Playwright publish smoke with:
+    - `PLAYWRIGHT_BASE_URL=https://casa-mx.com`
+    - `PLAYWRIGHT_API_URL=https://api.casa-mx.com`
+    - `PLAYWRIGHT_LOGIN_EMAIL=casamxtestseller@gmail.com`
+    - `npx playwright test tests/e2e/publish-upload-live.spec.ts`
+  - Validation result:
+    - `tests/e2e/publish-upload-live.spec.ts` -> **1/1 passed** against production in Chromium
+    - seller login succeeded on the live frontend
+    - Mexico address selection succeeded
+    - property creation request returned success on the production backend
+  - Release implication:
+    - the core public and authenticated production user journeys are both now validated end to end
+
+- ✅ **Admin approvals Bad Request root cause fixed locally (April 8, 2026)**
+  - Root cause:
+    - the frontend admin approvals client sent `Content-Type: application/json` on approve/reject POST requests without a request body
+    - Fastify treated those requests as malformed and returned `400 Bad Request`
+  - Fix applied:
+    - `lib/api/users.js` now only sets `Content-Type: application/json` when a JSON body is actually sent
+    - approve/reject role actions now post without an empty JSON content-type header
+  - Remaining release step:
+    - deploy the frontend so the live admin approvals page picks up this fix
 
 - ✅ **Launch-readiness validation rerun completed (April 8, 2026)**
   - Rebuilt both repos successfully with production build commands:

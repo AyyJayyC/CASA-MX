@@ -14,6 +14,8 @@
 - Backend `/health`: ✅ passed with database and cache healthy
 - Backend `/version`: ✅ passed
 - Live publish-flow Playwright coverage: ✅ included in the passing E2E validation set
+- Public production smoke Playwright coverage: ✅ passed against `https://casa-mx.com` and `https://api.casa-mx.com`
+- Authenticated production publish-flow Playwright coverage: ✅ passed against `https://casa-mx.com` and `https://api.casa-mx.com` with an approved seller account
 
 ## Readiness Summary
 - API-backed frontend flows validated against the backend
@@ -25,9 +27,9 @@
 
 ## Remaining Non-Code Launch Gates
 - Production envs still need to be applied and redeployed in Vercel/Railway
-- Public frontend deployment is currently behind the repo state: footer legal links are missing and `/privacy`, `/terms`, `/cookie` return 404 on `casa-mx.com`
+- Frontend admin approvals bugfix still needs to be deployed to production
+- Production smoke-test listing still needs cleanup after validation
 - Monitoring/alert ownership evidence still needs to be attached
-- Live cookie behavior still needs to be smoke-validated on `casa-mx.com` and `api.casa-mx.com`
 
 ## Recommended Ongoing Cadence
 1. Run `npm test -- --run` in the frontend repo.

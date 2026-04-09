@@ -1,7 +1,7 @@
 # CASA MX — Production Launch Checklist (2026-04-08)
 
 ## Current Go/No-Go Snapshot
-- Status: No-go for production release until the public frontend deployment is updated and the remaining ops evidence is finalized.
+- Status: Conditional go with product validation complete; remaining release work is the admin approvals frontend bugfix deploy, production test-data cleanup, and ops evidence.
 - Fully revalidated locally on 2026-04-08:
   - Frontend tests: 66/66 passing
   - Backend tests: 230/230 passing
@@ -13,8 +13,9 @@
     - `https://casa-mx.com` is reachable
     - `https://api.casa-mx.com/health` is reachable
     - `https://api.casa-mx.com/version` is reachable and reports `environment: production`
-    - `https://casa-mx.com/privacy`, `/terms`, and `/cookie` currently return 404
-    - Homepage footer legal links are missing from the deployed frontend
+    - `https://casa-mx.com/privacy`, `/terms`, and `/cookie` return 200 after the frontend redeploy
+    - Public smoke Playwright check passed against `https://casa-mx.com` and `https://api.casa-mx.com`
+    - Authenticated publish-flow Playwright check passed against production with an approved seller account
 
 ## What Is Already Good Enough To Ship
 - Property publish flow is working end to end.
@@ -26,7 +27,6 @@
 ## Remaining Launch Gates
 
 ### P0: Must Be True Before Production Traffic
-- Redeploy the frontend so the live site matches the current repo state, including footer legal links and the `/privacy`, `/terms`, and `/cookie` routes.
 - Replace all localhost URLs with real production domains.
 - Set backend `NODE_ENV=production`.
 - Set backend `FRONTEND_URL` to the exact public frontend origin.
@@ -35,6 +35,8 @@
 - Replace backend placeholder `MAPS_API_KEY` with a real server-side Google Maps key.
 - Keep backend `ENABLE_BILLABLE_MAPS=true` in production.
 - Replace all development/default secrets with production-managed secrets.
+- Deploy the frontend admin approvals bugfix so approve/reject actions no longer trigger `400 Bad Request` on the live site.
+- Remove or unpublish the production test listing created during authenticated smoke validation.
 - Complete monitoring ownership, dashboard links, alert routing, backup evidence, and rollback evidence.
 
 ### P1: Must Be Explicitly Decided Before DNS Cutover
@@ -90,7 +92,7 @@ Notes:
 - Backend login and refresh flows set `httpOnly` cookies with `secure` enabled only in production.
 - Frontend auth now relies on `credentials: 'include'` plus cookie-based refresh instead of persisting access or refresh tokens in browser localStorage.
 - `/auth/me` supports cookie-first verification when no bearer header is present, which matches the hardened frontend flow.
-- The main auth release check is now live cross-origin cookie behavior between `https://casa-mx.com` and `https://api.casa-mx.com`.
+- The main auth release check was validated successfully against `https://casa-mx.com` and `https://api.casa-mx.com` with a real seller login and property publish.
 
 ## Rollout Sequence
 1. Provision managed Postgres and Redis.
@@ -102,6 +104,7 @@ Notes:
 7. Run the critical Playwright publish-flow smoke test against production or staging-with-production-config.
   - Command from `c:\Users\axelj\casa-mx`:
   - `PLAYWRIGHT_BASE_URL=https://casa-mx.com PLAYWRIGHT_API_URL=https://api.casa-mx.com PLAYWRIGHT_LOGIN_EMAIL=<seller-email> PLAYWRIGHT_LOGIN_PASSWORD=<seller-password> npx playwright test tests/e2e/publish-upload-live.spec.ts`
+  - Result on 2026-04-08: **1/1 passed** against production using the approved seller validation account
 8. Verify login, property publish, property search, and admin approval flows manually.
 9. Confirm alerts, logs, dashboards, and rollback owner are live before announcing availability.
 
@@ -114,6 +117,7 @@ Notes:
 - Property publish succeeds with images and enriched rental metadata.
 - Property cards and detail pages render services, amenities, and galleries correctly.
 - Maps-backed address search works without client-side API key leakage.
+- Authenticated seller publish works against production with cookie-based auth.
 - `/health` reports database ready and cache status clearly.
 - Error logs are reaching the chosen monitoring destination.
 
@@ -123,4 +127,4 @@ Notes:
 - Default local behavior remains `http://localhost:3000` for the frontend and `http://localhost:3001` for the backend.
 
 ## Recommended Immediate Next Step
-- Deploy the current frontend and backend with the confirmed production domains, then run the smoke checklist against `https://casa-mx.com` and `https://api.casa-mx.com`.
+- Deploy the frontend admin approvals fix, remove the production smoke-test listing, and close the remaining ops evidence items.

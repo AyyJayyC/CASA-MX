@@ -16,8 +16,9 @@
 - Code quality gate is green after the April 8 validation rerun.
 - Frontend auth now uses cookie-first session handling instead of browser-stored tokens.
 - The live publish-flow Playwright spec now supports production targeting through `PLAYWRIGHT_BASE_URL` and `PLAYWRIGHT_API_URL`.
-- Public deployment check found the frontend is not fully up to date: `casa-mx.com` is reachable, but the footer legal links are missing and `/privacy`, `/terms`, `/cookie` currently return 404.
-- Remaining release work is operational and configuration-focused, not feature-focused.
+- Public deployment smoke check is now green after the frontend redeploy.
+- Authenticated production publish validation is now green with an approved seller account.
+- Remaining release work is limited to the admin approvals frontend bugfix deploy, production test-data cleanup, and ops evidence.
 - Use `docs/PRODUCTION_LAUNCH_CHECKLIST_2026-04-08.md` for the current production cutover checklist.
 
 ## Phase 4 Highlights
@@ -35,6 +36,9 @@
 - Updated production launch guidance to reflect current environment and auth topology requirements
 - Hardened frontend auth to rely on secure cookies and removed browser token persistence from the main auth flow
 - Parameterized the live publish-flow Playwright spec so it can run against `casa-mx.com` and `api.casa-mx.com`
+- Verified the public production smoke check passes after redeploy, including legal pages and footer links
+- Verified the authenticated production publish-flow smoke passes with the approved seller test account
+- Fixed the admin approvals client so production approve/reject requests no longer send an empty JSON content type
 
 ### 2026-03-10
 - Removed conditional test skips and stabilized suites
