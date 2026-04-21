@@ -96,7 +96,10 @@ export default function PropertyList({
   maxPrice = '',
   minRent = '5000',
   maxRent = '50000',
-  furnished = false
+  furnished = false,
+  selectedAmenities = [],
+  selectedServices = [],
+  selectedFinancing = [],
 }) {
   const { data = [], isLoading } = useProperties();
   const [query, setQuery] = useState(searchQuery || '');
@@ -141,6 +144,18 @@ export default function PropertyList({
       
       // Furnished filter (only for rentals)
       const matchesFurnished = listingType === 'for_sale' || !furnished || p.furnished === true;
+
+      // Amenities filter — property must have ALL selected amenities
+      const matchesAmenities = selectedAmenities.length === 0 ||
+        selectedAmenities.every(am => Array.isArray(p.amenities) && p.amenities.includes(am));
+
+      // Services filter — property must have ALL selected services
+      const matchesServices = selectedServices.length === 0 ||
+        selectedServices.every(svc => Array.isArray(p.includedServices) && p.includedServices.includes(svc));
+
+      // Financing filter — property must accept ANY of the selected financing options
+      const matchesFinancing = selectedFinancing.length === 0 ||
+        selectedFinancing.some(fin => Array.isArray(p.financeOptions) && p.financeOptions.includes(fin));
       
       return (
         matchesQuery &&
@@ -150,7 +165,10 @@ export default function PropertyList({
         matchesCodigoPostal &&
         matchesListingType &&
         matchesPriceRange &&
-        matchesFurnished
+        matchesFurnished &&
+        matchesAmenities &&
+        matchesServices &&
+        matchesFinancing
       );
     });
   }, [
@@ -166,6 +184,9 @@ export default function PropertyList({
     minRent,
     maxRent,
     furnished,
+    selectedAmenities,
+    selectedServices,
+    selectedFinancing,
   ]);
 
   return (

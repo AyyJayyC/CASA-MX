@@ -12,7 +12,13 @@ export default function RequestInfoModal({ propertyId }) {
 
   return (
     <div>
-      <button onClick={() => setOpen(true)} className="px-4 py-2 bg-blue-600 text-white rounded">Solicitar más información</button>
+      <button onClick={() => setOpen(true)} className="
+        w-full px-4 py-2.5 rounded-lg font-semibold text-sm
+        border border-neutral-300 dark:border-neutral-700
+        text-neutral-700 dark:text-neutral-300
+        hover:bg-neutral-100 dark:hover:bg-neutral-800
+        transition-colors
+      ">Solicitar más información</button>
 
       {open && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/40">

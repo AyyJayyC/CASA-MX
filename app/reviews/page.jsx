@@ -29,6 +29,14 @@ function ReviewsPageContent() {
   const [reviews, setReviews] = useState([]);
   const [isFetching, setIsFetching] = useState(false);
   const [error, setError] = useState(null);
+  const effectiveRole = useMemo(() => {
+    if (selectedRole && availableRoles.includes(selectedRole)) {
+      return selectedRole;
+    }
+
+    return availableRoles[0] || null;
+  }, [availableRoles, selectedRole]);
+  const effectiveRoleLabel = getRoleLabel(effectiveRole) || 'tu perfil';
 
   useEffect(() => {
     if (!selectedRole && availableRoles.length > 0) {
@@ -37,7 +45,7 @@ function ReviewsPageContent() {
   }, [availableRoles, selectedRole]);
 
   useEffect(() => {
-    if (!user?.id || !selectedRole) {
+    if (!user?.id || !effectiveRole) {
       return;
     }
 
@@ -47,8 +55,8 @@ function ReviewsPageContent() {
         setError(null);
 
         const [summaryData, reviewsData] = await Promise.all([
-          getReviewSummary(user.id, selectedRole),
-          getUserReviews(user.id, selectedRole),
+          getReviewSummary(user.id, effectiveRole),
+          getUserReviews(user.id, effectiveRole),
         ]);
 
         setSummary(summaryData);
@@ -61,7 +69,7 @@ function ReviewsPageContent() {
     };
 
     loadReviews();
-  }, [selectedRole, user?.id]);
+  }, [effectiveRole, user?.id]);
 
   if (loading) {
     return <div className="container max-w-6xl py-12 text-neutral-600 dark:text-neutral-400">Cargando...</div>;
@@ -111,10 +119,10 @@ function ReviewsPageContent() {
 
       <ReviewSummaryCard
         summary={summary}
-        role={selectedRole}
+        role={effectiveRole}
         loading={isFetching}
         error={error}
-        title={`Tu reputación como ${getRoleLabel(selectedRole)}`}
+        title={`Tu reputación como ${effectiveRoleLabel}`}
       />
 
       <section className="space-y-4">
@@ -131,7 +139,7 @@ function ReviewsPageContent() {
           reviews={reviews}
           loading={isFetching}
           error={error}
-          emptyMessage={`Aún no tienes reseñas verificadas como ${getRoleLabel(selectedRole).toLowerCase()}.`}
+          emptyMessage={`Aún no tienes reseñas verificadas como ${effectiveRoleLabel.toLowerCase()}.`}
         />
       </section>
     </div>

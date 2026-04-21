@@ -11,8 +11,10 @@ import LeaveReviewModal from './LeaveReviewModal.jsx';
 import ReviewSummaryCard from './ReviewSummaryCard.jsx';
 import { getPropertyApplications, updateApplicationStatus } from '@/lib/api/applications';
 import { getMyAuthoredReviews, getReviewSummary } from '@/lib/api/reviews';
+import { useCredits } from '@/lib/auth/CreditsContext';
 
 const ApproveRejectModal = dynamic(() => import('./ApproveRejectModal.jsx'), { ssr: false });
+const NegotiationPanel = dynamic(() => import('./NegotiationPanel.jsx'), { ssr: false });
 
 const statusBadgeConfig = {
   pending: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-800 dark:text-yellow-300', label: 'Pendiente' },
@@ -21,7 +23,8 @@ const statusBadgeConfig = {
   rejected: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-800 dark:text-red-300', label: 'Rechazada' },
 };
 
-export default function ApplicationsTable({ propertyId, propertyTitle, statusFilter }) {
+export default function ApplicationsTable({ propertyId, propertyTitle, propertyMonthlyRent, landlordId, statusFilter }) {
+  const { spend, balance } = useCredits();
   const [applications, setApplications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -30,6 +33,15 @@ export default function ApplicationsTable({ propertyId, propertyTitle, statusFil
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [reviewModalApp, setReviewModalApp] = useState(null);
   const [reviewedApplicationIds, setReviewedApplicationIds] = useState([]);
+  // Contacts revealed during this session (after spending a credit).
+  // API also returns non-null email/phone for leads unlocked in previous sessions.
+  const [unlockedContacts, setUnlockedContacts] = useState({});
+  const [unlocking, setUnlocking] = useState(null); // applicationId being unlocked
+
+  // Resolve the effective contact for an application (session unlock OR already-unlocked from API).
+  const getContact = (app) =>
+    unlockedContacts[app.id] ??
+    (app.email ? { email: app.email, phone: app.phone, fullName: app.fullName } : null);
 
   useEffect(() => {
     const fetchApplications = async () => {
@@ -89,6 +101,24 @@ export default function ApplicationsTable({ propertyId, propertyTitle, statusFil
       alert('Error: ' + (err.message || 'Error al actualizar solicitud'));
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleUnlock = async (app) => {
+    setUnlocking(app.id);
+    try {
+      const result = await spend(app.id, 'application');
+      if (result.success && result.contact) {
+        setUnlockedContacts(prev => ({ ...prev, [app.id]: result.contact }));
+      }
+    } catch (err) {
+      if (err.status === 402) {
+        alert('Saldo insuficiente. Ve a Créditos para comprar más.');
+      } else {
+        alert(err.message || 'Error al desbloquear contacto');
+      }
+    } finally {
+      setUnlocking(null);
     }
   };
 
@@ -152,22 +182,35 @@ export default function ApplicationsTable({ propertyId, propertyTitle, statusFil
                   <td className="px-6 py-4">
                     <div>
                       <div className="font-medium text-neutral-900 dark:text-neutral-100">
-                        {app.fullName}
+                        {getContact(app) ? app.fullName : app.fullName.split(' ')[0]}
                       </div>
                       <div className="text-sm text-neutral-600 dark:text-neutral-400">
                         Inquilinos: {app.numberOfOccupants}
                       </div>
+                      {!getContact(app) && (
+                        <div className="text-xs text-neutral-400 mt-0.5">Apellidos ocultos</div>
+                      )}
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="text-sm">
-                      <div className="text-neutral-900 dark:text-neutral-100">{app.email}</div>
-                      <div className="text-neutral-600 dark:text-neutral-400">{app.phone}</div>
-                    </div>
+                    {getContact(app) ? (
+                      <div className="text-sm">
+                        <div className="text-neutral-900 dark:text-neutral-100">{getContact(app).email}</div>
+                        <div className="text-neutral-600 dark:text-neutral-400">{getContact(app).phone}</div>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleUnlock(app)}
+                        disabled={unlocking === app.id}
+                        className="text-xs font-medium text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 flex items-center gap-1 disabled:opacity-50"
+                      >
+                        🔓 {unlocking === app.id ? 'Desbloqueando...' : 'Ver contacto (1 crédito)'}
+                      </button>
+                    )}
                   </td>
                   <td className="px-6 py-4">
-                    <div className="text-sm text-neutral-900 dark:text-neutral-100">
-                      ${app.monthlyIncome?.toLocaleString('es-MX')} MXN
+                    <div className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                      ${app.monthlyIncome?.toLocaleString('es-MX')} MXN/mes
                     </div>
                   </td>
                   <td className="px-6 py-4">
@@ -190,6 +233,12 @@ export default function ApplicationsTable({ propertyId, propertyTitle, statusFil
                             className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-medium rounded hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
                           >
                             Rechazar
+                          </button>
+                          <button
+                            onClick={() => { setSelectedApp(app); setActionType(null); }}
+                            className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-medium rounded hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                          >
+                            Negociar
                           </button>
                         </>
                       )}
@@ -220,11 +269,25 @@ export default function ApplicationsTable({ propertyId, propertyTitle, statusFil
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <div className="font-medium text-neutral-900 dark:text-neutral-100">
-                    {app.fullName}
+                    {getContact(app) ? app.fullName : app.fullName.split(' ')[0]}
+                    {!getContact(app) && <span className="ml-1 text-xs text-neutral-400">(apellidos ocultos)</span>}
                   </div>
-                  <div className="text-sm text-neutral-600 dark:text-neutral-400">
-                    {app.email} • {app.phone}
+                  <div className="text-sm text-neutral-500 dark:text-neutral-400">
+                    ${app.monthlyIncome?.toLocaleString('es-MX')} MXN/mes
                   </div>
+                  {getContact(app) ? (
+                    <div className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+                      {getContact(app).email} • {getContact(app).phone}
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => handleUnlock(app)}
+                      disabled={unlocking === app.id}
+                      className="mt-1 text-xs font-medium text-amber-600 hover:text-amber-700 dark:text-amber-400 flex items-center gap-1 disabled:opacity-50"
+                    >
+                      🔓 {unlocking === app.id ? 'Desbloqueando...' : 'Ver contacto (1 crédito)'}
+                    </button>
+                  )}
                 </div>
                 <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-semibold whitespace-nowrap ${statusConfig.bg} ${statusConfig.text}`}>
                   {statusConfig.label}
@@ -261,6 +324,12 @@ export default function ApplicationsTable({ propertyId, propertyTitle, statusFil
                     >
                       Rechazar
                     </button>
+                    <button
+                      onClick={() => { setSelectedApp(app); setActionType(null); }}
+                      className="flex-1 px-3 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-medium rounded hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                    >
+                      Negociar
+                    </button>
                   </>
                 )}
                 <button
@@ -290,11 +359,16 @@ export default function ApplicationsTable({ propertyId, propertyTitle, statusFil
       {selectedApp && !actionType && (
         <ApplicationDetailsModal
           application={selectedApp}
+          propertyMonthlyRent={propertyMonthlyRent}
+          landlordId={landlordId}
           onClose={() => setSelectedApp(null)}
           onApprove={() => setActionType('approve')}
           onReject={() => setActionType('reject')}
           onReview={() => setReviewModalApp(selectedApp)}
           hasSubmittedReview={reviewedApplicationIds.includes(selectedApp.id)}
+          unlockedContact={getContact(selectedApp)}
+          onUnlock={() => handleUnlock(selectedApp)}
+          isUnlocking={unlocking === selectedApp.id}
         />
       )}
 
@@ -315,7 +389,7 @@ export default function ApplicationsTable({ propertyId, propertyTitle, statusFil
 }
 
 // Application Details Modal Component
-function ApplicationDetailsModal({ application, onClose, onApprove, onReject, onReview, hasSubmittedReview }) {
+function ApplicationDetailsModal({ application, propertyMonthlyRent, landlordId, onClose, onApprove, onReject, onReview, hasSubmittedReview, unlockedContact, onUnlock, isUnlocking }) {
   const statusConfig = statusBadgeConfig[application.status];
 
   return (
@@ -346,16 +420,42 @@ function ApplicationDetailsModal({ application, onClose, onApprove, onReject, on
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <div className="text-sm text-neutral-600 dark:text-neutral-400">Nombre</div>
-                <div className="font-medium text-neutral-900 dark:text-neutral-100">{application.fullName}</div>
+                <div className="font-medium text-neutral-900 dark:text-neutral-100">
+                  {unlockedContact ? application.fullName : application.fullName.split(' ')[0]}
+                  {!unlockedContact && <span className="ml-1 text-xs text-neutral-400">(apellidos ocultos)</span>}
+                </div>
               </div>
               <div>
                 <div className="text-sm text-neutral-600 dark:text-neutral-400">Email</div>
-                <div className="font-medium text-neutral-900 dark:text-neutral-100">{application.email}</div>
+                {unlockedContact ? (
+                  <div className="font-medium text-neutral-900 dark:text-neutral-100">{unlockedContact.email}</div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <div className="font-medium text-neutral-400 dark:text-neutral-600 blur-sm select-none">••••••@•••.com</div>
+                  </div>
+                )}
               </div>
               <div>
                 <div className="text-sm text-neutral-600 dark:text-neutral-400">Teléfono</div>
-                <div className="font-medium text-neutral-900 dark:text-neutral-100">{application.phone}</div>
+                {unlockedContact ? (
+                  <div className="font-medium text-neutral-900 dark:text-neutral-100">{unlockedContact.phone}</div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <div className="font-medium text-neutral-400 dark:text-neutral-600 blur-sm select-none">+52 •••• ••••••</div>
+                  </div>
+                )}
               </div>
+              {!unlockedContact && (
+                <div className="col-span-2">
+                  <button
+                    onClick={onUnlock}
+                    disabled={isUnlocking}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white text-sm font-semibold rounded-lg transition-colors"
+                  >
+                    🔓 {isUnlocking ? 'Desbloqueando...' : 'Ver contacto completo (1 crédito)'}
+                  </button>
+                </div>
+              )}
               <div>
                 <div className="text-sm text-neutral-600 dark:text-neutral-400">Ocupantes</div>
                 <div className="font-medium text-neutral-900 dark:text-neutral-100">{application.numberOfOccupants}</div>
@@ -424,6 +524,59 @@ function ApplicationDetailsModal({ application, onClose, onApprove, onReject, on
           {application.applicantId && (
             <ApplicantReviewSummary applicantId={application.applicantId} />
           )}
+
+          {/* Documents */}
+          {(application.idDocumentUrl || application.incomeProofUrl || (application.additionalDocsUrls && application.additionalDocsUrls.length > 0)) && (
+            <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
+              <h3 className="font-semibold text-neutral-900 dark:text-neutral-100 mb-3">Documentos</h3>
+              <div className="flex flex-wrap gap-3">
+                {application.idDocumentUrl && (
+                  <a
+                    href={application.idDocumentUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 text-sm font-medium hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
+                  >
+                    📄 Identificación
+                  </a>
+                )}
+                {application.incomeProofUrl && (
+                  <a
+                    href={application.incomeProofUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-2 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-sm font-medium hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors"
+                  >
+                    📄 Comprobante de ingresos
+                  </a>
+                )}
+                {(application.additionalDocsUrls || []).map((url, i) => (
+                  <a
+                    key={i}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-2 rounded-lg bg-neutral-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-sm font-medium hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
+                  >
+                    📎 Documento adicional {i + 1}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Negotiation */}
+          {landlordId && propertyMonthlyRent != null && (
+            <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
+              <h3 className="font-semibold text-neutral-900 dark:text-neutral-100 mb-3">Negociación de renta</h3>
+              <NegotiationPanel
+                applicationId={application.id}
+                originalRent={propertyMonthlyRent}
+                applicantId={application.applicantId}
+                landlordId={landlordId}
+              />
+            </div>
+          )}
         </div>
 
         {/* Footer with Actions */}
@@ -444,15 +597,28 @@ function ApplicationDetailsModal({ application, onClose, onApprove, onReject, on
           </div>
         )}
 
-        {application.status === 'approved' && application.applicantId && (
-          <div className="bg-neutral-50 dark:bg-neutral-800/50 border-t border-neutral-200 dark:border-neutral-700 p-6">
-            <button
-              onClick={onReview}
-              disabled={hasSubmittedReview}
-              className="w-full px-4 py-2 bg-gradient-to-br from-amber-400 to-yellow-600 text-white font-medium rounded-lg hover:from-amber-500 hover:to-yellow-700 disabled:opacity-60 transition-colors"
+        {application.status === 'approved' && (
+          <div className="bg-neutral-50 dark:bg-neutral-800/50 border-t border-neutral-200 dark:border-neutral-700 p-6 space-y-3">
+            <a
+              href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/contracts/rental/${application.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-green-600 hover:bg-green-700 text-white transition-colors"
             >
-              {hasSubmittedReview ? 'Reseña enviada para este inquilino' : 'Calificar inquilino'}
-            </button>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Descargar Contrato de Arrendamiento
+            </a>
+            {application.applicantId && (
+              <button
+                onClick={onReview}
+                disabled={hasSubmittedReview}
+                className="w-full px-4 py-2 bg-gradient-to-br from-amber-400 to-yellow-600 text-white font-medium rounded-lg hover:from-amber-500 hover:to-yellow-700 disabled:opacity-60 transition-colors"
+              >
+                {hasSubmittedReview ? 'Reseña enviada para este inquilino' : 'Calificar inquilino'}
+              </button>
+            )}
           </div>
         )}
 

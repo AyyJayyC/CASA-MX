@@ -6,7 +6,9 @@ import './globals.css';
 import Link from 'next/link';
 import QueryProvider from '../lib/providers/QueryProvider';
 import { AuthProvider } from '../lib/auth/AuthContext.jsx';
+import { CreditsProvider } from '../lib/auth/CreditsContext.jsx';
 import NavBar from '../components/NavBar.jsx';
+import EmailVerificationBanner from '../components/EmailVerificationBanner.jsx';
 import { DebugProvider } from '../lib/debug/DebugContext.jsx';
 import DebugPanel from '../components/DebugPanel.jsx';
 import LoggingInitializer from '../components/LoggingInitializer.jsx';
@@ -34,8 +36,10 @@ export default function RootLayout({ children }) {
         <DebugProvider>
           <ErrorBoundary>
             <AuthProvider>
-              <QueryProvider>
+              <CreditsProvider>
+                <QueryProvider>
                 <NavBar />
+                <EmailVerificationBanner />
                 <main className="container mt-8">{children}</main>
                 <footer className="mt-12 border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
                   <div className="container max-w-7xl py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-neutral-600 dark:text-neutral-400">
@@ -50,6 +54,7 @@ export default function RootLayout({ children }) {
                 <LoggingInitializer />
                 <DebugPanel />
               </QueryProvider>
+              </CreditsProvider>
             </AuthProvider>
           </ErrorBoundary>
         </DebugProvider>

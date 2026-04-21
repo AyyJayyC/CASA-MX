@@ -5,12 +5,13 @@
  * Purpose: Authenticate user with email and select active role
  */
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/lib/auth/useAuth';
+import SocialLoginButtons from '@/components/SocialLoginButtons';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -20,6 +21,7 @@ const loginSchema = z.object({
 export default function LoginPage() {
   const router = useRouter();
   const { login, isAuthenticated, user } = useAuth();
+  const [socialError, setSocialError] = useState(null);
   const {
     register,
     handleSubmit,
@@ -163,6 +165,17 @@ export default function LoginPage() {
               )}
             </button>
           </form>
+
+          {/* Social Login */}
+          <div className="mt-6">
+            {socialError && (
+              <p className="mb-3 text-sm text-red-600 dark:text-red-400 text-center">{socialError}</p>
+            )}
+            <SocialLoginButtons
+              redirectTo="/properties"
+              onError={(msg) => setSocialError(msg)}
+            />
+          </div>
 
           {/* Demo Info */}
           <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">

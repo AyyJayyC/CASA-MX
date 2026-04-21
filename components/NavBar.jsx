@@ -3,17 +3,28 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth/useAuth';
+import { useCredits } from '@/lib/auth/CreditsContext';
+import { getNotifications, markAllNotificationsRead } from '@/lib/api/notifications';
 
 export default function NavBar() {
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated, user, logout, switchRole, loading } = useAuth();
+  const { balance } = useCredits();
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [propertiesDropdownOpen, setPropertiesDropdownOpen] = useState(false);
+  const [notifData, setNotifData] = useState({ notifications: [], unreadCount: 0 });
+  const [notifOpen, setNotifOpen] = useState(false);
   const isAdminUser = Boolean(
     user?.roles?.some((r) => r.type === 'admin' && r.status === 'approved')
+  );
+  const isBuyerOrTenant = Boolean(
+    user?.roles?.some((r) => ['buyer', 'tenant'].includes(r.type) && r.status === 'approved')
+  );
+  const canPublish = Boolean(
+    user?.roles?.some((r) => ['seller', 'wholesaler', 'admin'].includes(r.type) && r.status === 'approved')
   );
   const showDebugUI = process.env.NODE_ENV !== 'production' && isAdminUser;
 
@@ -33,14 +44,31 @@ export default function NavBar() {
       if (propertiesDropdownOpen && !e.target.closest('.properties-dropdown')) {
         setPropertiesDropdownOpen(false);
       }
+      if (notifOpen && !e.target.closest('.notif-dropdown')) {
+        setNotifOpen(false);
+      }
     };
     
-    if (propertiesDropdownOpen) {
+    if (propertiesDropdownOpen || notifOpen) {
       document.addEventListener('click', handleClickOutside);
     }
     
     return () => document.removeEventListener('click', handleClickOutside);
-  }, [propertiesDropdownOpen]);
+  }, [propertiesDropdownOpen, notifOpen]);
+
+  // Poll notifications every 30s
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const fetchNotifs = async () => {
+      try {
+        const data = await getNotifications();
+        setNotifData(data);
+      } catch (e) { /* silent */ }
+    };
+    fetchNotifs();
+    const interval = setInterval(fetchNotifs, 30000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
 
   const toggleDarkMode = () => {
     const newDarkMode = !darkMode;
@@ -125,6 +153,32 @@ export default function NavBar() {
                 }
                 z-50
               `}>
+                {/* Buyer/tenant: show buy + rent */}
+                {isBuyerOrTenant ? (
+                  <>
+                    <Link
+                      href="/properties?type=for_sale"
+                      onClick={() => setPropertiesDropdownOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:text-amber-600 dark:hover:text-amber-400 border-b border-neutral-100 dark:border-neutral-700 transition-colors"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Comprar Propiedad
+                    </Link>
+                    <Link
+                      href="/properties?type=for_rent"
+                      onClick={() => setPropertiesDropdownOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                      </svg>
+                      Rentar Propiedad
+                    </Link>
+                  </>
+                ) : (
+                  <>
                 <Link
                   href="/properties?type=for_sale"
                   onClick={() => setPropertiesDropdownOpen(false)}
@@ -201,66 +255,23 @@ export default function NavBar() {
                     Publicar Nueva Propiedad
                   </Link>
                 )}
+                  </>
+                )}
               </div>
             </div>
 
-            {isAuthenticated && user?.roles.some((r) => r.type === 'buyer' && r.status === 'approved') && (
+            {isAuthenticated && (
               <Link
-                href="/requested"
+                href="/dashboard"
                 className={`
                   px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                  ${isActivePath('/requested')
+                  ${pathname?.startsWith('/dashboard')
                     ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
                     : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
                   }
                 `}
               >
-                Mis Solicitudes
-              </Link>
-            )}
-
-            {isAuthenticated && user?.roles.some((r) => r.type === 'tenant' && r.status === 'approved') && (
-              <Link
-                href="/dashboard/rental-applications"
-                className={`
-                  px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                  ${isActivePath('/dashboard/rental-applications')
-                    ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
-                    : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
-                  }
-                `}
-              >
-                Mis rentas
-              </Link>
-            )}
-
-            {isAuthenticated && user?.roles.some((r) => r.type === 'landlord' && r.status === 'approved') && (
-              <Link
-                href="/dashboard/applications"
-                className={`
-                  px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                  ${isActivePath('/dashboard/applications')
-                    ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
-                    : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
-                  }
-                `}
-              >
-                Solicitudes renta
-              </Link>
-            )}
-
-            {isAuthenticated && user?.roles.some((r) => ['tenant', 'landlord'].includes(r.type) && r.status === 'approved') && (
-              <Link
-                href="/reviews"
-                className={`
-                  px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                  ${isActivePath('/reviews')
-                    ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
-                    : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
-                  }
-                `}
-              >
-                Reseñas
+                Dashboard
               </Link>
             )}
 
@@ -361,6 +372,81 @@ export default function NavBar() {
                       )}
                     </div>
 
+                    {/* Notification Bell */}
+                    <div className="relative notif-dropdown">
+                      <button
+                        onClick={() => setNotifOpen(!notifOpen)}
+                        className="relative p-2 rounded-lg text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                        aria-label="Notificaciones"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                        {notifData.unreadCount > 0 && (
+                          <span className="absolute top-0.5 right-0.5 min-w-[16px] h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold px-0.5">
+                            {notifData.unreadCount > 9 ? '9+' : notifData.unreadCount}
+                          </span>
+                        )}
+                      </button>
+                      {notifOpen && (
+                        <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-xl z-50">
+                          <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-100 dark:border-neutral-700">
+                            <span className="font-semibold text-sm text-neutral-900 dark:text-neutral-100">Notificaciones</span>
+                            {notifData.unreadCount > 0 && (
+                              <button
+                                onClick={async () => {
+                                  await markAllNotificationsRead();
+                                  setNotifData(d => ({ ...d, unreadCount: 0, notifications: d.notifications.map(n => ({ ...n, read: true })) }));
+                                }}
+                                className="text-xs text-amber-600 dark:text-amber-400 hover:underline"
+                              >
+                                Marcar todas leídas
+                              </button>
+                            )}
+                          </div>
+                          <div className="max-h-72 overflow-y-auto">
+                            {notifData.notifications.length === 0 ? (
+                              <p className="px-4 py-6 text-sm text-neutral-500 dark:text-neutral-400 text-center">Sin notificaciones</p>
+                            ) : (
+                              notifData.notifications.slice(0, 5).map(n => (
+                                <div key={n.id} className={`px-4 py-3 border-b border-neutral-100 dark:border-neutral-700 last:border-0 ${!n.read ? 'bg-amber-50 dark:bg-amber-900/10' : ''}`}>
+                                  <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{n.title}</p>
+                                  <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-0.5">{n.message}</p>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                          <div className="px-4 py-2 border-t border-neutral-100 dark:border-neutral-700">
+                            <Link
+                              href="/dashboard/notifications"
+                              onClick={() => setNotifOpen(false)}
+                              className="block text-center text-xs text-amber-600 dark:text-amber-400 hover:underline py-1"
+                            >
+                              Ver todas las notificaciones
+                            </Link>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Settings link */}
+                    <Link
+                      href="/settings"
+                      className="px-3 py-1.5 rounded-lg text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                      title="Ajustes de perfil"
+                    >
+                      ⚙️ Ajustes
+                    </Link>
+
+                    {/* Logout Button */}
+                    <Link
+                      href="/credits"
+                      className="px-3 py-1.5 rounded-lg text-sm font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
+                      title="Mis créditos"
+                    >
+                      💰 {balance}
+                    </Link>
+
                     {/* Logout Button */}
                     <button
                       onClick={handleLogout}
@@ -444,83 +530,19 @@ export default function NavBar() {
               Propiedades
             </Link>
 
-            {isAuthenticated && user?.roles.some((r) => ['seller', 'wholesaler', 'admin'].includes(r.type) && r.status === 'approved') && (
+            {isAuthenticated && (
               <Link
-                href="/publish-property"
+                href="/dashboard"
                 onClick={() => setMobileMenuOpen(false)}
                 className={`
                   block px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                  ${isActivePath('/upload')
+                  ${pathname?.startsWith('/dashboard')
                     ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
                     : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
                   }
                 `}
               >
-                Publicar
-              </Link>
-            )}
-
-            {isAuthenticated && user?.roles.some((r) => r.type === 'buyer' && r.status === 'approved') && (
-              <Link
-                href="/requested"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`
-                  block px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                  ${isActivePath('/requested')
-                    ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
-                    : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
-                  }
-                `}
-              >
-                Mis Solicitudes
-              </Link>
-            )}
-
-            {isAuthenticated && user?.roles.some((r) => r.type === 'tenant' && r.status === 'approved') && (
-              <Link
-                href="/dashboard/rental-applications"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`
-                  block px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                  ${isActivePath('/dashboard/rental-applications')
-                    ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
-                    : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
-                  }
-                `}
-              >
-                Mis rentas
-              </Link>
-            )}
-
-            {isAuthenticated && user?.roles.some((r) => r.type === 'landlord' && r.status === 'approved') && (
-              <Link
-                href="/dashboard/applications"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`
-                  block px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                  ${isActivePath('/dashboard/applications')
-                    ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
-                    : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
-                  }
-                `}
-              >
-                Solicitudes renta
-              </Link>
-            )}
-
-            {isAuthenticated && user?.roles.some((r) => ['tenant', 'landlord'].includes(r.type) && r.status === 'approved') && (
-              <Link
-                href="/reviews"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`
-                  block px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                  ${isActivePath('/reviews')
-                    ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
-                    : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
-                  }
-                `}
-              >
-                Reseñas
+                Dashboard
               </Link>
             )}
 

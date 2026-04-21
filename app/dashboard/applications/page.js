@@ -223,6 +223,8 @@ function LandlordDashboardContent() {
                 <ApplicationsTable
                   propertyId={selectedProperty.id}
                   propertyTitle={selectedProperty.title}
+                  propertyMonthlyRent={selectedProperty.monthlyRent}
+                  landlordId={selectedProperty.sellerId}
                   statusFilter={statusFilter}
                 />
               </>

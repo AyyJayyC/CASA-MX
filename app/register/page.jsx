@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/lib/auth/useAuth';
+import SocialLoginButtons from '@/components/SocialLoginButtons';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Nombre debe tener al menos 2 caracteres'),
@@ -335,6 +336,14 @@ export default function RegisterPage() {
               )}
             </button>
           </form>
+
+          {/* Social Login — quick sign-up alternative */}
+          <div className="mt-6">
+            <SocialLoginButtons
+              redirectTo="/properties"
+              onError={(msg) => setRegisterError(msg)}
+            />
+          </div>
 
           {/* Info */}
           <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">

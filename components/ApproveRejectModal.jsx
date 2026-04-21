@@ -73,12 +73,6 @@ export default function ApproveRejectModal({
                 {application.fullName}
               </div>
             </div>
-            <div>
-              <div className="text-xs text-neutral-600 dark:text-neutral-400">Email</div>
-              <div className="text-sm text-neutral-900 dark:text-neutral-100">
-                {application.email}
-              </div>
-            </div>
           </div>
 
           {/* Error Display */}

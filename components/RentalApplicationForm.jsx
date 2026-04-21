@@ -7,6 +7,7 @@
 'use client';
 import React, { useState } from 'react';
 import { z } from 'zod';
+import DocumentUpload from './DocumentUpload';
 
 // Zod validation schema matching backend requirements
 const applicationSchema = z.object({
@@ -29,6 +30,9 @@ const applicationSchema = z.object({
   reference1Phone: z.string().min(10, 'El teléfono de la referencia 1 debe tener al menos 10 dígitos'),
   reference2Name: z.string().optional(),
   reference2Phone: z.string().optional(),
+  offeredMonthlyRent: z.number({ invalid_type_error: 'La renta ofrecida debe ser un número' })
+    .positive('La renta ofrecida debe ser mayor a 0')
+    .optional(),
   messageToLandlord: z.string().optional(),
 });
 
@@ -48,6 +52,7 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
     reference1Phone: '',
     reference2Name: '',
     reference2Phone: '',
+    offeredMonthlyRent: '',
     messageToLandlord: '',
   });
 
@@ -55,6 +60,7 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null); // 'success' | 'error'
   const [submitMessage, setSubmitMessage] = useState('');
+  const [createdApplicationId, setCreatedApplicationId] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -77,6 +83,7 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
       monthlyIncome: formData.monthlyIncome ? parseFloat(formData.monthlyIncome) : undefined,
       desiredLeaseTerm: formData.desiredLeaseTerm ? parseInt(formData.desiredLeaseTerm) : undefined,
       numberOfOccupants: formData.numberOfOccupants ? parseInt(formData.numberOfOccupants) : undefined,
+      offeredMonthlyRent: formData.offeredMonthlyRent ? parseFloat(formData.offeredMonthlyRent) : undefined,
     };
 
     // Client-side validation with Zod
@@ -97,10 +104,9 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
       // Submit to backend API
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/applications`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          // TODO: Add auth token when authentication is implemented
-          // 'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           propertyId,
@@ -118,6 +124,7 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
       // Success
       setSubmitStatus('success');
       setSubmitMessage('¡Solicitud enviada exitosamente! El propietario revisará tu aplicación pronto.');
+      if (data.application?.id) setCreatedApplicationId(data.application.id);
       
       // Reset form
       setFormData({
@@ -135,6 +142,7 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
         reference1Phone: '',
         reference2Name: '',
         reference2Phone: '',
+        offeredMonthlyRent: '',
         messageToLandlord: '',
       });
 
@@ -150,27 +158,51 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Success/Error Messages */}
-      {submitStatus && (
-        <div className={`
-          p-4 rounded-lg border
-          ${submitStatus === 'success' 
-            ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-800 dark:text-green-300'
-            : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-800 dark:text-red-300'
-          }
-        `}>
-          <div className="flex items-start gap-3">
-            <svg 
-              className="w-5 h-5 flex-shrink-0 mt-0.5" 
-              fill="currentColor" 
-              viewBox="0 0 20 20"
-            >
-              {submitStatus === 'success' ? (
+    <>
+      {/* Success modal overlay */}
+      {submitStatus === 'success' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl max-w-md w-full p-8 flex flex-col items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center">
+              <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              ) : (
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              )}
+              </svg>
+            </div>
+            <h2 className="text-xl font-bold text-neutral-900 dark:text-neutral-100 text-center">
+              ¡Solicitud enviada!
+            </h2>
+            <p className="text-sm text-neutral-600 dark:text-neutral-400 text-center">
+              El propietario revisará tu aplicación y se pondrá en contacto contigo directamente.
+            </p>
+            {createdApplicationId && (
+              <div className="w-full p-3 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20">
+                <h3 className="font-semibold text-amber-800 dark:text-amber-300 mb-3 text-sm">
+                  Sube tus documentos
+                </h3>
+                <DocumentUpload applicationId={createdApplicationId} />
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => {
+                setSubmitStatus(null);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="mt-2 px-6 py-2.5 bg-gradient-to-br from-amber-400 to-yellow-600 hover:from-amber-500 hover:to-yellow-700 text-white font-semibold rounded-lg transition-all text-sm"
+            >
+              Ver la propiedad
+            </button>
+          </div>
+        </div>
+      )}
+
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Error message */}
+      {submitStatus === 'error' && (
+        <div className="p-4 rounded-lg border bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-800 dark:text-red-300">
+          <div className="flex items-start gap-3">
+            <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
             </svg>
             <p className="text-sm font-medium">{submitMessage}</p>
           </div>
@@ -360,10 +392,10 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
 
           <div>
             <label htmlFor="employmentDuration" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-              Tiempo en Empleo *
+              Tiempo en Empleo (años) *
             </label>
             <input
-              type="text"
+              type="number"
               id="employmentDuration"
               name="employmentDuration"
               value={formData.employmentDuration}
@@ -377,11 +409,16 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
                 placeholder:text-neutral-500
                 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
               `}
-              placeholder="2 años"
+              placeholder="1"
+              min="0"
+              step="0.5"
             />
             {errors.employmentDuration && (
               <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.employmentDuration}</p>
             )}
+            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+              Ingresa el tiempo en años. Si llevas menos de un año, usa decimales (ej. 0.5 = 6 meses).
+            </p>
           </div>
         </div>
       </div>
@@ -471,6 +508,40 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
               <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.numberOfOccupants}</p>
             )}
           </div>
+        </div>
+
+        {/* Offered rent */}
+        <div>
+          <label htmlFor="offeredMonthlyRent" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+            Renta mensual ofrecida (MXN)
+            {monthlyRent && (
+              <span className="ml-2 text-xs font-normal text-neutral-500 dark:text-neutral-400">
+                Precio publicado: ${monthlyRent.toLocaleString('es-MX')}
+              </span>
+            )}
+          </label>
+          <input
+            type="number"
+            id="offeredMonthlyRent"
+            name="offeredMonthlyRent"
+            value={formData.offeredMonthlyRent}
+            onChange={handleChange}
+            className={`
+              w-full sm:w-1/3 px-3 py-2
+              bg-white dark:bg-neutral-950
+              border ${errors.offeredMonthlyRent ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'}
+              rounded-md text-sm
+              text-neutral-900 dark:text-neutral-100
+              placeholder:text-neutral-500
+              focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+            `}
+            placeholder={monthlyRent ? String(monthlyRent) : '0'}
+            min="1"
+          />
+          {errors.offeredMonthlyRent && (
+            <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.offeredMonthlyRent}</p>
+          )}
+          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Opcional — déjalo vacío si aceptas el precio publicado.</p>
         </div>
       </div>
 
@@ -648,5 +719,6 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
         </p>
       </div>
     </form>
+    </>
   );
 }

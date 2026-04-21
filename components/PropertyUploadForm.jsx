@@ -34,8 +34,11 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
   const [addressSearchError, setAddressSearchError] = useState('');
   const [addressSearchLoading, setAddressSearchLoading] = useState(false);
   const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
+  const [activeAddressSuggestionIndex, setActiveAddressSuggestionIndex] = useState(-1);
   const addressSearchRef = useRef(null);
   const addressDebounce = useRef(null);
+  const sessionTokenRef = useRef(null);
+  const autocompleteCache = useRef(new Map());
   const photoInputRef = useRef(null);
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -45,6 +48,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
     function handleClick(e) {
       if (addressSearchRef.current && !addressSearchRef.current.contains(e.target)) {
         setShowAddressSuggestions(false);
+        setActiveAddressSuggestionIndex(-1);
       }
     }
     document.addEventListener('mousedown', handleClick);
@@ -366,13 +370,19 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
             ? `${typedStreet}, ${locationParts || result.formatted_address || ''}`.replace(/,\s*$/, '')
             : (result.formatted_address || locationParts);
 
-        setValue('address', fullAddress);
-        if (estado) setValue('estado', estado);
-        if (ciudad) setValue('ciudad', ciudad);
-        if (colonia) setValue('colonia', colonia);
-        if (cp) setValue('codigoPostal', cp);
-        if (lat) setValue('latitude', lat);
-        if (lng) setValue('longitude', lng);
+        setValue('address', fullAddress, { shouldDirty: true, shouldValidate: true });
+        // Always set state, city, and colonia from geocode results, but allow user to override colonia after autofill
+        if (estado) setValue('estado', estado, { shouldDirty: true, shouldValidate: true });
+        if (ciudad) setValue('ciudad', ciudad, { shouldDirty: true, shouldValidate: true });
+        if (colonia) {
+          setValue('colonia', colonia, { shouldDirty: true, shouldValidate: true });
+        } else {
+          // If no colonia found, clear it so user can select
+          setValue('colonia', '', { shouldDirty: true, shouldValidate: true });
+        }
+        if (cp) setValue('codigoPostal', cp, { shouldDirty: true, shouldValidate: true });
+        if (lat) setValue('latitude', lat, { shouldDirty: true });
+        if (lng) setValue('longitude', lng, { shouldDirty: true });
         setAddressSearch(fullAddress);
       } else if (result.display_name) {
         // Nominatim fallback
@@ -389,16 +399,20 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
           ? `${typedStreet}, ${locationParts || result.display_name || ''}`.replace(/,\s*$/, '')
           : result.display_name;
 
-        setValue('address', composedAddress);
+        setValue('address', composedAddress, { shouldDirty: true, shouldValidate: true });
         const lat = result.lat ? Number(result.lat) : null;
         const lon = result.lon ? Number(result.lon) : null;
 
-        if (estado || suggestionComponents.estado) setValue('estado', estado || suggestionComponents.estado);
-        if (ciudad || suggestionComponents.ciudad) setValue('ciudad', ciudad || suggestionComponents.ciudad);
-        if (colonia || suggestionComponents.colonia) setValue('colonia', colonia || suggestionComponents.colonia);
-        if (cp) setValue('codigoPostal', cp);
-        if (lat) setValue('latitude', lat);
-        if (lon) setValue('longitude', lon);
+        if (estado || suggestionComponents.estado) setValue('estado', estado || suggestionComponents.estado, { shouldDirty: true, shouldValidate: true });
+        if (ciudad || suggestionComponents.ciudad) setValue('ciudad', ciudad || suggestionComponents.ciudad, { shouldDirty: true, shouldValidate: true });
+        if (colonia || suggestionComponents.colonia) {
+          setValue('colonia', colonia || suggestionComponents.colonia, { shouldDirty: true, shouldValidate: true });
+        } else {
+          setValue('colonia', '', { shouldDirty: true, shouldValidate: true });
+        }
+        if (cp) setValue('codigoPostal', cp, { shouldDirty: true, shouldValidate: true });
+        if (lat) setValue('latitude', lat, { shouldDirty: true });
+        if (lon) setValue('longitude', lon, { shouldDirty: true });
         setAddressSearch(composedAddress);
       }
     } catch (e) {
@@ -418,13 +432,21 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
         ...(listingType === 'for_sale'
           ? {
               price: values.price,
+              financeOptions: [
+                values.financeOptions?.cash ? 'cash' : null,
+                values.financeOptions?.bankLoan ? 'bankLoan' : null,
+                values.financeOptions?.INFONAVIT ? 'INFONAVIT' : null,
+                values.financeOptions?.FOVISSSTE ? 'FOVISSSTE' : null,
+                values.financeOptions?.paymentPlan ? 'paymentPlan' : null,
+                values.financeOptions?.other ? 'other' : null,
+              ].filter(Boolean),
             }
           : {
               monthlyRent: values.monthlyRent,
               ...(values.securityDeposit ? { securityDeposit: values.securityDeposit } : {}),
               ...(values.leaseTermMonths ? { leaseTermMonths: values.leaseTermMonths } : {}),
               ...(values.availableFrom ? { availableFrom: values.availableFrom } : {}),
-              furnished: Boolean(values.furnished),
+              // furnished removed: now covered by 'Amueblado' and 'Equipado' in amenities
               utilitiesIncluded: (values.includedServices || []).length > 0,
               includedServices: values.includedServices || [],
               amenities: values.amenities || [],
@@ -537,6 +559,40 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
       secondary: rest.join(', '),
     };
   }, [addressSearch]);
+
+  const closeAddressSuggestions = useCallback(() => {
+    setShowAddressSuggestions(false);
+    setActiveAddressSuggestionIndex(-1);
+  }, []);
+
+  const openAddressSuggestions = useCallback(() => {
+    if (!addressSuggestions.length) return;
+    setShowAddressSuggestions(true);
+    setActiveAddressSuggestionIndex((current) => {
+      if (current >= 0 && current < addressSuggestions.length) {
+        return current;
+      }
+
+      return 0;
+    });
+  }, [addressSuggestions]);
+
+  const selectAddressSuggestion = useCallback(async (suggestion) => {
+    const typed = addressSearch.trim();
+    const query = buildGeocodeQueryFromSuggestion(typed, suggestion);
+    closeAddressSuggestions();
+    setAddressSuggestions([]);
+    // Reset session token after selection — next typing session gets a fresh one
+    sessionTokenRef.current = null;
+    await fillFromGeocode(query, typed, suggestion);
+  }, [addressSearch, closeAddressSuggestions, fillFromGeocode]);
+
+  const shouldShowAddressEmptyState =
+    showAddressSuggestions &&
+    addressSearch.trim().length >= 4 &&
+    !addressSearchLoading &&
+    !addressSearchError &&
+    addressSuggestions.length === 0;
 
   return (
     <>
@@ -713,27 +769,51 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
               <input
                 type="text"
                 value={addressSearch}
+                role="combobox"
+                aria-autocomplete="list"
+                aria-expanded={showAddressSuggestions}
+                aria-controls="address-suggestions-listbox"
+                aria-activedescendant={
+                  activeAddressSuggestionIndex >= 0 ? `address-suggestion-${activeAddressSuggestionIndex}` : undefined
+                }
                 onChange={e => {
                   const v = e.target.value;
                   setAddressSearch(v);
                   setAddressSearchError('');
                   setValue('address', v);
                   setShowAddressSuggestions(true);
+                  setActiveAddressSuggestionIndex(-1);
                   clearTimeout(addressDebounce.current);
                   if (v.length >= 4) {
+                    // Check in-memory cache first
+                    if (autocompleteCache.current.has(v)) {
+                      const cached = autocompleteCache.current.get(v);
+                      setAddressSuggestions(cached);
+                      setActiveAddressSuggestionIndex(cached.length > 0 ? 0 : -1);
+                      setAddressSearchLoading(false);
+                      return;
+                    }
                     setAddressSearchLoading(true);
                     addressDebounce.current = setTimeout(async () => {
                       try {
-                        const r = await fetch(`${BACKEND_URL}/maps/autocomplete?input=${encodeURIComponent(v)}`);
+                        // Ensure a session token exists for this typing session
+                        if (!sessionTokenRef.current) {
+                          sessionTokenRef.current = crypto.randomUUID();
+                        }
+                        const params = new URLSearchParams({ input: v, sessionToken: sessionTokenRef.current });
+                        const r = await fetch(`${BACKEND_URL}/maps/autocomplete?${params}`);
                         const payload = await r.json().catch(() => null);
                         if (!r.ok) {
                           throw new Error(getMapsErrorMessage(payload, 'No se pudo autocompletar la direccion.'));
                         }
                         const { predictions } = payload || {};
+                        autocompleteCache.current.set(v, predictions || []);
                         setAddressSuggestions(predictions || []);
+                        setActiveAddressSuggestionIndex((predictions || []).length > 0 ? 0 : -1);
                         setAddressSearchError('');
                       } catch (error) {
                         setAddressSuggestions([]);
+                        setActiveAddressSuggestionIndex(-1);
                         setAddressSearchError(error instanceof Error ? error.message : 'No se pudo autocompletar la direccion.');
                       } finally {
                         setAddressSearchLoading(false);
@@ -741,34 +821,65 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                     }, 400);
                   } else {
                     setAddressSuggestions([]);
+                    setActiveAddressSuggestionIndex(-1);
                     setAddressSearchError('');
                     setAddressSearchLoading(false);
                   }
                 }}
+                onFocus={() => {
+                  // Generate a new session token when user starts a fresh search
+                  if (!sessionTokenRef.current) {
+                    sessionTokenRef.current = crypto.randomUUID();
+                  }
+                }}
                 onKeyDown={async (e) => {
+                  if (e.key === 'ArrowDown' && addressSuggestions.length > 0) {
+                    e.preventDefault();
+                    setShowAddressSuggestions(true);
+                    setActiveAddressSuggestionIndex((current) => {
+                      const next = current < 0 ? 0 : current + 1;
+                      return next >= addressSuggestions.length ? 0 : next;
+                    });
+                    return;
+                  }
+
+                  if (e.key === 'ArrowUp' && addressSuggestions.length > 0) {
+                    e.preventDefault();
+                    setShowAddressSuggestions(true);
+                    setActiveAddressSuggestionIndex((current) => {
+                      if (current <= 0) return addressSuggestions.length - 1;
+                      return current - 1;
+                    });
+                    return;
+                  }
+
+                  if (e.key === 'Escape') {
+                    closeAddressSuggestions();
+                    return;
+                  }
+
                   if (e.key === 'Enter') {
                     e.preventDefault();
 
                     if (showAddressSuggestions && addressSuggestions.length > 0) {
-                      const first = addressSuggestions[0];
-                      if (first?.description) {
-                        const typed = addressSearch.trim();
-                        const query = buildGeocodeQueryFromSuggestion(typed, first);
-                        setShowAddressSuggestions(false);
-                        setAddressSuggestions([]);
-                        await fillFromGeocode(query, typed, first);
+                      const selectedSuggestion = addressSuggestions[
+                        activeAddressSuggestionIndex >= 0 ? activeAddressSuggestionIndex : 0
+                      ];
+
+                      if (selectedSuggestion?.description) {
+                        await selectAddressSuggestion(selectedSuggestion);
                         return;
                       }
                     }
 
                     if ((addressSearch || '').trim().length >= 4) {
-                      setShowAddressSuggestions(false);
+                      closeAddressSuggestions();
                       setAddressSuggestions([]);
                       await fillFromGeocode(addressSearch.trim(), addressSearch.trim());
                     }
                   }
                 }}
-                onFocus={() => addressSuggestions.length > 0 && setShowAddressSuggestions(true)}
+                onFocus={() => openAddressSuggestions()}
                 placeholder="Ej: San Miguel de Horcasitas 36, Hermosillo"
                 className={inputClass}
               />
@@ -790,19 +901,27 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
               </p>
             )}
             {showAddressSuggestions && addressSuggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-lg z-20 max-h-60 overflow-y-auto">
+              <div
+                id="address-suggestions-listbox"
+                role="listbox"
+                className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-lg z-20 max-h-72 overflow-y-auto"
+              >
                 {addressSuggestions.map((s, i) => (
                   <button
                     key={s.place_id || i}
+                    id={`address-suggestion-${i}`}
                     type="button"
+                    role="option"
+                    aria-selected={activeAddressSuggestionIndex === i}
+                    onMouseEnter={() => setActiveAddressSuggestionIndex(i)}
                     onClick={async () => {
-                      const typed = addressSearch.trim();
-                      const query = buildGeocodeQueryFromSuggestion(typed, s);
-                      setShowAddressSuggestions(false);
-                      setAddressSuggestions([]);
-                      await fillFromGeocode(query, typed, s);
+                      await selectAddressSuggestion(s);
                     }}
-                    className="w-full text-left px-4 py-3 text-sm hover:bg-amber-50 dark:hover:bg-amber-900/20 border-b border-neutral-100 dark:border-neutral-700 last:border-0 transition-colors"
+                    className={`w-full text-left px-4 py-3 text-sm border-b border-neutral-100 dark:border-neutral-700 last:border-0 transition-colors ${
+                      activeAddressSuggestionIndex === i
+                        ? 'bg-amber-50 dark:bg-amber-900/20'
+                        : 'hover:bg-amber-50 dark:hover:bg-amber-900/20'
+                    }`}
                   >
                     {(() => {
                       const display = getSuggestionDisplay(s);
@@ -812,7 +931,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                         <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                       </svg>
                       <div className="min-w-0">
-                        <p className="text-neutral-800 dark:text-neutral-100 leading-5 truncate">
+                        <p className="text-neutral-800 dark:text-neutral-100 leading-5 truncate font-medium">
                           {display.main}
                         </p>
                         {display.secondary && (
@@ -826,6 +945,16 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                     })()}
                   </button>
                 ))}
+              </div>
+            )}
+            {shouldShowAddressEmptyState && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-lg z-20 p-4">
+                <p className="text-sm font-medium text-neutral-800 dark:text-neutral-100">
+                  No encontramos sugerencias claras en Mexico para esa direccion.
+                </p>
+                <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                  Agrega ciudad o estado para mejorar el resultado, por ejemplo: Hermosillo, Sonora.
+                </p>
               </div>
             )}
           </div>
@@ -957,8 +1086,8 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
             )}
           </div>
 
-          {/* Bedrooms and Bathrooms */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Bedrooms, Bathrooms, Parking, Mini Splits */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <label htmlFor="bedrooms" className={labelClass}>
                 Recámaras
@@ -968,9 +1097,9 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                 {...getNumericInputProps(bedroomsRegister, bedroomsInput)}
                 className={inputClass}
                 placeholder="0"
+                min="0"
               />
             </div>
-
             <div>
               <label htmlFor="bathrooms" className={labelClass}>
                 Baños
@@ -978,6 +1107,33 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
               <input 
                 id="bathrooms" 
                 {...getNumericInputProps(bathroomsRegister, bathroomsInput)}
+                className={inputClass}
+                placeholder="0"
+                min="0"
+              />
+            </div>
+            <div>
+              <label htmlFor="parkingSpaces" className={labelClass}>
+                Cajones de estacionamiento
+              </label>
+              <input
+                id="parkingSpaces"
+                type="number"
+                min="0"
+                {...register('parkingSpaces', { valueAsNumber: true })}
+                className={inputClass}
+                placeholder="0"
+              />
+            </div>
+            <div>
+              <label htmlFor="miniSplits" className={labelClass}>
+                Mini splits
+              </label>
+              <input
+                id="miniSplits"
+                type="number"
+                min="0"
+                {...register('miniSplits', { valueAsNumber: true })}
                 className={inputClass}
                 placeholder="0"
               />
@@ -1023,17 +1179,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                 />
               </div>
 
-              <div className="flex items-end gap-6 pb-2">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    id="furnished"
-                    type="checkbox"
-                    {...register('furnished')}
-                    className="w-4 h-4 text-amber-600 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-amber-400"
-                  />
-                  <span className="text-sm text-neutral-700 dark:text-neutral-300">Amueblada</span>
-                </label>
-              </div>
+              {/* Removed standalone 'Amueblada' checkbox as 'Amueblado' and 'Equipado' are now in Mobiliario section */}
 
               <div className="sm:col-span-2 space-y-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50/70 dark:bg-neutral-900/50 p-4">
                 <div>
@@ -1184,18 +1330,59 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
               </span>
             </label>
 
-            <div>
-              <label htmlFor="fin_other" className="block text-xs text-neutral-600 dark:text-neutral-400 mb-2">
-                Otro (especificar)
-              </label>
+            <label className="flex items-center gap-3 cursor-pointer group">
               <input 
-                id="fin_other" 
-                type="text"
-                placeholder="Especifica otras opciones de financiamiento"
-                {...register('financeOptions.other')} 
-                className={inputClass}
+                id="fin_fovissste" 
+                type="checkbox" 
+                {...register('financeOptions.FOVISSSTE')}
+                className="
+                  w-4 h-4
+                  text-amber-600
+                  border-neutral-300 dark:border-neutral-700
+                  rounded
+                  focus:ring-2 focus:ring-amber-400
+                "
               />
-            </div>
+              <span className="text-sm text-neutral-700 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-neutral-100">
+                FOVISSSTE
+              </span>
+            </label>
+
+            <label className="flex items-center gap-3 cursor-pointer group">
+              <input 
+                id="fin_payment_plan" 
+                type="checkbox" 
+                {...register('financeOptions.paymentPlan')}
+                className="
+                  w-4 h-4
+                  text-amber-600
+                  border-neutral-300 dark:border-neutral-700
+                  rounded
+                  focus:ring-2 focus:ring-amber-400
+                "
+              />
+              <span className="text-sm text-neutral-700 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-neutral-100">
+                Plan de pagos del desarrollador
+              </span>
+            </label>
+
+            <label className="flex items-center gap-3 cursor-pointer group">
+              <input 
+                id="fin_other_check" 
+                type="checkbox" 
+                {...register('financeOptions.other')}
+                className="
+                  w-4 h-4
+                  text-amber-600
+                  border-neutral-300 dark:border-neutral-700
+                  rounded
+                  focus:ring-2 focus:ring-amber-400
+                "
+              />
+              <span className="text-sm text-neutral-700 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-neutral-100">
+                Otro
+              </span>
+            </label>
           </div>
         </div>
         )}

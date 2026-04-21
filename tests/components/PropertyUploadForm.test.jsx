@@ -113,4 +113,120 @@ describe('PropertyUploadForm', () => {
       expect(screen.getByText(/Google Maps is not configured/i)).toBeInTheDocument();
     }, { timeout: 3000 });
   });
+
+  it('supports keyboard navigation for address suggestions', async () => {
+    vi.spyOn(propertiesApi, 'getLocationsCatalog').mockResolvedValue({
+      estados: [
+        {
+          nombre: 'Sonora',
+          ciudades: [
+            {
+              nombre: 'Hermosillo',
+              colonias: ['Centro'],
+            },
+          ],
+        },
+      ],
+    });
+
+    fetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          predictions: [
+            {
+              place_id: 'mx-1',
+              description: 'Begonia 10, Centro, Hermosillo, Sonora, Mexico',
+              structured_formatting: {
+                main_text: 'Begonia 10',
+                secondary_text: 'Centro, Hermosillo, Sonora, Mexico',
+              },
+            },
+            {
+              place_id: 'mx-2',
+              description: 'Rosales 22, Centro, Hermosillo, Sonora, Mexico',
+              structured_formatting: {
+                main_text: 'Rosales 22',
+                secondary_text: 'Centro, Hermosillo, Sonora, Mexico',
+              },
+            },
+          ],
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          result: {
+            formatted_address: 'Rosales 22, Centro, Hermosillo, Sonora, Mexico',
+            geometry: {
+              location: { lat: 29.0729, lng: -110.9559 },
+            },
+            address_components: [
+              { long_name: '22', short_name: '22', types: ['street_number'] },
+              { long_name: 'Rosales', short_name: 'Rosales', types: ['route'] },
+              { long_name: 'Centro', short_name: 'Centro', types: ['neighborhood', 'sublocality'] },
+              { long_name: 'Hermosillo', short_name: 'Hermosillo', types: ['locality'] },
+              { long_name: 'Sonora', short_name: 'Son.', types: ['administrative_area_level_1'] },
+              { long_name: '83000', short_name: '83000', types: ['postal_code'] },
+              { long_name: 'Mexico', short_name: 'MX', types: ['country'] },
+            ],
+          },
+        }),
+      });
+
+    render(<PropertyUploadForm listingType="for_rent" />);
+
+    await screen.findByRole('option', { name: 'Sonora' });
+
+    const searchInput = screen.getByPlaceholderText(/San Miguel de Horcasitas/i);
+    fireEvent.change(searchInput, { target: { value: 'Begonia 10' } });
+
+    await waitFor(() => {
+      expect(screen.getByText(/Begonia 10/i)).toBeInTheDocument();
+      expect(screen.getByText(/Rosales 22/i)).toBeInTheDocument();
+    }, { timeout: 3000 });
+
+    fireEvent.keyDown(searchInput, { key: 'ArrowDown' });
+    fireEvent.keyDown(searchInput, { key: 'Enter' });
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Dirección/i)).toHaveValue('Rosales 22, Centro, Hermosillo, Sonora, C.P. 83000');
+      expect(screen.getByLabelText(/^Estado$/i)).toHaveValue('Sonora');
+      expect(screen.getByLabelText(/Código Postal/i)).toHaveValue('83000');
+    });
+  });
+
+  it('shows a clear empty state when no Mexico suggestions are available', async () => {
+    vi.spyOn(propertiesApi, 'getLocationsCatalog').mockResolvedValue({
+      estados: [
+        {
+          nombre: 'Sonora',
+          ciudades: [
+            {
+              nombre: 'Hermosillo',
+              colonias: ['Centro'],
+            },
+          ],
+        },
+      ],
+    });
+
+    fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ predictions: [] }),
+    });
+
+    render(<PropertyUploadForm listingType="for_rent" />);
+
+    await screen.findByRole('option', { name: 'Sonora' });
+
+    fireEvent.change(screen.getByPlaceholderText(/San Miguel de Horcasitas/i), {
+      target: { value: '3542 Winesap Road' },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText(/No encontramos sugerencias claras en Mexico/i)).toBeInTheDocument();
+      expect(screen.getByText(/Agrega ciudad o estado para mejorar el resultado/i)).toBeInTheDocument();
+    }, { timeout: 3000 });
+  });
 });

@@ -6,6 +6,7 @@
  */
 'use client';
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import PropertyList from '../../components/PropertyList.jsx';
 import { useProperties } from '../../lib/queries/properties';
 import { getLocationsCatalog } from '../../lib/api/properties';
@@ -47,9 +48,19 @@ const MEXICO_STATES = [
 
 export default function PropertiesPage() {
   const { data = [] } = useProperties();
+  const searchParams = useSearchParams();
   const [locationsCatalog, setLocationsCatalog] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [listingType, setListingType] = useState('for_sale'); // 'for_sale' or 'for_rent'
+  const [listingType, setListingType] = useState(() => {
+    const type = searchParams.get('type');
+    return type === 'for_rent' ? 'for_rent' : 'for_sale';
+  });
+
+  // Sync listingType when URL param changes (navigation via NavBar)
+  useEffect(() => {
+    const type = searchParams.get('type');
+    setListingType(type === 'for_rent' ? 'for_rent' : 'for_sale');
+  }, [searchParams]);
   const [estado, setEstado] = useState('');
   const [ciudad, setCiudad] = useState('');
   const [colonia, setColonia] = useState('');
@@ -59,6 +70,18 @@ export default function PropertiesPage() {
   const [minRent, setMinRent] = useState('5000');
   const [maxRent, setMaxRent] = useState('50000');
   const [furnished, setFurnished] = useState(false);
+  const [selectedAmenities, setSelectedAmenities] = useState([]);
+  const [selectedServices, setSelectedServices] = useState([]);
+  const [selectedFinancing, setSelectedFinancing] = useState([]);
+
+  const AMENITY_OPTIONS = ['Alberca', 'Gimnasio', 'Elevador', 'Roof Garden', 'Vigilancia 24h', 'Área de juegos'];
+  const SERVICE_OPTIONS_RENT = ['Agua', 'Gas', 'Internet', 'Luz', 'Estacionamiento', 'TV por Cable', 'Vigilancia'];
+  const SERVICE_OPTIONS_SALE = ['Estacionamiento', 'Vigilancia', 'Agua'];
+  const FINANCING_OPTIONS = ['Efectivo', 'Crédito bancario', 'INFONAVIT', 'FOVISSSTE', 'Plan de pagos'];
+
+  const toggleFilter = (setter, current, value) => {
+    setter(current.includes(value) ? current.filter(v => v !== value) : [...current, value]);
+  };
 
   useEffect(() => {
     let active = true;
@@ -131,12 +154,15 @@ export default function PropertiesPage() {
       setMaxRent('50000');
       setFurnished(false);
     }
+    setSelectedAmenities([]);
+    setSelectedServices([]);
+    setSelectedFinancing([]);
     setSearchQuery('');
   };
 
   const hasFilters = listingType === 'for_sale' 
-    ? (estado || ciudad || colonia || codigoPostal || minPrice || maxPrice)
-    : (estado || ciudad || colonia || codigoPostal || minRent !== '5000' || maxRent !== '50000' || furnished);
+    ? (estado || ciudad || colonia || codigoPostal || minPrice || maxPrice || selectedAmenities.length || selectedServices.length || selectedFinancing.length)
+    : (estado || ciudad || colonia || codigoPostal || minRent !== '5000' || maxRent !== '50000' || furnished || selectedAmenities.length || selectedServices.length);
   const activeFiltersCount = Object.values({
     estado,
     ciudad,
@@ -434,6 +460,68 @@ export default function PropertiesPage() {
                 </div>
               )}
 
+              {/* Services Filter */}
+              <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
+                  Servicios incluidos
+                </label>
+                <div className="space-y-2">
+                  {(listingType === 'for_rent' ? SERVICE_OPTIONS_RENT : SERVICE_OPTIONS_SALE).map((svc) => (
+                    <label key={svc} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedServices.includes(svc)}
+                        onChange={() => toggleFilter(setSelectedServices, selectedServices, svc)}
+                        className="w-4 h-4 text-amber-600 bg-white dark:bg-neutral-950 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-amber-400 focus:ring-offset-0"
+                      />
+                      <span className="text-sm text-neutral-700 dark:text-neutral-300">{svc}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Amenities Filter */}
+              <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
+                  Amenidades
+                </label>
+                <div className="space-y-2">
+                  {AMENITY_OPTIONS.map((am) => (
+                    <label key={am} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedAmenities.includes(am)}
+                        onChange={() => toggleFilter(setSelectedAmenities, selectedAmenities, am)}
+                        className="w-4 h-4 text-amber-600 bg-white dark:bg-neutral-950 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-amber-400 focus:ring-offset-0"
+                      />
+                      <span className="text-sm text-neutral-700 dark:text-neutral-300">{am}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Financing Filter (For Sale Only) */}
+              {listingType === 'for_sale' && (
+                <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
+                    Formas de pago
+                  </label>
+                  <div className="space-y-2">
+                    {FINANCING_OPTIONS.map((fin) => (
+                      <label key={fin} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedFinancing.includes(fin)}
+                          onChange={() => toggleFilter(setSelectedFinancing, selectedFinancing, fin)}
+                          className="w-4 h-4 text-amber-600 bg-white dark:bg-neutral-950 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-amber-400 focus:ring-offset-0"
+                        />
+                        <span className="text-sm text-neutral-700 dark:text-neutral-300">{fin}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Area Filters */}
               <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
                 <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
@@ -686,6 +774,68 @@ export default function PropertiesPage() {
                   </>
                 )}
 
+                {/* Services Filter - Mobile */}
+                <div className="pt-2 border-t border-neutral-200 dark:border-neutral-800">
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                    Servicios incluidos
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {(listingType === 'for_rent' ? SERVICE_OPTIONS_RENT : SERVICE_OPTIONS_SALE).map((svc) => (
+                      <label key={svc} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedServices.includes(svc)}
+                          onChange={() => toggleFilter(setSelectedServices, selectedServices, svc)}
+                          className="w-4 h-4 text-amber-600 bg-white dark:bg-neutral-950 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-amber-400 focus:ring-offset-0"
+                        />
+                        <span className="text-sm text-neutral-700 dark:text-neutral-300">{svc}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Amenities Filter - Mobile */}
+                <div className="pt-2 border-t border-neutral-200 dark:border-neutral-800">
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                    Amenidades
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {AMENITY_OPTIONS.map((am) => (
+                      <label key={am} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedAmenities.includes(am)}
+                          onChange={() => toggleFilter(setSelectedAmenities, selectedAmenities, am)}
+                          className="w-4 h-4 text-amber-600 bg-white dark:bg-neutral-950 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-amber-400 focus:ring-offset-0"
+                        />
+                        <span className="text-sm text-neutral-700 dark:text-neutral-300">{am}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Financing Filter - Mobile (For Sale Only) */}
+                {listingType === 'for_sale' && (
+                  <div className="pt-2 border-t border-neutral-200 dark:border-neutral-800">
+                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                      Formas de pago
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {FINANCING_OPTIONS.map((fin) => (
+                        <label key={fin} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={selectedFinancing.includes(fin)}
+                            onChange={() => toggleFilter(setSelectedFinancing, selectedFinancing, fin)}
+                            className="w-4 h-4 text-amber-600 bg-white dark:bg-neutral-950 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-amber-400 focus:ring-offset-0"
+                          />
+                          <span className="text-sm text-neutral-700 dark:text-neutral-300">{fin}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Area Filters */}
                 <div className="pt-2 border-t border-neutral-200 dark:border-neutral-800">
                   <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
@@ -788,6 +938,9 @@ export default function PropertiesPage() {
               minRent={minRent}
               maxRent={maxRent}
               furnished={furnished}
+              selectedAmenities={selectedAmenities}
+              selectedServices={selectedServices}
+              selectedFinancing={selectedFinancing}
             />
           </main>
         </div>

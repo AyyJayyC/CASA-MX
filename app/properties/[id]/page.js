@@ -11,6 +11,7 @@ import PropertyImageGallery from '../../../components/PropertyImageGallery.jsx';
 import { getAmenityMeta, getServiceMeta, groupAmenitiesByCategory } from '../../../lib/constants/propertyServices';
 
 const RequestInfoModal = dynamic(() => import('../../../components/RequestInfoModal.jsx'));
+const MakeOfferModal = dynamic(() => import('../../../components/MakeOfferModal.jsx'));
 const PropertyAnalytics = dynamic(() => import('../../../components/analytics/PropertyAnalytics.jsx'));
 const RentalApplicationForm = dynamic(() => import('../../../components/RentalApplicationForm.jsx'));
 
@@ -57,7 +58,25 @@ export default async function PropertyDetail({ params }) {
   const isRental = property.listingType === 'for_rent';
   const includedServices = Array.isArray(property.includedServices) ? property.includedServices : [];
   const amenities = Array.isArray(property.amenities) ? property.amenities : [];
+  const financeOptions = Array.isArray(property.financeOptions) ? property.financeOptions : [];
   const groupedAmenities = groupAmenitiesByCategory(amenities);
+  
+  const FINANCE_LABELS = {
+    cash: 'Efectivo',
+    bankLoan: 'Crédito bancario',
+    INFONAVIT: 'INFONAVIT',
+    FOVISSSTE: 'FOVISSSTE',
+    paymentPlan: 'Plan de pagos',
+    other: 'Otro',
+  };
+  const FINANCE_ICONS = {
+    cash: '💵',
+    bankLoan: '🏦',
+    INFONAVIT: '🏠',
+    FOVISSSTE: '💼',
+    paymentPlan: '📅',
+    other: '✅',
+  };
   
   const features = [
     { icon: '🛏️', label: 'Recámaras', value: property.bedrooms ?? 'N/D' },
@@ -255,7 +274,7 @@ export default async function PropertyDetail({ params }) {
               </dl>
             </div>
 
-            {isRental && includedServices.length > 0 && (
+            {includedServices.length > 0 && (
               <div className="
                 p-6
                 bg-white dark:bg-neutral-900
@@ -284,7 +303,7 @@ export default async function PropertyDetail({ params }) {
               </div>
             )}
 
-            {isRental && amenities.length > 0 && (
+            {amenities.length > 0 && (
               <div className="
                 p-6
                 bg-white dark:bg-neutral-900
@@ -320,6 +339,32 @@ export default async function PropertyDetail({ params }) {
                 </div>
               </div>
             )}
+
+            {/* Financing Options (Sale only) */}
+            {!isRental && financeOptions.length > 0 && (
+              <div className="
+                p-6
+                bg-white dark:bg-neutral-900
+                border border-neutral-200 dark:border-neutral-800
+                rounded-lg
+                space-y-4
+              ">
+                <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+                  Métodos de pago aceptados
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {financeOptions.map((option) => (
+                    <span
+                      key={option}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-sm font-medium rounded-full"
+                    >
+                      <span>{FINANCE_ICONS[option] ?? '✅'}</span>
+                      <span>{FINANCE_LABELS[option] ?? option}</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right Column - Contact Card or Rental Application */}
@@ -351,46 +396,38 @@ export default async function PropertyDetail({ params }) {
                 </>
               ) : (
                 <>
-                  {/* Sale Property - Request Info */}
+                  {/* Sale Property — Offer + Request Info */}
                   <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
                     ¿Te interesa esta propiedad?
                   </h2>
-                  
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                    Solicita más información y nos pondremos en contacto contigo lo antes posible.
-                  </p>
 
-                  {/* Request Info Modal Component */}
-                  <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
-                    <RequestInfoModal propertyId={property.id} />
+                  {property.price && (
+                    <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                      ${property.price.toLocaleString('es-MX')} MXN
+                    </div>
+                  )}
+
+                  {/* Primary CTA: Make an Offer */}
+                  <MakeOfferModal propertyId={property.id} askingPrice={property.price} />
+
+                  {/* Secondary CTA: Request Info */}
+                  <div className="relative flex items-center gap-3 py-1">
+                    <div className="flex-1 h-px bg-neutral-200 dark:bg-neutral-700" />
+                    <span className="text-xs text-neutral-400 dark:text-neutral-500">o</span>
+                    <div className="flex-1 h-px bg-neutral-200 dark:bg-neutral-700" />
                   </div>
+
+                  <RequestInfoModal propertyId={property.id} />
                 </>
               )}
 
-              {/* Contact Info */}
-              <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800 space-y-3">
-                <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                  {isRental ? 'Información del propietario' : 'Información del vendedor'}
-                </h3>
-                <div className="flex items-center gap-3">
-                  <div className="
-                    w-12 h-12
-                    bg-gradient-to-br from-amber-400 to-yellow-600
-                    rounded-full
-                    flex items-center justify-center
-                    text-white font-bold text-lg
-                  ">
-                    {(property.owner || 'P')[0].toUpperCase()}
-                  </div>
-                  <div>
-                    <div className="font-medium text-neutral-900 dark:text-neutral-100">
-                      {property.owner || 'Propietario'}
-                    </div>
-                    <div className="text-xs text-neutral-600 dark:text-neutral-400">
-                      {isRental ? 'Propietario verificado' : 'Vendedor verificado'}
-                    </div>
-                  </div>
-                </div>
+              {/* Contact note — seller reaches out to interested buyers */}
+              <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">
+                  {isRental
+                    ? 'El propietario revisará tu solicitud y se pondrá en contacto contigo directamente.'
+                    : 'El vendedor revisará tu solicitud y se pondrá en contacto contigo directamente.'}
+                </p>
               </div>
             </div>
           </div>

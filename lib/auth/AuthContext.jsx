@@ -141,6 +141,32 @@ export function AuthProvider({ children }) {
     }
   }, [user]);
 
+  // Login with Google ID token (from Google Sign-In)
+  const loginWithGoogle = useCallback(async (idToken) => {
+    try {
+      setError(null);
+      setLoading(true);
+      const result = await authAPI.loginWithGoogle(idToken);
+
+      setSession({
+        userId: result.user.id,
+        email: result.user.email,
+        name: result.user.name,
+        avatarUrl: result.user.avatarUrl,
+        provider: result.user.provider,
+        activeRole: result.user.activeRole,
+        roles: result.user.roles,
+      });
+      setUser(result.user);
+      setLoading(false);
+      return { user: result.user };
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+      throw err;
+    }
+  }, []);
+
   const value = {
     session,
     user,
@@ -150,6 +176,7 @@ export function AuthProvider({ children }) {
     isAuthenticated: !!session,
     register,
     login,
+    loginWithGoogle,
     logout,
     switchRole
   };

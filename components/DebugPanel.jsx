@@ -22,13 +22,11 @@ export default function DebugPanel() {
   const isAdmin = Boolean(
     user?.roles?.some((role) => role.type === 'admin' && role.status === 'approved')
   );
-
-  if (isProduction || !isHydrated || !isAuthenticated || !isAdmin) {
-    return null;
-  }
+  const shouldHide = isProduction || !isHydrated || !isAuthenticated || !isAdmin;
 
   // Refresh logs every second
   useEffect(() => {
+    if (shouldHide) return;
     const interval = setInterval(() => {
       if (isOpen) {
         updateLogs();
@@ -36,10 +34,11 @@ export default function DebugPanel() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isOpen, searchQuery, filterLevel]);
+  }, [isOpen, searchQuery, filterLevel, shouldHide]);
 
   // Toggle panel with Alt+D
   useEffect(() => {
+    if (shouldHide) return;
     const handleKeyDown = (e) => {
       if (e.altKey && e.key === 'd') {
         e.preventDefault();
@@ -49,7 +48,11 @@ export default function DebugPanel() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen]);
+  }, [isOpen, shouldHide]);
+
+  if (shouldHide) {
+    return null;
+  }
 
   const updateLogs = () => {
     let allLogs = logger.getLogs();
