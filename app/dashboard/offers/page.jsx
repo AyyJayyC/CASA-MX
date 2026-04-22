@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { RequireRole } from '@/components/guards/RequireRole.jsx';
 import { getMySellerOffers, respondToOffer } from '@/lib/api/offers.js';
+import { useCredits } from '@/lib/auth/CreditsContext';
 
 const STATUS_LABELS = {
   pending: 'Pendiente',
@@ -36,6 +37,7 @@ export default function SellerOffersPage() {
 }
 
 function SellerOffersContent() {
+  const { spend } = useCredits();
   const [offers, setOffers] = useState([]);
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
@@ -44,6 +46,32 @@ function SellerOffersContent() {
   const [respondForm, setRespondForm] = useState({ status: '', sellerNote: '', counterAmount: '' });
   const [submitting, setSubmitting] = useState(false);
   const [respondError, setRespondError] = useState(null);
+  // Contacts revealed during this session (after spending a credit).
+  // API also returns non-null buyerEmail/buyerPhone for offers already unlocked in previous sessions.
+  const [unlockedContacts, setUnlockedContacts] = useState({});
+  const [unlocking, setUnlocking] = useState(null); // offerId being unlocked
+
+  const getBuyerContact = (offer) =>
+    unlockedContacts[offer.id] ??
+    (offer.buyerEmail ? { email: offer.buyerEmail, phone: offer.buyerPhone } : null);
+
+  const handleUnlockOffer = async (offer) => {
+    setUnlocking(offer.id);
+    try {
+      const result = await spend(offer.id, 'offer');
+      if (result.success && result.contact) {
+        setUnlockedContacts((prev) => ({ ...prev, [offer.id]: { email: result.contact.email, phone: result.contact.phone } }));
+      }
+    } catch (err) {
+      if (err.status === 402) {
+        alert('Saldo insuficiente. Ve a Créditos para comprar más.');
+      } else {
+        alert(err.message || 'Error al desbloquear contacto');
+      }
+    } finally {
+      setUnlocking(null);
+    }
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -203,8 +231,20 @@ function SellerOffersContent() {
                   <div>
                     <div className="text-xs text-neutral-500 dark:text-neutral-400 mb-0.5">Comprador</div>
                     <div className="font-medium text-neutral-800 dark:text-neutral-200">{offer.buyerName}</div>
-                    <div className="text-xs text-neutral-400">{offer.buyerEmail}</div>
-                    <div className="text-xs text-neutral-400">{offer.buyerPhone}</div>
+                    {getBuyerContact(offer) ? (
+                      <>
+                        <div className="text-xs text-neutral-400">{getBuyerContact(offer).email}</div>
+                        <div className="text-xs text-neutral-400">{getBuyerContact(offer).phone}</div>
+                      </>
+                    ) : (
+                      <button
+                        onClick={() => handleUnlockOffer(offer)}
+                        disabled={unlocking === offer.id}
+                        className="mt-0.5 text-xs font-medium text-amber-600 hover:text-amber-700 dark:text-amber-400 flex items-center gap-1 disabled:opacity-50"
+                      >
+                        🔓 {unlocking === offer.id ? 'Desbloqueando...' : 'Ver contacto (1 crédito)'}
+                      </button>
+                    )}
                   </div>
                   <div>
                     <div className="text-xs text-neutral-500 dark:text-neutral-400 mb-0.5">Fecha</div>

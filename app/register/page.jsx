@@ -293,7 +293,7 @@ export default function RegisterPage() {
                   className="mt-0.5 h-4 w-4 rounded border-neutral-300 dark:border-neutral-700 text-amber-500 focus:ring-amber-400"
                 />
                 <span>
-                  Acepto los <a href="/terms" className="text-amber-700 dark:text-amber-400 hover:underline">Términos de Servicio</a> y la <a href="/privacy" className="text-amber-700 dark:text-amber-400 hover:underline">Política de Privacidad</a>.
+                  Acepto los <a href="/terminos" className="text-amber-700 dark:text-amber-400 hover:underline">Términos y Condiciones</a> y el <a href="/aviso-legal" className="text-amber-700 dark:text-amber-400 hover:underline">Aviso de Privacidad</a>.
                 </span>
               </label>
               {errors.acceptLegal && (

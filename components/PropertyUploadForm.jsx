@@ -20,6 +20,7 @@ import PropertyImageGallery from './PropertyImageGallery.jsx';
 import PropertyTypeSelector from './PropertyTypeSelector.jsx';
 import RentalServicesSelector from './RentalServicesSelector.jsx';
 import PropertyAmenitiesSelector from './PropertyAmenitiesSelector.jsx';
+import DocumentUploadStep from './DocumentUploadStep.jsx';
 
 /**
  * @returns {JSX.Element}
@@ -28,6 +29,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
   const { session } = useAuth();
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [ownershipConfirmed, setOwnershipConfirmed] = useState(false);
   const [locationsCatalog, setLocationsCatalog] = useState(null);
   const [addressSearch, setAddressSearch] = useState('');
   const [addressSuggestions, setAddressSuggestions] = useState([]);
@@ -596,42 +598,33 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
 
   return (
     <>
-      {/* Success Message */}
+      {/* Success Message + Document Upload */}
       {success && (
-        <div className="
-          mb-6 p-4
-          bg-green-50 dark:bg-green-900/20
-          border border-green-200 dark:border-green-800
-          rounded-lg
-        ">
-          <div className="flex items-start gap-3">
-            <svg className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            <div className="flex-1">
-              <h3 className="font-semibold text-green-800 dark:text-green-300 mb-1">
-                ¡Propiedad publicada exitosamente!
-              </h3>
-              <p className="text-sm text-green-700 dark:text-green-400 mb-3">
-                {success.title} (ID: {success.id})
-              </p>
-              <Link 
-                href={`/properties/${success.id}`}
-                className="
-                  inline-flex items-center gap-2
-                  text-sm font-medium
-                  text-green-700 dark:text-green-400
-                  hover:text-green-800 dark:hover:text-green-300
-                  transition-colors
-                "
-              >
-                Ver propiedad publicada
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
+        <div className="mb-6 space-y-6">
+          <div className="
+            p-4
+            bg-green-50 dark:bg-green-900/20
+            border border-green-200 dark:border-green-800
+            rounded-lg
+          ">
+            <div className="flex items-start gap-3">
+              <svg className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <div className="flex-1">
+                <h3 className="font-semibold text-green-800 dark:text-green-300 mb-1">
+                  ¡Propiedad registrada!
+                </h3>
+                <p className="text-sm text-green-700 dark:text-green-400 mb-3">
+                  {success.title} — ahora sube los documentos de verificación para publicarla.
+                </p>
+              </div>
             </div>
           </div>
+          <DocumentUploadStep
+            propertyId={success.id}
+            sellerRole={session?.activeRole ?? 'seller'}
+          />
         </div>
       )}
 
@@ -1387,13 +1380,28 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
         </div>
         )}
 
+        {/* Ownership disclaimer */}
+        <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
+          <label className="flex items-start gap-3 cursor-pointer group">
+            <input
+              type="checkbox"
+              checked={ownershipConfirmed}
+              onChange={(e) => setOwnershipConfirmed(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-neutral-300 text-amber-500 focus:ring-amber-400 shrink-0"
+            />
+            <span className="text-sm text-neutral-700 dark:text-neutral-300 leading-snug">
+              Certifico que soy el propietario o tengo autorización legal para publicar esta propiedad, y que la información proporcionada es verídica. Acepto que deberé subir documentos que acrediten la propiedad y que la publicación permanecerá pendiente de verificación hasta su revisión.
+            </span>
+          </label>
+        </div>
+
         {/* Form Actions */}
         <input type="hidden" {...register('latitude', { valueAsNumber: true })} />
         <input type="hidden" {...register('longitude', { valueAsNumber: true })} />
-        <div className="pt-6 border-t border-neutral-200 dark:border-neutral-800 flex flex-col sm:flex-row gap-3">
+        <div className="pt-4 flex flex-col sm:flex-row gap-3">
           <button 
             type="submit"
-            disabled={loading}
+            disabled={loading || !ownershipConfirmed}
             className="
               flex-1 sm:flex-none
               px-8 py-3

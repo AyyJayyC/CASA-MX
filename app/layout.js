@@ -45,8 +45,8 @@ export default function RootLayout({ children }) {
                   <div className="container max-w-7xl py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-neutral-600 dark:text-neutral-400">
                     <p>© {new Date().getFullYear()} CasaMX. Todos los derechos reservados.</p>
                     <div className="flex items-center gap-4">
-                      <Link href="/privacy" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">Privacidad</Link>
-                      <Link href="/terms" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">Términos</Link>
+                      <Link href="/aviso-legal" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">Privacidad</Link>
+                      <Link href="/terminos" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">Términos</Link>
                       <Link href="/cookie" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">Cookies</Link>
                     </div>
                   </div>

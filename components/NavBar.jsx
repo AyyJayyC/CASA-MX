@@ -289,6 +289,18 @@ export default function NavBar() {
                 >
                   Admin
                 </Link>
+                <Link
+                  href="/admin/properties"
+                  className={`
+                    px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                    ${isActivePath('/admin/properties')
+                      ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
+                      : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                    }
+                  `}
+                >
+                  Propiedades
+                </Link>
                 {showDebugUI && (
                   <Link
                     href="/admin/debug"
@@ -438,14 +450,16 @@ export default function NavBar() {
                       ⚙️ Ajustes
                     </Link>
 
-                    {/* Logout Button */}
-                    <Link
-                      href="/credits"
-                      className="px-3 py-1.5 rounded-lg text-sm font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
-                      title="Mis créditos"
-                    >
-                      💰 {balance}
-                    </Link>
+                    {/* Credits — only for sellers/landlords/wholesalers */}
+                    {!isBuyerOrTenant && (
+                      <Link
+                        href="/credits"
+                        className="px-3 py-1.5 rounded-lg text-sm font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
+                        title="Mis créditos"
+                      >
+                        💰 {balance}
+                      </Link>
+                    )}
 
                     {/* Logout Button */}
                     <button
@@ -560,6 +574,19 @@ export default function NavBar() {
                   `}
                 >
                   Admin
+                </Link>
+                <Link
+                  href="/admin/properties"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`
+                    block px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                    ${isActivePath('/admin/properties')
+                      ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
+                      : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                    }
+                  `}
+                >
+                  Propiedades
                 </Link>
                 {showDebugUI && (
                   <Link
