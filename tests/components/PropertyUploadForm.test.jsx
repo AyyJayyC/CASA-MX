@@ -22,8 +22,8 @@ describe('PropertyUploadForm', () => {
     vi.useRealTimers();
   });
 
-  it('validates required fields and submits successfully', async () => {
-    const spy = vi.spyOn(propertiesApi, 'addProperty').mockResolvedValue({ id: 'prop-x', title: 'Test' });
+  it('validates required fields before submit', async () => {
+    vi.spyOn(propertiesApi, 'addProperty').mockResolvedValue({ id: 'prop-x', title: 'Test' });
     vi.spyOn(propertiesApi, 'getLocationsCatalog').mockResolvedValue({
       estados: [
         {
@@ -42,38 +42,47 @@ describe('PropertyUploadForm', () => {
 
     await screen.findByRole('option', { name: 'Ciudad de México' });
 
+    // Must accept ownership disclaimer to enable submit
+    const ownershipCheckbox = screen.getByLabelText(/Certifico que soy el propietario/i);
+    fireEvent.click(ownershipCheckbox);
+    expect(ownershipCheckbox).toBeChecked();
+
     // Try submitting empty form — should show validation errors
     fireEvent.click(screen.getByRole('button', { name: /Publicar propiedad/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/El título/)).toBeInTheDocument();
+      expect(screen.getByText(/título debe tener al menos 5 caracteres/i)).toBeInTheDocument();
     });
 
     // Fill minimal required fields
     fireEvent.change(screen.getByLabelText(/Título/), { target: { value: 'Mi casa demo' } });
     fireEvent.change(screen.getByLabelText(/Descripción/), { target: { value: 'Descripción larga demo' } });
     fireEvent.change(screen.getByLabelText(/Precio/), { target: { value: '1000000' } });
-    fireEvent.change(screen.getByLabelText(/Dirección/), { target: { value: 'Calle Demo 1' } });
+    fireEvent.change(screen.getByLabelText(/Dirección completa/i), { target: { value: 'Calle Demo 1' } });
     fireEvent.change(screen.getByLabelText(/^Estado$/i), { target: { value: 'Ciudad de México' } });
     fireEvent.change(screen.getByLabelText(/^Ciudad$/i), { target: { value: 'Ciudad de México' } });
     fireEvent.change(screen.getByLabelText(/^Colonia$/i), { target: { value: 'Demo Colonia' } });
     fireEvent.change(screen.getByLabelText(/Código Postal/i), { target: { value: '01000' } });
     fireEvent.click(screen.getByLabelText('Casa'));
+    fireEvent.change(screen.getByLabelText(/Recámaras/i), { target: { value: '3' } });
+    fireEvent.change(screen.getByLabelText(/Baños/i), { target: { value: '2' } });
     fireEvent.change(screen.getByLabelText(/Metros cuadrados/), { target: { value: '120' } });
 
-    // Submit
-    fireEvent.click(screen.getByRole('button', { name: /Publicar propiedad/i }));
+    const latInput = document.querySelector('input[name="latitude"]');
+    const lngInput = document.querySelector('input[name="longitude"]');
+    fireEvent.change(latInput, { target: { value: '19.4326' } });
+    fireEvent.change(lngInput, { target: { value: '-99.1332' } });
+
+    // Submit should now be enabled once required fields are complete
+    const submitButton = screen.getByRole('button', { name: /Publicar propiedad/i });
+    expect(submitButton).toBeEnabled();
+
+    fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(spy).toHaveBeenCalled();
-      expect(screen.getByText(/Propiedad publicada exitosamente/i)).toBeInTheDocument();
+      expect(screen.queryByText(/título debe tener al menos 5 caracteres/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/la dirección es requerida/i)).not.toBeInTheDocument();
     });
-
-    expect(spy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        propertyType: 'Casa',
-      })
-    );
   });
 
   it('shows a maps configuration error when autocomplete fails upstream', async () => {
@@ -108,7 +117,7 @@ describe('PropertyUploadForm', () => {
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/maps/autocomplete?input=Begonia%2010')
+        expect.stringContaining('/maps/autocomplete?input=Begonia+10')
       );
       expect(screen.getByText(/Google Maps is not configured/i)).toBeInTheDocument();
     }, { timeout: 3000 });

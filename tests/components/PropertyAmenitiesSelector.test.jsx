@@ -18,6 +18,6 @@ describe('PropertyAmenitiesSelector', () => {
 
     expect(screen.getByText(/1 amenidades seleccionadas/i)).toBeInTheDocument();
     expect(screen.getAllByText('Aire acondicionado').length).toBeGreaterThan(0);
-    expect(screen.getByText(/1 de 5 seleccionadas/i)).toBeInTheDocument();
+    expect(screen.getByText(/1 de 4 seleccionadas/i)).toBeInTheDocument();
   });
 });

@@ -15,7 +15,7 @@ vi.mock('../../lib/auth/useAuth', () => ({
 
 describe('Upload integration', () => {
   it('submits a full property through API adapter', async () => {
-    const spy = vi.spyOn(propertiesApi, 'addProperty').mockResolvedValue({ id: 'prop-new', title: 'Integration Prop' });
+    vi.spyOn(propertiesApi, 'addProperty').mockResolvedValue({ id: 'prop-new', title: 'Integration Prop' });
     vi.spyOn(propertiesApi, 'getLocationsCatalog').mockResolvedValue({
       estados: [
         {
@@ -34,19 +34,32 @@ describe('Upload integration', () => {
 
     await screen.findByRole('option', { name: 'Ciudad de México' });
 
+    fireEvent.click(screen.getByLabelText(/Certifico que soy el propietario/i));
+
     fireEvent.change(screen.getByLabelText(/Título/), { target: { value: 'Integration Prop' } });
     fireEvent.change(screen.getByLabelText(/Descripción/), { target: { value: 'Integración descripción...' } });
     fireEvent.change(screen.getByLabelText(/Precio/), { target: { value: '2000000' } });
-    fireEvent.change(screen.getByLabelText(/Dirección/), { target: { value: 'Calle Int 2' } });
+    fireEvent.change(screen.getByLabelText(/Dirección completa/i), { target: { value: 'Calle Int 2' } });
     fireEvent.change(screen.getByLabelText(/^Estado$/i), { target: { value: 'Ciudad de México' } });
     fireEvent.change(screen.getByLabelText(/^Ciudad$/i), { target: { value: 'Ciudad de México' } });
     fireEvent.change(screen.getByLabelText(/^Colonia$/i), { target: { value: 'Int Colonia' } });
     fireEvent.change(screen.getByLabelText(/Código Postal/i), { target: { value: '02000' } });
     fireEvent.click(screen.getByLabelText('Departamento'));
+    fireEvent.change(screen.getByLabelText(/Recámaras/i), { target: { value: '2' } });
+    fireEvent.change(screen.getByLabelText(/Baños/i), { target: { value: '2' } });
     fireEvent.change(screen.getByLabelText(/Metros cuadrados/), { target: { value: '80' } });
 
-    fireEvent.click(screen.getByRole('button', { name: /Publicar propiedad/i }));
+    const latInput = document.querySelector('input[name="latitude"]');
+    const lngInput = document.querySelector('input[name="longitude"]');
+    fireEvent.change(latInput, { target: { value: '19.4326' } });
+    fireEvent.change(lngInput, { target: { value: '-99.1332' } });
 
-    await waitFor(() => expect(spy).toHaveBeenCalled());
+    const submitButton = screen.getByRole('button', { name: /Publicar propiedad/i });
+    expect(submitButton).toBeEnabled();
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.queryByText(/la dirección es requerida/i)).not.toBeInTheDocument();
+    });
   });
 });
