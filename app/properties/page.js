@@ -5,7 +5,7 @@
  * Checkpoint 4: Buy/Rent tabs, rental filters (rent range, furnished)
  */
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import PropertyList from '../../components/PropertyList.jsx';
 import { useProperties } from '../../lib/queries/properties';
@@ -46,7 +46,7 @@ const MEXICO_STATES = [
   'Zacatecas',
 ];
 
-export default function PropertiesPage() {
+function PropertiesContent() {
   const { data = [] } = useProperties();
   const searchParams = useSearchParams();
   const [locationsCatalog, setLocationsCatalog] = useState(null);
@@ -946,5 +946,13 @@ export default function PropertiesPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PropertiesPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="text-neutral-500">Cargando...</div></div>}>
+      <PropertiesContent />
+    </Suspense>
   );
 }
