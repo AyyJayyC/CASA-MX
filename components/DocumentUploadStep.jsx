@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   uploadPropertyDocument,
   deletePropertyDocument,
@@ -26,9 +27,9 @@ const DOC_CONFIG = {
 };
 
 const REQUIRED_DOCS = {
-  seller: ['title_deed', 'official_id'],
-  landlord: ['title_deed', 'official_id'],
-  wholesaler: ['official_id', 'agent_authorization'],
+  seller: ['title_deed'],
+  landlord: ['title_deed'],
+  wholesaler: ['agent_authorization'],
 };
 
 // Initial slot state factory
@@ -38,7 +39,8 @@ function makeSlots(types) {
   );
 }
 
-export default function DocumentUploadStep({ propertyId, sellerRole = 'seller' }) {
+export default function DocumentUploadStep({ propertyId, sellerRole = 'seller', onContinue, onUploadLater }) {
+  const router = useRouter();
   const requiredTypes = REQUIRED_DOCS[sellerRole] ?? REQUIRED_DOCS.seller;
   const [slots, setSlots] = useState(() => makeSlots(requiredTypes));
   const [autoVerified, setAutoVerified] = useState(false);
@@ -89,6 +91,22 @@ export default function DocumentUploadStep({ propertyId, sellerRole = 'seller' }
 
   const allDone = requiredTypes.every((t) => slots[t]?.status === 'done');
 
+  const goDashboard = () => {
+    if (typeof onUploadLater === 'function') {
+      onUploadLater();
+      return;
+    }
+    router.push('/dashboard');
+  };
+
+  const continueFlow = () => {
+    if (typeof onContinue === 'function') {
+      onContinue();
+      return;
+    }
+    router.push('/dashboard');
+  };
+
   return (
     <div className="max-w-xl mx-auto p-6 bg-white rounded-2xl shadow space-y-6">
       <div>
@@ -96,6 +114,9 @@ export default function DocumentUploadStep({ propertyId, sellerRole = 'seller' }
         <p className="text-sm text-gray-500 mt-1">
           Sube los documentos requeridos para publicar tu propiedad. No compartiremos estos
           documentos con terceros.
+        </p>
+        <p className="text-xs text-gray-500 mt-2">
+          La identificación oficial (INE/IFE) se valida a nivel de cuenta y no es necesario subirla en cada propiedad.
         </p>
       </div>
 
@@ -211,6 +232,25 @@ export default function DocumentUploadStep({ propertyId, sellerRole = 'seller' }
           {requiredTypes.filter((t) => slots[t]?.status !== 'done').length} documento(s) pendiente(s)
         </p>
       )}
+
+      <div className="pt-2 flex flex-col sm:flex-row gap-2 justify-end">
+        <button
+          type="button"
+          onClick={goDashboard}
+          className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm"
+        >
+          Subir documentos después
+        </button>
+
+        <button
+          type="button"
+          onClick={continueFlow}
+          disabled={!allDone && !autoVerified}
+          className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-sm"
+        >
+          Continuar
+        </button>
+      </div>
     </div>
   );
 }

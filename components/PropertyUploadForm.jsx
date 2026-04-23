@@ -314,6 +314,51 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
     setAddressSearch(composedAddress);
   }, [getValues, setValue]);
 
+  const inferLocationFromAddress = useCallback(() => {
+    const rawAddress = String(getValues('address') || addressSearch || '').trim();
+    if (!rawAddress) return;
+
+    const normalizedAddress = normalizeAddressText(rawAddress);
+
+    const currentCiudad = String(getValues('ciudad') || '').trim();
+    if (!currentCiudad && ciudadesDisponibles.length > 0) {
+      const detectedCiudad = ciudadesDisponibles.find((city) =>
+        normalizedAddress.includes(normalizeAddressText(city))
+      );
+      if (detectedCiudad) {
+        setValue('ciudad', detectedCiudad, { shouldDirty: true, shouldValidate: true });
+      }
+    }
+
+    const currentColonia = String(getValues('colonia') || '').trim();
+    if (!currentColonia && coloniasDisponibles.length > 0) {
+      const detectedColonia = coloniasDisponibles.find((coloniaItem) =>
+        normalizedAddress.includes(normalizeAddressText(coloniaItem))
+      );
+      if (detectedColonia) {
+        setValue('colonia', detectedColonia, { shouldDirty: true, shouldValidate: true });
+      }
+    }
+
+    const currentCp = String(getValues('codigoPostal') || '').trim();
+    if (!currentCp) {
+      const detectedCp = rawAddress.match(/\b\d{5}\b/)?.[0] || '';
+      if (detectedCp) {
+        setValue('codigoPostal', detectedCp, { shouldDirty: true, shouldValidate: true });
+      }
+    }
+  }, [
+    addressSearch,
+    ciudadesDisponibles,
+    coloniasDisponibles,
+    getValues,
+    setValue,
+  ]);
+
+  useEffect(() => {
+    inferLocationFromAddress();
+  }, [inferLocationFromAddress]);
+
   const fillFromGeocode = useCallback(async (description, typedInput = '', selectedSuggestion = null) => {
     try {
       const res = await fetch(`${BACKEND_URL}/maps/geocode`, {
@@ -628,6 +673,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
         </div>
       )}
 
+      {!success && (
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Basic Information Section */}
         <div className="space-y-4">
@@ -824,6 +870,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                   if (!sessionTokenRef.current) {
                     sessionTokenRef.current = crypto.randomUUID();
                   }
+                  openAddressSuggestions();
                 }}
                 onKeyDown={async (e) => {
                   if (e.key === 'ArrowDown' && addressSuggestions.length > 0) {
@@ -872,7 +919,6 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                     }
                   }
                 }}
-                onFocus={() => openAddressSuggestions()}
                 placeholder="Ej: San Miguel de Horcasitas 36, Hermosillo"
                 className={inputClass}
               />
@@ -960,7 +1006,12 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
             <input 
               id="address" 
               type="text"
-              {...register('address')} 
+              {...register('address', {
+                onBlur: () => {
+                  inferLocationFromAddress();
+                  queueMicrotask(syncFullAddressFromLocation);
+                },
+              })} 
               className={inputClass}
               placeholder="Se llena al buscar en Google Maps arriba"
             />
@@ -1452,6 +1503,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
           </button>
         </div>
       </form>
+      )}
     </>
   );
 }

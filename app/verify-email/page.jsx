@@ -2,6 +2,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/lib/auth/useAuth';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -11,6 +12,7 @@ function VerifyEmailContent() {
   const token = searchParams.get('token');
   const [status, setStatus] = useState('loading'); // loading | success | error | expired
   const [message, setMessage] = useState('');
+  const { refreshUser } = useAuth();
 
   useEffect(() => {
     if (!token) {
@@ -25,6 +27,7 @@ function VerifyEmailContent() {
         if (res.ok && data.success) {
           setStatus('success');
           setMessage(data.message || '¡Correo verificado exitosamente!');
+          await refreshUser();
           // Redirect to dashboard after 3 seconds
           setTimeout(() => router.push('/dashboard'), 3000);
         } else {
@@ -36,7 +39,7 @@ function VerifyEmailContent() {
         setStatus('error');
         setMessage('Error al verificar. Intenta de nuevo.');
       });
-  }, [token, router]);
+  }, [token, router, refreshUser]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950 px-4">

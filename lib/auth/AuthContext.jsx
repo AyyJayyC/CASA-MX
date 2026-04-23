@@ -17,6 +17,25 @@ export function AuthProvider({ children }) {
   const [error, setError] = useState(null);
   const [isHydrated, setIsHydrated] = useState(false);
 
+  const refreshUser = useCallback(async () => {
+    try {
+      const nextSession = await authAPI.getSession();
+      if (!nextSession) {
+        setSession(null);
+        setUser(null);
+        return null;
+      }
+
+      setSession(nextSession);
+      const nextUser = await authAPI.getUserById(nextSession.userId);
+      setUser(nextUser);
+      return nextUser;
+    } catch (err) {
+      console.error('Failed to refresh user:', err);
+      return null;
+    }
+  }, []);
+
   // Hydrate session from storage on mount
   useEffect(() => {
     const hydrate = async () => {
@@ -27,11 +46,11 @@ export function AuthProvider({ children }) {
           return;
         }
         
-        const session = await authAPI.getSession();
-        if (session) {
-          setSession(session);
-          const user = await authAPI.getUserById(session.userId);
-          setUser(user);
+        const initialSession = await authAPI.getSession();
+        if (initialSession) {
+          setSession(initialSession);
+          const initialUser = await authAPI.getUserById(initialSession.userId);
+          setUser(initialUser);
         }
       } catch (err) {
         console.error('Failed to hydrate session:', err);
@@ -178,7 +197,8 @@ export function AuthProvider({ children }) {
     login,
     loginWithGoogle,
     logout,
-    switchRole
+    switchRole,
+    refreshUser,
   };
 
   return (

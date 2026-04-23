@@ -13,6 +13,14 @@ test.describe('Live Upload Flow', () => {
   test('logs in via UI, selects Mexico address, and submits property', async ({ page }) => {
     const uniqueTitle = `E2E Casa ${Date.now()}`;
     const fallbackCred = { email: LOGIN_EMAIL, password: LOGIN_PASSWORD };
+    let submitAlertMessage = '';
+
+    page.on('dialog', async (dialog) => {
+      submitAlertMessage = dialog.message();
+      try {
+        await dialog.dismiss();
+      } catch {}
+    });
 
     await page.goto('/login', { waitUntil: 'domcontentloaded' });
     await page.fill('input[type="email"]', fallbackCred.email);
@@ -67,6 +75,22 @@ test.describe('Live Upload Flow', () => {
 
       loggedIn = true;
       await page.reload({ waitUntil: 'domcontentloaded' });
+    }
+
+    const roleSwitcher = page
+      .locator('select')
+      .filter({ hasText: 'tenant' })
+      .filter({ hasText: 'seller' })
+      .first();
+
+    if (await roleSwitcher.isVisible().catch(() => false)) {
+      await roleSwitcher.selectOption('seller').catch(async () => {
+        await roleSwitcher.selectOption({ label: 'seller' });
+      });
+      await page.waitForTimeout(1200);
+
+      const activeRole = await roleSwitcher.inputValue().catch(() => '');
+      expect(activeRole, 'No se pudo cambiar el rol activo a seller').toBe('seller');
     }
 
     const titleInput = page.locator('input#title, input[name="title"]').first();
@@ -199,29 +223,24 @@ test.describe('Live Upload Flow', () => {
 
     await page.check('#fin_cash');
 
-    let publishResponse;
-    for (let attempt = 0; attempt < 2; attempt += 1) {
-      const publishResponsePromise = page.waitForResponse(
-        (resp) =>
-          resp.url().startsWith(`${API_URL}/properties`) &&
-          resp.request().method() === 'POST',
-        { timeout: 20000 }
-      );
-
-      await publishButton.click();
-      publishResponse = await publishResponsePromise.catch(() => null);
-
-      if (publishResponse && publishResponse.status() === 201) {
-        break;
-      }
-
-      await page.waitForTimeout(1500 + attempt * 800);
+    const ownershipCheckbox = page.locator('input[type="checkbox"]').filter({ hasNot: page.locator('#fin_cash') }).last();
+    if (await ownershipCheckbox.isVisible().catch(() => false)) {
+      await ownershipCheckbox.check();
+    } else {
+      await page.getByText('Certifico que soy el propietario o tengo autorización legal para publicar esta propiedad').click();
     }
 
-    expect(publishResponse, 'No se detect� respuesta de creaci�n de propiedad').toBeTruthy();
-    expect(publishResponse.status(), 'La API de creaci�n no devolvi� 201').toBe(201);
+    await expect(publishButton).toBeEnabled({ timeout: 10000 });
 
-    await expect(page.locator('text=Propiedad publicada exitosamente')).toBeVisible({ timeout: 20000 });
-    await expect(page.locator(`text=${uniqueTitle}`)).toBeVisible({ timeout: 20000 });
+    await publishButton.click();
+    await page.waitForTimeout(1200);
+
+    if (submitAlertMessage) {
+      throw new Error(`Publicación rechazada: ${submitAlertMessage}`);
+    }
+
+    await expect(page.getByRole('heading', { name: /Propiedad registrada/i })).toBeVisible({ timeout: 30000 });
+    await expect(page.locator(`text=${uniqueTitle}`)).toBeVisible({ timeout: 30000 });
+    await expect(page.getByText(/sube los documentos de verificación/i)).toBeVisible({ timeout: 30000 });
   });
 });
