@@ -53,6 +53,14 @@ const SECTIONS = [
     roles: ['tenant', 'landlord'],
   },
 ];
+    {
+      href: '/dashboard/account',
+      title: 'Mi cuenta',
+      description: 'Gestiona tus documentos de identidad (INE/IFE) y datos personales.',
+      icon: '🪪',
+      roles: ['buyer', 'tenant', 'seller', 'wholesaler', 'landlord', 'admin'],
+    },
+  ];
 
 export default function DashboardPage() {
   const { user, isAuthenticated } = useAuth();

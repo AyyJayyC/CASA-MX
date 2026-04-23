@@ -157,9 +157,13 @@ export default function DocumentUploadStep({ propertyId, sellerRole = 'seller', 
                 </label>
               )}
 
-              {slot.status === 'done' && (
-                <button
-                  onClick={() => handleDelete(type)}
+                    <p className="text-xs text-gray-500 mt-2">
+                      La identificación oficial (INE/IFE) se valida a nivel de cuenta.{' '}
+                      <a href="/dashboard/account" className="text-indigo-600 hover:underline">
+                        Súbela en tu perfil
+                      </a>{' '}
+                      y no tendrás que hacerlo en cada propiedad.
+                    </p>
                   className="shrink-0 text-xs text-red-500 hover:text-red-700 transition"
                   type="button"
                 >
