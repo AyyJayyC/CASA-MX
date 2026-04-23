@@ -9,13 +9,17 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 const DebugContext = createContext(null);
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
+const DEBUG_ENABLED = process.env.NODE_ENV !== 'production' || process.env.NEXT_PUBLIC_ENABLE_DEBUG_LOGGING === 'true';
 
 export function DebugProvider({ children }) {
   const [sessionId, setSessionId] = useState(null);
-  const [isEnabled, setIsEnabled] = useState(true);
+  const [isEnabled, setIsEnabled] = useState(DEBUG_ENABLED && Boolean(API_BASE));
 
   // Initialize session on mount
   useEffect(() => {
+    if (!DEBUG_ENABLED || !API_BASE) return;
+
     const initSession = async () => {
       try {
         // Check localStorage for existing session
@@ -24,7 +28,7 @@ export function DebugProvider({ children }) {
         if (!existingSessionId) {
           // Create new session
           try {
-            const response = await fetch('http://localhost:3001/debug/session', {
+            const response = await fetch(`${API_BASE}/debug/session`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -57,10 +61,10 @@ export function DebugProvider({ children }) {
 
   const logAction = useCallback(
     async (actionType, actionName, metadata = null) => {
-      if (!isEnabled || !sessionId) return;
+      if (!DEBUG_ENABLED || !API_BASE || !isEnabled || !sessionId) return;
 
       try {
-        await fetch('http://localhost:3001/debug/action', {
+        await fetch(`${API_BASE}/debug/action`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -81,10 +85,10 @@ export function DebugProvider({ children }) {
 
   const logError = useCallback(
     async (error, componentName = null, context = null) => {
-      if (!isEnabled || !sessionId) return;
+      if (!DEBUG_ENABLED || !API_BASE || !isEnabled || !sessionId) return;
 
       try {
-        await fetch('http://localhost:3001/debug/error', {
+        await fetch(`${API_BASE}/debug/error`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
