@@ -93,6 +93,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
   });
 
   useEffect(() => {
+    register('listingType');
     register('propertyType');
     register('includedServices');
     register('amenities');
