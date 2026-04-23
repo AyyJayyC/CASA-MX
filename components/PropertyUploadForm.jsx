@@ -538,22 +538,31 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
     }
   }
 
-  function getFirstErrorMessage(errorMap) {
-    for (const value of Object.values(errorMap || {})) {
+  function getFirstErrorEntry(errorMap, path = '') {
+    for (const [key, value] of Object.entries(errorMap || {})) {
       if (!value) continue;
+
+      const nextPath = path ? `${path}.${key}` : key;
+
       if (typeof value.message === 'string' && value.message.trim()) {
-        return value.message.trim();
+        return { path: nextPath, message: value.message.trim() };
       }
+
       if (typeof value === 'object') {
-        const nestedMessage = getFirstErrorMessage(value);
-        if (nestedMessage) return nestedMessage;
+        const nestedEntry = getFirstErrorEntry(value, nextPath);
+        if (nestedEntry) return nestedEntry;
       }
     }
-    return '';
+
+    return null;
   }
 
   function onInvalid(errorMap) {
-    const firstMessage = getFirstErrorMessage(errorMap) || 'Completa los campos requeridos antes de publicar.';
+    const firstError = getFirstErrorEntry(errorMap);
+    const firstMessage = firstError
+      ? `${firstError.path}: ${firstError.message}`
+      : 'Completa los campos requeridos antes de publicar.';
+
     setSubmitValidationError(firstMessage);
 
     if (typeof window !== 'undefined') {
