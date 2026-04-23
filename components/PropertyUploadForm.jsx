@@ -39,7 +39,6 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
   const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
   const [activeAddressSuggestionIndex, setActiveAddressSuggestionIndex] = useState(-1);
   const addressSearchRef = useRef(null);
-  const addressDebounce = useRef(null);
   const sessionTokenRef = useRef(null);
   const autocompleteCache = useRef(new Map());
   const photoInputRef = useRef(null);

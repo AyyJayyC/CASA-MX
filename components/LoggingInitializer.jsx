@@ -10,8 +10,7 @@ import { useEffect } from 'react';
 
 export default function LoggingInitializer() {
   useEffect(() => {
-    // Just initialize - no complex logging setup needed
-    console.log('Debug logging initialized');
+    // Logging infrastructure initialized - debug logging is managed by DebugContext
   }, []);
 
   return null;

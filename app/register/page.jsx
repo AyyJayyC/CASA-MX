@@ -71,7 +71,6 @@ export default function RegisterPage() {
 
     try {
       setRegisterError(null);
-      console.log('Submitting register payload:', { name: data.name, email: data.email, password: '[HIDDEN]', roles: selectedRoles });
       const result = await registerUser({
         name: data.name,
         email: data.email,
@@ -80,10 +79,6 @@ export default function RegisterPage() {
         acceptLegal: data.acceptLegal,
       });
 
-      // Debugging logs to surface behavior in browser console
-      console.log('Register result:', result);
-      console.log('Register successful — attempting redirect to /login');
-
       const requiresApproval = selectedRoles.some((role) => ['seller', 'landlord', 'wholesaler'].includes(role));
       alert(
         requiresApproval
@@ -91,9 +86,6 @@ export default function RegisterPage() {
           : '¡Registro exitoso! Ya puedes iniciar sesión.'
       );
       router.push('/login');
-
-      // If router.push doesn't navigate for some reason, log current URL after a short delay
-      setTimeout(() => console.log('URL after attempted redirect:', window.location.href), 500);
     } catch (err) {
       console.error('Register error:', err);
       setRegisterError(err.message || 'Error al registrar');
