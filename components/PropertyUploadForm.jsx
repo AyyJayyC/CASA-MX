@@ -1204,7 +1204,9 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                 id="parkingSpaces"
                 type="number"
                 min="0"
-                {...register('parkingSpaces', { valueAsNumber: true })}
+                {...register('parkingSpaces', {
+                  setValueAs: (value) => (value === '' || value === null || value === undefined ? undefined : Number(value)),
+                })}
                 className={inputClass}
                 placeholder="0"
               />
@@ -1217,7 +1219,9 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                 id="miniSplits"
                 type="number"
                 min="0"
-                {...register('miniSplits', { valueAsNumber: true })}
+                {...register('miniSplits', {
+                  setValueAs: (value) => (value === '' || value === null || value === undefined ? undefined : Number(value)),
+                })}
                 className={inputClass}
                 placeholder="0"
               />
