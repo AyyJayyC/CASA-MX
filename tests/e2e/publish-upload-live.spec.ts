@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import path from 'path';
 
 const FRONTEND_URL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000';
 const API_URL = (process.env.PLAYWRIGHT_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001').replace(/\/$/, '');
@@ -77,22 +78,6 @@ test.describe('Live Upload Flow', () => {
       await page.reload({ waitUntil: 'domcontentloaded' });
     }
 
-    const roleSwitcher = page
-      .locator('select')
-      .filter({ hasText: 'tenant' })
-      .filter({ hasText: 'seller' })
-      .first();
-
-    if (await roleSwitcher.isVisible().catch(() => false)) {
-      await roleSwitcher.selectOption('seller').catch(async () => {
-        await roleSwitcher.selectOption({ label: 'seller' });
-      });
-      await page.waitForTimeout(1200);
-
-      const activeRole = await roleSwitcher.inputValue().catch(() => '');
-      expect(activeRole, 'No se pudo cambiar el rol activo a seller').toBe('seller');
-    }
-
     const titleInput = page.locator('input#title, input[name="title"]').first();
     const publishButton = page.locator('button[type="submit"]:has-text("Publicar propiedad")');
 
@@ -114,6 +99,20 @@ test.describe('Live Upload Flow', () => {
 
     await expect(titleInput).toBeVisible({ timeout: 15000 });
     await page.waitForTimeout(1500);
+
+    const roleSwitcher = page.locator('select').filter({ has: page.locator('option[value="seller"]') }).first();
+    const canSwitchRole = (await roleSwitcher.count()) > 0;
+
+    if (canSwitchRole) {
+      await roleSwitcher.waitFor({ state: 'visible', timeout: 10000 });
+      await roleSwitcher.selectOption('seller').catch(async () => {
+        await roleSwitcher.selectOption({ label: 'seller' });
+      });
+      await page.waitForTimeout(1200);
+
+      const activeRole = await roleSwitcher.inputValue().catch(() => '');
+      expect(activeRole, 'No se pudo cambiar el rol activo a seller').toBe('seller');
+    }
 
     const fillWithRetry = async (selector, value) => {
       let lastErr;
@@ -221,6 +220,13 @@ test.describe('Live Upload Flow', () => {
     await page.fill('#bedrooms', '3');
     await page.fill('#bathrooms', '2');
 
+    const imageInput = page.locator('input[type="file"]').first();
+    if (await imageInput.count()) {
+      const imagePath = path.resolve(process.cwd(), 'tests', 'fixtures', 'test-image.png');
+      await imageInput.setInputFiles(imagePath);
+      await page.waitForTimeout(1200);
+    }
+
     await page.check('#fin_cash');
 
     const ownershipCheckbox = page.locator('input[type="checkbox"]').filter({ hasNot: page.locator('#fin_cash') }).last();
@@ -232,8 +238,26 @@ test.describe('Live Upload Flow', () => {
 
     await expect(publishButton).toBeEnabled({ timeout: 10000 });
 
+    const publishResponsePromise = page
+      .waitForResponse(
+        (resp) => resp.request().method() === 'POST' && /\/properties(?:\/|\?|$)/.test(resp.url()),
+        { timeout: 30000 }
+      )
+      .catch(() => null);
+
     await publishButton.click();
     await page.waitForTimeout(1200);
+
+    const publishResponse = await publishResponsePromise;
+    if (!publishResponse) {
+      throw new Error('Publicación no disparó request POST /properties (no se capturó respuesta de API).');
+    }
+
+    const status = publishResponse.status();
+    if (status >= 400) {
+      const body = await publishResponse.text().catch(() => '');
+      throw new Error(`Publicación falló en API: ${status} ${body}`);
+    }
 
     if (submitAlertMessage) {
       throw new Error(`Publicación rechazada: ${submitAlertMessage}`);
