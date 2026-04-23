@@ -29,6 +29,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
   const { session } = useAuth();
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [submitValidationError, setSubmitValidationError] = useState('');
   const [ownershipConfirmed, setOwnershipConfirmed] = useState(false);
   const [locationsCatalog, setLocationsCatalog] = useState(null);
   const [addressSearch, setAddressSearch] = useState('');
@@ -470,6 +471,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
 
   async function onSubmit(values) {
     try {
+      setSubmitValidationError('');
       setLoading(true);
       
       const payload = {
@@ -532,6 +534,29 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
       alert('Error al publicar la propiedad: ' + (error.message || 'Error desconocido'));
     } finally {
       setLoading(false);
+    }
+  }
+
+  function getFirstErrorMessage(errorMap) {
+    for (const value of Object.values(errorMap || {})) {
+      if (!value) continue;
+      if (typeof value.message === 'string' && value.message.trim()) {
+        return value.message.trim();
+      }
+      if (typeof value === 'object') {
+        const nestedMessage = getFirstErrorMessage(value);
+        if (nestedMessage) return nestedMessage;
+      }
+    }
+    return '';
+  }
+
+  function onInvalid(errorMap) {
+    const firstMessage = getFirstErrorMessage(errorMap) || 'Completa los campos requeridos antes de publicar.';
+    setSubmitValidationError(firstMessage);
+
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
@@ -674,7 +699,12 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
       )}
 
       {!success && (
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6">
+        {submitValidationError && (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {submitValidationError}
+          </div>
+        )}
         {/* Basic Information Section */}
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 pb-2 border-b border-neutral-200 dark:border-neutral-800">

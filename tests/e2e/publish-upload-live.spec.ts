@@ -15,6 +15,23 @@ test.describe('Live Upload Flow', () => {
     const uniqueTitle = `E2E Casa ${Date.now()}`;
     const fallbackCred = { email: LOGIN_EMAIL, password: LOGIN_PASSWORD };
     let submitAlertMessage = '';
+    const apiRequests = [];
+    const browserErrors = [];
+
+    page.on('request', (request) => {
+      const url = request.url();
+      if (url.startsWith(API_URL)) {
+        apiRequests.push(`${request.method()} ${url}`);
+      }
+    });
+    page.on('console', (message) => {
+      if (message.type() === 'error') {
+        browserErrors.push(`console:${message.text()}`);
+      }
+    });
+    page.on('pageerror', (error) => {
+      browserErrors.push(`pageerror:${error.message}`);
+    });
 
     page.on('dialog', async (dialog) => {
       submitAlertMessage = dialog.message();
@@ -250,7 +267,7 @@ test.describe('Live Upload Flow', () => {
 
     const publishResponse = await publishResponsePromise;
     if (!publishResponse) {
-      throw new Error('Publicación no disparó request POST /properties (no se capturó respuesta de API).');
+      throw new Error(`Publicación no disparó request POST /properties (no se capturó respuesta de API). Requests vistos: ${apiRequests.join(' | ') || 'ninguno'}. Errores navegador: ${browserErrors.join(' | ') || 'ninguno'}`);
     }
 
     const status = publishResponse.status();
