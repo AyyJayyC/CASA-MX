@@ -5,7 +5,7 @@ export default function AvisoLegalPage() {
       <p className="text-sm text-gray-500">Última actualización: 21 de abril de 2026</p>
 
       <p>
-        Casa MX, con domicilio en Ciudad de México, México (en adelante &ldquo;Casa MX&rdquo; o
+        Casa-MX.com, con domicilio en Ciudad de México, México (en adelante &ldquo;Casa-MX.com&rdquo; o
         &ldquo;nosotros&rdquo;), es responsable del tratamiento de sus datos personales conforme a lo
         establecido en la Ley Federal de Protección de Datos Personales en Posesión de los
         Particulares (LFPDPPP) y su Reglamento.
@@ -52,7 +52,7 @@ export default function AvisoLegalPage() {
 
       <h2>Cambios al aviso</h2>
       <p>
-        Casa MX podrá actualizar este Aviso de Privacidad. Le notificaremos por correo electrónico
+        Casa-MX.com podrá actualizar este Aviso de Privacidad. Le notificaremos por correo electrónico
         ante cambios sustanciales.
       </p>
 
@@ -64,3 +64,4 @@ export default function AvisoLegalPage() {
     </main>
   );
 }
+

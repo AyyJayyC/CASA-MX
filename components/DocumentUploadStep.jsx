@@ -1,7 +1,7 @@
 'use client';
 
+import React from 'react';
 import { useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 import {
   uploadPropertyDocument,
   deletePropertyDocument,
@@ -40,11 +40,16 @@ function makeSlots(types) {
 }
 
 export default function DocumentUploadStep({ propertyId, sellerRole = 'seller', onContinue, onUploadLater }) {
-  const router = useRouter();
   const requiredTypes = REQUIRED_DOCS[sellerRole] ?? REQUIRED_DOCS.seller;
   const [slots, setSlots] = useState(() => makeSlots(requiredTypes));
   const [autoVerified, setAutoVerified] = useState(false);
   const fileRefs = useRef({});
+
+  const navigateDashboard = () => {
+    if (typeof window !== 'undefined') {
+      window.location.assign('/dashboard');
+    }
+  };
 
   function updateSlot(type, patch) {
     setSlots((prev) => ({ ...prev, [type]: { ...prev[type], ...patch } }));
@@ -96,7 +101,7 @@ export default function DocumentUploadStep({ propertyId, sellerRole = 'seller', 
       onUploadLater();
       return;
     }
-    router.push('/dashboard');
+    navigateDashboard();
   };
 
   const continueFlow = () => {
@@ -104,7 +109,7 @@ export default function DocumentUploadStep({ propertyId, sellerRole = 'seller', 
       onContinue();
       return;
     }
-    router.push('/dashboard');
+    navigateDashboard();
   };
 
   return (

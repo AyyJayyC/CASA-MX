@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'Política de Cookies | CASA MX',
-  description: 'Información sobre el uso de cookies en CASA MX.',
+  title: 'Política de Cookies | Casa-MX.com',
+  description: 'Información sobre el uso de cookies en Casa-MX.com.',
 };
 
 export default function CookiePage() {
@@ -8,7 +8,7 @@ export default function CookiePage() {
     <section className="max-w-4xl mx-auto py-8 space-y-6">
       <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">Política de Cookies</h1>
       <p className="text-neutral-700 dark:text-neutral-300">
-        CASA MX utiliza cookies y tecnologías similares para mantener sesión, seguridad y analítica básica.
+        Casa-MX.com utiliza cookies y tecnologías similares para mantener sesión, seguridad y analítica básica.
       </p>
 
       <div className="space-y-4 text-neutral-700 dark:text-neutral-300">
@@ -24,3 +24,4 @@ export default function CookiePage() {
     </section>
   );
 }
+

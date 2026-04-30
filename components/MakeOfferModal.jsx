@@ -71,7 +71,13 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
       });
       setSuccess(true);
     } catch (err) {
-      setError(err.message || 'Error al enviar la oferta');
+      if (err?.code === 'EMAIL_NOT_VERIFIED') {
+        setError('Debes verificar tu correo electrónico antes de enviar una oferta. Revisa tu correo y vuelve a intentarlo.');
+      } else if (err?.code === 'INE_NOT_VERIFIED') {
+        setError('Debes subir y verificar tu INE antes de enviar ofertas. Hazlo en Ajustes de perfil.');
+      } else {
+        setError(err.message || 'Error al enviar la oferta');
+      }
     } finally {
       setLoading(false);
     }

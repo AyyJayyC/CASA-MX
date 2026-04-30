@@ -3,6 +3,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/useAuth';
 import { getUserDocuments, uploadUserDocument, deleteUserDocument } from '@/lib/api/userDocuments';
+import { createBillingPortalSession, createSubscriptionCheckoutSession, getSubscriptionStatus } from '@/lib/api/subscriptions';
+import VerificationBadges from '@/components/VerificationBadges';
 
 const DOC_LABELS = {
   official_id: 'Identificación oficial (INE/IFE)',
@@ -21,6 +23,11 @@ export default function AccountPage() {
   const [success, setSuccess] = useState('');
   const fileInputRef = useRef(null);
   const [pendingType, setPendingType] = useState('official_id');
+  const [subscription, setSubscription] = useState({
+    isActive: false,
+    status: 'inactive',
+    currentPeriodEnd: null,
+  });
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -33,8 +40,12 @@ export default function AccountPage() {
   async function loadDocs() {
     setLoading(true);
     try {
-      const list = await getUserDocuments();
+      const [list, subscriptionStatus] = await Promise.all([
+        getUserDocuments(),
+        getSubscriptionStatus().catch(() => ({ isActive: false, status: 'inactive', currentPeriodEnd: null })),
+      ]);
       setDocs(list);
+      setSubscription(subscriptionStatus);
     } catch (e) {
       setError('No se pudieron cargar tus documentos.');
     } finally {
@@ -61,7 +72,11 @@ export default function AccountPage() {
 
     try {
       await uploadUserDocument(file, pendingType, (pct) => setUploadProgress(pct));
-      setSuccess(`${DOC_LABELS[pendingType]} subido correctamente.`);
+      setSuccess(
+        pendingType === 'official_id'
+          ? `${DOC_LABELS[pendingType]} subido correctamente. Queda pendiente de verificacion.`
+          : `${DOC_LABELS[pendingType]} subido correctamente.`
+      );
       await loadDocs();
     } catch (e) {
       setError(e.message || 'Error al subir el archivo.');
@@ -83,7 +98,35 @@ export default function AccountPage() {
     }
   }
 
-  const hasINE = docs.some((d) => d.documentType === 'official_id');
+  const officialIdDoc = docs.find((d) => d.documentType === 'official_id');
+  const hasINE = Boolean(officialIdDoc);
+  const hasVerifiedINE = Boolean(officialIdDoc?.isVerified);
+  const isRejectedINE = officialIdDoc?.reviewStatus === 'rejected';
+  const paidSubscriber = Boolean(subscription?.isActive);
+
+  async function handleStartSubscription() {
+    try {
+      setError('');
+      const { url } = await createSubscriptionCheckoutSession();
+      if (url) {
+        window.location.href = url;
+      }
+    } catch (e) {
+      setError(e.message || 'No se pudo iniciar la suscripcion.');
+    }
+  }
+
+  async function handleManageSubscription() {
+    try {
+      setError('');
+      const { url } = await createBillingPortalSession();
+      if (url) {
+        window.location.href = url;
+      }
+    } catch (e) {
+      setError(e.message || 'No se pudo abrir la gestion de suscripcion.');
+    }
+  }
 
   return (
     <main className="max-w-2xl mx-auto px-4 py-8">
@@ -97,6 +140,45 @@ export default function AccountPage() {
           <p><span className="text-gray-400">Nombre:</span> {user?.name}</p>
           <p><span className="text-gray-400">Email:</span> {user?.email}</p>
         </div>
+        <div className="mt-3">
+          <VerificationBadges
+            identityUploaded={hasINE}
+            identityVerified={hasVerifiedINE}
+            paidSubscriber={paidSubscriber}
+          />
+        </div>
+      </section>
+
+      <section className="bg-white border border-gray-200 rounded-xl p-5 mb-6">
+        <h2 className="font-semibold text-gray-800 mb-2">Suscripción</h2>
+        <p className="text-xs text-gray-500 mb-4">
+          El check de suscripción activa aparece cuando tu cuenta tiene una suscripción recurrente vigente.
+        </p>
+        <p className={`text-sm font-medium ${paidSubscriber ? 'text-emerald-700' : 'text-gray-700'}`}>
+          Estado: {subscription.status || 'inactive'}
+        </p>
+        {subscription.currentPeriodEnd && (
+          <p className="text-xs text-gray-500 mt-1">
+            Vigente hasta: {new Date(subscription.currentPeriodEnd).toLocaleDateString('es-MX')}
+          </p>
+        )}
+        <div className="mt-4 flex flex-wrap gap-2">
+          {!paidSubscriber ? (
+            <button
+              onClick={handleStartSubscription}
+              className="inline-flex items-center gap-2 rounded-lg bg-amber-500 hover:bg-amber-600 px-3 py-2 text-sm font-medium text-white"
+            >
+              Activar suscripción
+            </button>
+          ) : (
+            <button
+              onClick={handleManageSubscription}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 hover:bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700"
+            >
+              Gestionar suscripción
+            </button>
+          )}
+        </div>
       </section>
 
       {/* Identity documents */}
@@ -104,7 +186,7 @@ export default function AccountPage() {
         <h2 className="font-semibold text-gray-800 mb-1">Documentos de identidad</h2>
         <p className="text-xs text-gray-500 mb-4">
           Tu identificación oficial (INE/IFE) es requerida para verificar propiedades.
-          Solo necesitas subirla una vez para todas tus publicaciones.
+          Una vez subida, queda pendiente de verificacion hasta su aprobacion.
         </p>
 
         {error && (
@@ -126,8 +208,17 @@ export default function AccountPage() {
             <div className="flex items-center justify-between gap-4 bg-gray-50 rounded-lg px-4 py-3">
               <div>
                 <p className="text-sm font-medium text-gray-800">Identificación oficial (INE/IFE)</p>
-                {hasINE ? (
-                  <p className="text-xs text-green-600 mt-0.5">✓ Documento cargado</p>
+                {hasVerifiedINE ? (
+                  <p className="text-xs text-green-600 mt-0.5">✓ INE verificada</p>
+                ) : isRejectedINE ? (
+                  <>
+                    <p className="text-xs text-red-600 mt-0.5">INE rechazada</p>
+                    {officialIdDoc?.reviewNote && (
+                      <p className="text-xs text-red-500 mt-0.5">Motivo: {officialIdDoc.reviewNote}</p>
+                    )}
+                  </>
+                ) : hasINE ? (
+                  <p className="text-xs text-blue-600 mt-0.5">Documento subido, pendiente de verificacion</p>
                 ) : (
                   <p className="text-xs text-amber-600 mt-0.5">Pendiente de subir</p>
                 )}

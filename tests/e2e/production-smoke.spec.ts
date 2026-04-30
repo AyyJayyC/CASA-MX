@@ -30,7 +30,7 @@ test.describe('Public Smoke Checks', () => {
     }
 
     await page.goto('/', { waitUntil: 'domcontentloaded' });
-    await expect(page).toHaveTitle(/CASA MX/i);
+    await expect(page).toHaveTitle(/Casa-MX\.com/i);
     await expect(page.getByRole('heading', { name: /Bienvenido/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /Explorar Propiedades/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /Publicar Propiedad/i })).toBeVisible();

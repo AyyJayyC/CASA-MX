@@ -18,6 +18,13 @@ const SECTIONS = [
     roles: ['seller', 'wholesaler', 'admin'],
   },
   {
+    href: '/dashboard/my-offers',
+    title: 'Mis negociaciones de compra',
+    description: 'Sigue el árbol de negociación y responde contraofertas de vendedores.',
+    icon: '🧭',
+    roles: ['buyer', 'admin'],
+  },
+  {
     href: '/dashboard/rental-applications',
     title: 'Mis solicitudes de renta',
     description: 'Consulta el estado de tus solicitudes como inquilino.',
@@ -68,7 +75,7 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center">
         <div className="text-center space-y-4">
-          <p className="text-neutral-600 dark:text-neutral-400">Debes iniciar sesión para ver el dashboard.</p>
+          <p className="text-neutral-600 dark:text-neutral-400">Debes iniciar sesión para ver el inicio.</p>
           <Link href="/login" className="text-amber-600 dark:text-amber-400 hover:underline font-medium">
             Iniciar sesión
           </Link>

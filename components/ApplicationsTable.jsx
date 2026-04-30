@@ -678,8 +678,9 @@ function ApplicantReviewSummary({ applicantId }) {
         loading={loading}
         error={error}
         title="Reputación del inquilino"
-        emptyMessage="Este inquilino aún no tiene reseñas verificadas en Casa MX."
+        emptyMessage="Este inquilino aún no tiene reseñas verificadas en Casa-MX.com."
       />
     </div>
   );
 }
+

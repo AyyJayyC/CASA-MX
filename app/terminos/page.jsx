@@ -6,22 +6,22 @@ export default function TerminosPage() {
 
       <h2>1. Aceptación de los términos</h2>
       <p>
-        Al acceder o utilizar la plataforma Casa MX (en adelante, &ldquo;el Sitio&rdquo;), usted acepta quedar
+        Al acceder o utilizar la plataforma Casa-MX.com (en adelante, &ldquo;el Sitio&rdquo;), usted acepta quedar
         vinculado por estos Términos y Condiciones. Si no está de acuerdo con alguno de ellos, le
         pedimos que no utilice el Sitio.
       </p>
 
       <h2>2. Descripción del servicio</h2>
       <p>
-        Casa MX es una plataforma de anuncios inmobiliarios que permite a vendedores, arrendadores y
-        mayoristas publicar propiedades y a compradores e inquilinos consultar dichos listados. Casa MX
+        Casa-MX.com es una plataforma de anuncios inmobiliarios que permite a vendedores, arrendadores y
+        mayoristas publicar propiedades y a compradores e inquilinos consultar dichos listados. Casa-MX.com
         no actúa como agente inmobiliario ni como parte en ninguna transacción.
       </p>
 
       <h2>3. Registro y verificación</h2>
       <p>
         Para publicar una propiedad, el usuario debe registrarse y proporcionar documentos que
-        acrediten la propiedad o la autorización para su comercialización. Casa MX se reserva el
+        acrediten la propiedad o la autorización para su comercialización. Casa-MX.com se reserva el
         derecho de aprobar o rechazar listados que no cumplan con los requisitos de verificación.
       </p>
 
@@ -41,19 +41,19 @@ export default function TerminosPage() {
 
       <h2>6. Propiedad intelectual</h2>
       <p>
-        Todo el contenido del Sitio (logotipos, textos, diseño gráfico) es propiedad de Casa MX o
+        Todo el contenido del Sitio (logotipos, textos, diseño gráfico) es propiedad de Casa-MX.com o
         de sus licenciantes. Queda prohibida su reproducción sin autorización expresa.
       </p>
 
       <h2>7. Limitación de responsabilidad</h2>
       <p>
-        Casa MX no garantiza la exactitud, integridad o disponibilidad de los listados y no se hace
+        Casa-MX.com no garantiza la exactitud, integridad o disponibilidad de los listados y no se hace
         responsable de daños directos o indirectos derivados del uso del Sitio.
       </p>
 
       <h2>8. Modificaciones</h2>
       <p>
-        Casa MX podrá modificar estos Términos en cualquier momento. La versión vigente estará
+        Casa-MX.com podrá modificar estos Términos en cualquier momento. La versión vigente estará
         siempre disponible en esta página. El uso continuado del Sitio implica la aceptación de los
         cambios.
       </p>
@@ -72,3 +72,4 @@ export default function TerminosPage() {
     </main>
   );
 }
+

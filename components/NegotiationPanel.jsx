@@ -15,6 +15,7 @@ const formatMXN = (amount) =>
 export default function NegotiationPanel({ applicationId, originalRent, applicantId, landlordId }) {
   const { user } = useContext(AuthContext);
   const [negotiation, setNegotiation] = useState(null);
+  const [canReject, setCanReject] = useState(false);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -29,9 +30,12 @@ export default function NegotiationPanel({ applicationId, originalRent, applican
   const load = async () => {
     try {
       const data = await negotiationsAPI.getNegotiationByApplication(applicationId);
-      setNegotiation(data.negotiation);
+      const payload = data?.data || data;
+      setNegotiation(payload?.negotiation ?? data?.negotiation ?? null);
+      setCanReject(Boolean(payload?.canReject));
     } catch {
       // no negotiation yet
+      setCanReject(false);
     } finally {
       setLoading(false);
     }
@@ -185,7 +189,7 @@ export default function NegotiationPanel({ applicationId, originalRent, applican
           </button>
           <button
             onClick={() => handleRespond('reject')}
-            disabled={actionLoading}
+            disabled={actionLoading || !canReject}
             className="px-4 py-2 bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white font-semibold rounded-lg text-sm transition-colors"
           >
             Rechazar
@@ -198,6 +202,12 @@ export default function NegotiationPanel({ applicationId, originalRent, applican
             Contraofertar
           </button>
         </div>
+      )}
+
+      {canRespond && !canReject && (
+        <p className="text-xs text-neutral-500 dark:text-neutral-400">
+          Rechazar se habilita despues de al menos 2 contraofertas.
+        </p>
       )}
 
       {showForm && negotiation && (

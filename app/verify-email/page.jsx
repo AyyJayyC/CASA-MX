@@ -28,7 +28,7 @@ function VerifyEmailContent() {
           setStatus('success');
           setMessage(data.message || '¡Correo verificado exitosamente!');
           await refreshUser();
-          // Redirect to dashboard after 3 seconds
+          // Redirect to inicio after 3 seconds
           setTimeout(() => router.push('/dashboard'), 3000);
         } else {
           setStatus(data.error?.includes('expirado') ? 'expired' : 'error');
@@ -57,9 +57,9 @@ function VerifyEmailContent() {
             <div className="text-5xl mb-4">✅</div>
             <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">¡Correo verificado!</h1>
             <p className="text-neutral-600 dark:text-neutral-400 mb-6">{message}</p>
-            <p className="text-sm text-neutral-500 dark:text-neutral-500">Redirigiendo a tu dashboard...</p>
+            <p className="text-sm text-neutral-500 dark:text-neutral-500">Redirigiendo a tu inicio...</p>
             <Link href="/dashboard" className="mt-4 inline-block px-6 py-2 rounded-lg bg-gradient-to-br from-amber-400 to-yellow-600 text-white font-semibold text-sm hover:from-amber-500 hover:to-yellow-700 transition-all">
-              Ir al dashboard
+              Ir al inicio
             </Link>
           </>
         )}

@@ -13,44 +13,21 @@ const { test, expect } = require('@playwright/test');
 test.describe('E2E Integrity - Adversarial Tests', () => {
   const BACKEND_URL = 'http://localhost:3001';
   const FRONTEND_URL = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
+  const BUYER_EMAIL = 'buyer@casamx.local';
+  const BUYER_PASSWORD = 'buyer123';
 
   // ========================================
   // TEST A: Authorization Integrity
   // ========================================
 
   test.describe('A - Authorization: Non-Admin Cannot Access Admin Features', () => {
-    test('ADVERSARIAL: Regular user cannot see admin approval dashboard', async ({ page, context }) => {
-      // Register and login as regular user
-      await page.goto(`${FRONTEND_URL}/register`);
-      
-      const uniqueEmail = `e2e-user-${Date.now()}@test.com`;
-      
-      // Fill registration form
-      await page.fill('input[type="email"]', uniqueEmail);
-      await page.fill('input[type="password"]', 'TestPassword123!');
-      await page.fill('input[name="name"]', 'E2E Test User');
-      
-      // Select buyer role only
-      const buyerRoleButton = page.locator('button:has-text("Comprar")');
-      if (await buyerRoleButton.isVisible().catch(() => false)) {
-        await buyerRoleButton.click();
-      }
-
-      const legalConsentCheckbox = page.locator('input[type="checkbox"]').first();
-      if (await legalConsentCheckbox.isVisible().catch(() => false)) {
-        await legalConsentCheckbox.check();
-      }
-      
-      // Submit registration
+    test('ADVERSARIAL: Regular user cannot see admin approval dashboard', async ({ page }) => {
+      // Login as seeded non-admin buyer account
+      await page.goto(`${FRONTEND_URL}/login`, { waitUntil: 'domcontentloaded' });
+      await page.fill('input[type="email"]', BUYER_EMAIL);
+      await page.fill('input[type="password"]', BUYER_PASSWORD);
       await page.click('button[type="submit"]');
-      
-      // Wait for redirect and login
-      await page.waitForURL('**/login', { timeout: 5000 }).catch(() => {});
-      
-      // Login
-      await page.fill('input[type="email"]', uniqueEmail);
-      await page.fill('input[type="password"]', 'TestPassword123!');
-      await page.click('button[type="submit"]');
+      await page.waitForLoadState('networkidle').catch(() => {});
       
       // Try to navigate directly to admin dashboard
       await page.goto(`${FRONTEND_URL}/admin/approvals`, { waitUntil: 'domcontentloaded' });

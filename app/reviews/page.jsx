@@ -131,7 +131,7 @@ function ReviewsPageContent() {
             Reseñas recientes
           </h2>
           <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
-            Solo se muestran reseñas vinculadas a rentas aprobadas dentro de Casa MX.
+            Solo se muestran reseñas vinculadas a rentas aprobadas dentro de Casa-MX.com.
           </p>
         </div>
 
@@ -145,3 +145,4 @@ function ReviewsPageContent() {
     </div>
   );
 }
+

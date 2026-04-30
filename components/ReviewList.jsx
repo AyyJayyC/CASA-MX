@@ -2,6 +2,7 @@
 
 import RatingStars from './RatingStars.jsx';
 import { getReviewCategoryLabel } from '@/lib/reviews';
+import VerificationBadges from '@/components/VerificationBadges';
 
 export default function ReviewList({
   reviews = [],
@@ -45,6 +46,16 @@ export default function ReviewList({
               <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">
                 {review.reviewer?.name || 'Usuario verificado'}
               </h3>
+              {(review.reviewer?.officialIdVerified || review.reviewer?.officialIdUploaded || review.reviewer?.paidSubscriber) && (
+                <div className="mt-1">
+                  <VerificationBadges
+                    compact
+                    identityVerified={Boolean(review.reviewer?.officialIdVerified)}
+                    identityUploaded={Boolean(review.reviewer?.officialIdUploaded)}
+                    paidSubscriber={Boolean(review.reviewer?.paidSubscriber)}
+                  />
+                </div>
+              )}
               <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
                 {review.property?.title || 'Propiedad verificada'} · {new Date(review.createdAt).toLocaleDateString('es-MX')}
               </p>

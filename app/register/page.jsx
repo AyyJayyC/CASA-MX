@@ -3,6 +3,7 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -79,10 +80,10 @@ export default function RegisterPage() {
         acceptLegal: data.acceptLegal,
       });
 
-      const requiresApproval = selectedRoles.some((role) => ['seller', 'landlord', 'wholesaler'].includes(role));
+      const requiresApproval = selectedRoles.some((role) => role === 'admin');
       alert(
         requiresApproval
-          ? '¡Registro exitoso! Algunos roles están pendientes de aprobación del administrador.'
+          ? '¡Registro exitoso! El acceso de administrador requiere aprobación.'
           : '¡Registro exitoso! Ya puedes iniciar sesión.'
       );
       router.push('/login');
@@ -99,11 +100,19 @@ export default function RegisterPage() {
         <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-lg border border-neutral-200 dark:border-neutral-800 p-8">
           {/* Header */}
           <div className="text-center mb-8">
+            <Image
+              src="/brand/logo-primary.svg"
+              alt="Casa-MX.com"
+              width={220}
+              height={72}
+              className="mx-auto h-12 w-auto mb-4"
+              priority
+            />
             <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
               Crear Cuenta
             </h1>
             <p className="text-neutral-600 dark:text-neutral-400 text-sm">
-              Únete a CasaMX hoy mismo
+              Unite a Casa-MX.com hoy mismo
             </p>
           </div>
 
@@ -216,7 +225,7 @@ export default function RegisterPage() {
             {/* Roles Selection */}
             <div>
               <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
-                ¿Qué quieres hacer en Casa MX?
+                ¿Qué quieres hacer en Casa-MX.com?
               </label>
               <div className="space-y-2">
                 {AVAILABLE_ROLES.map((role) => {
@@ -362,3 +371,4 @@ export default function RegisterPage() {
     </div>
   );
 }
+

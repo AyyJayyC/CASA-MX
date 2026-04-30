@@ -39,6 +39,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
   const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
   const [activeAddressSuggestionIndex, setActiveAddressSuggestionIndex] = useState(-1);
   const addressSearchRef = useRef(null);
+  const addressDebounce = useRef(null);
   const sessionTokenRef = useRef(null);
   const autocompleteCache = useRef(new Map());
   const photoInputRef = useRef(null);
@@ -54,7 +55,12 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
       }
     }
     document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      if (addressDebounce.current) {
+        clearTimeout(addressDebounce.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -504,8 +510,8 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
         ...(Number.isFinite(values.longitude) ? { lng: values.longitude } : {}),
       };
 
-      // Call real backend API
-          const created = await addPropertyAPI(payload);
+        // Call real backend API
+        const created = await addPropertyAPI(payload);
 
       // Save address to cache for future suggestions
       const addressData = {
@@ -531,7 +537,13 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
       }
     } catch (error) {
       console.error('Error publishing property:', error);
-      alert('Error al publicar la propiedad: ' + (error.message || 'Error desconocido'));
+      if (error?.code === 'EMAIL_NOT_VERIFIED') {
+        alert('Debes verificar tu correo electrónico antes de publicar propiedades. Revisa tu correo y vuelve a intentarlo.');
+      } else if (error?.code === 'INE_NOT_VERIFIED') {
+        alert('Debes subir y verificar tu INE antes de publicar propiedades. Puedes hacerlo en Ajustes de perfil.');
+      } else {
+        alert('Error al publicar la propiedad: ' + (error.message || 'Error desconocido'));
+      }
     } finally {
       setLoading(false);
     }
@@ -695,8 +707,14 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                   ¡Propiedad registrada!
                 </h3>
                 <p className="text-sm text-green-700 dark:text-green-400 mb-3">
-                  {success.title} — ahora sube los documentos de verificación para publicarla.
+                  {success.title} — ahora sube los documentos de verificación de la propiedad para publicarla.
                 </p>
+                {success.publishEligibility && !success.publishEligibility.canPublish && (
+                  <p className="text-sm text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2">
+                    Esta propiedad quedó en borrador. Para publicarla necesitas correo verificado e INE verificada en tu cuenta.
+                    <Link href="/settings" className="underline ml-1">Ir a Ajustes</Link>
+                  </p>
+                )}
               </div>
             </div>
           </div>

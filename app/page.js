@@ -9,11 +9,11 @@ export default function Home() {
           <h1 className="text-4xl md:text-6xl font-bold text-neutral-900 dark:text-neutral-100 mb-6">
             Bienvenido a{' '}
             <span className="bg-gradient-to-r from-amber-400 to-yellow-600 bg-clip-text text-transparent">
-              CasaMX
+              Casa-MX.com
             </span>
           </h1>
           <p className="text-lg md:text-xl text-neutral-600 dark:text-neutral-400 mb-8 max-w-2xl mx-auto">
-            Tu plataforma inmobiliaria donde encontrar la casa de tus sueños es fácil y rápido
+            Te acompanamos desde el inicio hasta el cierre: publicar, negociar y completar la venta o renta con confianza
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -54,7 +54,7 @@ export default function Home() {
       <section className="py-16 px-4 bg-white dark:bg-neutral-950">
         <div className="container max-w-6xl">
           <h2 className="text-3xl font-bold text-center text-neutral-900 dark:text-neutral-100 mb-12">
-            ¿Por qué CasaMX?
+            ¿Por qué Casa-MX.com?
           </h2>
           
           <div className="grid md:grid-cols-3 gap-8">
@@ -79,10 +79,10 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 mb-2">
-                Miles de Propiedades
+                Acompanamiento de Inicio a Cierre
               </h3>
               <p className="text-neutral-600 dark:text-neutral-400">
-                Acceso a una amplia variedad de casas, departamentos y terrenos
+                Te ayudamos durante todo el proceso hasta que la propiedad se venda o se rente
               </p>
             </div>
 

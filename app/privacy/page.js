@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'Política de Privacidad | CASA MX',
-  description: 'Política de privacidad de CASA MX.',
+  title: 'Política de Privacidad | Casa-MX.com',
+  description: 'Política de privacidad de Casa-MX.com.',
 };
 
 export default function PrivacyPage() {
@@ -8,7 +8,7 @@ export default function PrivacyPage() {
     <section className="max-w-4xl mx-auto py-8 space-y-6">
       <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">Política de Privacidad</h1>
       <p className="text-neutral-700 dark:text-neutral-300">
-        En CASA MX protegemos tus datos personales y los tratamos conforme a la normativa aplicable.
+        En Casa-MX.com protegemos tus datos personales y los tratamos conforme a la normativa aplicable.
       </p>
 
       <div className="space-y-4 text-neutral-700 dark:text-neutral-300">
@@ -24,3 +24,4 @@ export default function PrivacyPage() {
     </section>
   );
 }
+

@@ -205,7 +205,7 @@ function RentalApplicationsContent() {
                     )}
 
                     <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-5">
-                      Las reseñas solo están disponibles cuando la solicitud fue aprobada dentro de Casa MX.
+                      Las reseñas solo están disponibles cuando la solicitud fue aprobada dentro de Casa-MX.com.
                     </p>
                   </div>
                 </div>
@@ -230,3 +230,4 @@ function RentalApplicationsContent() {
     </div>
   );
 }
+

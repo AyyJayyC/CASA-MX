@@ -1,17 +1,19 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth/useAuth';
 import { useCredits } from '@/lib/auth/CreditsContext';
 import { getNotifications, markAllNotificationsRead } from '@/lib/api/notifications';
+import { getRoleLabel } from '@/lib/reviews';
+import VerificationBadges from '@/components/VerificationBadges';
 
 export default function NavBar() {
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated, user, logout, switchRole, loading } = useAuth();
   const { balance } = useCredits();
-  const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [propertiesDropdownOpen, setPropertiesDropdownOpen] = useState(false);
@@ -27,9 +29,21 @@ export default function NavBar() {
     user?.roles?.some((r) => ['seller', 'wholesaler', 'admin'].includes(r.type) && r.status === 'approved')
   );
   const showDebugUI = process.env.NODE_ENV !== 'production' && isAdminUser;
+  const showAuthenticated = !loading && isAuthenticated && user;
+
+  const ROLE_STATUS_LABELS = {
+    approved: 'Aprobado',
+    pending: 'Pendiente',
+    rejected: 'Rechazado',
+  };
+
+  const getRoleOptionLabel = (type, status) => {
+    const base = getRoleLabel(type);
+    if (status === 'approved') return base;
+    return `${base} (${ROLE_STATUS_LABELS[status] || status})`;
+  };
 
   useEffect(() => {
-    setMounted(true);
     // Check for saved dark mode preference
     const savedDarkMode = localStorage.getItem('darkMode') === 'true';
     setDarkMode(savedDarkMode);
@@ -93,20 +107,6 @@ export default function NavBar() {
 
   const isActivePath = (path) => pathname === path;
 
-  if (!mounted) {
-    return (
-      <header className="sticky top-0 z-50 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800">
-        <div className="container max-w-7xl">
-          <div className="flex items-center justify-between h-16">
-            <Link href="/" className="text-xl font-bold bg-gradient-to-r from-amber-400 to-yellow-600 bg-clip-text text-transparent">
-              CasaMX
-            </Link>
-          </div>
-        </div>
-      </header>
-    );
-  }
-
   return (
     <header className="sticky top-0 z-50 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95">
       <div className="container max-w-7xl">
@@ -114,9 +114,17 @@ export default function NavBar() {
           {/* Logo */}
           <Link 
             href="/" 
-            className="text-xl font-bold bg-gradient-to-r from-amber-400 to-yellow-600 bg-clip-text text-transparent hover:from-amber-500 hover:to-yellow-700 transition-all"
+            className="inline-flex items-center"
+            aria-label="Inicio Casa-MX.com"
           >
-            CasaMX
+            <Image
+              src="/brand/logo-primary.svg"
+              alt="Casa-MX.com"
+              width={180}
+              height={60}
+              priority
+              className="h-10 w-auto md:h-11"
+            />
           </Link>
 
           {/* Desktop Navigation */}
@@ -271,7 +279,7 @@ export default function NavBar() {
                   }
                 `}
               >
-                Dashboard
+                Inicio
               </Link>
             )}
 
@@ -341,20 +349,33 @@ export default function NavBar() {
             </button>
 
             {/* Desktop Auth Section */}
-            {!loading && (
-              <div className="hidden md:flex items-center gap-3">
-                {isAuthenticated && user ? (
+            <div className="hidden md:flex items-center gap-3">
+                {showAuthenticated ? (
                   <>
                     {/* User Info */}
                     <div className="flex items-center gap-3 px-3 py-1.5 bg-neutral-50 dark:bg-neutral-800 rounded-lg">
                       {/* Avatar */}
-                      <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-yellow-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                        {user.name[0].toUpperCase()}
-                      </div>
+                      {user.avatarUrl ? (
+                        <img
+                          src={user.avatarUrl}
+                          alt={`Avatar de ${user.name}`}
+                          className="w-8 h-8 rounded-full object-cover border border-neutral-200 dark:border-neutral-700"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-yellow-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                          {user.name[0].toUpperCase()}
+                        </div>
+                      )}
                       
                       <div className="text-sm">
                         <p className="font-medium text-neutral-900 dark:text-neutral-100">{user.name}</p>
-                        <p className="text-xs text-neutral-600 dark:text-neutral-400">{user.activeRole || 'Sin rol'}</p>
+                        <p className="text-xs text-neutral-600 dark:text-neutral-400">{getRoleLabel(user.activeRole) || 'Sin rol'}</p>
+                        <VerificationBadges
+                          compact
+                          identityVerified={Boolean(user.officialIdVerified)}
+                          identityUploaded={Boolean(user.officialIdUploaded)}
+                          paidSubscriber={Boolean(user.paidSubscriber)}
+                        />
                       </div>
 
                       {/* Role Switcher */}
@@ -377,7 +398,7 @@ export default function NavBar() {
                               value={role.type}
                               disabled={role.status !== 'approved'}
                             >
-                              {role.type} {role.status !== 'approved' ? `(${role.status})` : ''}
+                              {getRoleOptionLabel(role.type, role.status)}
                             </option>
                           ))}
                         </select>
@@ -444,6 +465,10 @@ export default function NavBar() {
                     {/* Settings link */}
                     <Link
                       href="/settings"
+                      onClick={() => {
+                        setNotifOpen(false);
+                        setPropertiesDropdownOpen(false);
+                      }}
                       className="px-3 py-1.5 rounded-lg text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
                       title="Ajustes de perfil"
                     >
@@ -505,7 +530,6 @@ export default function NavBar() {
                   </>
                 )}
               </div>
-            )}
 
             {/* Mobile Menu Button */}
             <button
@@ -556,7 +580,7 @@ export default function NavBar() {
                   }
                 `}
               >
-                Dashboard
+                Inicio
               </Link>
             )}
 
@@ -606,13 +630,33 @@ export default function NavBar() {
               </>
             )}
 
-            {!loading && (
-              <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800 space-y-2">
-                {isAuthenticated && user ? (
+            <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800 space-y-2">
+                {showAuthenticated ? (
                   <>
                     <div className="px-4 py-3 bg-neutral-50 dark:bg-neutral-800 rounded-lg">
-                      <p className="font-medium text-neutral-900 dark:text-neutral-100 mb-1">{user.name}</p>
-                      <p className="text-xs text-neutral-600 dark:text-neutral-400">{user.activeRole || 'Sin rol activo'}</p>
+                      <div className="flex items-center gap-2 mb-1">
+                        {user.avatarUrl ? (
+                          <img
+                            src={user.avatarUrl}
+                            alt={`Avatar de ${user.name}`}
+                            className="w-8 h-8 rounded-full object-cover border border-neutral-200 dark:border-neutral-700"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-yellow-600 rounded-full flex items-center justify-center text-white font-semibold text-xs">
+                            {user.name[0].toUpperCase()}
+                          </div>
+                        )}
+                        <p className="font-medium text-neutral-900 dark:text-neutral-100">{user.name}</p>
+                      </div>
+                      <p className="text-xs text-neutral-600 dark:text-neutral-400">{getRoleLabel(user.activeRole) || 'Sin rol activo'}</p>
+                      <div className="mt-2">
+                        <VerificationBadges
+                          compact
+                          identityVerified={Boolean(user.officialIdVerified)}
+                          identityUploaded={Boolean(user.officialIdUploaded)}
+                          paidSubscriber={Boolean(user.paidSubscriber)}
+                        />
+                      </div>
                       
                       {user.roles && user.roles.length > 1 && (
                         <select
@@ -633,12 +677,26 @@ export default function NavBar() {
                               value={role.type}
                               disabled={role.status !== 'approved'}
                             >
-                              {role.type} {role.status !== 'approved' ? `(${role.status})` : ''}
+                              {getRoleOptionLabel(role.type, role.status)}
                             </option>
                           ))}
                         </select>
                       )}
                     </div>
+
+                    <Link
+                      href="/settings"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`
+                        block px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                        ${isActivePath('/settings')
+                          ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
+                          : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                        }
+                      `}
+                    >
+                      ⚙️ Ajustes
+                    </Link>
 
                     <button
                       onClick={handleLogout}
@@ -685,7 +743,6 @@ export default function NavBar() {
                   </>
                 )}
               </div>
-            )}
           </div>
         )}
       </div>

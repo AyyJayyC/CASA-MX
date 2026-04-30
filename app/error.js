@@ -1,7 +1,7 @@
 /**
  * Global Error Boundary Handler
  * Purpose: Catch runtime errors and display user-friendly error page
- * Language: Spanish (Spanish UI - Casa MX platform)
+ * Language: Spanish (Spanish UI - Casa-MX.com platform)
  */
 
 'use client';
@@ -72,3 +72,4 @@ export default function Error({ error, reset }) {
     </div>
   );
 }
+

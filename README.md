@@ -282,8 +282,17 @@ npm start
 ```
 
 **Environment variables for frontend:**
-- `NEXT_PUBLIC_BACKEND_URL` - Backend API URL (e.g., https://api.yourdomain.com)
-- `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` - Google Maps API key
+- `NEXT_PUBLIC_API_URL` - Backend API URL (e.g., https://api.yourdomain.com)
+- `NEXT_PUBLIC_FRONTEND_URL` - Canonical frontend URL for metadata and sharing (e.g., https://yourdomain.com)
+
+Optional frontend variables:
+- `NEXT_PUBLIC_BACKEND_URL` - Legacy fallback used by some admin debug pages
+- `NEXT_PUBLIC_MAPS_PROXY` - Override maps/admin proxy base (defaults to backend URL)
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` - Enables Stripe checkout UI
+- `NEXT_PUBLIC_GOOGLE_CLIENT_ID` - Enables Google sign-in button
+- `NEXT_PUBLIC_ENABLE_DEBUG_LOGGING` - Force-enable client debug logging in production
+- `NEXT_PUBLIC_ANALYTICS_ENABLED` - Enable frontend analytics events (`true`/`false`)
+- `NEXT_PUBLIC_ANALYTICS_PROVIDER` - Analytics provider (`console`, `noop`)
 
 ### Production Monitoring
 

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Casa-MX.com mark</title>
+  <desc id="desc">Location pin with heart</desc>
+  <g fill="none" stroke="#D4AF37" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 8)">
+    <path d="M256 430C171 340 124 275 124 208c0-73 59-132 132-132s132 59 132 132c0 67-47 132-132 222z"/>
+    <path d="M220 220c0-21 17-38 38-38 14 0 25 6 33 18 8-12 19-18 33-18 21 0 38 17 38 38 0 15-6 26-22 41l-49 49-49-49c-16-15-22-26-22-41z"/>
+  </g>
+</svg>

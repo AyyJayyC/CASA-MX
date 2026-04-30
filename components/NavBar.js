@@ -10,7 +10,7 @@ export default function NavBar() {
     <header className="bg-white border-b">
       <div className="container flex items-center justify-between py-4">
         <div className="flex items-center gap-4">
-          <Link href="/" className="text-xl font-bold">CASA MX</Link>
+          <Link href="/" className="text-xl font-bold">Casa-MX.com</Link>
           <nav className="hidden md:flex gap-3 text-sm text-gray-700">
             <Link href="/properties">Propiedades</Link>
             <Link href="/upload">Subir</Link>
@@ -27,3 +27,4 @@ export default function NavBar() {
     </header>
   );
 }
+

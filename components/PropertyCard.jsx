@@ -10,6 +10,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getAmenityMeta, getServiceMeta } from '../lib/constants/propertyServices';
+import VerificationBadges from '@/components/VerificationBadges';
 
 /**
  * @param {{property: Object}} props
@@ -18,10 +19,13 @@ import { getAmenityMeta, getServiceMeta } from '../lib/constants/propertyService
  */
 export default function PropertyCard({ property }) {
   // Fallback image if none provided
-  const fallbackImage = `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675"><rect width="100%" height="100%" fill="#e5e5e5"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#737373" font-family="Arial" font-size="32">Casa MX</text></svg>')}`;
+  const fallbackImage = `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675"><rect width="100%" height="100%" fill="#e5e5e5"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#737373" font-family="Arial" font-size="32">Casa-MX.com</text></svg>')}`;
   const imageUrl = property.imageUrls?.[0] || property.photos?.[0] || property.imageUrl || fallbackImage;
   const description = property.description || 'Sin descripción disponible';
   const owner = property.owner || 'Propietario';
+  const ownerIdentityVerified = Boolean(property?.seller?.officialIdVerified ?? property?.officialIdVerified);
+  const ownerIdentityUploaded = Boolean(property?.seller?.officialIdUploaded);
+  const ownerPaidSubscriber = Boolean(property?.seller?.paidSubscriber);
   const isRental = property.listingType === 'for_rent';
   const includedServices = Array.isArray(property.includedServices) ? property.includedServices : [];
   const amenities = Array.isArray(property.amenities) ? property.amenities : [];
@@ -201,9 +205,21 @@ export default function PropertyCard({ property }) {
             flex items-center justify-between
           ">
             {/* Owner Info */}
-            <span className="text-xs text-neutral-500 dark:text-neutral-500">
-              <span className="sr-only">Publicado</span> Por: {owner}
-            </span>
+            <div>
+              <span className="text-xs text-neutral-500 dark:text-neutral-500">
+                <span className="sr-only">Publicado</span> Por: {owner}
+              </span>
+              {(ownerIdentityVerified || ownerIdentityUploaded || ownerPaidSubscriber) && (
+                <div className="mt-1">
+                  <VerificationBadges
+                    compact
+                    identityVerified={ownerIdentityVerified}
+                    identityUploaded={ownerIdentityUploaded}
+                    paidSubscriber={ownerPaidSubscriber}
+                  />
+                </div>
+              )}
+            </div>
 
             {/* View Details Link - Gold */}
             <span 
@@ -232,3 +248,4 @@ export default function PropertyCard({ property }) {
     </Link>
   );
 }
+

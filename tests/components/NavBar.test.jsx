@@ -59,7 +59,7 @@ describe('NavBar role-aware links', () => {
 
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.getByText('Salir')).toBeInTheDocument();
-    fireEvent.change(screen.getByDisplayValue('seller'), { target: { value: 'buyer' } });
+    fireEvent.change(screen.getByDisplayValue('Vendedor'), { target: { value: 'buyer' } });
     expect(switchRole).toHaveBeenCalledWith('buyer');
   });
 });
