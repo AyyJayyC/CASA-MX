@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth/useAuth';
 import { useCredits } from '@/lib/auth/CreditsContext';
@@ -117,13 +116,10 @@ export default function NavBar() {
             className="inline-flex items-center"
             aria-label="Inicio Casa-MX.com"
           >
-            <Image
+            <img
               src="/brand/logo-primary.svg"
               alt="Casa-MX.com"
-              width={180}
-              height={60}
-              priority
-              className="h-10 w-auto md:h-11"
+              className="block h-10 w-auto md:h-11"
             />
           </Link>
 

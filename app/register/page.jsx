@@ -3,7 +3,6 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -100,13 +99,10 @@ export default function RegisterPage() {
         <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-lg border border-neutral-200 dark:border-neutral-800 p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <Image
+            <img
               src="/brand/logo-primary.svg"
               alt="Casa-MX.com"
-              width={220}
-              height={72}
-              className="mx-auto h-12 w-auto mb-4"
-              priority
+              className="mx-auto block h-12 w-auto mb-4"
             />
             <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
               Crear Cuenta
