@@ -11,7 +11,6 @@ import NavBar from '../components/NavBar.jsx';
 import EmailVerificationBanner from '../components/EmailVerificationBanner.jsx';
 import { DebugProvider } from '../lib/debug/DebugContext.jsx';
 import DebugPanel from '../components/DebugPanel.jsx';
-import LoggingInitializer from '../components/LoggingInitializer.jsx';
 import ErrorBoundary from '../components/ErrorBoundary.jsx';
 
 export const metadata = {
@@ -72,7 +71,6 @@ export default function RootLayout({ children }) {
                     </div>
                   </div>
                 </footer>
-                <LoggingInitializer />
                 <DebugPanel />
               </QueryProvider>
               </CreditsProvider>
