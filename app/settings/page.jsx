@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import NavBar from '@/components/NavBar';
 import VerificationBadges from '@/components/VerificationBadges';
 import { getUserProfile, updateUserProfile, uploadProfileAvatar } from '@/lib/api/users';
 import { getUserDocuments, uploadUserDocument } from '@/lib/api/userDocuments';
@@ -144,7 +143,6 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
-      <NavBar />
       <main className="max-w-lg mx-auto px-4 py-10">
         <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-6">
           Ajustes de perfil
