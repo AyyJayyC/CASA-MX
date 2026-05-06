@@ -10,7 +10,7 @@ import Link from 'next/link';
 import PropertyImageGallery from '../../../components/PropertyImageGallery.jsx';
 import { getAmenityMeta, getServiceMeta, groupAmenitiesByCategory } from '../../../lib/constants/propertyServices';
 
-const RequestInfoModal = dynamic(() => import('../../../components/RequestInfoModal.jsx'));
+const ContactRequestModal = dynamic(() => import('../../../components/ContactRequestModal.jsx'));
 const MakeOfferModal = dynamic(() => import('../../../components/MakeOfferModal.jsx'));
 const PropertyAnalytics = dynamic(() => import('../../../components/analytics/PropertyAnalytics.jsx'));
 const RentalApplicationForm = dynamic(() => import('../../../components/RentalApplicationForm.jsx'));
@@ -417,7 +417,7 @@ export default async function PropertyDetail({ params }) {
                     <div className="flex-1 h-px bg-neutral-200 dark:bg-neutral-700" />
                   </div>
 
-                  <RequestInfoModal propertyId={property.id} />
+                  <ContactRequestModal propertyId={property.id} />
                 </>
               )}
 

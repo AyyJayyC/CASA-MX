@@ -1,14 +1,10 @@
-/**
- * RequestedPropertiesList (client)
- * Purpose: Show buyer their list of requested properties.
- */
 'use client';
 import React from 'react';
 import Link from 'next/link';
-import { useRequestedProperties } from '../lib/queries/requests';
+import { useMyContactRequests } from '../lib/queries/requests';
 
-export default function RequestedPropertiesList() {
-  const { data = [], isLoading } = useRequestedProperties();
+export default function ContactRequestsList() {
+  const { data = [], isLoading } = useMyContactRequests();
 
   if (isLoading) {
     return (
@@ -35,19 +31,11 @@ export default function RequestedPropertiesList() {
             No hay solicitudes
           </h3>
           <p className="text-neutral-600 dark:text-neutral-400 mb-6">
-            No has solicitado información sobre propiedades aún
+            No has solicitado la dirección de ninguna propiedad aún
           </p>
           <Link
             href="/properties"
-            className="
-              inline-flex items-center gap-2 px-6 py-3
-              bg-gradient-to-br from-amber-400 to-yellow-600
-              hover:from-amber-500 hover:to-yellow-700
-              text-white font-semibold
-              rounded-lg
-              transition-all
-              shadow-md hover:shadow-lg
-            "
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-amber-400 to-yellow-600 hover:from-amber-500 hover:to-yellow-700 text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg"
           >
             Explorar propiedades
           </Link>
@@ -59,11 +47,11 @@ export default function RequestedPropertiesList() {
               Total: {data.length} {data.length === 1 ? 'solicitud' : 'solicitudes'}
             </span>
           </div>
-          
+
           <div className="grid gap-4">
             {data.map((req) => (
-              <div 
-                key={req.id} 
+              <div
+                key={req.id}
                 className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-6 hover:shadow-md transition-shadow"
               >
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -79,25 +67,26 @@ export default function RequestedPropertiesList() {
                         {new Date(req.createdAt).toLocaleDateString('es-MX')}
                       </p>
                       <p className="flex items-center gap-2">
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.754 2 11.416 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zm-8-3a1 1 0 100 2h.01a1 1 0 100-2H10zm-3 1a1 1 0 011-1h.01a1 1 0 110 2H8a1 1 0 01-1-1zm6 0a1 1 0 011-1h.01a1 1 0 110 2H14a1 1 0 01-1-1z" clipRule="evenodd" />
-                        </svg>
-                        {req.message ? 'Información enviada' : 'Solicitud enviada'}
+                        <span className={`inline-block w-2 h-2 rounded-full ${req.status === 'contacted' ? 'bg-green-500' : 'bg-amber-500'}`} />
+                        {req.status === 'contacted' ? 'Dirección recibida' : 'Pendiente'}
                       </p>
                     </div>
+                    {req.status === 'contacted' && req.property?.address && (
+                      <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-sm">
+                        <p className="font-medium text-green-800 dark:text-green-300 flex items-center gap-1.5">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          Dirección: {req.property.address}
+                        </p>
+                      </div>
+                    )}
                   </div>
-                  
+
                   <Link
                     href={`/properties/${req.propertyId}`}
-                    className="
-                      inline-flex items-center justify-center gap-2 px-5 py-2.5
-                      bg-amber-100 hover:bg-amber-200
-                      dark:bg-amber-900/30 dark:hover:bg-amber-900/50
-                      text-amber-900 dark:text-amber-400
-                      font-medium text-sm
-                      rounded-lg
-                      transition-colors
-                    "
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/30 dark:hover:bg-amber-900/50 text-amber-900 dark:text-amber-400 font-medium text-sm rounded-lg transition-colors"
                   >
                     Ver propiedad
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

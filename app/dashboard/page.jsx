@@ -46,10 +46,17 @@ const SECTIONS = [
     roles: ['buyer', 'tenant', 'seller', 'wholesaler', 'landlord', 'admin'],
   },
   {
-    href: '/requested',
-    title: 'Mis solicitudes de información',
-    description: 'Consulta las propiedades sobre las que has pedido información.',
+    href: '/dashboard/contact-requests',
+    title: 'Solicitudes de contacto',
+    description: 'Compradores que han solicitado la dirección de tus propiedades. Revela datos de contacto.',
     icon: '📩',
+    roles: ['seller', 'landlord', 'wholesaler', 'admin'],
+  },
+  {
+    href: '/requested',
+    title: 'Mis solicitudes de contacto',
+    description: 'Propiedades de las que has solicitado la dirección. Consulta las respuestas.',
+    icon: '📍',
     roles: ['buyer'],
   },
   {
