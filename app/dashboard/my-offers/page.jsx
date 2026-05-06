@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { RequireRole } from '@/components/guards/RequireRole.jsx';
-import OfferNegotiationTimeline from '@/components/OfferNegotiationTimeline.jsx';
+
 import { getMyBuyerOffers, respondToOffer } from '@/lib/api/offers.js';
 
 const STATUS_LABELS = {
@@ -192,7 +192,7 @@ function MyOffersContent() {
                   </div>
                 </div>
 
-                <OfferNegotiationTimeline events={offer.events || []} title="Arbol / historial de negociacion" />
+
 
                 {canBuyerRespond(offer) && (
                   <div className="flex justify-end">

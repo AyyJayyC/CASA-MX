@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { RequireRole } from '@/components/guards/RequireRole.jsx';
-import OfferNegotiationTimeline from '@/components/OfferNegotiationTimeline.jsx';
+
 import { getMySellerOffers, respondToOffer } from '@/lib/api/offers.js';
 import { useCredits } from '@/lib/auth/CreditsContext';
 
@@ -312,7 +312,7 @@ function SellerOffersContent() {
                   </div>
                 )}
 
-                <OfferNegotiationTimeline events={offer.events || []} title="Arbol / historial de negociacion" />
+
                 {offer.sellerNote && (
                   <p className="text-sm text-neutral-500 dark:text-neutral-400 text-right italic">
                     Nota tuya: "{offer.sellerNote}"

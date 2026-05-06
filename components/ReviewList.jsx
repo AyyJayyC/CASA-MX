@@ -1,7 +1,6 @@
 'use client';
 
 import RatingStars from './RatingStars.jsx';
-import { getReviewCategoryLabel } from '@/lib/reviews';
 import VerificationBadges from '@/components/VerificationBadges';
 
 export default function ReviewList({
@@ -64,24 +63,10 @@ export default function ReviewList({
           </div>
 
           {review.comment && (
-            <p className="text-sm leading-6 text-neutral-700 dark:text-neutral-300 mb-4">
+            <p className="text-sm leading-6 text-neutral-700 dark:text-neutral-300">
               {review.comment}
             </p>
           )}
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {(review.categoryScores || []).map((categoryScore) => (
-              <div
-                key={categoryScore.id || categoryScore.category}
-                className="flex items-center justify-between gap-4 rounded-lg bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 px-4 py-3"
-              >
-                <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                  {getReviewCategoryLabel(categoryScore.category)}
-                </span>
-                <RatingStars value={categoryScore.score} readOnly size="sm" />
-              </div>
-            ))}
-          </div>
         </article>
       ))}
     </div>

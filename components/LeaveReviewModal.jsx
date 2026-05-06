@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import RatingStars from './RatingStars.jsx';
 import { createReview } from '@/lib/api/reviews';
-import { getCategoriesForReviewerRole, getReviewCategoryLabel, getRoleLabel, REVIEWEE_ROLE_BY_REVIEWER_ROLE } from '@/lib/reviews';
+import { getRoleLabel, REVIEWEE_ROLE_BY_REVIEWER_ROLE } from '@/lib/reviews';
 
 export default function LeaveReviewModal({
   isOpen,
@@ -14,10 +14,8 @@ export default function LeaveReviewModal({
   revieweeName,
   propertyTitle,
 }) {
-  const categories = useMemo(() => getCategoriesForReviewerRole(reviewerRole), [reviewerRole]);
   const [overallRating, setOverallRating] = useState(0);
   const [comment, setComment] = useState('');
-  const [scores, setScores] = useState({});
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -25,7 +23,6 @@ export default function LeaveReviewModal({
     if (!isOpen) {
       setOverallRating(0);
       setComment('');
-      setScores({});
       setError(null);
       setIsSubmitting(false);
     }
@@ -46,12 +43,6 @@ export default function LeaveReviewModal({
       return;
     }
 
-    const missingCategory = categories.find((category) => !scores[category]);
-    if (missingCategory) {
-      setError(`Falta calificar: ${getReviewCategoryLabel(missingCategory)}.`);
-      return;
-    }
-
     if (overallRating <= 2 && comment.trim().length < 20) {
       setError('Para 2 estrellas o menos, agrega un comentario detallado de al menos 20 caracteres.');
       return;
@@ -59,18 +50,14 @@ export default function LeaveReviewModal({
 
     try {
       setIsSubmitting(true);
-      const review = await createReview({
+      await createReview({
         rentalApplicationId,
         reviewerRole,
         overallRating,
         comment: comment.trim() || undefined,
-        categoryScores: categories.map((category) => ({
-          category,
-          score: scores[category],
-        })),
       });
 
-      onSubmitted?.(review);
+      onSubmitted?.();
       onClose?.();
     } catch (submitError) {
       setError(submitError.message || 'No se pudo enviar la reseña');
@@ -81,7 +68,7 @@ export default function LeaveReviewModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 p-4 flex items-center justify-center">
-      <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-xl">
+      <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-xl">
         <div className="sticky top-0 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 px-6 py-5 flex items-start justify-between gap-4">
           <div>
             <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
@@ -108,20 +95,6 @@ export default function LeaveReviewModal({
               Calificación general
             </label>
             <RatingStars value={overallRating} onChange={setOverallRating} size="lg" />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {categories.map((category) => (
-              <div key={category} className="rounded-lg border border-neutral-200 dark:border-neutral-700 p-4 bg-neutral-50 dark:bg-neutral-800/40">
-                <label className="block text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-3">
-                  {getReviewCategoryLabel(category)}
-                </label>
-                <RatingStars
-                  value={scores[category] || 0}
-                  onChange={(value) => setScores((current) => ({ ...current, [category]: value }))}
-                />
-              </div>
-            ))}
           </div>
 
           <div>
