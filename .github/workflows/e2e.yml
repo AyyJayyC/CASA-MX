@@ -28,10 +28,10 @@ jobs:
 
     steps:
       - name: Checkout frontend
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Checkout backend
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: AyyJayyC/casa-mx-backend
           path: backend
