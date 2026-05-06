@@ -1,15 +1,7 @@
 'use client';
 import React, { useState, useMemo } from 'react';
 import { submitPropertyOffer } from '../lib/api/offers.js';
-
-const FINANCING_OPTIONS = [
-  { value: 'cash', label: '💵 Efectivo' },
-  { value: 'bankLoan', label: '🏦 Crédito bancario' },
-  { value: 'INFONAVIT', label: '🏠 INFONAVIT' },
-  { value: 'FOVISSSTE', label: '💼 FOVISSSTE' },
-  { value: 'paymentPlan', label: '📅 Plan de pagos' },
-  { value: 'other', label: '✅ Otro' },
-];
+import { FINANCING_OPTIONS } from '@/lib/constants/financing';
 
 export default function MakeOfferModal({ propertyId, askingPrice }) {
   const [open, setOpen] = useState(false);

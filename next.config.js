@@ -13,6 +13,11 @@ const nextConfig = {
   },
   poweredByHeader: false,
   reactStrictMode: true,
+  async redirects() {
+    return [
+      { source: '/terms', destination: '/terminos', permanent: true },
+    ];
+  },
 };
 
 module.exports = nextConfig;

@@ -9,6 +9,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import PropertyImageGallery from '../../../components/PropertyImageGallery.jsx';
 import { getAmenityMeta, getServiceMeta, groupAmenitiesByCategory } from '../../../lib/constants/propertyServices';
+import { FINANCING_SHORT_LABELS, FINANCING_ICONS } from '../../../lib/constants/financing';
 
 const ContactRequestModal = dynamic(() => import('../../../components/ContactRequestModal.jsx'));
 const MakeOfferModal = dynamic(() => import('../../../components/MakeOfferModal.jsx'));
@@ -60,24 +61,6 @@ export default async function PropertyDetail({ params }) {
   const amenities = Array.isArray(property.amenities) ? property.amenities : [];
   const financeOptions = Array.isArray(property.financeOptions) ? property.financeOptions : [];
   const groupedAmenities = groupAmenitiesByCategory(amenities);
-  
-  const FINANCE_LABELS = {
-    cash: 'Efectivo',
-    bankLoan: 'Crédito bancario',
-    INFONAVIT: 'INFONAVIT',
-    FOVISSSTE: 'FOVISSSTE',
-    paymentPlan: 'Plan de pagos',
-    other: 'Otro',
-  };
-  const FINANCE_ICONS = {
-    cash: '💵',
-    bankLoan: '🏦',
-    INFONAVIT: '🏠',
-    FOVISSSTE: '💼',
-    paymentPlan: '📅',
-    other: '✅',
-  };
-  
   const features = [
     { icon: '🛏️', label: 'Recámaras', value: property.bedrooms ?? 'N/D' },
     { icon: '🚿', label: 'Baños', value: property.bathrooms ?? 'N/D' },
@@ -358,8 +341,8 @@ export default async function PropertyDetail({ params }) {
                       key={option}
                       className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-sm font-medium rounded-full"
                     >
-                      <span>{FINANCE_ICONS[option] ?? '✅'}</span>
-                      <span>{FINANCE_LABELS[option] ?? option}</span>
+                      <span>{FINANCING_ICONS[option] ?? '✅'}</span>
+                      <span>{FINANCING_SHORT_LABELS[option] ?? option}</span>
                     </span>
                   ))}
                 </div>

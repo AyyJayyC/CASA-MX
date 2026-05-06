@@ -2,9 +2,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { RequireRole } from '@/components/guards/RequireRole.jsx';
+import OfferRespondModal from '@/components/OfferRespondModal.jsx';
 
-import { getMySellerOffers, respondToOffer } from '@/lib/api/offers.js';
+import { getMySellerOffers } from '@/lib/api/offers.js';
 import { useCredits } from '@/lib/auth/CreditsContext';
+import { FINANCING_LABELS } from '@/lib/constants/financing';
 
 const STATUS_LABELS = {
   pending: 'Pendiente',
@@ -18,15 +20,6 @@ const STATUS_COLORS = {
   accepted: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
   rejected: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
   countered: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-};
-
-const FINANCING_LABELS = {
-  cash: '💵 Efectivo',
-  bankLoan: '🏦 Crédito bancario',
-  INFONAVIT: '🏠 INFONAVIT',
-  FOVISSSTE: '💼 FOVISSSTE',
-  paymentPlan: '📅 Plan de pagos',
-  other: '✅ Otro',
 };
 
 export default function SellerOffersPage() {
@@ -44,9 +37,6 @@ function SellerOffersContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedOffer, setSelectedOffer] = useState(null);
-  const [respondForm, setRespondForm] = useState({ status: '', sellerNote: '', counterAmount: '', proposedFurnishedStatus: '' });
-  const [submitting, setSubmitting] = useState(false);
-  const [respondError, setRespondError] = useState(null);
   // Contacts revealed during this session (after spending a credit).
   // API also returns non-null buyerEmail/buyerPhone for offers already unlocked in previous sessions.
   const [unlockedContacts, setUnlockedContacts] = useState({});
@@ -55,15 +45,6 @@ function SellerOffersContent() {
   const getBuyerContact = (offer) =>
     unlockedContacts[offer.id] ??
     (offer.buyerEmail ? { email: offer.buyerEmail, phone: offer.buyerPhone } : null);
-
-  const counterCount = (offer) => (offer?.events || []).filter((event) => event.action === 'counter').length;
-
-  const canSellerRespond = (offer) => {
-    if (!offer || offer.status === 'accepted' || offer.status === 'rejected') return false;
-    if (!offer.events || offer.events.length === 0) return offer.status === 'pending';
-    const latest = offer.events[offer.events.length - 1];
-    return latest?.actorRole === 'buyer';
-  };
 
   const handleUnlockOffer = async (offer) => {
     setUnlocking(offer.id);
@@ -99,43 +80,6 @@ function SellerOffersContent() {
   useEffect(() => { load(); }, [load]);
 
   const displayed = filter === 'all' ? offers : offers.filter((o) => o.status === filter);
-
-  const openRespond = (offer) => {
-    setSelectedOffer(offer);
-    setRespondForm({ status: '', sellerNote: '', counterAmount: '', proposedFurnishedStatus: '' });
-    setRespondError(null);
-  };
-
-  const handleRespond = async (e) => {
-    e.preventDefault();
-    if (!respondForm.status) { setRespondError('Selecciona una acción.'); return; }
-    if (respondForm.status === 'countered' && !respondForm.counterAmount) {
-      setRespondError('Ingresa el monto de la contraoferta.'); return;
-    }
-    setSubmitting(true);
-    try {
-      const updated = await respondToOffer(selectedOffer.id, {
-        status: respondForm.status,
-        sellerNote: respondForm.sellerNote || undefined,
-        counterAmount: respondForm.counterAmount ? parseFloat(respondForm.counterAmount) : undefined,
-        proposedFurnishedStatus: respondForm.proposedFurnishedStatus || undefined,
-      });
-
-      const updatedOffer = updated?.offer || updated;
-      const updatedEvents = updated?.timeline || updatedOffer?.events;
-
-      setOffers((prev) => prev.map((o) => (
-        o.id === selectedOffer.id
-          ? { ...o, ...updatedOffer, ...(updatedEvents ? { events: updatedEvents } : {}) }
-          : o
-      )));
-      setSelectedOffer(null);
-    } catch (err) {
-      setRespondError(err.message || 'Error al responder');
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   const inputClass = `
     w-full px-3 py-2 rounded-lg border
@@ -336,10 +280,10 @@ function SellerOffersContent() {
                 )}
 
                 {/* Action buttons */}
-                {canSellerRespond(offer) && (
+                {offer.status !== 'accepted' && offer.status !== 'rejected' && (
                   <div className="flex justify-end">
                     <button
-                      onClick={() => openRespond(offer)}
+                      onClick={() => setSelectedOffer(offer)}
                       className="
                         px-5 py-2 rounded-lg font-semibold text-sm
                         bg-gradient-to-br from-amber-400 to-yellow-600
@@ -357,135 +301,13 @@ function SellerOffersContent() {
         )}
       </div>
 
-      {/* Respond Modal */}
-      {selectedOffer && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
-          onClick={(e) => { if (e.target === e.currentTarget) setSelectedOffer(null); }}
-        >
-          <div className="w-full max-w-md bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-2xl">
-            <div className="flex items-center justify-between p-6 border-b border-neutral-200 dark:border-neutral-800">
-              <h2 className="text-lg font-bold text-neutral-900 dark:text-neutral-100">
-                Responder oferta
-              </h2>
-              <button
-                onClick={() => setSelectedOffer(null)}
-                className="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 text-xl leading-none"
-              >✕</button>
-            </div>
-
-            <form onSubmit={handleRespond} className="p-6 space-y-4">
-              <div className="text-sm text-neutral-600 dark:text-neutral-400">
-                Oferta de <span className="font-semibold text-neutral-900 dark:text-neutral-100">{selectedOffer.buyerName}</span>:
-                {' '}<span className="font-bold text-amber-600 dark:text-amber-400">${selectedOffer.offerAmount.toLocaleString('es-MX')} MXN</span>
-              </div>
-
-              {/* Action */}
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                  Tu respuesta <span className="text-red-500">*</span>
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { value: 'accepted', label: '✅ Aceptar', color: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-300 dark:border-green-700' },
-                    { value: 'countered', label: '↩️ Contraofertar', color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-700' },
-                    { value: 'rejected', label: '❌ Rechazar', color: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border-red-300 dark:border-red-700' },
-                  ].map((opt) => {
-                    const isRejectLocked = opt.value === 'rejected' && counterCount(selectedOffer) < 2;
-                    return (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        disabled={isRejectLocked}
-                        onClick={() => setRespondForm((f) => ({ ...f, status: opt.value }))}
-                        className={`
-                          py-2 px-2 rounded-lg border text-xs font-semibold text-center transition-all
-                          ${respondForm.status === opt.value ? opt.color + ' ring-2 ring-offset-1 ring-amber-400' : 'border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:border-neutral-400'}
-                          ${isRejectLocked ? 'opacity-40 cursor-not-allowed' : ''}
-                        `}
-                      >
-                        {opt.label}
-                      </button>
-                    );
-                  })}
-                </div>
-                {counterCount(selectedOffer) < 2 && (
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-2">
-                    Rechazar se habilita después de al menos 2 contraofertas en la negociación.
-                  </p>
-                )}
-              </div>
-
-              {/* Furniture/appliances condition proposal */}
-              {(respondForm.status === 'countered' || respondForm.status === 'accepted') && (
-                <div>
-                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Condición de muebles / electrodomésticos</label>
-                  <select
-                    value={respondForm.proposedFurnishedStatus}
-                    onChange={(e) => setRespondForm((f) => ({ ...f, proposedFurnishedStatus: e.target.value }))}
-                    className={inputClass}
-                  >
-                    <option value="">Sin cambios (mantener actual)</option>
-                    <option value="amueblada">Amueblada (muebles + electrodomésticos)</option>
-                    <option value="equipada">Equipada (solo electrodomésticos)</option>
-                    <option value="sin_muebles">Sin muebles</option>
-                  </select>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Propuesta sobre qué incluye la propiedad en el precio negociado.</p>
-                </div>
-              )}
-
-              {/* Counter amount */}
-              {respondForm.status === 'countered' && (
-                <div>
-                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                    Tu contraoferta (MXN) <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    value={respondForm.counterAmount}
-                    onChange={(e) => setRespondForm((f) => ({ ...f, counterAmount: e.target.value }))}
-                    placeholder="Ej. 2800000"
-                    min={1}
-                    className={inputClass}
-                  />
-                </div>
-              )}
-
-              {/* Note */}
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                  Nota para el comprador
-                </label>
-                <textarea
-                  value={respondForm.sellerNote}
-                  onChange={(e) => setRespondForm((f) => ({ ...f, sellerNote: e.target.value }))}
-                  rows={2}
-                  placeholder="Mensaje opcional"
-                  className={inputClass}
-                />
-              </div>
-
-              {respondError && (
-                <p className="text-sm text-red-600 dark:text-red-400">{respondError}</p>
-              )}
-
-              <button
-                type="submit"
-                disabled={submitting}
-                className="
-                  w-full py-3 px-6 rounded-lg font-semibold text-sm
-                  bg-gradient-to-br from-amber-400 to-yellow-600
-                  hover:from-amber-500 hover:to-yellow-700
-                  disabled:opacity-50 disabled:cursor-not-allowed
-                  text-white shadow-sm transition-all
-                "
-              >
-                {submitting ? 'Enviando...' : 'Confirmar respuesta'}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+      <OfferRespondModal
+        isOpen={!!selectedOffer}
+        offer={selectedOffer}
+        perspective="seller"
+        onClose={() => setSelectedOffer(null)}
+        onResponded={() => { setSelectedOffer(null); load(); }}
+      />
     </div>
   );
 }
