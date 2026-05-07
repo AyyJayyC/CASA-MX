@@ -28,19 +28,10 @@ useDefault = true
     '''playwright-report''',
     '''test-results''',
     '''package-lock\.json''',
-    '''\.env\.example''',
-    '''\.env\.local''',
   ]
   regexes = [
     '''password123''',
     '''TestPassword123''',
     '''HashedPassword123''',
-    '''hashedpassword123''',
-    '''hashed-password''',
-    '''admin123''',
-    '''seller123''',
-    '''buyer123''',
-    '''tenant123''',
     '''test-secret-key''',
-    '''postgres:postgres''',
   ]

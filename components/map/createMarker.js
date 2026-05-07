@@ -30,25 +30,34 @@ export default function createMarker({ L, property, track, router }) {
 
   // Create popup content and attach link handler
   const popupContent = document.createElement('div');
-  popupContent.innerHTML = `
-    <div style="min-width:160px">
-      <div style="font-weight:600">${property.title || 'Untitled'}</div>
-      <div style="font-size:12px;color:#666">${property.address || ''}</div>
-      <a href="/properties/${property.id}" data-prop-id="${property.id}">View details</a>
-    </div>
-  `;
+  popupContent.style.minWidth = '160px';
 
-  const anchor = popupContent.querySelector('a');
-  if (anchor) {
-    anchor.addEventListener('click', (e) => {
-      e.preventDefault();
-      const id = e.target.getAttribute('data-prop-id');
-      try {
-        track && track('PropertyViewed', { entityId: id, metadata: { via: 'map.popup.link' } });
-      } catch (err) {}
-      router && router.push(`/properties/${id}`);
-    });
-  }
+  const titleEl = document.createElement('div');
+  titleEl.style.fontWeight = '600';
+  titleEl.textContent = property.title || 'Untitled';
+
+  const addressEl = document.createElement('div');
+  addressEl.style.fontSize = '12px';
+  addressEl.style.color = '#666';
+  addressEl.textContent = property.address || '';
+
+  const linkEl = document.createElement('a');
+  linkEl.href = `/properties/${property.id}`;
+  linkEl.setAttribute('data-prop-id', property.id);
+  linkEl.textContent = 'View details';
+
+  popupContent.appendChild(titleEl);
+  popupContent.appendChild(addressEl);
+  popupContent.appendChild(linkEl);
+
+  linkEl.addEventListener('click', (e) => {
+    e.preventDefault();
+    const id = e.currentTarget.getAttribute('data-prop-id');
+    try {
+      track && track('PropertyViewed', { entityId: id, metadata: { via: 'map.popup.link' } });
+    } catch (err) {}
+    router && router.push(`/properties/${id}`);
+  });
 
   marker.bindPopup(popupContent);
 
