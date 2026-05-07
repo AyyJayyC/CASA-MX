@@ -11,6 +11,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/lib/auth/useAuth';
+import { getRoleLabel } from '@/lib/reviews';
 import SocialLoginButtons from '@/components/SocialLoginButtons';
 
 const loginSchema = z.object({
@@ -18,38 +19,103 @@ const loginSchema = z.object({
   password: z.string().min(1, 'Contraseña requerida')
 });
 
+const roleDescriptions = {
+  buyer: 'Buscar y comprar propiedades',
+  seller: 'Publicar y vender propiedades',
+  landlord: 'Publicar y rentar propiedades',
+  tenant: 'Buscar y rentar propiedades',
+  wholesaler: 'Vender propiedades como mayorista',
+  admin: 'Administrar la plataforma',
+};
+
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isAuthenticated, user } = useAuth();
+  const { login, switchRole, isAuthenticated, user } = useAuth();
   const [socialError, setSocialError] = useState(null);
+  const [loginError, setLoginError] = useState(null);
+  const [pendingRoles, setPendingRoles] = useState(null);
+  const [selectingRole, setSelectingRole] = useState(false);
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors, isSubmitting }
   } = useForm({
     resolver: zodResolver(loginSchema)
   });
 
-  // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && !pendingRoles) {
       router.push('/');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, pendingRoles, router]);
 
   const onSubmit = async (data) => {
+    setLoginError(null);
     try {
-      const result = await login({
-        email: data.email,
-        password: data.password
-      });
+      const result = await login({ email: data.email, password: data.password });
 
-      router.push('/properties');
+      const approvedRoles = (result.user?.roles || []).filter(r => r.status === 'approved');
+      if (approvedRoles.length > 1) {
+        setPendingRoles(approvedRoles);
+      } else {
+        router.push('/properties');
+      }
     } catch (err) {
-      alert(err.message || 'Error al iniciar sesión');
+      setLoginError(err.message || 'Error al iniciar sesión');
     }
   };
+
+  const handleRoleSelect = async (roleType) => {
+    setSelectingRole(true);
+    try {
+      switchRole(roleType);
+      router.push('/dashboard');
+    } catch {
+      router.push('/properties');
+    }
+  };
+
+  if (pendingRoles) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center py-12 px-4 bg-neutral-50 dark:bg-neutral-950">
+        <div className="w-full max-w-md">
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-lg border border-neutral-200 dark:border-neutral-800 p-8">
+            <div className="text-center mb-8">
+              <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
+                ¿Cómo quieres ingresar?
+              </h1>
+              <p className="text-neutral-600 dark:text-neutral-400 text-sm">
+                Tu cuenta tiene múltiples roles. Elige cómo deseas usar Casa-MX.
+              </p>
+            </div>
+            <div className="space-y-3">
+              {pendingRoles.map((role) => (
+                <button
+                  key={role.type}
+                  onClick={() => handleRoleSelect(role.type)}
+                  disabled={selectingRole}
+                  className="w-full p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 hover:border-amber-400 dark:hover:border-amber-500 bg-white dark:bg-neutral-800 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all text-left group"
+                >
+                  <div className="font-semibold text-neutral-900 dark:text-neutral-100 group-hover:text-amber-600 dark:group-hover:text-amber-400">
+                    {getRoleLabel(role.type)}
+                  </div>
+                  <div className="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
+                    {roleDescriptions[role.type] || 'Acceder a la plataforma'}
+                  </div>
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setPendingRoles(null)}
+              className="w-full mt-4 py-2 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors"
+            >
+              Cancelar y volver al inicio
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center py-12 px-4 bg-neutral-50 dark:bg-neutral-950">
@@ -139,6 +205,11 @@ export default function LoginPage() {
                 </p>
               )}
             </div>
+
+            {/* Error */}
+            {loginError && (
+              <p className="text-sm text-red-600 dark:text-red-400 text-center bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">{loginError}</p>
+            )}
 
             {/* Submit */}
             <button

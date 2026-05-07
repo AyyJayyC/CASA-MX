@@ -1,13 +1,20 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { RequireAuth } from '@/components/guards/RequireAuth';
 import VerificationBadges from '@/components/VerificationBadges';
 import { getUserProfile, updateUserProfile, uploadProfileAvatar } from '@/lib/api/users';
 import { getUserDocuments, uploadUserDocument } from '@/lib/api/userDocuments';
 
 export default function SettingsPage() {
-  const router = useRouter();
+  return (
+    <RequireAuth>
+      <SettingsContent />
+    </RequireAuth>
+  );
+}
+
+function SettingsContent() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -52,17 +59,12 @@ export default function SettingsPage() {
           avatarUrl: user.avatarUrl || '',
         });
       } catch (err) {
-        const isUnauthorized = err?.status === 401 || String(err?.message || '').toLowerCase().includes('unauthorized');
-        if (isUnauthorized) {
-          router.push('/login');
-        } else {
-          setError('No se pudo cargar tu perfil. Inténtalo de nuevo.');
-        }
+        setError('No se pudo cargar tu perfil. Inténtalo de nuevo.');
       } finally {
         setLoading(false);
       }
     })();
-  }, [router]);
+  }, []);
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));

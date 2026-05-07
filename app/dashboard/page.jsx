@@ -95,8 +95,10 @@ export default function DashboardPage() {
     .filter((r) => r.status === 'approved')
     .map((r) => r.type);
 
+  const activeSectionRoles = [user?.activeRole];
+
   const visibleSections = SECTIONS.filter((s) =>
-    s.roles.some((r) => approvedRoles.includes(r))
+    s.roles.some((r) => activeSectionRoles.includes(r))
   );
 
   return (
