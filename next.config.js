@@ -16,6 +16,8 @@ const nextConfig = {
   async redirects() {
     return [
       { source: '/terms', destination: '/terminos', permanent: true },
+      { source: '/privacy', destination: '/aviso-legal', permanent: true },
+      { source: '/upload', destination: '/upload/sale', permanent: true },
     ];
   },
 };

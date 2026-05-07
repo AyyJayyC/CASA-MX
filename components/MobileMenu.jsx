@@ -3,8 +3,7 @@ import React from 'react';
 import Link from 'next/link';
 import VerificationBadges from '@/components/VerificationBadges';
 import { getRoleLabel } from '@/lib/reviews';
-
-const ROLE_STATUS_LABELS = { approved: 'Aprobado', pending: 'Pendiente', rejected: 'Rechazado' };
+import { ROLE_STATUS_LABELS } from '@/lib/constants/statusLabels';
 
 function getRoleOptionLabel(type, status) {
   const base = getRoleLabel(type);

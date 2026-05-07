@@ -6,11 +6,10 @@ import { useAuth } from '@/lib/auth/useAuth';
 import { useCredits } from '@/lib/auth/CreditsContext';
 import { getNotifications, markAllNotificationsRead } from '@/lib/api/notifications';
 import { getRoleLabel } from '@/lib/reviews';
+import { ROLE_STATUS_LABELS } from '@/lib/constants/statusLabels';
 import VerificationBadges from '@/components/VerificationBadges';
 import DesktopNavLinks from './DesktopNavLinks.jsx';
 import MobileMenu from './MobileMenu.jsx';
-
-const ROLE_STATUS_LABELS = { approved: 'Aprobado', pending: 'Pendiente', rejected: 'Rechazado' };
 
 export default function NavBar() {
   const router = useRouter();
