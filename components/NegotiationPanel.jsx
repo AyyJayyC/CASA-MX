@@ -1,19 +1,14 @@
 'use client';
 
-/**
- * NegotiationPanel - Allows tenants and landlords to negotiate rent.
- * Shows the offer history and lets each party counter-offer or accept/reject.
- */
-
-import { useContext, useEffect, useState } from 'react';
-import { AuthContext } from '@/lib/auth/AuthContext';
+import { useEffect, useState } from 'react';
+import { useAuth } from '@/lib/auth/useAuth';
 import * as negotiationsAPI from '@/lib/api/negotiations';
 
 const formatMXN = (amount) =>
   new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(amount);
 
 export default function NegotiationPanel({ applicationId, originalRent, applicantId, landlordId }) {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const [negotiation, setNegotiation] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
