@@ -7,6 +7,8 @@
 
 import React, { createContext, useCallback, useEffect, useState } from 'react';
 import * as authAPI from '@/lib/api/auth';
+import analytics from '@/lib/analytics';
+import { EVENT_NAMES } from '@/lib/analytics/events';
 
 export const AuthContext = createContext();
 
@@ -68,6 +70,7 @@ export function AuthProvider({ children }) {
     try {
       setError(null);
       const result = await authAPI.register(payload);
+      analytics.trackEvent(EVENT_NAMES.USER_REGISTER, { metadata: { roles: payload.roles } }, { userId: result.user.id });
       // Don't auto-login; wait for admin approval
       return result;
     } catch (err) {
@@ -82,6 +85,7 @@ export function AuthProvider({ children }) {
       setError(null);
       setLoading(true);
       const result = await authAPI.login(payload);
+      analytics.trackEvent(EVENT_NAMES.USER_LOGIN, {}, { userId: result.user.id, activeRole: result.user.activeRole });
 
       // Success - update context
       setSession({

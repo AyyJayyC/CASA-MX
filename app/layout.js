@@ -12,6 +12,7 @@ import EmailVerificationBanner from '../components/EmailVerificationBanner.jsx';
 import { DebugProvider } from '../lib/debug/DebugContext.jsx';
 import DebugPanel from '../components/DebugPanel.jsx';
 import ErrorBoundary from '../components/ErrorBoundary.jsx';
+import ReferralTracker from '../components/ReferralTracker.jsx';
 
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000'),
@@ -60,6 +61,7 @@ export default function RootLayout({ children }) {
                 <QueryProvider>
                 <NavBar />
                 <EmailVerificationBanner />
+                <ReferralTracker />
                 <main className="container mt-8">{children}</main>
                 <footer className="mt-12 border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
                   <div className="container max-w-7xl py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-neutral-600 dark:text-neutral-400">

@@ -73,6 +73,20 @@ const SECTIONS = [
     icon: '🪪',
     roles: ['buyer', 'tenant', 'seller', 'wholesaler', 'landlord', 'admin'],
   },
+  {
+    href: '/dashboard/shared',
+    title: 'Enlaces compartidos',
+    description: 'Tus propiedades compartidas, clics y personas registradas a través de tus enlaces.',
+    icon: '🔗',
+    roles: ['buyer', 'tenant', 'seller', 'wholesaler', 'landlord', 'admin'],
+  },
+  {
+    href: '/dashboard/agency',
+    title: 'Mi agencia',
+    description: 'Gestiona tu agencia, invita agentes, revisa estadísticas.',
+    icon: '🏢',
+    roles: ['seller', 'landlord', 'wholesaler', 'admin'],
+  },
 ];
 
 export default function DashboardPage() {

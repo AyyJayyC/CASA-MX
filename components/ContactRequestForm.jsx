@@ -1,13 +1,17 @@
 'use client';
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { contactRequestSchema } from '../lib/validation/contactRequestSchema';
 import { addRequest } from '../lib/api/requests';
+import { maskPhoneInput } from '../lib/utils/phoneInput';
+import { useAnalytics } from '@/lib/analytics/useAnalytics';
+import { EVENT_NAMES } from '@/lib/analytics/events';
 
 export default function ContactRequestForm({ propertyId, onSuccess = () => {} }) {
+  const { track } = useAnalytics();
   const [submitError, setSubmitError] = useState(null);
-  const { register, handleSubmit, formState: { errors }, reset } = useForm({ resolver: zodResolver(contactRequestSchema) });
+  const { register, control, handleSubmit, formState: { errors }, reset } = useForm({ resolver: zodResolver(contactRequestSchema) });
 
   async function onSubmit(values) {
     try {
@@ -18,6 +22,7 @@ export default function ContactRequestForm({ propertyId, onSuccess = () => {} })
         phone: values.phone,
         message: values.message || undefined,
       });
+      track(EVENT_NAMES.REQUEST_SUBMITTED, { entityId: propertyId, metadata: { requestId: entry.id } });
       onSuccess(entry);
       reset();
     } catch (error) {
@@ -39,7 +44,21 @@ export default function ContactRequestForm({ propertyId, onSuccess = () => {} })
 
       <div>
         <label htmlFor="req_phone" className={labelClass}>Teléfono *</label>
-        <input id="req_phone" {...register('phone')} className={inputClass} placeholder="+52 55 0000 0000" />
+        <Controller
+          name="phone"
+          control={control}
+          defaultValue=""
+          render={({ field }) => (
+            <input
+              id="req_phone"
+              type="tel"
+              className={inputClass}
+              placeholder="55 1234 5678"
+              value={field.value}
+              onChange={(e) => field.onChange(maskPhoneInput(e.target.value, field.value))}
+            />
+          )}
+        />
         {errors.phone && <p className={errorClass}>{errors.phone.message}</p>}
       </div>
 
