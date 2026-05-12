@@ -16,6 +16,16 @@
 
 4. **Goal-driven execution** — ask *why* before writing *how*. If the task is unclear, stop and ask. Don't build what you think I want — build what I actually ask for.
 
+5. **Never remove existing endpoints** — when enhancing route files, keep old endpoints with original response shapes. Add new endpoints alongside. Existing tests depend on them.
+
+6. **Prisma schema changes need migration files** — use `prisma migrate dev`, not just `prisma db push`. CI runs `prisma migrate deploy` and needs `.sql` files.
+
+7. **Check Docker first for infra** — the backend runs PostgreSQL + Redis + backend via Docker Compose. Always check `docker compose ps` before installing anything manually.
+
+8. **Check which git branch you're on** — verify with `git status` before making changes. Don't work on stale branches.
+
+See also: `docs/DEVELOPMENT_RULES.md` for the full lessons-learned guide.
+
 ---
 
 ## Tech Stack
