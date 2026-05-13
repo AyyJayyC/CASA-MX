@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import HomepageCarousel from '@/components/HomepageCarousel.jsx';
 
 export default function Home() {
   return (
@@ -49,6 +50,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Promoted Properties Carousel */}
+      <HomepageCarousel />
 
       {/* Features Section */}
       <section className="py-16 px-4 bg-white dark:bg-neutral-950">

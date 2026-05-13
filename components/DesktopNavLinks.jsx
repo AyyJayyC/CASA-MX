@@ -2,17 +2,26 @@
 import React from 'react';
 import Link from 'next/link';
 
+const ICON_MAP = {
+  money: '💰',
+  home: '🏠',
+  search: '🔍',
+  plus: '➕',
+};
+
 export default function DesktopNavLinks({
   isAuthenticated,
   isAdminUser,
   showDebugUI,
-  isBuyerOrTenant,
+  activeRole,
   canPublish,
   propertiesDropdownOpen,
   setPropertiesDropdownOpen,
   isActivePath,
   pathname,
 }) {
+  const isBuyerOrTenant = ['buyer', 'tenant'].includes(activeRole);
+
   return (
     <nav className="hidden md:flex items-center gap-1">
       <div className="relative group properties-dropdown">
@@ -32,7 +41,7 @@ export default function DesktopNavLinks({
 
         <div className={`absolute left-0 mt-0 w-48 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-lg transition-all duration-200 z-50
           ${propertiesDropdownOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
-          {isBuyerOrTenant ? (
+          {!isAuthenticated || isBuyerOrTenant ? (
             <>
               <DropdownLink href="/properties?type=for_sale" onClick={() => setPropertiesDropdownOpen(false)} icon="money">Comprar Propiedad</DropdownLink>
               <DropdownLink href="/properties?type=for_rent" onClick={() => setPropertiesDropdownOpen(false)} icon="home">Rentar Propiedad</DropdownLink>
@@ -42,7 +51,7 @@ export default function DesktopNavLinks({
               <DropdownLink href="/properties?type=for_sale" onClick={() => setPropertiesDropdownOpen(false)} icon="money" bordered>Vender Propiedad</DropdownLink>
               <DropdownLink href="/properties?type=for_rent" onClick={() => setPropertiesDropdownOpen(false)} icon="home" bordered>Rentar Propiedad</DropdownLink>
               <DropdownLink href="/properties" onClick={() => setPropertiesDropdownOpen(false)} icon="search" bordered>Buscar Propiedades</DropdownLink>
-              {isAuthenticated && canPublish && (
+              {canPublish && (
                 <DropdownLink href="/publish-property" onClick={() => setPropertiesDropdownOpen(false)} icon="plus">Publicar Nueva Propiedad</DropdownLink>
               )}
             </>
@@ -60,6 +69,7 @@ export default function DesktopNavLinks({
 
       {isAuthenticated && isAdminUser && (
         <>
+          <AdminLink href="/admin/analytics" isActivePath={isActivePath}>Análisis</AdminLink>
           <AdminLink href="/admin/approvals" isActivePath={isActivePath}>Admin</AdminLink>
           <AdminLink href="/admin/properties" isActivePath={isActivePath}>Propiedades</AdminLink>
           {showDebugUI && <AdminLink href="/admin/debug" isActivePath={isActivePath}>Debug</AdminLink>}
@@ -74,7 +84,8 @@ function DropdownLink({ href, onClick, icon, children, bordered }) {
     <Link href={href} onClick={onClick}
       className={`flex items-center gap-3 px-4 py-3 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:text-amber-600 dark:hover:text-amber-400 transition-colors
         ${bordered ? 'border-b border-neutral-100 dark:border-neutral-700' : ''}`}>
-      {children}
+      <span>{ICON_MAP[icon] || '📌'}</span>
+      <span>{children}</span>
     </Link>
   );
 }

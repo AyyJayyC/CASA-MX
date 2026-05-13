@@ -84,7 +84,7 @@ export default function NavBar() {
             isAuthenticated={isAuthenticated}
             isAdminUser={isAdminUser}
             showDebugUI={showDebugUI}
-            isBuyerOrTenant={isBuyerOrTenant}
+            activeRole={user?.activeRole}
             canPublish={canPublish}
             propertiesDropdownOpen={propertiesDropdownOpen}
             setPropertiesDropdownOpen={setPropertiesDropdownOpen}
