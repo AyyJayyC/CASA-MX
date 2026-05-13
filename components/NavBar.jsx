@@ -6,7 +6,6 @@ import { useAuth } from '@/lib/auth/useAuth';
 import { useCredits } from '@/lib/auth/CreditsContext';
 import { getNotifications, markAllNotificationsRead } from '@/lib/api/notifications';
 import { getRoleLabel } from '@/lib/reviews';
-import { ROLE_STATUS_LABELS } from '@/lib/constants/statusLabels';
 import VerificationBadges from '@/components/VerificationBadges';
 import DesktopNavLinks from './DesktopNavLinks.jsx';
 import MobileMenu from './MobileMenu.jsx';
@@ -14,7 +13,7 @@ import MobileMenu from './MobileMenu.jsx';
 export default function NavBar() {
   const router = useRouter();
   const pathname = usePathname();
-  const { isAuthenticated, user, logout, switchRole, loading } = useAuth();
+  const { isAuthenticated, user, logout, loading } = useAuth();
   const { balance } = useCredits();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
@@ -27,12 +26,6 @@ export default function NavBar() {
   const canPublish = Boolean(user?.roles?.some((r) => ['seller', 'wholesaler', 'admin'].includes(r.type) && r.status === 'approved'));
   const showDebugUI = process.env.NODE_ENV !== 'production' && isAdminUser;
   const showAuthenticated = !loading && isAuthenticated && user;
-
-  function getRoleOptionLabel(type, status) {
-    const base = getRoleLabel(type);
-    if (status === 'approved') return base;
-    return `${base} (${ROLE_STATUS_LABELS[status] || status})`;
-  }
 
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode') === 'true';
@@ -121,14 +114,6 @@ export default function NavBar() {
                       <p className="text-xs text-neutral-600 dark:text-neutral-400">{getRoleLabel(user.activeRole) || 'Sin rol'}</p>
                       <VerificationBadges compact identityVerified={Boolean(user.officialIdVerified)} identityUploaded={Boolean(user.officialIdUploaded)} paidSubscriber={Boolean(user.paidSubscriber)} />
                     </div>
-                    {user.roles && user.roles.length > 1 && (
-                      <select value={user.activeRole || ''} onChange={(e) => switchRole(e.target.value)}
-                        className="text-xs px-2 py-1 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-md text-neutral-700 dark:text-neutral-300 focus:outline-none focus:ring-2 focus:ring-amber-400">
-                        {user.roles.map((role) => (
-                          <option key={role.type} value={role.type} disabled={role.status !== 'approved'}>{getRoleOptionLabel(role.type, role.status)}</option>
-                        ))}
-                      </select>
-                    )}
                   </div>
 
                   {/* Notifications */}
@@ -216,7 +201,6 @@ export default function NavBar() {
           showDebugUI={showDebugUI}
           showAuthenticated={showAuthenticated}
           user={user}
-          switchRole={switchRole}
           handleLogout={handleLogout}
           isActivePath={isActivePath}
           pathname={pathname}

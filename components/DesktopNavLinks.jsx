@@ -43,13 +43,13 @@ export default function DesktopNavLinks({
           ${propertiesDropdownOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
           {!isAuthenticated || isBuyerOrTenant ? (
             <>
-              <DropdownLink href="/properties?type=for_sale" onClick={() => setPropertiesDropdownOpen(false)} icon="money">Comprar Propiedad</DropdownLink>
-              <DropdownLink href="/properties?type=for_rent" onClick={() => setPropertiesDropdownOpen(false)} icon="home">Rentar Propiedad</DropdownLink>
+              <DropdownLink href="/properties?type=for_sale" onClick={() => setPropertiesDropdownOpen(false)} icon="money">Propiedades en venta</DropdownLink>
+              <DropdownLink href="/properties?type=for_rent" onClick={() => setPropertiesDropdownOpen(false)} icon="home">Propiedades en renta</DropdownLink>
             </>
           ) : (
             <>
-              <DropdownLink href="/properties?type=for_sale" onClick={() => setPropertiesDropdownOpen(false)} icon="money" bordered>Vender Propiedad</DropdownLink>
-              <DropdownLink href="/properties?type=for_rent" onClick={() => setPropertiesDropdownOpen(false)} icon="home" bordered>Rentar Propiedad</DropdownLink>
+              <DropdownLink href="/properties?type=for_sale" onClick={() => setPropertiesDropdownOpen(false)} icon="money" bordered>Propiedades en venta</DropdownLink>
+              <DropdownLink href="/properties?type=for_rent" onClick={() => setPropertiesDropdownOpen(false)} icon="home" bordered>Propiedades en renta</DropdownLink>
               <DropdownLink href="/properties" onClick={() => setPropertiesDropdownOpen(false)} icon="search" bordered>Buscar Propiedades</DropdownLink>
               {canPublish && (
                 <DropdownLink href="/publish-property" onClick={() => setPropertiesDropdownOpen(false)} icon="plus">Publicar Nueva Propiedad</DropdownLink>

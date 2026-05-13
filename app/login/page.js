@@ -20,10 +20,10 @@ const loginSchema = z.object({
 });
 
 const roleDescriptions = {
-  buyer: 'Buscar y comprar propiedades',
-  seller: 'Publicar y vender propiedades',
-  landlord: 'Publicar y rentar propiedades',
-  tenant: 'Buscar y rentar propiedades',
+  buyer: 'Buscar, comprar y rentar propiedades',
+  tenant: 'Buscar, comprar y rentar propiedades',
+  seller: 'Publicar, vender y rentar propiedades',
+  landlord: 'Publicar, vender y rentar propiedades',
   wholesaler: 'Vender propiedades como mayorista',
   admin: 'Administrar la plataforma',
 };
@@ -55,8 +55,16 @@ export default function LoginPage() {
       const result = await login({ email: data.email, password: data.password });
 
       const approvedRoles = (result.user?.roles || []).filter(r => r.status === 'approved');
-      if (approvedRoles.length > 1) {
-        setPendingRoles(approvedRoles);
+      // Deduplicate: buyer+tenant → buyer, seller+landlord → seller
+      const hasBuyer = approvedRoles.some(r => r.type === 'buyer');
+      const hasTenant = approvedRoles.some(r => r.type === 'tenant');
+      const hasSeller = approvedRoles.some(r => r.type === 'seller');
+      const hasLandlord = approvedRoles.some(r => r.type === 'landlord');
+      const displayRoles = approvedRoles
+        .filter(r => !(r.type === 'tenant' && hasBuyer))
+        .filter(r => !(r.type === 'landlord' && hasSeller));
+      if (displayRoles.length > 1) {
+        setPendingRoles(displayRoles);
       } else {
         router.push('/properties');
       }

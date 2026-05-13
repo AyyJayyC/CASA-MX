@@ -3,13 +3,6 @@ import React from 'react';
 import Link from 'next/link';
 import VerificationBadges from '@/components/VerificationBadges';
 import { getRoleLabel } from '@/lib/reviews';
-import { ROLE_STATUS_LABELS } from '@/lib/constants/statusLabels';
-
-function getRoleOptionLabel(type, status) {
-  const base = getRoleLabel(type);
-  if (status === 'approved') return base;
-  return `${base} (${ROLE_STATUS_LABELS[status] || status})`;
-}
 
 export default function MobileMenu({
   isOpen,
@@ -19,7 +12,6 @@ export default function MobileMenu({
   showDebugUI,
   showAuthenticated,
   user,
-  switchRole,
   handleLogout,
   isActivePath,
   pathname,
@@ -60,16 +52,6 @@ export default function MobileMenu({
               <div className="mt-2">
                 <VerificationBadges compact identityVerified={Boolean(user.officialIdVerified)} identityUploaded={Boolean(user.officialIdUploaded)} paidSubscriber={Boolean(user.paidSubscriber)} />
               </div>
-              {user.roles && user.roles.length > 1 && (
-                <select value={user.activeRole || ''} onChange={(e) => switchRole(e.target.value)}
-                  className="mt-2 w-full text-xs px-2 py-1.5 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-md text-neutral-700 dark:text-neutral-300">
-                  {user.roles.map((role) => (
-                    <option key={role.type} value={role.type} disabled={role.status !== 'approved'}>
-                      {getRoleOptionLabel(role.type, role.status)}
-                    </option>
-                  ))}
-                </select>
-              )}
             </div>
 
             <MobileLink href="/settings" onClick={onClose} isActive={isActivePath('/settings')}>⚙️ Ajustes</MobileLink>
