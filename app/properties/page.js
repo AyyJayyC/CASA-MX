@@ -8,6 +8,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import PropertyList from '../../components/PropertyList.jsx';
+import FeaturedCarousel from '../../components/FeaturedCarousel.jsx';
 import { useProperties } from '../../lib/queries/properties';
 import { getLocationsCatalog } from '../../lib/api/properties';
 
@@ -48,6 +49,7 @@ const MEXICO_STATES = [
 
 function PropertiesContent() {
   const { data = [] } = useProperties();
+  const promotedProps = data.filter(p => p.promotionTier === 'carousel');
   const searchParams = useSearchParams();
   const [locationsCatalog, setLocationsCatalog] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -925,6 +927,13 @@ function PropertiesContent() {
                 </div>
               </div>
             </div>
+
+            {/* Promoted Properties Carousel */}
+            {promotedProps.length > 0 && (
+              <div className="mb-6">
+                <FeaturedCarousel properties={promotedProps} />
+              </div>
+            )}
 
             <PropertyList 
               listingType={listingType}

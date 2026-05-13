@@ -66,6 +66,18 @@ export default function PropertyCard({ property }) {
             blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzAwIiBoZWlnaHQ9IjQ3NSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNzAwIiBoZWlnaHQ9IjQ3NSIgZmlsbD0iI2U1ZTVlNSIvPjwvc3ZnPg=="
           />
           
+          {/* Promotion badges */}
+          {property.promotionTier === 'carousel' && (
+            <div className="absolute top-3 left-3 bg-gradient-to-r from-amber-400 to-yellow-600 text-white px-2 py-1 rounded-full text-xs font-bold shadow">
+              🔥 Promocionado
+            </div>
+          )}
+          {property.promotionTier === 'featured' && (
+            <div className="absolute top-3 left-3 bg-gradient-to-r from-amber-400 to-yellow-600 text-white px-2 py-1 rounded-full text-xs font-bold shadow">
+              ⭐ Destacado
+            </div>
+          )}
+
           {/* Price/Rent Badge - Gold Gradient Overlay */}
           <div 
             className="

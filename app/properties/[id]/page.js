@@ -16,6 +16,7 @@ const MakeOfferModal = dynamic(() => import('../../../components/MakeOfferModal.
 const PropertyAnalytics = dynamic(() => import('../../../components/analytics/PropertyAnalytics.jsx'));
 const RentalApplicationForm = dynamic(() => import('../../../components/RentalApplicationForm.jsx'));
 const SharePropertyButton = dynamic(() => import('../../../components/SharePropertyButton.jsx'));
+const PromotePropertyButton = dynamic(() => import('../../../components/PromotePropertyButton.jsx'));
 
 export default async function PropertyDetail({ params }) {
   const { id } = await params;
@@ -408,6 +409,11 @@ export default async function PropertyDetail({ params }) {
               {/* Share button */}
               <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
                 <SharePropertyButton propertyId={property.id} propertyTitle={property.title} />
+              </div>
+
+              {/* Promote button (owner only) */}
+              <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
+                <PromotePropertyButton propertyId={property.id} propertyTitle={property.title} sellerId={property.sellerId} />
               </div>
 
               {/* Contact note — seller reaches out to interested buyers */}
