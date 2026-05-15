@@ -158,6 +158,16 @@ export default function NavBar() {
                     )}
                   </div>
 
+                  {isBuyerOrTenant && (
+                    <Link href="/dashboard/my-offers" className="px-3 py-1.5 rounded-lg text-sm font-medium text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800 transition-colors">
+                      Mis ofertas
+                    </Link>
+                  )}
+                  {!isBuyerOrTenant && canPublish && (
+                    <Link href="/dashboard/contact-requests" className="px-3 py-1.5 rounded-lg text-sm font-medium text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800 transition-colors">
+                      Solicitudes
+                    </Link>
+                  )}
                   <Link href="/settings" onClick={() => { setNotifOpen(false); setPropertiesDropdownOpen(false); }}
                     className="px-3 py-1.5 rounded-lg text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors inline-flex items-center gap-1.5">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
