@@ -18,11 +18,11 @@ function CarouselSlide({ property, isActive }) {
     <div className={`absolute inset-0 transition-opacity duration-700 ${isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
       <div className="absolute inset-0">
         <Image src={imgSrc} alt={property.title} fill className="object-cover" priority={isActive} sizes="100vw" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/30 to-transparent" />
       </div>
-      <div className="absolute inset-0 flex items-end pb-24 md:pb-32 px-6 md:px-16">
+      <div className="absolute inset-0 flex items-end pb-32 md:pb-36 px-6 md:px-16">
         <div className="container max-w-6xl">
-          <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r bg-clay text-white shadow mb-4">
+          <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-clay text-white shadow mb-3">
             🔥 Promocionado
           </span>
           <h2 className="text-2xl md:text-4xl font-bold text-white mb-2 drop-shadow-lg">
@@ -33,7 +33,7 @@ function CarouselSlide({ property, isActive }) {
           </p>
           <Link
             href={`/propiedades/${property.id}`}
-            className="inline-block px-6 py-3 bg-white text-neutral-900 font-semibold rounded-lg hover:bg-amber-50 transition-colors shadow-lg"
+            className="inline-block px-6 py-3 bg-white text-ink font-semibold rounded-lg hover:bg-sand-100 transition-colors shadow-lg"
           >
             {price} — Ver propiedad
           </Link>
@@ -54,7 +54,6 @@ export default function FeaturedCarousel({ properties }) {
   const next = useCallback(() => goTo(current + 1), [current, goTo]);
   const prev = useCallback(() => goTo(current - 1), [current, goTo]);
 
-  // Auto-play every 5 seconds
   useEffect(() => {
     if (total <= 1) return;
     const timer = setInterval(next, 5000);
@@ -64,53 +63,51 @@ export default function FeaturedCarousel({ properties }) {
   if (!properties || total === 0) return null;
 
   return (
-    <section className="relative w-full h-[400px] md:h-[500px] lg:h-[550px] overflow-hidden bg-neutral-900">
-      {/* Slides */}
+    <section className="relative w-full h-[450px] md:h-[550px] lg:h-[600px] overflow-hidden bg-ink">
       {properties.map((p, i) => (
         <CarouselSlide key={p.id} property={p} isActive={i === current} />
       ))}
 
-      {/* Left arrow */}
+      {/* Nav arrows */}
       {total > 1 && (
-        <button
-          onClick={prev}
-          className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur text-white transition-all"
-          aria-label="Anterior"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-      )}
-
-      {/* Right arrow */}
-      {total > 1 && (
-        <button
-          onClick={next}
-          className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur text-white transition-all"
-          aria-label="Siguiente"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
+        <>
+          <button onClick={prev} className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur text-white transition-all" aria-label="Anterior">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+          </button>
+          <button onClick={next} className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur text-white transition-all" aria-label="Siguiente">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          </button>
+        </>
       )}
 
       {/* Dots */}
       {total > 1 && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2">
           {properties.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => goTo(i)}
-              className={`w-2.5 h-2.5 rounded-full transition-all ${
-                i === current ? 'bg-white scale-110' : 'bg-white/50 hover:bg-white/80'
-              }`}
-              aria-label={`Ir a slide ${i + 1}`}
-            />
+            <button key={i} onClick={() => goTo(i)} className={`w-2 h-2 rounded-full transition-all ${i === current ? 'bg-clay scale-125' : 'bg-white/50 hover:bg-white/80'}`} aria-label={`Ir a slide ${i + 1}`} />
           ))}
         </div>
       )}
+
+      {/* CTA Overlay — always visible at bottom */}
+      <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-ink/60 via-ink/40 to-transparent backdrop-blur-sm px-6 py-5 md:py-6">
+        <div className="container max-w-3xl text-center">
+          <h2 className="text-lg md:text-xl font-bold text-white mb-1 drop-shadow">
+            Encuentra tu camino en el mercado inmobiliario.
+          </h2>
+          <p className="text-xs md:text-sm text-white/70 mb-3 max-w-lg mx-auto">
+            Ofertas reales. Decisiones informadas. Negocia con confianza.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-2 justify-center">
+            <Link href="/publish-property" className="px-5 py-2 bg-clay hover:bg-clay-500 text-white font-semibold text-sm rounded-lg transition-all shadow-md">
+              Publicar propiedad
+            </Link>
+            <Link href="/properties" className="px-5 py-2 bg-white/15 hover:bg-white/25 backdrop-blur border border-white/30 text-white font-semibold text-sm rounded-lg transition-all">
+              Explorar propiedades
+            </Link>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
