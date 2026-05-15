@@ -22,8 +22,8 @@ export const metadata = {
   authors: [{ name: 'Casa-MX.com' }],
   icons: {
     icon: [
-      { url: '/brand/favicon.ico' },
-      { url: '/brand/logo-mark.svg', type: 'image/svg+xml' },
+      { url: '/brand/favicon-ruta-clara.ico' },
+      { url: '/brand/logo-mark.png', type: 'image/svg+xml' },
     ],
     apple: [{ url: '/brand/apple-icon.png', sizes: '180x180', type: 'image/png' }],
   },
