@@ -1,7 +1,7 @@
 /**
  * Tailwind configuration
- * Country/language: UI is Spanish; styles are global.
- * Casa MX Design System - Gold-based minimalist theme
+ * Casa MX — "Ruta Clara" Design System
+ * Clay/terracotta palette with cream neutrals
  */
 module.exports = {
   content: ["./app/**/*.{js,jsx}", "./components/**/*.{js,jsx}", "./lib/**/*.{js,jsx}", "./pages/**/*.{js,jsx}"],
@@ -9,25 +9,41 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        gold: {
-          DEFAULT: '#FBBF24', // amber-400
-          dark: '#F59E0B',    // amber-500
-          darker: '#D97706',  // amber-600
-        }
+        clay: {
+          DEFAULT: '#C46A4D',   // primary accent
+          400: '#C46A4D',
+          500: '#B05E43',       // hover
+          600: '#9A5239',       // active/darker
+          700: '#8C4530',
+          50: '#F2DFD7',        // light tint
+          100: '#E8CCC1',
+          900: '#5C2A1F',
+        },
+        sand: {
+          DEFAULT: '#EAE4DD',   // borders, cards
+          50: '#F5F1EC',        // page background
+          100: '#EAE4DD',
+          200: '#D9D0C7',
+          800: '#6B6B6B',
+        },
+        ink: {
+          DEFAULT: '#1C1B19',   // main text
+          muted: '#6B6B6B',     // secondary text
+        },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['DM Sans', 'Inter', 'system-ui', 'sans-serif'],
       },
-    }
+    },
   },
   plugins: [function({ addComponents }) {
     addComponents({
       '.btn-cta': {
-        '@apply px-4 py-2 rounded-lg text-sm font-semibold bg-gradient-to-br from-amber-400 to-yellow-600 hover:from-amber-500 hover:to-yellow-700 disabled:from-neutral-300 disabled:to-neutral-400 text-white shadow-sm transition-all disabled:cursor-not-allowed': {},
+        '@apply px-4 py-2 rounded-lg text-sm font-semibold bg-clay text-white hover:bg-clay-500 disabled:bg-sand-200 disabled:text-ink-muted shadow-sm transition-all disabled:cursor-not-allowed': {},
       },
       '.btn-cta-lg': {
-        '@apply px-6 py-3 rounded-lg text-base font-semibold bg-gradient-to-br from-amber-400 to-yellow-600 hover:from-amber-500 hover:to-yellow-700 disabled:from-neutral-300 disabled:to-neutral-400 text-white shadow-md transition-all disabled:cursor-not-allowed': {},
+        '@apply px-6 py-3 rounded-lg text-base font-semibold bg-clay text-white hover:bg-clay-500 disabled:bg-sand-200 disabled:text-ink-muted shadow-md transition-all disabled:cursor-not-allowed': {},
       },
     });
-  }]
+  }],
 };
