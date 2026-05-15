@@ -22,7 +22,7 @@ function CarouselSlide({ property, isActive }) {
       </div>
       <div className="absolute inset-0 flex items-end pb-24 md:pb-32 px-6 md:px-16">
         <div className="container max-w-6xl">
-          <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-amber-400 to-yellow-600 text-white shadow mb-4">
+          <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r bg-clay text-white shadow mb-4">
             🔥 Promocionado
           </span>
           <h2 className="text-2xl md:text-4xl font-bold text-white mb-2 drop-shadow-lg">
