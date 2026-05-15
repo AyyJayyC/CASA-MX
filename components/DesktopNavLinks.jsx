@@ -47,26 +47,6 @@ export default function DesktopNavLinks({
           Vender
         </Link>
       )}
-      <Link
-        href="/offers"
-        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
-          ${isActivePath('/offers')
-            ? 'bg-clay/10 text-clay'
-            : 'text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800'
-          }`}
-      >
-        Ofertas
-      </Link>
-      <Link
-        href="/blog"
-        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
-          ${isActivePath('/blog')
-            ? 'bg-clay/10 text-clay'
-            : 'text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800'
-          }`}
-      >
-        Blog
-      </Link>
       {(!isAuthenticated || !canPublish) && (
         <Link
           href="/publish-property"
