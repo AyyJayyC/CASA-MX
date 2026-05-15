@@ -4,27 +4,27 @@ import HomepageCarousel from '@/components/HomepageCarousel.jsx';
 export default function Home() {
   return (
     <div>
-      {/* Hero Section */}
-      <section className="relative py-20 md:py-32 px-4 bg-gradient-to-br from-amber-50 via-white to-yellow-50 dark:from-neutral-900 dark:via-neutral-950 dark:to-neutral-900">
-        <div className="container max-w-4xl text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-neutral-900 dark:text-neutral-100 mb-6">
+      {/* Hero Section - Compact */}
+      <section className="relative py-12 md:py-16 px-4 bg-gradient-to-br from-amber-50 via-white to-yellow-50 dark:from-neutral-900 dark:via-neutral-950 dark:to-neutral-900">
+        <div className="container max-w-3xl text-center">
+          <h1 className="text-3xl md:text-5xl font-bold text-neutral-900 dark:text-neutral-100 mb-4">
             Bienvenido a{' '}
             <span className="bg-gradient-to-r from-amber-400 to-yellow-600 bg-clip-text text-transparent">
               Casa-MX.com
             </span>
           </h1>
-          <p className="text-lg md:text-xl text-neutral-600 dark:text-neutral-400 mb-8 max-w-2xl mx-auto">
+          <p className="text-base md:text-lg text-neutral-600 dark:text-neutral-400 mb-6 max-w-xl mx-auto">
             Te acompanamos desde el inicio hasta el cierre: publicar, negociar y completar la venta o renta con confianza
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               href="/properties"
               className="
-                px-8 py-4
+                px-6 py-3
                 bg-gradient-to-br from-amber-400 to-yellow-600
                 hover:from-amber-500 hover:to-yellow-700
-                text-white font-semibold text-lg
+                text-white font-semibold text-base
                 rounded-lg
                 transition-all
                 shadow-lg hover:shadow-xl
@@ -35,12 +35,12 @@ export default function Home() {
             <Link
               href="/publish-property"
               className="
-                px-8 py-4
+                px-6 py-3
                 bg-white dark:bg-neutral-900
                 hover:bg-neutral-50 dark:hover:bg-neutral-800
                 text-neutral-900 dark:text-neutral-100
                 border-2 border-neutral-200 dark:border-neutral-700
-                font-semibold text-lg
+                font-semibold text-base
                 rounded-lg
                 transition-all
               "
