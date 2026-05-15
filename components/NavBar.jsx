@@ -70,7 +70,8 @@ export default function NavBar() {
       <div className="container max-w-7xl">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="inline-flex items-center" aria-label="Inicio Casa-MX.com">
-            <img src="/brand/logo-horizontal.png" alt="CASA MX" className="block h-9 w-auto md:h-10" />
+            <img src="/brand/logo-light.png" alt="CASA MX" className="block dark:hidden h-9 w-auto md:h-10" />
+            <img src="/brand/logo-dark.png" alt="CASA MX" className="hidden dark:block h-9 w-auto md:h-10" />
           </Link>
 
           <DesktopNavLinks
