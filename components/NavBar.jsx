@@ -107,7 +107,7 @@ export default function NavBar() {
                     {user.avatarUrl ? (
                       <img src={user.avatarUrl} alt={`Avatar de ${user.name}`} className="w-8 h-8 rounded-full object-cover border border-neutral-200 dark:border-neutral-700" />
                     ) : (
-                      <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-yellow-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">{user.name[0].toUpperCase()}</div>
+                      <div className="w-8 h-8 bg-clay rounded-full flex items-center justify-center text-white font-semibold text-sm">{user.name[0].toUpperCase()}</div>
                     )}
                     <div className="text-sm">
                       <p className="font-medium text-neutral-900 dark:text-neutral-100">{user.name}</p>
@@ -135,7 +135,7 @@ export default function NavBar() {
                           <span className="font-semibold text-sm text-neutral-900 dark:text-neutral-100">Notificaciones</span>
                           {notifData.unreadCount > 0 && (
                             <button onClick={async () => { await markAllNotificationsRead(); setNotifData(d => ({ ...d, unreadCount: 0, notifications: d.notifications.map(n => ({ ...n, read: true })) })); }}
-                              className="text-xs text-amber-600 dark:text-amber-400 hover:underline">Marcar todas leídas</button>
+                              className="text-xs text-clay dark:text-clay-400 hover:underline">Marcar todas leídas</button>
                           )}
                         </div>
                         <div className="max-h-72 overflow-y-auto">
@@ -143,7 +143,7 @@ export default function NavBar() {
                             <p className="px-4 py-6 text-sm text-neutral-500 dark:text-neutral-400 text-center">Sin notificaciones</p>
                           ) : (
                             notifData.notifications.slice(0, 5).map(n => (
-                              <div key={n.id} className={`px-4 py-3 border-b border-neutral-100 dark:border-neutral-700 last:border-0 ${!n.read ? 'bg-amber-50 dark:bg-amber-900/10' : ''}`}>
+                              <div key={n.id} className={`px-4 py-3 border-b border-neutral-100 dark:border-neutral-700 last:border-0 ${!n.read ? 'bg-clay/50 dark:bg-clay/900/10' : ''}`}>
                                 <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{n.title}</p>
                                 <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-0.5">{n.message}</p>
                               </div>
@@ -151,7 +151,7 @@ export default function NavBar() {
                           )}
                         </div>
                         <div className="px-4 py-2 border-t border-neutral-100 dark:border-neutral-700">
-                          <Link href="/dashboard/notifications" onClick={() => setNotifOpen(false)} className="block text-center text-xs text-amber-600 dark:text-amber-400 hover:underline py-1">Ver todas las notificaciones</Link>
+                          <Link href="/dashboard/notifications" onClick={() => setNotifOpen(false)} className="block text-center text-xs text-clay dark:text-clay-400 hover:underline py-1">Ver todas las notificaciones</Link>
                         </div>
                       </div>
                     )}
@@ -167,7 +167,7 @@ export default function NavBar() {
                   </Link>
 
                   {!isBuyerOrTenant && (
-                    <Link href="/credits" className="px-3 py-1.5 rounded-lg text-sm font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors">💰 {balance}</Link>
+                    <Link href="/credits" className="px-3 py-1.5 rounded-lg text-sm font-medium bg-clay/10 dark:bg-clay-900/20 text-clay dark:text-clay hover:bg-clay/100 dark:hover:bg-clay/900/40 transition-colors">💰 {balance}</Link>
                   )}
 
                   <button onClick={handleLogout}
@@ -176,7 +176,7 @@ export default function NavBar() {
               ) : (
                 <>
                   <Link href="/login" className="px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors">Iniciar Sesión</Link>
-                  <Link href="/register" className="px-4 py-2 text-sm font-semibold bg-gradient-to-br from-amber-400 to-yellow-600 hover:from-amber-500 hover:to-yellow-700 text-white rounded-lg transition-all">Registrarse</Link>
+                  <Link href="/register" className="px-4 py-2 text-sm font-semibold bg-clay hover:bg-clay-500 text-white rounded-lg transition-all">Registrarse</Link>
                 </>
               )}
             </div>
