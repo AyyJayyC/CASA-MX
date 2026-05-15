@@ -90,19 +90,19 @@ export default function FeaturedCarousel({ properties }) {
       )}
 
       {/* CTA Overlay — always visible at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-ink/60 via-ink/40 to-transparent backdrop-blur-sm px-6 py-5 md:py-6">
+      <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-ink/40 via-ink/25 to-transparent px-4 py-3 md:px-6 md:py-4">
         <div className="container max-w-3xl text-center">
-          <h2 className="text-lg md:text-xl font-bold text-white mb-1 drop-shadow">
+          <h2 className="text-sm md:text-lg font-bold text-white mb-0.5 drop-shadow">
             Encuentra tu camino en el mercado inmobiliario.
           </h2>
-          <p className="text-xs md:text-sm text-white/70 mb-3 max-w-lg mx-auto">
+          <p className="hidden md:block text-xs text-white/60 mb-2 max-w-lg mx-auto">
             Ofertas reales. Decisiones informadas. Negocia con confianza.
           </p>
           <div className="flex flex-col sm:flex-row gap-2 justify-center">
-            <Link href="/publish-property" className="px-5 py-2 bg-clay hover:bg-clay-500 text-white font-semibold text-sm rounded-lg transition-all shadow-md">
+            <Link href="/publish-property" className="px-4 py-1.5 md:px-5 md:py-2 bg-clay hover:bg-clay-500 text-white font-semibold text-xs md:text-sm rounded-lg transition-all shadow-md">
               Publicar propiedad
             </Link>
-            <Link href="/properties" className="px-5 py-2 bg-white/15 hover:bg-white/25 backdrop-blur border border-white/30 text-white font-semibold text-sm rounded-lg transition-all">
+            <Link href="/properties" className="px-4 py-1.5 md:px-5 md:py-2 bg-white/15 hover:bg-white/25 border border-white/30 text-white font-semibold text-xs md:text-sm rounded-lg transition-all">
               Explorar propiedades
             </Link>
           </div>
