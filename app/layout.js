@@ -16,8 +16,8 @@ import ReferralTracker from '../components/ReferralTracker.jsx';
 
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000'),
-  title: 'Casa-MX.com - Plataforma Inmobiliaria de México',
-  description: 'Busca, vende y alquila propiedades en México. Plataforma de bienes raíces con filtros avanzados, aplicaciones de alquiler y más.',
+  title: 'CASA MX - Tu ruta, tu decisión',
+  description: 'Encuentra tu camino en el mercado inmobiliario. Ofertas reales, decisiones informadas. Negocia con confianza.',
   keywords: ['Propiedades en México', 'Compra venta de casas', 'Renta de departamentos', 'Bienes raíces', 'Inmuebles'],
   authors: [{ name: 'Casa-MX.com' }],
   icons: {
@@ -28,8 +28,8 @@ export const metadata = {
     apple: [{ url: '/brand/apple-icon.png', sizes: '180x180', type: 'image/png' }],
   },
   openGraph: {
-    title: 'Casa-MX.com - Tu Plataforma Inmobiliaria',
-    description: 'Encuentra tu hogar o invierte en propiedades en México',
+    title: 'CASA MX - Tu ruta, tu decisión',
+    description: 'Ofertas reales. Decisiones informadas. Negocia con confianza.',
     type: 'website',
     locale: 'es_MX',
     url: process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000',
@@ -44,8 +44,8 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Casa-MX.com - Tu Plataforma Inmobiliaria',
-    description: 'Encuentra tu hogar o invierte en propiedades en México',
+    title: 'CASA MX - Tu ruta, tu decisión',
+    description: 'Ofertas reales. Decisiones informadas. Negocia con confianza.',
     images: ['/brand/og-image.png'],
   },
 };
