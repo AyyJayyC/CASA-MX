@@ -1,102 +1,116 @@
 'use client';
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
-const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000';
+const FALLBACK_SVG = `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600"><rect width="100%" height="100%" fill="#1a1a2e"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#737373" font-family="Arial" font-size="40">Casa-MX.com</text></svg>')}`;
 
-const fallbackSvg = `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450"><rect width="100%" height="100%" fill="#e5e5e5"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#737373" font-family="Arial" font-size="30">Casa-MX.com</text></svg>')}`;
-
-function CarouselCard({ property }) {
-  const imgSrc = property.imageUrls?.[0] || property.photos?.[0] || property.imageUrl || fallbackSvg;
+function CarouselSlide({ property, isActive }) {
+  const imgSrc = property.imageUrls?.[0] || property.photos?.[0] || property.imageUrl || FALLBACK_SVG;
   const isRental = property.listingType === 'for_rent';
+  const price = isRental
+    ? `$${(property.monthlyRent || 0).toLocaleString('es-MX')}/mes`
+    : `$${(property.price || 0).toLocaleString('es-MX')} MXN`;
+
+  const location = [property.colonia, property.ciudad, property.estado].filter(Boolean).join(', ');
 
   return (
-    <Link
-      href={`${FRONTEND_URL}/propiedades/${property.id}`}
-      className="flex-shrink-0 w-72 sm:w-80 snap-start group rounded-xl overflow-hidden bg-white dark:bg-neutral-900 border border-amber-200 dark:border-amber-800 shadow-md hover:shadow-lg transition-shadow"
-    >
-      <div className="relative aspect-[16/10] bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
-        <Image src={imgSrc} alt={property.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="320px" />
-        <span className="absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-amber-400 to-yellow-600 text-white shadow">
-          🔥 Promocionado
-        </span>
-        <span className="absolute bottom-2 right-2 px-3 py-1 rounded-lg text-sm font-bold bg-black/60 text-white">
-          {isRental ? `$${(property.monthlyRent || 0).toLocaleString('es-MX')}/mes` : `$${(property.price || 0).toLocaleString('es-MX')} MXN`}
-        </span>
+    <div className={`absolute inset-0 transition-opacity duration-700 ${isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
+      <div className="absolute inset-0">
+        <Image src={imgSrc} alt={property.title} fill className="object-cover" priority={isActive} sizes="100vw" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10" />
       </div>
-      <div className="p-3 space-y-1">
-        <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 line-clamp-1">{property.title}</p>
-        <p className="text-xs text-neutral-500 dark:text-neutral-400">{property.colonia} · {property.propertyType || 'Propiedad'}</p>
+      <div className="absolute inset-0 flex items-end pb-24 md:pb-32 px-6 md:px-16">
+        <div className="container max-w-6xl">
+          <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-amber-400 to-yellow-600 text-white shadow mb-4">
+            🔥 Promocionado
+          </span>
+          <h2 className="text-2xl md:text-4xl font-bold text-white mb-2 drop-shadow-lg">
+            {property.title}
+          </h2>
+          <p className="text-sm md:text-base text-white/80 mb-4 max-w-lg drop-shadow">
+            {location}
+          </p>
+          <Link
+            href={`/propiedades/${property.id}`}
+            className="inline-block px-6 py-3 bg-white text-neutral-900 font-semibold rounded-lg hover:bg-amber-50 transition-colors shadow-lg"
+          >
+            {price} — Ver propiedad
+          </Link>
+        </div>
       </div>
-    </Link>
+    </div>
   );
 }
 
 export default function FeaturedCarousel({ properties }) {
-  const scrollRef = useRef(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
+  const [current, setCurrent] = useState(0);
+  const total = properties?.length || 0;
 
-  const checkScroll = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 10);
-    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 10);
-  }, []);
+  const goTo = useCallback((index) => {
+    setCurrent(((index % total) + total) % total);
+  }, [total]);
 
+  const next = useCallback(() => goTo(current + 1), [current, goTo]);
+  const prev = useCallback(() => goTo(current - 1), [current, goTo]);
+
+  // Auto-play every 5 seconds
   useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    checkScroll();
-    el.addEventListener('scroll', checkScroll, { passive: true });
-    return () => el.removeEventListener('scroll', checkScroll);
-  }, [checkScroll, properties]);
+    if (total <= 1) return;
+    const timer = setInterval(next, 5000);
+    return () => clearInterval(timer);
+  }, [total, next]);
 
-  const scrollBy = (amount) => {
-    scrollRef.current?.scrollBy({ left: amount, behavior: 'smooth' });
-  };
-
-  if (!properties || properties.length === 0) return null;
+  if (!properties || total === 0) return null;
 
   return (
-    <div className="relative space-y-3">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
-          <span>🔥</span> Propiedades Promocionadas
-        </h2>
-        <div className="flex gap-1">
-          <button
-            onClick={() => scrollBy(-300)}
-            disabled={!canScrollLeft}
-            className="p-1.5 rounded-full border border-neutral-300 dark:border-neutral-700 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-            aria-label="Anterior"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <button
-            onClick={() => scrollBy(300)}
-            disabled={!canScrollRight}
-            className="p-1.5 rounded-full border border-neutral-300 dark:border-neutral-700 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-            aria-label="Siguiente"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+    <section className="relative w-full h-[400px] md:h-[500px] lg:h-[550px] overflow-hidden bg-neutral-900">
+      {/* Slides */}
+      {properties.map((p, i) => (
+        <CarouselSlide key={p.id} property={p} isActive={i === current} />
+      ))}
+
+      {/* Left arrow */}
+      {total > 1 && (
+        <button
+          onClick={prev}
+          className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur text-white transition-all"
+          aria-label="Anterior"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+      )}
+
+      {/* Right arrow */}
+      {total > 1 && (
+        <button
+          onClick={next}
+          className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur text-white transition-all"
+          aria-label="Siguiente"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      )}
+
+      {/* Dots */}
+      {total > 1 && (
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+          {properties.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              className={`w-2.5 h-2.5 rounded-full transition-all ${
+                i === current ? 'bg-white scale-110' : 'bg-white/50 hover:bg-white/80'
+              }`}
+              aria-label={`Ir a slide ${i + 1}`}
+            />
+          ))}
         </div>
-      </div>
-      <div
-        ref={scrollRef}
-        className="flex gap-4 overflow-x-auto pb-2 scroll-smooth snap-x snap-mandatory scrollbar-hide"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
-        {properties.map((p) => (
-          <CarouselCard key={p.id} property={p} />
-        ))}
-      </div>
-    </div>
+      )}
+    </section>
   );
 }
