@@ -36,8 +36,8 @@ export default async function PropertyDetail({ params }) {
             className="
               inline-flex items-center gap-2
               px-6 py-3
-              bg-gradient-to-br from-amber-400 to-yellow-600
-              hover:from-amber-500 hover:to-yellow-700
+              bg-clay
+              hover:bg-clay-500
               text-white font-semibold rounded-lg
               transition-all
             "
@@ -83,7 +83,7 @@ export default async function PropertyDetail({ params }) {
               inline-flex items-center gap-2
               text-sm font-medium
               text-neutral-600 dark:text-neutral-400
-              hover:text-amber-600 dark:hover:text-amber-400
+              hover:text-clay dark:hover:text-clay-400
               transition-colors
             "
           >
@@ -119,7 +119,7 @@ export default async function PropertyDetail({ params }) {
                 </svg>
                 <span className="text-base">{property.colonia} • {property.propertyType || 'Propiedad'}</span>
               </div>
-              <div className="text-4xl font-bold text-amber-600 dark:text-amber-400">
+              <div className="text-4xl font-bold text-clay dark:text-clay">
                 {isRental 
                   ? `$${property.monthlyRent.toLocaleString('es-MX')} MXN/mes`
                   : `$${property.price.toLocaleString('es-MX')} MXN`
@@ -277,7 +277,7 @@ export default async function PropertyDetail({ params }) {
                     return (
                     <span
                       key={service}
-                      className="rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+                      className="rounded-full bg-clay/10 px-3 py-1 text-sm font-medium text-clay-600 dark:bg-clay-900/30 dark:text-clay-300"
                     >
                       <span className="mr-1" aria-hidden="true">{meta.emoji}</span>
                       {meta.label}
@@ -387,7 +387,7 @@ export default async function PropertyDetail({ params }) {
                   </h2>
 
                   {property.price && (
-                    <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                    <div className="text-2xl font-bold text-clay dark:text-clay">
                       ${property.price.toLocaleString('es-MX')} MXN
                     </div>
                   )}
