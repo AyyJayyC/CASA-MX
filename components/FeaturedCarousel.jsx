@@ -45,6 +45,8 @@ function CarouselSlide({ property, isActive }) {
 
 export default function FeaturedCarousel({ properties }) {
   const [current, setCurrent] = useState(0);
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
   const total = properties?.length || 0;
 
   const goTo = useCallback((index) => {
@@ -53,6 +55,7 @@ export default function FeaturedCarousel({ properties }) {
 
   const next = useCallback(() => goTo(current + 1), [current, goTo]);
   const prev = useCallback(() => goTo(current - 1), [current, goTo]);
+  const minSwipeDistance = 50;
 
   useEffect(() => {
     if (total <= 1) return;
@@ -63,7 +66,12 @@ export default function FeaturedCarousel({ properties }) {
   if (!properties || total === 0) return null;
 
   return (
-    <section className="relative w-full h-[450px] md:h-[550px] lg:h-[600px] overflow-hidden bg-ink">
+    <section
+      className="relative w-full h-[450px] md:h-[550px] lg:h-[600px] overflow-hidden bg-ink"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       {properties.map((p, i) => (
         <CarouselSlide key={p.id} property={p} isActive={i === current} />
       ))}
