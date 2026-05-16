@@ -36,7 +36,7 @@ export default function PropertyCard({ property }) {
   return (
     <Link 
       href={`/properties/${property.id}`}
-      className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 rounded-lg"
+      className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 rounded-lg"
       aria-label={`Ver detalles de ${property.title} en ${property.colonia}`}
     >
       <article 
@@ -68,12 +68,12 @@ export default function PropertyCard({ property }) {
           
           {/* Promotion badges */}
           {property.promotionTier === 'carousel' && (
-            <div className="absolute top-3 left-3 bg-gradient-to-r from-amber-400 to-yellow-600 text-white px-2 py-1 rounded-full text-xs font-bold shadow">
+            <div className="absolute top-3 left-3 bg-clay text-white px-2 py-1 rounded-full text-xs font-bold shadow">
               🔥 Promocionado
             </div>
           )}
           {property.promotionTier === 'featured' && (
-            <div className="absolute top-3 left-3 bg-gradient-to-r from-amber-400 to-yellow-600 text-white px-2 py-1 rounded-full text-xs font-bold shadow">
+            <div className="absolute top-3 left-3 bg-clay text-white px-2 py-1 rounded-full text-xs font-bold shadow">
               ⭐ Destacado
             </div>
           )}
@@ -82,7 +82,7 @@ export default function PropertyCard({ property }) {
           <div 
             className="
               absolute top-3 right-3
-              bg-gradient-to-br from-amber-400 to-yellow-600
+              bg-clay
               text-white
               px-3 py-1.5
               rounded-md
@@ -184,7 +184,7 @@ export default function PropertyCard({ property }) {
                     <span
                       key={amenity.value}
                       title={amenity.label}
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-amber-50 text-sm ring-1 ring-amber-200 dark:bg-amber-900/20 dark:ring-amber-800"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-clay/10 text-sm ring-1 ring-amber-200 dark:bg-clay-900/20 dark:ring-amber-800"
                     >
                       <span aria-hidden="true">{amenity.emoji}</span>
                     </span>
@@ -237,8 +237,8 @@ export default function PropertyCard({ property }) {
             <span 
               className="
                 text-sm font-medium
-                text-amber-600 dark:text-amber-400
-                group-hover:text-amber-700 dark:group-hover:text-amber-300
+                text-clay dark:text-clay
+                group-hover:text-clay dark:group-hover:text-amber-300
                 flex items-center gap-1
               "
               aria-hidden="true"
