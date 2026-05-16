@@ -103,7 +103,7 @@ export default function RegisterPage() {
           {/* Header */}
           <div className="text-center mb-8">
             <img
-              src="/brand/logo-primary.svg"
+              src="/brand/logo-light.png"
               alt="Casa-MX.com"
               className="mx-auto block h-12 w-auto mb-4"
             />
@@ -135,7 +135,7 @@ export default function RegisterPage() {
                   rounded-lg
                   text-neutral-900 dark:text-neutral-100
                   placeholder-neutral-500 dark:placeholder-neutral-500
-                  focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                  focus:outline-none focus:ring-2 focus:ring-clay focus:border-transparent
                   transition-all
                 "
                 placeholder="Juan Pérez"
@@ -169,7 +169,7 @@ export default function RegisterPage() {
                   rounded-lg
                   text-neutral-900 dark:text-neutral-100
                   placeholder-neutral-500 dark:placeholder-neutral-500
-                  focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                  focus:outline-none focus:ring-2 focus:ring-clay focus:border-transparent
                   transition-all
                 "
                 placeholder="tu@email.com"
@@ -203,7 +203,7 @@ export default function RegisterPage() {
                   rounded-lg
                   text-neutral-900 dark:text-neutral-100
                   placeholder-neutral-500 dark:placeholder-neutral-500
-                  focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                  focus:outline-none focus:ring-2 focus:ring-clay focus:border-transparent
                   transition-all
                 "
                 placeholder="Mínimo 8 caracteres"
@@ -237,8 +237,8 @@ export default function RegisterPage() {
                       className={`
                         w-full px-4 py-3 rounded-lg border-2 text-left transition-all
                         ${isSelected
-                          ? 'border-amber-400 bg-amber-50 dark:bg-amber-900/20'
-                          : 'border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:border-amber-300 dark:hover:border-amber-600'
+                          ? 'border-clay bg-clay/10 dark:bg-clay-900/20'
+                          : 'border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:border-clay dark:hover:border-clay'
                         }
                       `}
                     >
@@ -246,7 +246,7 @@ export default function RegisterPage() {
                         <div className={`
                           w-5 h-5 rounded border-2 flex items-center justify-center transition-colors
                           ${isSelected
-                            ? 'border-amber-500 bg-amber-500'
+                            ? 'border-amber-500 bg-clay/100'
                             : 'border-neutral-400 dark:border-neutral-600'
                           }
                         `}>
@@ -258,7 +258,7 @@ export default function RegisterPage() {
                         </div>
                         <span className={`text-sm font-medium ${
                           isSelected
-                            ? 'text-amber-900 dark:text-amber-400'
+                            ? 'text-clay dark:text-clay'
                             : 'text-neutral-700 dark:text-neutral-300'
                         }`}>
                           {role.label}
@@ -290,10 +290,10 @@ export default function RegisterPage() {
                 <input
                   type="checkbox"
                   {...register('acceptLegal')}
-                  className="mt-0.5 h-4 w-4 rounded border-neutral-300 dark:border-neutral-700 text-amber-500 focus:ring-amber-400"
+                  className="mt-0.5 h-4 w-4 rounded border-neutral-300 dark:border-neutral-700 text-clay focus:ring-clay"
                 />
                 <span>
-                  Acepto los <a href="/terminos" className="text-amber-700 dark:text-amber-400 hover:underline">Términos y Condiciones</a> y el <a href="/aviso-legal" className="text-amber-700 dark:text-amber-400 hover:underline">Aviso de Privacidad</a>.
+                  Acepto los <a href="/terminos" className="text-clay dark:text-clay-400 hover:underline">Términos y Condiciones</a> y el <a href="/aviso-legal" className="text-clay dark:text-clay-400 hover:underline">Aviso de Privacidad</a>.
                 </span>
               </label>
               {errors.acceptLegal && (
@@ -312,8 +312,8 @@ export default function RegisterPage() {
               disabled={isSubmitting || selectedRoles.length === 0}
               className="
                 w-full py-3 mt-2
-                bg-gradient-to-br from-amber-400 to-yellow-600
-                hover:from-amber-500 hover:to-yellow-700
+                bg-clay
+                hover:bg-clay-500
                 disabled:from-neutral-300 disabled:to-neutral-400
                 dark:disabled:from-neutral-700 dark:disabled:to-neutral-800
                 text-white font-semibold
@@ -346,11 +346,11 @@ export default function RegisterPage() {
           </div>
 
           {/* Info */}
-          <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-            <p className="text-sm font-medium text-amber-900 dark:text-amber-400 mb-1">
+          <div className="mt-6 p-4 bg-clay/10 dark:bg-clay-900/20 rounded-lg border border-sand-200 dark:border-amber-800">
+            <p className="text-sm font-medium text-clay dark:text-clay mb-1">
               ℹ️ Nota sobre Roles
             </p>
-            <p className="text-sm text-amber-800 dark:text-amber-500">
+            <p className="text-sm text-clay-600 dark:text-clay-400">
               Un administrador debe aprobar tus roles antes de que puedas usarlos. Te notificaremos cuando estén aprobados.
             </p>
           </div>
@@ -361,7 +361,7 @@ export default function RegisterPage() {
           ¿Ya tienes cuenta?{' '}
           <a 
             href="/login" 
-            className="font-semibold text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 transition-colors"
+            className="font-semibold text-clay dark:text-clay-400 hover:text-clay-600 dark:hover:text-amber-300 transition-colors"
           >
             Inicia sesión aquí
           </a>
