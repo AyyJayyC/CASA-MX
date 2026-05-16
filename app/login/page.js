@@ -102,9 +102,9 @@ export default function LoginPage() {
                   key={role.type}
                   onClick={() => handleRoleSelect(role.type)}
                   disabled={selectingRole}
-                  className="w-full p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 hover:border-amber-400 dark:hover:border-amber-500 bg-white dark:bg-neutral-800 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all text-left group"
+                  className="w-full p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 hover:border-clay dark:hover:border-amber-500 bg-white dark:bg-neutral-800 hover:bg-clay/10 dark:hover:bg-amber-900/20 transition-all text-left group"
                 >
-                  <div className="font-semibold text-neutral-900 dark:text-neutral-100 group-hover:text-amber-600 dark:group-hover:text-amber-400">
+                  <div className="font-semibold text-neutral-900 dark:text-neutral-100 group-hover:text-clay dark:group-hover:text-clay-400">
                     {getRoleLabel(role.type)}
                   </div>
                   <div className="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
@@ -133,7 +133,7 @@ export default function LoginPage() {
           {/* Header */}
           <div className="text-center mb-8">
             <img
-              src="/brand/logo-primary.svg"
+              src="/brand/logo-light.png"
               alt="Casa-MX.com"
               className="mx-auto block h-11 w-auto mb-4"
             />
@@ -165,7 +165,7 @@ export default function LoginPage() {
                   rounded-lg
                   text-neutral-900 dark:text-neutral-100
                   placeholder-neutral-500 dark:placeholder-neutral-500
-                  focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                  focus:outline-none focus:ring-2 focus:ring-clay focus:border-transparent
                   transition-all
                 "
                 placeholder="tu@email.com"
@@ -199,7 +199,7 @@ export default function LoginPage() {
                   rounded-lg
                   text-neutral-900 dark:text-neutral-100
                   placeholder-neutral-500 dark:placeholder-neutral-500
-                  focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                  focus:outline-none focus:ring-2 focus:ring-clay focus:border-transparent
                   transition-all
                 "
                 placeholder="Tu contraseña"
@@ -225,8 +225,8 @@ export default function LoginPage() {
               disabled={isSubmitting}
               className="
                 w-full py-3 mt-2
-                bg-gradient-to-br from-amber-400 to-yellow-600
-                hover:from-amber-500 hover:to-yellow-700
+                bg-clay
+                hover:bg-clay-500
                 disabled:from-neutral-300 disabled:to-neutral-400
                 dark:disabled:from-neutral-700 dark:disabled:to-neutral-800
                 text-white font-semibold
@@ -262,11 +262,11 @@ export default function LoginPage() {
           </div>
 
           {/* Demo Info */}
-          <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-            <p className="text-sm font-medium text-amber-900 dark:text-amber-400 mb-1">
+          <div className="mt-6 p-4 bg-clay/10 dark:bg-clay-900/20 rounded-lg border border-sand-200 dark:border-amber-800">
+            <p className="text-sm font-medium text-clay dark:text-clay mb-1">
               💡 Demo
             </p>
-            <p className="text-sm text-amber-800 dark:text-amber-500">
+            <p className="text-sm text-clay-600 dark:text-clay-400">
               Regístrate para crear tu primera cuenta
             </p>
           </div>
@@ -277,7 +277,7 @@ export default function LoginPage() {
           ¿No tienes cuenta?{' '}
           <a 
             href="/register" 
-            className="font-semibold text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 transition-colors"
+            className="font-semibold text-clay dark:text-clay-400 hover:text-clay-600 dark:hover:text-amber-300 transition-colors"
           >
             Regístrate aquí
           </a>
