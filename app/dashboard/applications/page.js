@@ -94,7 +94,7 @@ function LandlordDashboardContent() {
                 px-4 py-2
                 text-sm font-medium
                 text-neutral-600 dark:text-neutral-400
-                hover:text-amber-600 dark:hover:text-amber-400
+                hover:text-clay dark:hover:text-clay-400
                 transition-colors
               "
             >
@@ -116,7 +116,7 @@ function LandlordDashboardContent() {
         )}
 
         {timeoutError && (
-          <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg text-amber-800 dark:text-amber-300 text-sm">
+          <div className="mb-6 p-4 bg-clay/10 dark:bg-clay-900/20 border border-sand-200 dark:border-amber-800 rounded-lg text-clay-600 dark:text-clay-300 text-sm">
             {timeoutError}
           </div>
         )}
@@ -124,7 +124,7 @@ function LandlordDashboardContent() {
         {isLoading ? (
           <div className="flex items-center justify-center py-16">
             <div className="text-center">
-              <svg className="animate-spin h-12 w-12 text-amber-600 mx-auto mb-4" viewBox="0 0 24 24">
+              <svg className="animate-spin h-12 w-12 text-clay mx-auto mb-4" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
@@ -147,8 +147,8 @@ function LandlordDashboardContent() {
               className="
                 inline-flex items-center gap-2
                 px-6 py-3
-                bg-gradient-to-br from-amber-400 to-yellow-600
-                hover:from-amber-500 hover:to-yellow-700
+                bg-clay
+                hover:bg-clay-500
                 text-white font-semibold rounded-lg
                 transition-all
               "
@@ -174,8 +174,8 @@ function LandlordDashboardContent() {
                     className={`
                       p-4 rounded-lg border-2 transition-all
                       ${selectedPropertyId === prop.id
-                        ? 'border-amber-400 bg-amber-50 dark:bg-amber-900/20'
-                        : 'border-neutral-200 dark:border-neutral-700 hover:border-amber-400'
+                        ? 'border-clay bg-clay/10 dark:bg-clay-900/20'
+                        : 'border-neutral-200 dark:border-neutral-700 hover:border-clay'
                       }
                     `}
                   >
@@ -185,7 +185,7 @@ function LandlordDashboardContent() {
                     <div className="text-sm text-neutral-600 dark:text-neutral-400 text-left mt-1">
                       {prop.colonia}
                     </div>
-                    <div className="text-sm font-semibold text-amber-600 dark:text-amber-400 text-left mt-2">
+                    <div className="text-sm font-semibold text-clay dark:text-clay text-left mt-2">
                       ${prop.monthlyRent?.toLocaleString('es-MX')} MXN
                     </div>
                   </button>
@@ -208,7 +208,7 @@ function LandlordDashboardContent() {
                         className={`
                           px-4 py-2 rounded-lg font-medium text-sm transition-all
                           ${statusFilter === option.value
-                            ? 'bg-gradient-to-br from-amber-400 to-yellow-600 text-white'
+                            ? 'bg-clay text-white'
                             : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700'
                           }
                         `}
