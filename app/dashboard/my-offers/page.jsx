@@ -66,7 +66,7 @@ function MyOffersContent() {
               Sigue el historial completo de tus ofertas y responde contraofertas del vendedor.
             </p>
           </div>
-          <Link href="/dashboard" className="text-sm text-amber-600 dark:text-amber-400 hover:underline">
+          <Link href="/dashboard" className="text-sm text-clay dark:text-clay hover:underline">
             ← Inicio
           </Link>
         </div>
@@ -92,7 +92,7 @@ function MyOffersContent() {
                   <div className="space-y-0.5 min-w-0">
                     <Link
                       href={`/properties/${offer.propertyId}`}
-                      className="text-base font-semibold text-neutral-900 dark:text-neutral-100 hover:text-amber-600 dark:hover:text-amber-400 line-clamp-1"
+                      className="text-base font-semibold text-neutral-900 dark:text-neutral-100 hover:text-clay dark:hover:text-clay-400 line-clamp-1"
                     >
                       {offer.property?.title ?? 'Propiedad'}
                     </Link>
@@ -130,7 +130,7 @@ function MyOffersContent() {
                   <div className="flex justify-end">
                     <button
                       onClick={() => setSelectedOffer(offer)}
-                      className="px-5 py-2 rounded-lg font-semibold text-sm bg-gradient-to-br from-amber-400 to-yellow-600 hover:from-amber-500 hover:to-yellow-700 text-white shadow-sm transition-all"
+                      className="px-5 py-2 rounded-lg font-semibold text-sm bg-clay hover:bg-clay-500 text-white shadow-sm transition-all"
                     >
                       Responder negociación
                     </button>
