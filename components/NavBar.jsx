@@ -158,6 +158,9 @@ export default function NavBar() {
                     )}
                   </div>
 
+                  <Link href="/dashboard" className="px-3 py-1.5 rounded-lg text-sm font-medium text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800 transition-colors">
+                    Inicio
+                  </Link>
                   {isBuyerOrTenant && (
                     <Link href="/dashboard/my-offers" className="px-3 py-1.5 rounded-lg text-sm font-medium text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800 transition-colors">
                       Mis ofertas
