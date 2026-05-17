@@ -1104,7 +1104,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
             )}
           </div>
 
-          {/* {/* Location fields */}
+          {/* Location fields */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="estado" className={labelClass}>
