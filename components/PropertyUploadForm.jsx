@@ -1578,6 +1578,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
             Limpiar formulario
           </button>
         </div>
+        </div>
       </form>
       )}
     </>
