@@ -155,6 +155,5 @@ export default function FeaturedCarousel({ properties }) {
         </div>
       </div>
     </>
-    </>
   );
 }
