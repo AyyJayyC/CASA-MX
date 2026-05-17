@@ -18,24 +18,23 @@ function CarouselSlide({ property, isActive }) {
     <div className={`absolute inset-0 transition-opacity duration-700 ${isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
       <div className="absolute inset-0">
         <Image src={imgSrc} alt={property.title} fill className="object-cover" priority={isActive} sizes="100vw" />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/30 to-transparent" />
       </div>
-      <div className="absolute inset-0 flex items-end pb-32 md:pb-36 px-6 md:px-16">
-        <div className="container max-w-6xl">
-          <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-clay text-white shadow mb-3">
-            🔥 Promocionado
-          </span>
-          <h2 className="text-2xl md:text-4xl font-bold text-white mb-2 drop-shadow-lg">
-            {property.title}
-          </h2>
-          <p className="text-sm md:text-base text-white/80 mb-4 max-w-lg drop-shadow">
-            {location}
-          </p>
-          <Link
-            href={`/propiedades/${property.id}`}
-            className="inline-block px-6 py-3 bg-white text-ink font-semibold rounded-lg hover:bg-sand-100 transition-colors shadow-lg"
-          >
-            {price} — Ver propiedad
+      {/* Top banner — thin, minimal image obstruction */}
+      <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-ink/50 to-transparent px-3 py-2 md:px-5 md:py-2.5 z-10">
+        {/* Desktop: full detail line */}
+        <div className="hidden md:flex items-center gap-3 text-white">
+          <span className="shrink-0 px-2 py-0.5 rounded-full text-[11px] font-bold bg-clay">🔥 Promocionado</span>
+          <span className="font-semibold text-sm truncate max-w-[280px]">{property.title}</span>
+          <span className="text-white/60 text-xs truncate max-w-[200px] hidden lg:block">{location}</span>
+          <Link href={`/propiedades/${property.id}`} className="ml-auto shrink-0 px-3 py-1 bg-white/15 hover:bg-white/25 rounded-lg text-xs font-semibold transition-colors">
+            {price} Ver ›
+          </Link>
+        </div>
+        {/* Mobile: minimal single line */}
+        <div className="md:hidden flex items-center justify-between text-white">
+          <span className="shrink-0 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-clay">🔥 Promocionado</span>
+          <Link href={`/propiedades/${property.id}`} className="ml-auto shrink-0 px-2 py-0.5 bg-white/15 hover:bg-white/25 rounded text-[11px] font-semibold">
+            {price} Ver ›
           </Link>
         </div>
       </div>
