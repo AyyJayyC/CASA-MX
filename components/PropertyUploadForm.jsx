@@ -1104,11 +1104,49 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
             )}
           </div>
 
-          {/* Auto-filled location parts */}
+          {/* {/* Location fields */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="estado" className={labelClass}>
                 Estado
+              </label>
+              <input
+                id="estado"
+                list="estados-list"
+                {...register('estado')}
+                placeholder="Selecciona el estado"
+                className={`${inputClass}`}
+                autoComplete="off"
+              />
+              <datalist id="estados-list">
+                {estadosDisponibles.map((item) => (
+                  <option key={item} value={item} />
+                ))}
+              </datalist>
+            </div>
+
+            <div>
+              <label htmlFor="ciudad" className={labelClass}>
+                Ciudad
+              </label>
+              <input
+                id="ciudad"
+                list="ciudades-list"
+                {...register('ciudad')}
+                placeholder="Selecciona la ciudad"
+                className={`${inputClass}`}
+                autoComplete="off"
+              />
+              <datalist id="ciudades-list">
+                {ciudadesDisponibles.map((item) => (
+                  <option key={item} value={item} />
+                ))}
+              </datalist>
+            </div>
+
+            <div>
+              <label htmlFor="colonia" className={labelClass}>
+                Colonia
               </label>
               <input
                 id="colonia"
@@ -1138,7 +1176,6 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
               />
             </div>
           </div>
-        </div>
 
         {/* Property Details Section */}
         <div className="space-y-4">
