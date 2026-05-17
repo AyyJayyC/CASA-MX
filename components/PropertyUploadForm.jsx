@@ -515,9 +515,9 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
 
       // Save address to cache for future suggestions
       const addressData = {
-        estado: values.estado,
-        ciudad: values.ciudad,
-        colonia: values.colonia,
+        estado: (values.estado || "").trim().replace(/\s+/g, " ").replace(/\w/g, c => c.toUpperCase()),
+        ciudad: (values.ciudad || "").trim().replace(/\s+/g, " ").replace(/\w/g, c => c.toUpperCase()),
+        colonia: (values.colonia || "").trim().replace(/\s+/g, " ").replace(/\w/g, c => c.toUpperCase()),
         codigoPostal: values.codigoPostal,
       };
       addAddressToCache(addressData);
