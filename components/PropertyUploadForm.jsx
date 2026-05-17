@@ -392,26 +392,48 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
         const streetNum = getComponent(comps, 'street_number');
         const route = getComponent(comps, 'route');
         const suggestionComponents = selectedSuggestion?.address_components || {};
-        const cpFromFormatted = String(result.formatted_address || '').match(/\b\d{5}\b/)?.[0] || '';
-        const colonia =
-          getComponent(comps, 'neighborhood') ||
+        const cpFromFormatted = String(result.formatted_address || '').match(/\d{5}/)?.[0] || '';
+
+        // Mexican address priority: sublocality > neighborhood for colonia
+        let colonia =
           getComponent(comps, 'sublocality_level_1') ||
+          getComponent(comps, 'neighborhood') ||
           getComponent(comps, 'sublocality_level_2') ||
           getComponent(comps, 'sublocality') ||
           suggestionComponents.colonia || '';
-        const ciudad =
+        let ciudad =
           getComponent(comps, 'locality') ||
-          getComponent(comps, 'administrative_area_level_3') ||
-          getComponent(comps, 'administrative_area_level_2') ||
           getComponent(comps, 'postal_town') ||
-          suggestionComponents.ciudad || '';
-        const estado =
-          getComponent(comps, 'administrative_area_level_1') ||
           getComponent(comps, 'administrative_area_level_2') ||
+          suggestionComponents.ciudad || '';
+        let estado =
+          getComponent(comps, 'administrative_area_level_1') ||
           suggestionComponents.estado || '';
         const cp = getComponent(comps, 'postal_code') || suggestionComponents.codigoPostal || cpFromFormatted || '';
         const lat = result.geometry?.location?.lat;
         const lng = result.geometry?.location?.lng;
+
+        // Fallback: parse formatted_address for Mexican comma-separated format
+        // e.g. "Begonia 10, Cardeno Residencial, Hermosillo, Sonora, Mexico, 83106"
+        if (!colonia || !ciudad || !estado) {
+          const faParts = (result.formatted_address || '').split(',').map(s => s.trim()).filter(Boolean);
+          const idxMexico = faParts.findIndex(p => /mexico|mex|mx/i.test(p));
+          const usable = idxMexico >= 0 ? faParts.slice(0, idxMexico) : faParts;
+          if (usable.length >= 3) {
+            if (!estado) estado = usable[usable.length - 1].trim();
+            if (!ciudad) ciudad = usable[usable.length - 2].trim();
+            if (!colonia) colonia = usable[usable.length - 3].trim();
+          }
+        }
+
+        // Cross-validate: if colonia equals estado, it was mis-extracted
+        if (colonia && estado && colonia.toLowerCase() === estado.toLowerCase()) {
+          // Try neighborhood or sublocality as fallback
+          const altColonia = getComponent(comps, 'neighborhood') ||
+            getComponent(comps, 'sublocality_level_1') ||
+            getComponent(comps, 'sublocality');
+          if (altColonia && altColonia !== estado) colonia = altColonia;
+        }
 
         const street = route && streetNum ? `${route} ${streetNum}` : route || streetNum;
         const typedStreet = getTypedStreetPrefix(typedInput || addressSearch, description);
