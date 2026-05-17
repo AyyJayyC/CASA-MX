@@ -116,7 +116,7 @@ export default function FeaturedCarousel({ properties }) {
       )}
 
       {/* CTA Overlay — always visible at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-ink/40 via-ink/25 to-transparent px-4 py-3 md:px-6 md:py-4">
+      <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-ink/40 via-ink/25 to-transparent px-4 py-3 md:px-6 md:py-4 hidden md:block">
         <div className="container max-w-3xl text-center">
           <h2 className="text-sm md:text-lg font-bold text-white mb-0.5 drop-shadow">
             Encuentra tu camino en el mercado inmobiliario.
@@ -132,6 +132,25 @@ export default function FeaturedCarousel({ properties }) {
               Explorar propiedades
             </Link>
           </div>
+        </div>
+      </div>
+    </section>
+
+      {/* Mobile CTA — below carousel */}
+      <div className="block md:hidden bg-gradient-to-br from-sand-50 to-sand-100 dark:from-ink dark:to-ink/90 px-4 py-5 text-center">
+        <h2 className="text-sm font-bold text-ink dark:text-sand-50 mb-1">
+          Encuentra tu camino en el mercado inmobiliario.
+        </h2>
+        <p className="text-xs text-ink-muted dark:text-sand-200 mb-3">
+          Ofertas reales. Decisiones informadas.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-2 justify-center">
+          <Link href="/publish-property" className="px-4 py-2 bg-clay hover:bg-clay-500 text-white font-semibold text-sm rounded-lg transition-all">
+            Publicar propiedad
+          </Link>
+          <Link href="/properties" className="px-4 py-2 bg-white dark:bg-ink border-2 border-sand-200 dark:border-slate-700 text-ink dark:text-sand-50 hover:border-clay font-semibold text-sm rounded-lg transition-all">
+            Explorar propiedades
+          </Link>
         </div>
       </div>
     </section>
