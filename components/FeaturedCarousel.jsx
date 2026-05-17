@@ -84,7 +84,8 @@ export default function FeaturedCarousel({ properties }) {
   if (!properties || total === 0) return null;
 
   return (
-    <section
+    <>
+      <section
       className="relative w-full h-[450px] md:h-[550px] lg:h-[600px] overflow-hidden bg-ink"
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
@@ -153,6 +154,7 @@ export default function FeaturedCarousel({ properties }) {
           </Link>
         </div>
       </div>
-    </section>
+    </>
+    </>
   );
 }
