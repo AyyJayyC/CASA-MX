@@ -1088,63 +1088,19 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
               <label htmlFor="estado" className={labelClass}>
                 Estado
               </label>
-              <select
-                id="estado"
-                {...register('estado', {
-                  onChange: () => {
-                    setValue('ciudad', '', { shouldDirty: true, shouldValidate: true });
-                    setValue('colonia', '', { shouldDirty: true, shouldValidate: true });
-                    queueMicrotask(syncFullAddressFromLocation);
-                  },
-                  onBlur: syncFullAddressFromLocation,
-                })}
-                className={`${inputClass} appearance-none`}
-              >
-                <option value="">Seleccionar estado...</option>
-                {estadosDisponibles.map((item) => (
-                  <option key={item} value={item}>{item}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="ciudad" className={labelClass}>
-                Ciudad
-              </label>
-              <select
-                id="ciudad"
-                disabled={!selectedEstado}
-                {...register('ciudad', {
-                  onChange: () => {
-                    setValue('colonia', '', { shouldDirty: true, shouldValidate: true });
-                    queueMicrotask(syncFullAddressFromLocation);
-                  },
-                  onBlur: syncFullAddressFromLocation,
-                })}
-                className={`${inputClass} appearance-none disabled:opacity-60`}
-              >
-                <option value="">Seleccionar ciudad...</option>
-                {ciudadesDisponibles.map((item) => (
-                  <option key={item} value={item}>{item}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="colonia" className={labelClass}>
-                Colonia
-              </label>
-              <select
+              <input
                 id="colonia"
-                disabled={!selectedEstado || !selectedCiudad}
+                list="colonias-list"
                 {...register('colonia', { onBlur: syncFullAddressFromLocation })}
-                className={`${inputClass} appearance-none disabled:opacity-60`}
-              >
-                <option value="">Seleccionar colonia...</option>
+                placeholder="Escribe o selecciona la colonia"
+                className={`${inputClass}`}
+                autoComplete="off"
+              />
+              <datalist id="colonias-list">
                 {coloniasDisponibles.map((item) => (
-                  <option key={item} value={item}>{item}</option>
+                  <option key={item} value={item} />
                 ))}
-              </select>
+              </datalist>
             </div>
 
             <div>
