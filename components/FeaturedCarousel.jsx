@@ -57,6 +57,24 @@ export default function FeaturedCarousel({ properties }) {
   const prev = useCallback(() => goTo(current - 1), [current, goTo]);
   const minSwipeDistance = 50;
 
+  const onTouchStart = useCallback((e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  }, []);
+
+  const onTouchMove = useCallback((e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  }, []);
+
+  const onTouchEnd = useCallback(() => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    if (Math.abs(distance) > minSwipeDistance) {
+      if (distance > 0) next();
+      else prev();
+    }
+  }, [touchStart, touchEnd, next, prev, minSwipeDistance]);
+
   useEffect(() => {
     if (total <= 1) return;
     const timer = setInterval(next, 5000);
