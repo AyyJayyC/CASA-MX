@@ -525,6 +525,11 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
               ...(values.availableFrom ? { availableFrom: values.availableFrom } : {}),
               // furnished removed: now covered by 'Amueblado' and 'Equipado' in amenities
               utilitiesIncluded: (values.includedServices || []).length > 0,
+              issuesInvoice: values.issuesInvoice ?? false,
+              petFriendly: values.petFriendly ?? false,
+              petFee: values.petFriendly ? (values.petFee ?? null) : null,
+              petDeposit: values.petFriendly ? (values.petDeposit ?? null) : null,
+              childrenWelcome: values.childrenWelcome ?? false,
               includedServices: values.includedServices || [],
               amenities: values.amenities || [],
             }),
