@@ -1336,7 +1336,10 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
         </div>
 
         {/* Photos Section */}
-        <div className="space-y-4">
+        
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 pb-2 border-b border-neutral-200 dark:border-neutral-800">
+              Fotos de la propiedad<div className="space-y-4">
           <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 pb-2 border-b border-neutral-200 dark:border-neutral-800">
             Fotos de la propiedad
           </h2>
