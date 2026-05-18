@@ -31,6 +31,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
   const [loading, setLoading] = useState(false);
   const [submitValidationError, setSubmitValidationError] = useState('');
   const [ownershipConfirmed, setOwnershipConfirmed] = useState(false);
+  const [primaryImageIndex, setPrimaryImageIndex] = useState(0);
   const [locationsCatalog, setLocationsCatalog] = useState(null);
   const [addressSearch, setAddressSearch] = useState('');
   const [addressSuggestions, setAddressSuggestions] = useState([]);
