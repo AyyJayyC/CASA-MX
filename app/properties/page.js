@@ -53,6 +53,7 @@ function PropertiesContent() {
   const searchParams = useSearchParams();
   const [locationsCatalog, setLocationsCatalog] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
   const [listingType, setListingType] = useState(() => {
     const type = searchParams.get('type');
     return type === 'for_rent' ? 'for_rent' : 'for_sale';
