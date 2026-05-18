@@ -49,11 +49,10 @@ const MEXICO_STATES = [
 
 function PropertiesContent() {
   const { data = [] } = useProperties();
-  // Promoted properties appear first via backend sort
+  const promotedProps = data.filter(p => p.promotionTier === 'carousel');
   const searchParams = useSearchParams();
   const [locationsCatalog, setLocationsCatalog] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
   const [listingType, setListingType] = useState(() => {
     const type = searchParams.get('type');
     return type === 'for_rent' ? 'for_rent' : 'for_sale';
@@ -929,21 +928,14 @@ function PropertiesContent() {
               </div>
             </div>
 
+            {/* Promoted Properties Carousel */}
+            {promotedProps.length > 0 && (
+              <div className="mb-6">
+                <FeaturedCarousel properties={promotedProps} />
+              </div>
+            )}
 
-                        {/* Mobile filter toggle */}
-            <div className="lg:hidden mb-3">
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="w-full px-4 py-2.5 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm font-medium text-neutral-700 dark:text-neutral-300 flex items-center justify-center gap-2"
-              >
-                <svg className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                {showFilters ? 'Ocultar filtros' : 'Filtros'} {(estado || ciudad || colonia || minPrice || maxPrice) ? '•' : ''}
-              </button>
-            </div>
-
-            {/* Filter sidebar — hidden on mobile unless toggled */}
-            <div className={`lg:block ${showFilters ? 'block' : 'hidden'}`}>
- 
+            <PropertyList 
               listingType={listingType}
               searchQuery={searchQuery}
               estado={estado}
