@@ -1109,7 +1109,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
             )}
           </div>
 
-          {/* Location fields */}
+          {/* {/* Location fields */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="estado" className={labelClass}>
@@ -1336,10 +1336,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
         </div>
 
         {/* Photos Section */}
-        
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 pb-2 border-b border-neutral-200 dark:border-neutral-800">
-              Fotos de la propiedad<div className="space-y-4">
+        <div className="space-y-4">
           <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 pb-2 border-b border-neutral-200 dark:border-neutral-800">
             Fotos de la propiedad
           </h2>
@@ -1586,9 +1583,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
             Limpiar formulario
           </button>
         </div>
-        </div>
-              </div>
-</form>
+      </form>
       )}
     </>
   );
