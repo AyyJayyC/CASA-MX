@@ -49,7 +49,7 @@ const MEXICO_STATES = [
 
 function PropertiesContent() {
   const { data = [] } = useProperties();
-  const promotedProps = data.filter(p => p.promotionTier === 'carousel');
+  const sortedData = [...data].sort((a, b) => (b.promotionTier ? 1 : 0) - (a.promotionTier ? 1 : 0));
   const searchParams = useSearchParams();
   const [locationsCatalog, setLocationsCatalog] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
