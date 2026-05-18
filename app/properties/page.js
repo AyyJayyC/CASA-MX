@@ -49,7 +49,7 @@ const MEXICO_STATES = [
 
 function PropertiesContent() {
   const { data = [] } = useProperties();
-  const sortedData = [...data].sort((a, b) => (b.promotionTier ? 1 : 0) - (a.promotionTier ? 1 : 0));
+  // Promoted properties appear first via backend sort
   const searchParams = useSearchParams();
   const [locationsCatalog, setLocationsCatalog] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
