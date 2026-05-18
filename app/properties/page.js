@@ -928,12 +928,6 @@ function PropertiesContent() {
               </div>
             </div>
 
-            {/* Promoted Properties Carousel */}
-            {promotedProps.length > 0 && (
-              <div className="mb-6">
-                <FeaturedCarousel properties={promotedProps} />
-              </div>
-            )}
 
             <PropertyList 
               listingType={listingType}
