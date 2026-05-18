@@ -1587,7 +1587,8 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
           </button>
         </div>
         </div>
-      </form>
+              </div>
+</form>
       )}
     </>
   );
