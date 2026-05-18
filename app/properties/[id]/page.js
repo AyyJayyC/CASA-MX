@@ -109,9 +109,14 @@ export default async function PropertyDetail({ params }) {
           <div className="lg:col-span-2 space-y-8">
             {/* Header */}
             <div className="space-y-4">
-              <h1 className="text-3xl sm:text-4xl font-bold text-neutral-900 dark:text-neutral-100">
-                {property.title}
-              </h1>
+              <div className="flex items-start justify-between gap-4">
+                <h1 className="text-3xl sm:text-4xl font-bold text-neutral-900 dark:text-neutral-100 flex-1">
+                  {property.title}
+                </h1>
+                <div className="shrink-0 pt-1">
+                  <SharePropertyButton propertyId={property.id} propertyTitle={property.title} />
+                </div>
+              </div>
               <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
