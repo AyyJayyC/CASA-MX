@@ -286,8 +286,8 @@ function PropertiesContent() {
       {/* Main Content with Sidebar */}
       <div className="container max-w-7xl py-8 lg:py-12">
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filters Sidebar - Desktop Only */}
-          <aside className="hidden lg:block lg:w-64 flex-shrink-0">
+          {/* Filters Sidebar - Collapsible on mobile */}
+          <aside className="lg:w-64 flex-shrink-0">
                         {/* Mobile filter toggle */}
             <div className="lg:hidden mb-3">
               <button
