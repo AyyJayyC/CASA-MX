@@ -288,14 +288,18 @@ function PropertiesContent() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filters Sidebar - Desktop Only */}
           <aside className="hidden lg:block lg:w-64 flex-shrink-0">
-            <div className="
-              sticky top-8
-              bg-white dark:bg-neutral-900
-              border border-neutral-200 dark:border-neutral-800
-              rounded-lg
-              p-6
-              space-y-6
-            ">
+                        {/* Mobile filter toggle */}
+            <div className="lg:hidden mb-3">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="w-full px-4 py-2.5 bg-white dark:bg-neutral-800 border border-sand-200 dark:border-slate-700 rounded-lg text-sm font-medium text-ink-muted dark:text-sand-200 flex items-center justify-center gap-2"
+              >
+                <svg className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                {showFilters ? 'Ocultar filtros' : 'Filtros'}
+              </button>
+            </div>
+
+<div className={`lg:block ${showFilters ? 'block' : 'hidden'}`}>
               {/* Heading */}
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
