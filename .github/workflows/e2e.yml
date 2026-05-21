@@ -26,6 +26,16 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 3s
+          --health-retries 5
+
     steps:
       - name: Checkout frontend
         uses: actions/checkout@v4
@@ -70,12 +80,13 @@ jobs:
           NODE_ENV: test
           PORT: 3001
           FRONTEND_URL: http://localhost:3000
+          REDIS_URL: redis://localhost:6379
         run: cd backend && npx tsx src/server.ts &
         shell: bash
 
       - name: Wait for backend
         run: |
-          for i in $(seq 1 30); do
+          for i in $(seq 1 60); do
             curl -s http://localhost:3001/health && break || sleep 2
           done
 

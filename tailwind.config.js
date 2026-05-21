@@ -1,6 +1,7 @@
 /**
  * Tailwind configuration
- * Casa MX Design System — Mexican Modernism clay palette
+ * Casa MX — "Ruta Clara" Design System
+ * Clay/terracotta palette with cream neutrals
  */
 module.exports = {
   content: ["./app/**/*.{js,jsx}", "./components/**/*.{js,jsx}", "./lib/**/*.{js,jsx}"],
@@ -9,37 +10,40 @@ module.exports = {
     extend: {
       colors: {
         clay: {
-          50:  '#F9EBE5',
-          100: '#F2D0C2',
-          200: '#E4A893',
-          300: '#D4886D',
+          DEFAULT: '#C46A4D',   // primary accent
           400: '#C46A4D',
-          500: '#B05A3F',
-          600: '#9A4A32',
-          700: '#7A3A27',
-          800: '#5A2A1A',
-          900: '#3A1A10',
+          500: '#B05E43',       // hover
+          600: '#9A5239',       // active/darker
+          700: '#8C4530',
+          50: '#F2DFD7',        // light tint
+          100: '#E8CCC1',
+          900: '#5C2A1F',
         },
-        dark: {
-          DEFAULT: '#1A1A18',
-          muted: '#6B6B6B',
-          'light-muted': '#8A8A8A',
-          border: '#E8E8E6',
+        sand: {
+          DEFAULT: '#EAE4DD',   // borders, cards
+          50: '#F5F1EC',        // page background
+          100: '#EAE4DD',
+          200: '#D9D0C7',
+          800: '#6B6B6B',
+        },
+        ink: {
+          DEFAULT: '#1C1B19',   // main text
+          muted: '#6B6B6B',     // secondary text
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['DM Sans', 'Inter', 'system-ui', 'sans-serif'],
       },
-    }
+    },
   },
   plugins: [function({ addComponents }) {
     addComponents({
       '.btn-cta': {
-        '@apply px-4 py-2 rounded-lg text-sm font-semibold bg-clay-400 hover:bg-clay-500 disabled:bg-neutral-300 text-white shadow-sm transition-all disabled:cursor-not-allowed': {},
+        '@apply px-4 py-2 rounded-lg text-sm font-semibold bg-clay text-white hover:bg-clay-500 disabled:bg-sand-200 disabled:text-ink-muted shadow-sm transition-all disabled:cursor-not-allowed': {},
       },
       '.btn-cta-lg': {
-        '@apply px-6 py-3 rounded-lg text-base font-semibold bg-clay-400 hover:bg-clay-500 disabled:bg-neutral-300 text-white shadow-md transition-all disabled:cursor-not-allowed': {},
+        '@apply px-6 py-3 rounded-lg text-base font-semibold bg-clay text-white hover:bg-clay-500 disabled:bg-sand-200 disabled:text-ink-muted shadow-md transition-all disabled:cursor-not-allowed': {},
       },
     });
-  }]
+  }],
 };

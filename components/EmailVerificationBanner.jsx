@@ -5,7 +5,8 @@ import { useAuth } from '@/lib/auth/useAuth';
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export default function EmailVerificationBanner() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, refreshUser } = useAuth();
+  const [checking, setChecking] = useState(false);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [dismissed, setDismissed] = useState(false);
@@ -40,7 +41,20 @@ export default function EmailVerificationBanner() {
           </span>
         </div>
         <div className="flex items-center gap-3">
-          {sent ? (
+          <button
+              onClick={async () => {
+                setChecking(true);
+                try {
+                  await refreshUser?.();
+                } catch {}
+                setChecking(false);
+              }}
+              disabled={checking}
+              className="text-xs font-semibold text-green-700 dark:text-green-400 hover:underline disabled:opacity-50"
+            >
+              {checking ? 'Verificando...' : 'Ya verifiqué mi correo'}
+            </button>
+            {sent ? (
             <span className="text-xs text-green-700 dark:text-green-400 font-medium">¡Correo enviado!</span>
           ) : (
             <button

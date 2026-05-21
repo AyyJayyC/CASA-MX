@@ -97,7 +97,7 @@ export default function DashboardPage() {
       <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center">
         <div className="text-center space-y-4">
           <p className="text-neutral-600 dark:text-neutral-400">Debes iniciar sesión para ver el inicio.</p>
-          <Link href="/login" className="text-clay-600 dark:text-clay-400 hover:underline font-medium">
+          <Link href="/login" className="text-clay dark:text-clay hover:underline font-medium">
             Iniciar sesión
           </Link>
         </div>
@@ -138,7 +138,7 @@ export default function DashboardPage() {
                 group block p-6
                 bg-white dark:bg-neutral-900
                 border border-neutral-200 dark:border-neutral-800
-                hover:border-clay-400 dark:hover:border-clay-500
+                hover:border-clay dark:hover:border-amber-500
                 rounded-xl shadow-sm
                 transition-all hover:shadow-md
               "
@@ -146,7 +146,7 @@ export default function DashboardPage() {
               <div className="flex items-start gap-4">
                 <span className="text-3xl">{section.icon}</span>
                 <div className="space-y-1 min-w-0">
-                  <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100 group-hover:text-clay-600 dark:group-hover:text-clay-400 transition-colors">
+                  <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100 group-hover:text-clay dark:group-hover:text-clay-400 transition-colors">
                     {section.title}
                   </h2>
                   <p className="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">

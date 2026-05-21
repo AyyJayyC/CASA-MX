@@ -1,107 +1,48 @@
-import Link from 'next/link';
-import HeroSection from '@/components/HeroSection.jsx';
+import HomepageCarousel from '@/components/HomepageCarousel.jsx';
+
+function ValueCard({ icon, title, description }) {
+  return (
+    <div className="text-center p-6 bg-sand-100 dark:bg-ink/50 rounded-xl border border-sand-200 dark:border-slate-700/30 hover:shadow-md transition-shadow">
+      <div className="inline-flex items-center justify-center w-14 h-14 bg-clay/10 rounded-full mb-4">
+        <svg className="w-7 h-7 text-clay" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          {icon}
+        </svg>
+      </div>
+      <h3 className="text-base font-semibold text-ink dark:text-sand-50 mb-2 uppercase tracking-wide">{title}</h3>
+      <p className="text-sm text-ink-muted dark:text-sand-200">{description}</p>
+    </div>
+  );
+}
+
+const ICONS = {
+  transparencia: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />,
+  negociacion: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />,
+  datos: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />,
+  confianza: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />,
+  equidad: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />,
+};
 
 export default function Home() {
   return (
     <div>
-      {/* Hero Section */}
-      <section className="relative py-20 md:py-32 px-4 bg-gradient-to-br from-clay-50 via-white to-clay-50 dark:from-neutral-900 dark:via-neutral-950 dark:to-neutral-900">
-        <div className="container max-w-4xl text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-neutral-900 dark:text-neutral-100 mb-6">
-            Bienvenido a{' '}
-            <span className="bg-gradient-to-r from-clay-400 to-clay-600 bg-clip-text text-transparent">
-              Casa-MX.com
-            </span>
-          </h1>
-          <p className="text-lg md:text-xl text-neutral-600 dark:text-neutral-400 mb-8 max-w-2xl mx-auto">
-            Te acompanamos desde el inicio hasta el cierre: publicar, negociar y completar la venta o renta con confianza
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/properties"
-              className="
-                px-8 py-4
-                bg-gradient-to-br from-clay-400 to-clay-600
-                hover:from-clay-500 hover:to-clay-700
-                text-white font-semibold text-lg
-                rounded-lg
-                transition-all
-                shadow-lg hover:shadow-xl
-              "
-            >
-              Explorar Propiedades
-            </Link>
-            <Link
-              href="/publish-property"
-              className="
-                px-8 py-4
-                bg-white dark:bg-neutral-900
-                hover:bg-neutral-50 dark:hover:bg-neutral-800
-                text-neutral-900 dark:text-neutral-100
-                border-2 border-neutral-200 dark:border-neutral-700
-                font-semibold text-lg
-                rounded-lg
-                transition-all
-              "
-            >
-              Publicar Propiedad
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* Hero Carousel + CTA Overlay — single unified block */}
+      <HomepageCarousel />
 
-      <HeroSection />
-
-      {/* Features Section */}
-      <section className="py-16 px-4 bg-white dark:bg-neutral-950">
+      {/* Value Cards */}
+      <section className="py-16 px-4 bg-white dark:bg-ink/80">
         <div className="container max-w-6xl">
-          <h2 className="text-3xl font-bold text-center text-neutral-900 dark:text-neutral-100 mb-12">
-            ¿Por qué Casa-MX.com?
+          <h2 className="text-2xl md:text-3xl font-bold text-center text-ink dark:text-sand-50 mb-4">
+            Tu ruta, tu decisión
           </h2>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center p-6">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-clay-100 dark:bg-clay-900/30 rounded-full mb-4">
-                <svg className="w-8 h-8 text-clay-600 dark:text-clay-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 mb-2">
-                Búsqueda Fácil
-              </h3>
-              <p className="text-neutral-600 dark:text-neutral-400">
-                Encuentra propiedades con filtros inteligentes y búsqueda rápida
-              </p>
-            </div>
-
-            <div className="text-center p-6">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-clay-100 dark:bg-clay-900/30 rounded-full mb-4">
-                <svg className="w-8 h-8 text-clay-600 dark:text-clay-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 mb-2">
-                Acompanamiento de Inicio a Cierre
-              </h3>
-              <p className="text-neutral-600 dark:text-neutral-400">
-                Te ayudamos durante todo el proceso hasta que la propiedad se venda o se rente
-              </p>
-            </div>
-
-            <div className="text-center p-6">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-clay-100 dark:bg-clay-900/30 rounded-full mb-4">
-                <svg className="w-8 h-8 text-clay-600 dark:text-clay-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 mb-2">
-                Seguro y Confiable
-              </h3>
-              <p className="text-neutral-600 dark:text-neutral-400">
-                Verificamos todas las propiedades y usuarios para tu tranquilidad
-              </p>
-            </div>
+          <p className="text-center text-ink-muted dark:text-sand-200 mb-12 max-w-xl mx-auto text-sm md:text-base">
+            Un camino claro que guía cada decisión inmobiliaria
+          </p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <ValueCard icon={ICONS.transparencia} title="Transparencia" description="Información clara para todos." />
+            <ValueCard icon={ICONS.negociacion} title="Negociación" description="Acuerdos justos entre personas." />
+            <ValueCard icon={ICONS.datos} title="Datos reales" description="Decisiones basadas en información real." />
+            <ValueCard icon={ICONS.confianza} title="Confianza" description="Seguridad y tranquilidad en cada paso." />
+            <ValueCard icon={ICONS.equidad} title="Equidad" description="Un mercado justo para todos." />
           </div>
         </div>
       </section>

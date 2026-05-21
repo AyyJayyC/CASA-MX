@@ -15,7 +15,7 @@ const STATUS_LABELS = {
 };
 
 const STATUS_COLORS = {
-  pending: 'bg-clay-100 text-clay-800 dark:bg-clay-900/30 dark:text-clay-300',
+  pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
   accepted: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
   rejected: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
   countered: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
@@ -66,7 +66,7 @@ function MyOffersContent() {
               Sigue el historial completo de tus ofertas y responde contraofertas del vendedor.
             </p>
           </div>
-          <Link href="/dashboard" className="text-sm text-clay-600 dark:text-clay-400 hover:underline">
+          <Link href="/dashboard" className="text-sm text-clay dark:text-clay hover:underline">
             ← Inicio
           </Link>
         </div>
@@ -92,7 +92,7 @@ function MyOffersContent() {
                   <div className="space-y-0.5 min-w-0">
                     <Link
                       href={`/properties/${offer.propertyId}`}
-                      className="text-base font-semibold text-neutral-900 dark:text-neutral-100 hover:text-clay-600 dark:hover:text-clay-400 line-clamp-1"
+                      className="text-base font-semibold text-neutral-900 dark:text-neutral-100 hover:text-clay dark:hover:text-clay-400 line-clamp-1"
                     >
                       {offer.property?.title ?? 'Propiedad'}
                     </Link>
@@ -130,7 +130,7 @@ function MyOffersContent() {
                   <div className="flex justify-end">
                     <button
                       onClick={() => setSelectedOffer(offer)}
-                      className="px-5 py-2 rounded-lg font-semibold text-sm bg-gradient-to-br from-clay-400 to-clay-600 hover:from-clay-500 hover:to-clay-700 text-white shadow-sm transition-all"
+                      className="px-5 py-2 rounded-lg font-semibold text-sm bg-clay hover:bg-clay-500 text-white shadow-sm transition-all"
                     >
                       Responder negociación
                     </button>

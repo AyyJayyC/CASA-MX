@@ -36,8 +36,8 @@ export default async function PropertyDetail({ params }) {
             className="
               inline-flex items-center gap-2
               px-6 py-3
-              bg-gradient-to-br from-clay-400 to-clay-600
-              hover:from-clay-500 hover:to-clay-700
+              bg-clay
+              hover:bg-clay-500
               text-white font-semibold rounded-lg
               transition-all
             "
@@ -83,7 +83,7 @@ export default async function PropertyDetail({ params }) {
               inline-flex items-center gap-2
               text-sm font-medium
               text-neutral-600 dark:text-neutral-400
-              hover:text-clay-600 dark:hover:text-clay-400
+              hover:text-clay dark:hover:text-clay-400
               transition-colors
             "
           >
@@ -109,9 +109,14 @@ export default async function PropertyDetail({ params }) {
           <div className="lg:col-span-2 space-y-8">
             {/* Header */}
             <div className="space-y-4">
-              <h1 className="text-3xl sm:text-4xl font-bold text-neutral-900 dark:text-neutral-100">
-                {property.title}
-              </h1>
+              <div className="flex items-start justify-between gap-4">
+                <h1 className="text-3xl sm:text-4xl font-bold text-neutral-900 dark:text-neutral-100 flex-1">
+                  {property.title}
+                </h1>
+                <div className="shrink-0 pt-1">
+                  <SharePropertyButton propertyId={property.id} propertyTitle={property.title} />
+                </div>
+              </div>
               <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -119,7 +124,7 @@ export default async function PropertyDetail({ params }) {
                 </svg>
                 <span className="text-base">{property.colonia} • {property.propertyType || 'Propiedad'}</span>
               </div>
-              <div className="text-4xl font-bold text-clay-600 dark:text-clay-400">
+              <div className="text-4xl font-bold text-clay dark:text-clay">
                 {isRental 
                   ? `$${property.monthlyRent.toLocaleString('es-MX')} MXN/mes`
                   : `$${property.price.toLocaleString('es-MX')} MXN`
@@ -277,7 +282,7 @@ export default async function PropertyDetail({ params }) {
                     return (
                     <span
                       key={service}
-                      className="rounded-full bg-clay-100 px-3 py-1 text-sm font-medium text-clay-800 dark:bg-clay-900/30 dark:text-clay-300"
+                      className="rounded-full bg-clay/10 px-3 py-1 text-sm font-medium text-clay-600 dark:bg-clay-900/30 dark:text-clay-300"
                     >
                       <span className="mr-1" aria-hidden="true">{meta.emoji}</span>
                       {meta.label}
@@ -387,7 +392,7 @@ export default async function PropertyDetail({ params }) {
                   </h2>
 
                   {property.price && (
-                    <div className="text-2xl font-bold text-clay-600 dark:text-clay-400">
+                    <div className="text-2xl font-bold text-clay dark:text-clay">
                       ${property.price.toLocaleString('es-MX')} MXN
                     </div>
                   )}

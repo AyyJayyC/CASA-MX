@@ -70,7 +70,8 @@ export default function NavBar() {
       <div className="container max-w-7xl">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="inline-flex items-center" aria-label="Inicio Casa-MX.com">
-            <img src="/brand/logo-primary.png" alt="Casa-MX.com" className="block h-10 w-auto md:h-11" />
+            <img src="/brand/logo-light.png" alt="CASA MX" className="block dark:hidden h-11 w-auto md:h-12" />
+            <img src="/brand/logo-dark.png" alt="CASA MX" className="hidden dark:block h-11 w-auto md:h-12" />
           </Link>
 
           <DesktopNavLinks
@@ -107,14 +108,11 @@ export default function NavBar() {
                     {user.avatarUrl ? (
                       <img src={user.avatarUrl} alt={`Avatar de ${user.name}`} className="w-8 h-8 rounded-full object-cover border border-neutral-200 dark:border-neutral-700" />
                     ) : (
-                      <div className="w-8 h-8 bg-gradient-to-br from-clay-400 to-clay-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">{user.name[0].toUpperCase()}</div>
+                      <div className="w-8 h-8 bg-clay rounded-full flex items-center justify-center text-white font-semibold text-sm">{user.name[0].toUpperCase()}</div>
                     )}
                     <div className="text-sm">
                       <p className="font-medium text-neutral-900 dark:text-neutral-100">{user.name}</p>
                       <p className="text-xs text-neutral-600 dark:text-neutral-400">{getRoleLabel(user.activeRole) || 'Sin rol'}</p>
-                      {user.agency?.name && (
-                        <p className="text-xs text-clay-400 font-medium mt-0.5">🏢 {user.agency.name}</p>
-                      )}
                       <VerificationBadges compact identityVerified={Boolean(user.officialIdVerified)} identityUploaded={Boolean(user.officialIdUploaded)} paidSubscriber={Boolean(user.paidSubscriber)} />
                     </div>
                   </div>
@@ -138,7 +136,7 @@ export default function NavBar() {
                           <span className="font-semibold text-sm text-neutral-900 dark:text-neutral-100">Notificaciones</span>
                           {notifData.unreadCount > 0 && (
                             <button onClick={async () => { await markAllNotificationsRead(); setNotifData(d => ({ ...d, unreadCount: 0, notifications: d.notifications.map(n => ({ ...n, read: true })) })); }}
-                              className="text-xs text-clay-600 dark:text-clay-400 hover:underline">Marcar todas leídas</button>
+                              className="text-xs text-clay dark:text-clay-400 hover:underline">Marcar todas leídas</button>
                           )}
                         </div>
                         <div className="max-h-72 overflow-y-auto">
@@ -146,7 +144,7 @@ export default function NavBar() {
                             <p className="px-4 py-6 text-sm text-neutral-500 dark:text-neutral-400 text-center">Sin notificaciones</p>
                           ) : (
                             notifData.notifications.slice(0, 5).map(n => (
-                              <div key={n.id} className={`px-4 py-3 border-b border-neutral-100 dark:border-neutral-700 last:border-0 ${!n.read ? 'bg-clay-50 dark:bg-clay-900/10' : ''}`}>
+                              <div key={n.id} className={`px-4 py-3 border-b border-neutral-100 dark:border-neutral-700 last:border-0 ${!n.read ? 'bg-clay/50 dark:bg-clay/900/10' : ''}`}>
                                 <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{n.title}</p>
                                 <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-0.5">{n.message}</p>
                               </div>
@@ -154,12 +152,25 @@ export default function NavBar() {
                           )}
                         </div>
                         <div className="px-4 py-2 border-t border-neutral-100 dark:border-neutral-700">
-                          <Link href="/dashboard/notifications" onClick={() => setNotifOpen(false)} className="block text-center text-xs text-clay-600 dark:text-clay-400 hover:underline py-1">Ver todas las notificaciones</Link>
+                          <Link href="/dashboard/notifications" onClick={() => setNotifOpen(false)} className="block text-center text-xs text-clay dark:text-clay-400 hover:underline py-1">Ver todas las notificaciones</Link>
                         </div>
                       </div>
                     )}
                   </div>
 
+                  <Link href="/dashboard" className="px-3 py-1.5 rounded-lg text-sm font-medium text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800 transition-colors">
+                    Inicio
+                  </Link>
+                  {isBuyerOrTenant && (
+                    <Link href="/dashboard/my-offers" className="px-3 py-1.5 rounded-lg text-sm font-medium text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800 transition-colors">
+                      Mis ofertas
+                    </Link>
+                  )}
+                  {!isBuyerOrTenant && canPublish && (
+                    <Link href="/dashboard/contact-requests" className="px-3 py-1.5 rounded-lg text-sm font-medium text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800 transition-colors">
+                      Solicitudes
+                    </Link>
+                  )}
                   <Link href="/settings" onClick={() => { setNotifOpen(false); setPropertiesDropdownOpen(false); }}
                     className="px-3 py-1.5 rounded-lg text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors inline-flex items-center gap-1.5">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -170,7 +181,7 @@ export default function NavBar() {
                   </Link>
 
                   {!isBuyerOrTenant && (
-                    <Link href="/credits" className="px-3 py-1.5 rounded-lg text-sm font-medium bg-clay-50 dark:bg-clay-900/20 text-clay-700 dark:text-clay-400 hover:bg-clay-100 dark:hover:bg-clay-900/40 transition-colors">💰 {balance}</Link>
+                    <Link href="/credits" className="px-3 py-1.5 rounded-lg text-sm font-medium bg-clay/10 dark:bg-clay-900/20 text-clay dark:text-clay hover:bg-clay/100 dark:hover:bg-clay/900/40 transition-colors">💰 {balance}</Link>
                   )}
 
                   <button onClick={handleLogout}
@@ -179,7 +190,7 @@ export default function NavBar() {
               ) : (
                 <>
                   <Link href="/login" className="px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors">Iniciar Sesión</Link>
-                  <Link href="/register" className="px-4 py-2 text-sm font-semibold bg-gradient-to-br from-clay-400 to-clay-600 hover:from-clay-500 hover:to-clay-700 text-white rounded-lg transition-all">Registrarse</Link>
+                  <Link href="/register" className="px-4 py-2 text-sm font-semibold bg-clay hover:bg-clay-500 text-white rounded-lg transition-all">Registrarse</Link>
                 </>
               )}
             </div>

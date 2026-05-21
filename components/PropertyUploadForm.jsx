@@ -31,6 +31,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
   const [loading, setLoading] = useState(false);
   const [submitValidationError, setSubmitValidationError] = useState('');
   const [ownershipConfirmed, setOwnershipConfirmed] = useState(false);
+  const [primaryImageIndex, setPrimaryImageIndex] = useState(0);
   const [locationsCatalog, setLocationsCatalog] = useState(null);
   const [addressSearch, setAddressSearch] = useState('');
   const [addressSuggestions, setAddressSuggestions] = useState([]);
@@ -392,26 +393,48 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
         const streetNum = getComponent(comps, 'street_number');
         const route = getComponent(comps, 'route');
         const suggestionComponents = selectedSuggestion?.address_components || {};
-        const cpFromFormatted = String(result.formatted_address || '').match(/\b\d{5}\b/)?.[0] || '';
-        const colonia =
-          getComponent(comps, 'neighborhood') ||
+        const cpFromFormatted = String(result.formatted_address || '').match(/\d{5}/)?.[0] || '';
+
+        // Mexican address priority: sublocality > neighborhood for colonia
+        let colonia =
           getComponent(comps, 'sublocality_level_1') ||
+          getComponent(comps, 'neighborhood') ||
           getComponent(comps, 'sublocality_level_2') ||
           getComponent(comps, 'sublocality') ||
           suggestionComponents.colonia || '';
-        const ciudad =
+        let ciudad =
           getComponent(comps, 'locality') ||
-          getComponent(comps, 'administrative_area_level_3') ||
-          getComponent(comps, 'administrative_area_level_2') ||
           getComponent(comps, 'postal_town') ||
-          suggestionComponents.ciudad || '';
-        const estado =
-          getComponent(comps, 'administrative_area_level_1') ||
           getComponent(comps, 'administrative_area_level_2') ||
+          suggestionComponents.ciudad || '';
+        let estado =
+          getComponent(comps, 'administrative_area_level_1') ||
           suggestionComponents.estado || '';
         const cp = getComponent(comps, 'postal_code') || suggestionComponents.codigoPostal || cpFromFormatted || '';
         const lat = result.geometry?.location?.lat;
         const lng = result.geometry?.location?.lng;
+
+        // Fallback: parse formatted_address for Mexican comma-separated format
+        // e.g. "Begonia 10, Cardeno Residencial, Hermosillo, Sonora, Mexico, 83106"
+        if (!colonia || !ciudad || !estado) {
+          const faParts = (result.formatted_address || '').split(',').map(s => s.trim()).filter(Boolean);
+          const idxMexico = faParts.findIndex(p => /mexico|mex|mx/i.test(p));
+          const usable = idxMexico >= 0 ? faParts.slice(0, idxMexico) : faParts;
+          if (usable.length >= 3) {
+            if (!estado) estado = usable[usable.length - 1].trim();
+            if (!ciudad) ciudad = usable[usable.length - 2].trim();
+            if (!colonia) colonia = usable[usable.length - 3].trim();
+          }
+        }
+
+        // Cross-validate: if colonia equals estado, it was mis-extracted
+        if (colonia && estado && colonia.toLowerCase() === estado.toLowerCase()) {
+          // Try neighborhood or sublocality as fallback
+          const altColonia = getComponent(comps, 'neighborhood') ||
+            getComponent(comps, 'sublocality_level_1') ||
+            getComponent(comps, 'sublocality');
+          if (altColonia && altColonia !== estado) colonia = altColonia;
+        }
 
         const street = route && streetNum ? `${route} ${streetNum}` : route || streetNum;
         const typedStreet = getTypedStreetPrefix(typedInput || addressSearch, description);
@@ -503,6 +526,11 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
               ...(values.availableFrom ? { availableFrom: values.availableFrom } : {}),
               // furnished removed: now covered by 'Amueblado' and 'Equipado' in amenities
               utilitiesIncluded: (values.includedServices || []).length > 0,
+              issuesInvoice: values.issuesInvoice ?? false,
+              petFriendly: values.petFriendly ?? false,
+              petFee: values.petFriendly ? (values.petFee ?? null) : null,
+              petDeposit: values.petFriendly ? (values.petDeposit ?? null) : null,
+              childrenWelcome: values.childrenWelcome ?? false,
               includedServices: values.includedServices || [],
               amenities: values.amenities || [],
             }),
@@ -515,9 +543,9 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
 
       // Save address to cache for future suggestions
       const addressData = {
-        estado: values.estado,
-        ciudad: values.ciudad,
-        colonia: values.colonia,
+        estado: (values.estado || "").trim().replace(/\s+/g, " ").replace(/\w/g, c => c.toUpperCase()),
+        ciudad: (values.ciudad || "").trim().replace(/\s+/g, " ").replace(/\w/g, c => c.toUpperCase()),
+        colonia: (values.colonia || "").trim().replace(/\s+/g, " ").replace(/\w/g, c => c.toUpperCase()),
         codigoPostal: values.codigoPostal,
       };
       addAddressToCache(addressData);
@@ -1082,69 +1110,63 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
             )}
           </div>
 
-          {/* Auto-filled location parts */}
+          {/* Location fields */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="estado" className={labelClass}>
                 Estado
               </label>
-              <select
+              <input
                 id="estado"
-                {...register('estado', {
-                  onChange: () => {
-                    setValue('ciudad', '', { shouldDirty: true, shouldValidate: true });
-                    setValue('colonia', '', { shouldDirty: true, shouldValidate: true });
-                    queueMicrotask(syncFullAddressFromLocation);
-                  },
-                  onBlur: syncFullAddressFromLocation,
-                })}
-                className={`${inputClass} appearance-none`}
-              >
-                <option value="">Seleccionar estado...</option>
+                list="estados-list"
+                {...register('estado')}
+                placeholder="Selecciona el estado"
+                className={`${inputClass}`}
+                autoComplete="off"
+              />
+              <datalist id="estados-list">
                 {estadosDisponibles.map((item) => (
-                  <option key={item} value={item}>{item}</option>
+                  <option key={item} value={item} />
                 ))}
-              </select>
+              </datalist>
             </div>
 
             <div>
               <label htmlFor="ciudad" className={labelClass}>
                 Ciudad
               </label>
-              <select
+              <input
                 id="ciudad"
-                disabled={!selectedEstado}
-                {...register('ciudad', {
-                  onChange: () => {
-                    setValue('colonia', '', { shouldDirty: true, shouldValidate: true });
-                    queueMicrotask(syncFullAddressFromLocation);
-                  },
-                  onBlur: syncFullAddressFromLocation,
-                })}
-                className={`${inputClass} appearance-none disabled:opacity-60`}
-              >
-                <option value="">Seleccionar ciudad...</option>
+                list="ciudades-list"
+                {...register('ciudad')}
+                placeholder="Selecciona la ciudad"
+                className={`${inputClass}`}
+                autoComplete="off"
+              />
+              <datalist id="ciudades-list">
                 {ciudadesDisponibles.map((item) => (
-                  <option key={item} value={item}>{item}</option>
+                  <option key={item} value={item} />
                 ))}
-              </select>
+              </datalist>
             </div>
 
             <div>
               <label htmlFor="colonia" className={labelClass}>
                 Colonia
               </label>
-              <select
+              <input
                 id="colonia"
-                disabled={!selectedEstado || !selectedCiudad}
+                list="colonias-list"
                 {...register('colonia', { onBlur: syncFullAddressFromLocation })}
-                className={`${inputClass} appearance-none disabled:opacity-60`}
-              >
-                <option value="">Seleccionar colonia...</option>
+                placeholder="Escribe o selecciona la colonia"
+                className={`${inputClass}`}
+                autoComplete="off"
+              />
+              <datalist id="colonias-list">
                 {coloniasDisponibles.map((item) => (
-                  <option key={item} value={item}>{item}</option>
+                  <option key={item} value={item} />
                 ))}
-              </select>
+              </datalist>
             </div>
 
             <div>
@@ -1160,7 +1182,6 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
               />
             </div>
           </div>
-        </div>
 
         {/* Property Details Section */}
         <div className="space-y-4">
@@ -1562,6 +1583,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
           >
             Limpiar formulario
           </button>
+        </div>
         </div>
       </form>
       )}

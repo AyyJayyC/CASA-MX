@@ -30,15 +30,15 @@ test.describe('Public Smoke Checks', () => {
     }
 
     await page.goto('/', { waitUntil: 'domcontentloaded' });
-    await expect(page).toHaveTitle(/Casa-MX\.com/i);
-    await expect(page.getByRole('heading', { name: /Bienvenido/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /Explorar Propiedades/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /Publicar Propiedad/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /Iniciar Sesión/i }).first()).toBeVisible();
-    await expect(page.getByRole('link', { name: /Registrarse/i }).first()).toBeVisible();
+    await expect(page).toHaveTitle(/CASA MX/i);
+    await expect(page.getByRole('heading', { name: /Encuentra tu camino/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Explorar propiedades/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Publicar propiedad/i })).toBeVisible();
+    await expect(page.locator('header').getByRole('link', { name: /Iniciar Sesión/i })).toBeVisible();
+    await expect(page.locator('header').getByRole('link', { name: /Registrarse/i })).toBeVisible();
 
     await page.goto('/login', { waitUntil: 'domcontentloaded' });
-    await expect(page.getByRole('heading', { name: /Bienvenido/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Encuentra tu camino/i })).toBeVisible();
     await expect(page.locator('input[type="email"]')).toBeVisible();
     await expect(page.locator('input[type="password"]')).toBeVisible();
 

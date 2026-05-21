@@ -29,21 +29,20 @@ export const viewport = {
 
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000'),
-  title: 'Casa-MX.com - Plataforma Inmobiliaria de México',
-  description: 'Busca, vende y alquila propiedades en México. Plataforma de bienes raíces con filtros avanzados, aplicaciones de alquiler y más.',
+  title: 'CASA MX - Tu ruta, tu decisión',
+  description: 'Encuentra tu camino en el mercado inmobiliario. Ofertas reales, decisiones informadas. Negocia con confianza.',
   keywords: ['Propiedades en México', 'Compra venta de casas', 'Renta de departamentos', 'Bienes raíces', 'Inmuebles'],
   authors: [{ name: 'Casa-MX.com' }],
   icons: {
     icon: [
-      { url: '/brand/favicon.ico' },
-      { url: '/brand/favicon-32.png', type: 'image/png', sizes: '32x32' },
-      { url: '/brand/favicon-16.png', type: 'image/png', sizes: '16x16' },
+      { url: '/brand/favicon-ruta-clara.ico' },
+      { url: '/brand/logo-mark.png', type: 'image/svg+xml' },
     ],
     apple: [{ url: '/brand/apple-icon.png', sizes: '180x180', type: 'image/png' }],
   },
   openGraph: {
-    title: 'Casa-MX.com - Tu Plataforma Inmobiliaria',
-    description: 'Encuentra tu hogar o invierte en propiedades en México',
+    title: 'CASA MX - Tu ruta, tu decisión',
+    description: 'Ofertas reales. Decisiones informadas. Negocia con confianza.',
     type: 'website',
     locale: 'es_MX',
     url: process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000',
@@ -58,8 +57,8 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Casa-MX.com - Tu Plataforma Inmobiliaria',
-    description: 'Encuentra tu hogar o invierte en propiedades en México',
+    title: 'CASA MX - Tu ruta, tu decisión',
+    description: 'Ofertas reales. Decisiones informadas. Negocia con confianza.',
     images: ['/brand/og-image.png'],
   },
 };
@@ -81,9 +80,9 @@ export default function RootLayout({ children }) {
                   <div className="container max-w-7xl py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-neutral-600 dark:text-neutral-400">
                     <p>© <FooterYear /> Casa-MX.com. Todos los derechos reservados.</p>
                     <div className="flex items-center gap-4">
-                      <Link href="/aviso-legal" className="hover:text-clay-600 dark:hover:text-clay-400 transition-colors">Privacidad</Link>
-                      <Link href="/terminos" className="hover:text-clay-600 dark:hover:text-clay-400 transition-colors">Términos</Link>
-                      <Link href="/cookie" className="hover:text-clay-600 dark:hover:text-clay-400 transition-colors">Cookies</Link>
+                      <Link href="/aviso-legal" className="hover:text-clay dark:hover:text-clay-400 transition-colors">Privacidad</Link>
+                      <Link href="/terminos" className="hover:text-clay dark:hover:text-clay-400 transition-colors">Términos</Link>
+                      <Link href="/cookie" className="hover:text-clay dark:hover:text-clay-400 transition-colors">Cookies</Link>
                     </div>
                   </div>
                 </footer>

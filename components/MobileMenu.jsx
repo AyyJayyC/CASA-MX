@@ -44,14 +44,11 @@ export default function MobileMenu({
                 {user.avatarUrl ? (
                   <img src={user.avatarUrl} alt={`Avatar de ${user.name}`} className="w-8 h-8 rounded-full object-cover border border-neutral-200 dark:border-neutral-700" />
                 ) : (
-                  <div className="w-8 h-8 bg-gradient-to-br from-clay-400 to-clay-600 rounded-full flex items-center justify-center text-white font-semibold text-xs">{user.name[0].toUpperCase()}</div>
+                  <div className="w-8 h-8 bg-gradient-to-br bg-clay rounded-full flex items-center justify-center text-white font-semibold text-xs">{user.name[0].toUpperCase()}</div>
                 )}
                 <p className="font-medium text-neutral-900 dark:text-neutral-100">{user.name}</p>
               </div>
               <p className="text-xs text-neutral-600 dark:text-neutral-400">{getRoleLabel(user.activeRole) || 'Sin rol activo'}</p>
-              {user.agency?.name && (
-                <p className="text-xs text-clay-400 font-medium mt-0.5">🏢 {user.agency.name}</p>
-              )}
               <div className="mt-2">
                 <VerificationBadges compact identityVerified={Boolean(user.officialIdVerified)} identityUploaded={Boolean(user.officialIdUploaded)} paidSubscriber={Boolean(user.paidSubscriber)} />
               </div>
@@ -68,7 +65,7 @@ export default function MobileMenu({
           <>
             <MobileLink href="/login" onClick={onClose} plain>Iniciar Sesión</MobileLink>
             <Link href="/register" onClick={onClose}
-              className="block px-4 py-2 text-sm font-semibold text-center bg-gradient-to-br from-clay-400 to-clay-600 text-white rounded-lg transition-all">
+              className="block px-4 py-2 text-sm font-semibold text-center bg-gradient-to-br bg-clay text-white rounded-lg transition-all">
               Registrarse
             </Link>
           </>
@@ -83,7 +80,7 @@ function MobileLink({ href, onClick, isActive, children, plain }) {
     <Link href={href} onClick={onClick}
       className={`block px-4 py-2 rounded-lg text-sm font-medium transition-colors
         ${isActive
-          ? 'bg-clay-50 dark:bg-clay-900/20 text-clay-600 dark:text-clay-400'
+          ? 'bg-amber-50 dark:bg-amber-900/20 text-clay dark:text-clay-400'
           : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
         }`}>
       {children}
