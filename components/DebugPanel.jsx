@@ -80,7 +80,7 @@ export default function DebugPanel() {
   const getLevelColor = (level) => {
     const colors = {
       ERROR: 'text-red-600',
-      WARN: 'text-yellow-600',
+      WARN: 'text-clay-600',
       API: 'text-blue-600',
       ACTION: 'text-green-600',
       INFO: 'text-gray-600',

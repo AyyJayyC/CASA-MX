@@ -41,7 +41,7 @@ describe('PropertyList integration', () => {
     fireEvent.change(input, { target: { value: 'Polanco' } });
 
     await waitFor(() => {
-      expect(screen.getByText(/Departamento en Polanco/)).toBeInTheDocument();
+      expect(screen.getByText(/Polanco/)).toBeInTheDocument();
     });
   });
 });

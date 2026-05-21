@@ -16,7 +16,7 @@ import { useCredits } from '@/lib/auth/CreditsContext';
 const ApproveRejectModal = dynamic(() => import('./ApproveRejectModal.jsx'), { ssr: false });
 
 const statusBadgeConfig = {
-  pending: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-800 dark:text-yellow-300', label: 'Pendiente' },
+  pending: { bg: 'bg-clay-100 dark:bg-clay-900/30', text: 'text-clay-800 dark:text-clay-300', label: 'Pendiente' },
   under_review: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-800 dark:text-blue-300', label: 'En revisión' },
   approved: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-800 dark:text-green-300', label: 'Aprobada' },
   rejected: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-800 dark:text-red-300', label: 'Rechazada' },
@@ -124,7 +124,7 @@ export default function ApplicationsTable({ propertyId, propertyTitle, propertyM
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <svg className="animate-spin h-8 w-8 text-amber-600" viewBox="0 0 24 24">
+        <svg className="animate-spin h-8 w-8 text-clay-600" viewBox="0 0 24 24">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
         </svg>
@@ -201,7 +201,7 @@ export default function ApplicationsTable({ propertyId, propertyTitle, propertyM
                       <button
                         onClick={() => handleUnlock(app)}
                         disabled={unlocking === app.id}
-                        className="text-xs font-medium text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 flex items-center gap-1 disabled:opacity-50"
+                        className="text-xs font-medium text-clay-600 hover:text-clay-700 dark:text-clay-400 dark:hover:text-clay-300 flex items-center gap-1 disabled:opacity-50"
                       >
                         🔓 {unlocking === app.id ? 'Desbloqueando...' : 'Ver contacto (1 crédito)'}
                       </button>
@@ -282,7 +282,7 @@ export default function ApplicationsTable({ propertyId, propertyTitle, propertyM
                     <button
                       onClick={() => handleUnlock(app)}
                       disabled={unlocking === app.id}
-                      className="mt-1 text-xs font-medium text-amber-600 hover:text-amber-700 dark:text-amber-400 flex items-center gap-1 disabled:opacity-50"
+                      className="mt-1 text-xs font-medium text-clay-600 hover:text-clay-700 dark:text-clay-400 flex items-center gap-1 disabled:opacity-50"
                     >
                       🔓 {unlocking === app.id ? 'Desbloqueando...' : 'Ver contacto (1 crédito)'}
                     </button>

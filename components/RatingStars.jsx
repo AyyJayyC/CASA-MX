@@ -33,7 +33,7 @@ export default function RatingStars({
               disabled={readOnly}
             >
               <svg
-                className={`${starSize} ${filled ? 'text-amber-400' : 'text-neutral-300 dark:text-neutral-700'}`}
+                className={`${starSize} ${filled ? 'text-clay-400' : 'text-neutral-300 dark:text-neutral-700'}`}
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >

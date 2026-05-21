@@ -210,7 +210,7 @@ export default function PropertyList({
             rounded-lg
             text-neutral-900 dark:text-neutral-100
             placeholder:text-neutral-500 dark:placeholder:text-neutral-500
-            focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+            focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
             transition-shadow
           "
           placeholder="Buscar por colonia o título..."

@@ -166,7 +166,7 @@ export default function AccountPage() {
           {!paidSubscriber ? (
             <button
               onClick={handleStartSubscription}
-              className="inline-flex items-center gap-2 rounded-lg bg-amber-500 hover:bg-amber-600 px-3 py-2 text-sm font-medium text-white"
+              className="inline-flex items-center gap-2 rounded-lg bg-clay-500 hover:bg-clay-600 px-3 py-2 text-sm font-medium text-white"
             >
               Activar suscripción
             </button>
@@ -220,7 +220,7 @@ export default function AccountPage() {
                 ) : hasINE ? (
                   <p className="text-xs text-blue-600 mt-0.5">Documento subido, pendiente de verificacion</p>
                 ) : (
-                  <p className="text-xs text-amber-600 mt-0.5">Pendiente de subir</p>
+                  <p className="text-xs text-clay-600 mt-0.5">Pendiente de subir</p>
                 )}
               </div>
               <button

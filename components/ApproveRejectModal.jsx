@@ -93,7 +93,7 @@ export default function ApproveRejectModal({
               placeholder={notePlaceholder}
               disabled={isSubmitting}
               rows="4"
-              className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 dark:placeholder-neutral-400 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-500"
+              className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 dark:placeholder-neutral-400 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-clay-500 dark:focus:ring-clay-500"
             />
             {noteRequired && (
               <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">

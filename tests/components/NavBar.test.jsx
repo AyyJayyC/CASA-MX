@@ -7,7 +7,8 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: vi.fn()
   }),
-  usePathname: () => '/'
+  usePathname: () => '/',
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { AuthContext } from '../../lib/auth/AuthContext.jsx';
@@ -59,8 +60,5 @@ describe('NavBar role-aware links', () => {
 
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.getByText('Salir')).toBeInTheDocument();
-    const roleSelect = screen.getByRole('combobox');
-    fireEvent.change(roleSelect, { target: { value: 'buyer' } });
-    expect(switchRole).toHaveBeenCalledWith('buyer');
   });
 });

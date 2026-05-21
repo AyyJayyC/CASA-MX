@@ -117,7 +117,7 @@ lib/
   validation/           # Zod schemas (contactRequestSchema.js, propertySchema.js)
   reviews.js            # REVIEW_ROLE_LABELS (all 6 roles), helper functions
 
-public/brand/           # logo-primary.svg, logo-mark.svg, favicon.ico
+public/brand/           # logo-primary.png, logo-mark.png, favicon.ico
 ```
 
 ### Backend (`/mnt/c/Users/axelj/casa-mx-backend/`)
@@ -207,7 +207,7 @@ src/
 - Login page: role selection screen when user has 2+ roles
 - Settings page: wrapped in `RequireAuth` (fixes redirect loop bug)
 - NavBar settings: SVG gear icon replaced emoji (alignment fix)
-- Logo: heart centered in `logo-primary.svg` and `logo-mark.svg` (shifted left 3-35px)
+- Logo: heart centered in `logo-primary.png` and `logo-mark.png` (shifted left 3-35px)
 - E2E workflow: added backend service, changed trigger to `push: [main]`
 - Security: added `.gitleaks.toml`, fixed high-severity npm vulns
 

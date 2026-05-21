@@ -9,16 +9,16 @@ const StripePaymentModal = dynamic(() => import('./StripePaymentModal'), { ssr: 
 
 const stripeEnabled = Boolean(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
-// What 1 credit gets the seller/landlord
 const CREDIT_USES = [
-  { icon: '👤', label: 'Ver el contacto de un interesado en tu propiedad' },
-  { icon: '🏠', label: 'Publicar una propiedad en venta o renta' },
-  { icon: '⭐', label: 'Destacar tu propiedad por 7 días' },
+  { icon: '👤', label: 'Desbloquear el contacto de un comprador', cost: '10 créditos' },
+  { icon: '🏠', label: 'Publicar una propiedad en venta o renta', cost: 'Gratis' },
+  { icon: '⭐', label: 'Destacar tu propiedad en búsquedas', cost: '300 créditos / día' },
+  { icon: '🔥', label: 'Aparecer en el carrusel de la página principal', cost: '2,000 créditos / día' },
 ];
 
 // Badge shown on certain packages
 const BADGES = {
-  'Agente':     { label: 'Más popular', color: 'bg-amber-500 text-white' },
+  'Agente':     { label: 'Más popular', color: 'bg-clay-500 text-white' },
   'Pro':        { label: 'Mejor valor', color: 'bg-emerald-500 text-white' },
 };
 
@@ -32,7 +32,7 @@ export default function CreditPackages() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    creditsAPI.getPackages().then((d) => setPackages(d.packages ?? [])).catch(() => {}).finally(() => setLoading(false));
+    creditsAPI.getPackages().then((d) => setPackages(d.packages ?? [])).catch(() => setError('No se pudieron cargar los paquetes de créditos.')).finally(() => setLoading(false));
   }, []);
 
   const handleBuy = async (pkg) => {
@@ -61,15 +61,15 @@ export default function CreditPackages() {
   return (
     <div className="space-y-6">
       {/* What credits buy */}
-      <div className="rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4">
-        <p className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-2">¿Para qué sirven los créditos?</p>
-        <p className="text-xs text-amber-700 dark:text-amber-400 mb-3">Los compradores e inquilinos nunca pagan — los créditos son para propietarios y vendedores.</p>
+      <div className="rounded-xl bg-clay-50 dark:bg-clay-900/20 border border-clay-200 dark:border-clay-800 p-4">
+        <p className="text-sm font-semibold text-clay-800 dark:text-clay-300 mb-2">¿Para qué sirven los créditos?</p>
+        <p className="text-xs text-clay-700 dark:text-clay-400 mb-3">Los compradores e inquilinos nunca pagan — los créditos son para propietarios y vendedores.</p>
         <ul className="space-y-1">
           {CREDIT_USES.map((u) => (
-            <li key={u.label} className="flex items-center gap-2 text-sm text-amber-700 dark:text-amber-400">
+            <li key={u.label} className="flex items-center gap-2 text-sm text-clay-700 dark:text-clay-400">
               <span>{u.icon}</span>
-              <span>{u.label}</span>
-              <span className="ml-auto font-bold text-amber-600 dark:text-amber-300">1 crédito</span>
+              <span className="flex-1">{u.label}</span>
+              <span className="ml-auto font-bold text-clay-600 dark:text-clay-300">{u.cost}</span>
             </li>
           ))}
         </ul>
@@ -92,7 +92,7 @@ export default function CreditPackages() {
               key={pkg.id}
               className={`relative rounded-xl border p-5 flex flex-col gap-3 transition-shadow hover:shadow-md ${
                 isPopular
-                  ? 'border-amber-400 dark:border-amber-500 bg-amber-50 dark:bg-amber-900/20'
+                  ? 'border-clay-400 dark:border-clay-500 bg-clay-50 dark:bg-clay-900/20'
                   : 'border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900'
               }`}
             >
@@ -103,7 +103,7 @@ export default function CreditPackages() {
               )}
               <div className="text-center pt-1">
                 <p className="text-base font-bold text-neutral-800 dark:text-white">{pkg.name}</p>
-                <p className="text-4xl font-extrabold text-amber-600 dark:text-amber-400 mt-1">{pkg.credits}</p>
+                <p className="text-4xl font-extrabold text-clay-600 dark:text-clay-400 mt-1">{pkg.credits}</p>
                 <p className="text-xs text-neutral-500">créditos</p>
               </div>
               <div className="text-center">
@@ -117,7 +117,7 @@ export default function CreditPackages() {
                 disabled={buying === pkg.id}
                 className={`mt-auto w-full py-2 font-semibold rounded-lg text-sm transition-colors ${
                   isPopular
-                    ? 'bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white'
+                    ? 'bg-clay-500 hover:bg-clay-600 disabled:bg-clay-300 text-white'
                     : 'bg-neutral-800 hover:bg-neutral-700 disabled:bg-neutral-400 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-white text-white'
                 }`}
               >

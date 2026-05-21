@@ -13,7 +13,7 @@ export default function PromotePropertyButton({ propertyId, propertyTitle, selle
     <div className="relative">
       <button
         onClick={() => setOpen(true)}
-        className="w-full px-4 py-2.5 rounded-lg font-semibold text-sm bg-gradient-to-br from-amber-400 to-yellow-600 hover:from-amber-500 hover:to-yellow-700 text-white transition-colors flex items-center justify-center gap-2 shadow-md"
+        className="w-full px-4 py-2.5 rounded-lg font-semibold text-sm bg-gradient-to-br from-clay-400 to-clay-600 hover:from-clay-500 hover:to-clay-700 text-white transition-colors flex items-center justify-center gap-2 shadow-md"
       >
         <span>🔥</span>
         Promocionar

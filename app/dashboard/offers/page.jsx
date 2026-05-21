@@ -16,7 +16,7 @@ const STATUS_LABELS = {
 };
 
 const STATUS_COLORS = {
-  pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
+  pending: 'bg-clay-100 text-clay-800 dark:bg-clay-900/30 dark:text-clay-300',
   accepted: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
   rejected: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
   countered: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
@@ -86,7 +86,7 @@ function SellerOffersContent() {
     border-neutral-300 dark:border-neutral-700
     bg-white dark:bg-neutral-800
     text-neutral-900 dark:text-neutral-100
-    focus:outline-none focus:ring-2 focus:ring-amber-400
+    focus:outline-none focus:ring-2 focus:ring-clay-400
     text-sm
   `;
 
@@ -105,7 +105,7 @@ function SellerOffersContent() {
           </div>
           <Link
             href="/dashboard"
-            className="text-sm text-amber-600 dark:text-amber-400 hover:underline"
+            className="text-sm text-clay-600 dark:text-clay-400 hover:underline"
           >
             ← Inicio
           </Link>
@@ -120,8 +120,8 @@ function SellerOffersContent() {
               className={`
                 px-4 py-1.5 rounded-full text-sm font-medium transition-colors
                 ${filter === f
-                  ? 'bg-amber-500 text-white'
-                  : 'bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-amber-400'
+                  ? 'bg-clay-500 text-white'
+                  : 'bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-clay-400'
                 }
               `}
             >
@@ -159,7 +159,7 @@ function SellerOffersContent() {
                   <div className="space-y-0.5 min-w-0">
                     <Link
                       href={`/properties/${offer.propertyId}`}
-                      className="text-base font-semibold text-neutral-900 dark:text-neutral-100 hover:text-amber-600 dark:hover:text-amber-400 line-clamp-1"
+                      className="text-base font-semibold text-neutral-900 dark:text-neutral-100 hover:text-clay-600 dark:hover:text-clay-400 line-clamp-1"
                     >
                       {offer.property?.title ?? 'Propiedad'}
                     </Link>
@@ -203,7 +203,7 @@ function SellerOffersContent() {
                       <button
                         onClick={() => handleUnlockOffer(offer)}
                         disabled={unlocking === offer.id}
-                        className="mt-0.5 text-xs font-medium text-amber-600 hover:text-amber-700 dark:text-amber-400 flex items-center gap-1 disabled:opacity-50"
+                        className="mt-0.5 text-xs font-medium text-clay-600 hover:text-clay-700 dark:text-clay-400 flex items-center gap-1 disabled:opacity-50"
                       >
                         🔓 {unlocking === offer.id ? 'Desbloqueando...' : 'Ver contacto (1 crédito)'}
                       </button>
@@ -224,7 +224,7 @@ function SellerOffersContent() {
 
                 {/* Payment plan details */}
                 {offer.financing === 'paymentPlan' && offer.cuotaMensual && (
-                  <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 rounded-lg px-4 py-3">
+                  <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm bg-clay-50 dark:bg-clay-900/10 border border-clay-200 dark:border-clay-800 rounded-lg px-4 py-3">
                     {offer.enganche > 0 && (
                       <span className="text-neutral-700 dark:text-neutral-300">
                         Enganche: <strong>${offer.enganche.toLocaleString('es-MX')} MXN</strong>
@@ -235,7 +235,7 @@ function SellerOffersContent() {
                         Plazo: <strong>{offer.plazoMeses} meses</strong>
                       </span>
                     )}
-                    <span className="text-amber-700 dark:text-amber-400">
+                    <span className="text-clay-700 dark:text-clay-400">
                       Cuota mensual: <strong>${offer.cuotaMensual.toLocaleString('es-MX', { maximumFractionDigits: 0 })} MXN</strong>
                     </span>
                   </div>
@@ -286,8 +286,8 @@ function SellerOffersContent() {
                       onClick={() => setSelectedOffer(offer)}
                       className="
                         px-5 py-2 rounded-lg font-semibold text-sm
-                        bg-gradient-to-br from-amber-400 to-yellow-600
-                        hover:from-amber-500 hover:to-yellow-700
+                        bg-gradient-to-br from-clay-400 to-clay-600
+                        hover:from-clay-500 hover:to-clay-700
                         text-white shadow-sm transition-all
                       "
                     >

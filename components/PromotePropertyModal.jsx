@@ -14,8 +14,8 @@ const TIERS = [
   {
     key: 'carousel',
     name: '🔥 Promocionado',
-    desc: 'Todo lo de Destacado + aparece en el carrusel de la página principal.',
-    costPerDay: 800,
+    desc: 'Todo lo de Destacado + aparece en el carrusel de la página principal (máximo 4 espacios).',
+    costPerDay: 2000,
   },
 ];
 
@@ -89,13 +89,13 @@ export default function PromotePropertyModal({ propertyId, propertyTitle, onClos
                     onClick={() => setTier(t.key)}
                     className={`p-4 rounded-lg border-2 text-left transition-all ${
                       tier === t.key
-                        ? 'border-amber-400 bg-amber-50 dark:bg-amber-900/20'
-                        : 'border-neutral-200 dark:border-neutral-700 hover:border-amber-300'
+                        ? 'border-clay-400 bg-clay-50 dark:bg-clay-900/20'
+                        : 'border-neutral-200 dark:border-neutral-700 hover:border-clay-300'
                     }`}
                   >
                     <p className="font-semibold text-neutral-900 dark:text-neutral-100 text-sm">{t.name}</p>
                     <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">{t.desc}</p>
-                    <p className="text-xs text-amber-600 dark:text-amber-400 mt-1 font-medium">{t.costPerDay.toLocaleString()} créditos/día</p>
+                    <p className="text-xs text-clay-600 dark:text-clay-400 mt-1 font-medium">{t.costPerDay.toLocaleString()} créditos/día</p>
                   </button>
                 ))}
               </div>
@@ -105,7 +105,7 @@ export default function PromotePropertyModal({ propertyId, propertyTitle, onClos
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">Duración</label>
-                <span className="text-sm font-bold text-amber-600 dark:text-amber-400">{days} días</span>
+                <span className="text-sm font-bold text-clay-600 dark:text-clay-400">{days} días</span>
               </div>
               <input
                 type="range"
@@ -113,7 +113,7 @@ export default function PromotePropertyModal({ propertyId, propertyTitle, onClos
                 max={30}
                 value={days}
                 onChange={(e) => setDays(Number(e.target.value))}
-                className="w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none cursor-pointer accent-amber-500"
+                className="w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none cursor-pointer accent-clay-500"
               />
               <div className="flex justify-between text-xs text-neutral-400">
                 <span>1</span>
@@ -124,7 +124,7 @@ export default function PromotePropertyModal({ propertyId, propertyTitle, onClos
             {/* Cost summary */}
             <div className="flex justify-between items-center p-4 bg-neutral-100 dark:bg-neutral-800 rounded-lg">
               <span className="text-sm text-neutral-600 dark:text-neutral-400">Costo total</span>
-              <span className="text-lg font-bold text-amber-600 dark:text-amber-400">{totalCost.toLocaleString()} créditos</span>
+              <span className="text-lg font-bold text-clay-600 dark:text-clay-400">{totalCost.toLocaleString()} créditos</span>
             </div>
 
             {error && (
@@ -137,7 +137,7 @@ export default function PromotePropertyModal({ propertyId, propertyTitle, onClos
             <button
               onClick={handlePromote}
               disabled={submitting}
-              className="w-full py-3 bg-gradient-to-br from-amber-400 to-yellow-600 hover:from-amber-500 hover:to-yellow-700 disabled:from-neutral-300 disabled:to-neutral-400 text-white font-semibold rounded-lg transition-all shadow-md"
+              className="w-full py-3 bg-gradient-to-br from-clay-400 to-clay-600 hover:from-clay-500 hover:to-clay-700 disabled:from-neutral-300 disabled:to-neutral-400 text-white font-semibold rounded-lg transition-all shadow-md"
             >
               {submitting ? 'Promocionando...' : 'Promocionar propiedad'}
             </button>

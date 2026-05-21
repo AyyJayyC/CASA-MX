@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { respondToOffer } from '@/lib/api/offers';
 
-const inputClass = 'w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-800 text-sm text-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-400';
+const inputClass = 'w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-800 text-sm text-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-clay-400';
 
 export default function OfferRespondModal({
   isOpen,
@@ -86,7 +86,7 @@ export default function OfferRespondModal({
             {isSeller ? (
               <>{amountText} <span className="font-semibold text-neutral-900 dark:text-neutral-100">{offer.buyerName}</span>: </>) : amountText
             }
-            <span className="font-bold text-amber-600 dark:text-amber-400">${amountValue.toLocaleString('es-MX')} MXN</span>
+            <span className="font-bold text-clay-600 dark:text-clay-400">${amountValue.toLocaleString('es-MX')} MXN</span>
           </div>
 
           <div>
@@ -101,7 +101,7 @@ export default function OfferRespondModal({
                   onClick={() => setRespondForm((f) => ({ ...f, status: opt.value === respondForm.status ? '' : opt.value }))}
                   className={`py-2 px-2 rounded-lg border text-xs font-semibold text-center transition-all
                     ${respondForm.status === opt.value
-                      ? 'border-amber-400 ring-2 ring-offset-1 ring-amber-400 text-neutral-900 dark:text-neutral-100'
+                      ? 'border-clay-400 ring-2 ring-offset-1 ring-clay-400 text-neutral-900 dark:text-neutral-100'
                       : 'border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400'
                     }`}
                 >
@@ -166,7 +166,7 @@ export default function OfferRespondModal({
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-3 px-6 rounded-lg font-semibold text-sm bg-gradient-to-br from-amber-400 to-yellow-600 hover:from-amber-500 hover:to-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed text-white shadow-sm transition-all"
+            className="w-full py-3 px-6 rounded-lg font-semibold text-sm bg-gradient-to-br from-clay-400 to-clay-600 hover:from-clay-500 hover:to-clay-700 disabled:opacity-50 disabled:cursor-not-allowed text-white shadow-sm transition-all"
           >
             {submitting ? 'Enviando...' : 'Confirmar respuesta'}
           </button>

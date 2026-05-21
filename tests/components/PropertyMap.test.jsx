@@ -55,7 +55,8 @@ vi.mock('leaflet.markercluster/dist/MarkerCluster.Default.css', () => ({}), { vi
 
 // Mock Next.js router used by the component
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: vi.fn() })
+  useRouter: () => ({ push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock('@/lib/storage/storage', () => ({

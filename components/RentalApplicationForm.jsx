@@ -175,8 +175,8 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
               El propietario revisará tu aplicación y se pondrá en contacto contigo directamente.
             </p>
             {createdApplicationId && (
-              <div className="w-full p-3 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20">
-                <h3 className="font-semibold text-amber-800 dark:text-amber-300 mb-3 text-sm">
+              <div className="w-full p-3 rounded-lg border border-clay-200 dark:border-clay-800 bg-clay-50 dark:bg-clay-900/20">
+                <h3 className="font-semibold text-clay-800 dark:text-clay-300 mb-3 text-sm">
                   Sube tus documentos
                 </h3>
                 <DocumentUpload applicationId={createdApplicationId} />
@@ -188,7 +188,7 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
                 setSubmitStatus(null);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="mt-2 px-6 py-2.5 bg-gradient-to-br from-amber-400 to-yellow-600 hover:from-amber-500 hover:to-yellow-700 text-white font-semibold rounded-lg transition-all text-sm"
+              className="mt-2 px-6 py-2.5 bg-gradient-to-br from-clay-400 to-clay-600 hover:from-clay-500 hover:to-clay-700 text-white font-semibold rounded-lg transition-all text-sm"
             >
               Ver la propiedad
             </button>
@@ -232,7 +232,7 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
               rounded-md text-sm
               text-neutral-900 dark:text-neutral-100
               placeholder:text-neutral-500
-              focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+              focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
             `}
             placeholder="Juan Pérez García"
           />
@@ -259,7 +259,7 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
                 rounded-md text-sm
                 text-neutral-900 dark:text-neutral-100
                 placeholder:text-neutral-500
-                focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
               `}
               placeholder="juan@example.com"
             />
@@ -285,7 +285,7 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
                 rounded-md text-sm
                 text-neutral-900 dark:text-neutral-100
                 placeholder:text-neutral-500
-                focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
               `}
               placeholder="5512345678"
             />
@@ -320,7 +320,7 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
                 rounded-md text-sm
                 text-neutral-900 dark:text-neutral-100
                 placeholder:text-neutral-500
-                focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
               `}
               placeholder="Empresa S.A."
             />
@@ -346,7 +346,7 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
                 rounded-md text-sm
                 text-neutral-900 dark:text-neutral-100
                 placeholder:text-neutral-500
-                focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
               `}
               placeholder="Gerente de Ventas"
             />
@@ -374,7 +374,7 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
                 rounded-md text-sm
                 text-neutral-900 dark:text-neutral-100
                 placeholder:text-neutral-500
-                focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
               `}
               placeholder="25000"
               min="0"
@@ -407,7 +407,7 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
                 rounded-md text-sm
                 text-neutral-900 dark:text-neutral-100
                 placeholder:text-neutral-500
-                focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
               `}
               placeholder="1"
               min="0"
@@ -447,7 +447,7 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
                 rounded-md text-sm
                 text-neutral-900 dark:text-neutral-100
                 placeholder:text-neutral-500
-                focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
               `}
             />
             {errors.desiredMoveInDate && (
@@ -472,7 +472,7 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
                 rounded-md text-sm
                 text-neutral-900 dark:text-neutral-100
                 placeholder:text-neutral-500
-                focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
               `}
               placeholder="12"
               min="1"
@@ -499,7 +499,7 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
                 rounded-md text-sm
                 text-neutral-900 dark:text-neutral-100
                 placeholder:text-neutral-500
-                focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
               `}
               placeholder="2"
               min="1"
@@ -533,7 +533,7 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
               rounded-md text-sm
               text-neutral-900 dark:text-neutral-100
               placeholder:text-neutral-500
-              focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+              focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
             `}
             placeholder={monthlyRent ? String(monthlyRent) : '0'}
             min="1"
@@ -570,7 +570,7 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
                   rounded-md text-sm
                   text-neutral-900 dark:text-neutral-100
                   placeholder:text-neutral-500
-                  focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                  focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
                 `}
                 placeholder="María López"
               />
@@ -596,7 +596,7 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
                   rounded-md text-sm
                   text-neutral-900 dark:text-neutral-100
                   placeholder:text-neutral-500
-                  focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                  focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
                 `}
                 placeholder="5598765432"
               />
@@ -624,7 +624,7 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
                   rounded-md text-sm
                   text-neutral-900 dark:text-neutral-100
                   placeholder:text-neutral-500
-                  focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                  focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
                 "
                 placeholder="Carlos Ramírez"
               />
@@ -647,7 +647,7 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
                   rounded-md text-sm
                   text-neutral-900 dark:text-neutral-100
                   placeholder:text-neutral-500
-                  focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                  focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
                 "
                 placeholder="5587654321"
               />
@@ -675,7 +675,7 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
               rounded-md text-sm
               text-neutral-900 dark:text-neutral-100
               placeholder:text-neutral-500
-              focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+              focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
               resize-none
             "
             placeholder="Cuéntale al propietario por qué eres un buen candidato..."
@@ -691,14 +691,14 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
           className={`
             w-full
             px-6 py-3
-            bg-gradient-to-br from-amber-400 to-yellow-600
-            hover:from-amber-500 hover:to-yellow-700
+            bg-gradient-to-br from-clay-400 to-clay-600
+            hover:from-clay-500 hover:to-clay-700
             disabled:from-neutral-400 disabled:to-neutral-500
             text-white
             font-semibold
             rounded-lg
             transition-all
-            focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2
+            focus:outline-none focus:ring-2 focus:ring-clay-400 focus:ring-offset-2
             ${isSubmitting ? 'cursor-not-allowed opacity-50' : ''}
           `}
         >

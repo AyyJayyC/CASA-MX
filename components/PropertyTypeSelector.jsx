@@ -23,7 +23,7 @@ export default function PropertyTypeSelector({ value = '', onChange, name = 'pro
         return (
           <label
             key={option}
-            className={`relative flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-4 transition ${isSelected ? 'border-amber-500 bg-amber-50 shadow-sm dark:bg-amber-900/20' : 'border-neutral-300 bg-white hover:border-amber-300 dark:border-neutral-700 dark:bg-neutral-950'}`}
+            className={`relative flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-4 transition ${isSelected ? 'border-clay-500 bg-clay-50 shadow-sm dark:bg-clay-900/20' : 'border-neutral-300 bg-white hover:border-clay-300 dark:border-neutral-700 dark:bg-neutral-950'}`}
           >
             <input
               id={`propertyType-${option}`}
@@ -40,7 +40,7 @@ export default function PropertyTypeSelector({ value = '', onChange, name = 'pro
               <span className="block text-sm font-semibold text-neutral-900 dark:text-neutral-100">{option}</span>
               <span className="mt-1 block text-xs text-neutral-500 dark:text-neutral-400">{meta.description}</span>
             </span>
-            {isSelected && <CheckCircle2 className="h-5 w-5 text-amber-600" aria-hidden="true" />}
+            {isSelected && <CheckCircle2 className="h-5 w-5 text-clay-600" aria-hidden="true" />}
           </label>
         );
       })}

@@ -4,6 +4,7 @@
  */
 import './globals.css';
 import Link from 'next/link';
+import { Inter } from 'next/font/google';
 import QueryProvider from '../lib/providers/QueryProvider';
 import { AuthProvider } from '../lib/auth/AuthContext.jsx';
 import { CreditsProvider } from '../lib/auth/CreditsContext.jsx';
@@ -13,6 +14,18 @@ import { DebugProvider } from '../lib/debug/DebugContext.jsx';
 import DebugPanel from '../components/DebugPanel.jsx';
 import ErrorBoundary from '../components/ErrorBoundary.jsx';
 import ReferralTracker from '../components/ReferralTracker.jsx';
+import FooterYear from '../components/FooterYear.jsx';
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+  display: 'swap',
+});
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
 
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000'),
@@ -23,7 +36,8 @@ export const metadata = {
   icons: {
     icon: [
       { url: '/brand/favicon.ico' },
-      { url: '/brand/logo-mark.svg', type: 'image/svg+xml' },
+      { url: '/brand/favicon-32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/brand/favicon-16.png', type: 'image/png', sizes: '16x16' },
     ],
     apple: [{ url: '/brand/apple-icon.png', sizes: '180x180', type: 'image/png' }],
   },
@@ -52,7 +66,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="es">
+    <html lang="es" className={inter.className}>
       <body>
         <DebugProvider>
           <ErrorBoundary>
@@ -65,11 +79,11 @@ export default function RootLayout({ children }) {
                 <main className="container mt-8">{children}</main>
                 <footer className="mt-12 border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
                   <div className="container max-w-7xl py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-neutral-600 dark:text-neutral-400">
-                    <p>© {new Date().getFullYear()} Casa-MX.com. Todos los derechos reservados.</p>
+                    <p>© <FooterYear /> Casa-MX.com. Todos los derechos reservados.</p>
                     <div className="flex items-center gap-4">
-                      <Link href="/aviso-legal" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">Privacidad</Link>
-                      <Link href="/terminos" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">Términos</Link>
-                      <Link href="/cookie" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">Cookies</Link>
+                      <Link href="/aviso-legal" className="hover:text-clay-600 dark:hover:text-clay-400 transition-colors">Privacidad</Link>
+                      <Link href="/terminos" className="hover:text-clay-600 dark:hover:text-clay-400 transition-colors">Términos</Link>
+                      <Link href="/cookie" className="hover:text-clay-600 dark:hover:text-clay-400 transition-colors">Cookies</Link>
                     </div>
                   </div>
                 </footer>

@@ -43,7 +43,7 @@ export default function Error({ error, reset }) {
         <div className="space-y-3">
           <button
             onClick={() => reset()}
-            className="w-full px-4 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition-colors duration-200"
+            className="w-full px-4 py-3 bg-clay-600 hover:bg-clay-700 text-white rounded-lg font-medium transition-colors duration-200"
           >
             Intentar de nuevo
           </button>

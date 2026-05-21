@@ -41,7 +41,7 @@ export default function PropertiesMapPage() {
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-4">Property Map</h1>
         {count === 0 ? (
-          <div className="mb-4 p-4 border rounded bg-yellow-50">
+          <div className="mb-4 p-4 border rounded bg-clay-50">
             No properties with coordinates found. You can add coordinates in the property upload form to show properties on the map.
           </div>
         ) : (

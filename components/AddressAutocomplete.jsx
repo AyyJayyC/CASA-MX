@@ -174,7 +174,7 @@ export default function AddressAutocomplete({
           </div>
         ))}
         {v.warnings.map((warn, i) => (
-          <div key={`warn-${i}`} className="text-amber-600 text-sm flex items-center gap-1">
+          <div key={`warn-${i}`} className="text-clay-600 text-sm flex items-center gap-1">
             <span>⚠️</span> {warn}
           </div>
         ))}

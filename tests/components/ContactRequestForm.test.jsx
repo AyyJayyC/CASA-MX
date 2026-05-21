@@ -4,6 +4,10 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ContactRequestForm from '../../components/ContactRequestForm.jsx';
 import * as requestsApi from '../../lib/api/requests';
 
+vi.mock('../../lib/auth/useAuth', () => ({
+  useAuth: () => ({ user: null, isAuthenticated: false }),
+}));
+
 vi.mock('../../lib/api/requests', () => ({
   addRequest: vi.fn(),
 }));

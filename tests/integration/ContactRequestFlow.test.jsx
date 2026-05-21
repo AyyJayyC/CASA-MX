@@ -1,6 +1,11 @@
 import React from 'react';
+import { vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ContactRequestModal from '../../components/ContactRequestModal.jsx';
+
+vi.mock('../../lib/auth/useAuth', () => ({
+  useAuth: () => ({ user: null, isAuthenticated: false }),
+}));
 
 describe('Contact request flow integration', () => {
   it('opens modal and renders the contact request form', async () => {

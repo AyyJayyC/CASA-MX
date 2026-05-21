@@ -63,13 +63,13 @@ export default function PropertyAmenitiesSelector({ selectedAmenities = [], onCh
                   return (
                     <label
                       key={item.value}
-                      className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition ${isSelected ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20' : 'border-neutral-200 hover:border-amber-300 dark:border-neutral-700'}`}
+                      className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition ${isSelected ? 'border-clay-500 bg-clay-50 dark:bg-clay-900/20' : 'border-neutral-200 hover:border-clay-300 dark:border-neutral-700'}`}
                     >
                       <input
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => toggleAmenity(item.value)}
-                        className="h-4 w-4 rounded border-neutral-300 text-amber-600 focus:ring-amber-400"
+                        className="h-4 w-4 rounded border-neutral-300 text-clay-600 focus:ring-clay-400"
                         aria-label={item.label}
                       />
                       <span className="text-xl" aria-hidden="true">{item.emoji}</span>

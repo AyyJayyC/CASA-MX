@@ -32,7 +32,7 @@ export default function CreditsPage() {
   return (
     <div className="max-w-3xl mx-auto py-10 px-4 space-y-10">
       {/* Balance header */}
-      <div className="rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 p-8 text-white text-center shadow-lg">
+      <div className="rounded-2xl bg-gradient-to-br from-clay-400 to-clay-600 p-8 text-white text-center shadow-lg">
         <p className="text-lg font-medium opacity-90">Tu saldo de créditos</p>
         <p className="text-6xl font-black mt-2">{balance}</p>
         <p className="mt-1 opacity-80 text-sm">{balance === 1 ? 'crédito disponible' : 'créditos disponibles'}</p>

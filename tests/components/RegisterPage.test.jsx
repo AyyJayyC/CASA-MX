@@ -5,7 +5,8 @@ import { vi } from 'vitest';
 const pushSpy = vi.fn();
 // Mock Next.js router
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: pushSpy })
+  useRouter: () => ({ push: pushSpy }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { AuthContext } from '../../lib/auth/AuthContext.jsx';

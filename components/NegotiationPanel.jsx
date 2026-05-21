@@ -104,7 +104,7 @@ export default function NegotiationPanel({ applicationId, originalRent, applican
           <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
             negotiation.status === 'accepted' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
             negotiation.status === 'rejected' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
-            'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+            'bg-clay-100 text-clay-700 dark:bg-clay-900/30 dark:text-clay-400'
           }`}>
             {negotiation.status === 'accepted' ? '✓ Acordado' :
              negotiation.status === 'rejected' ? '✗ Rechazado' : 'En negociación'}
@@ -125,14 +125,14 @@ export default function NegotiationPanel({ applicationId, originalRent, applican
           {negotiation.offers.map((offer) => (
             <div key={offer.id} className={`rounded-lg p-3 text-sm ${
               offer.authorId === user?.id
-                ? 'bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 ml-4'
+                ? 'bg-clay-50 dark:bg-clay-900/20 border border-clay-200 dark:border-clay-800 ml-4'
                 : 'bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 mr-4'
             }`}>
               <div className="flex items-center justify-between">
                 <span className="font-medium text-neutral-700 dark:text-neutral-300">
                   {offer.authorRole === 'tenant' ? 'Inquilino' : 'Propietario'}
                 </span>
-                <span className="font-bold text-amber-700 dark:text-amber-400">{formatMXN(offer.proposedRent)}/mes</span>
+                <span className="font-bold text-clay-700 dark:text-clay-400">{formatMXN(offer.proposedRent)}/mes</span>
               </div>
               {offer.message && <p className="mt-1 text-neutral-600 dark:text-neutral-400">{offer.message}</p>}
               <p className="text-xs text-neutral-400 mt-1">
@@ -153,7 +153,7 @@ export default function NegotiationPanel({ applicationId, originalRent, applican
         !showForm ? (
           <button
             onClick={() => setShowForm(true)}
-            className="text-sm text-amber-600 dark:text-amber-400 hover:underline font-medium"
+            className="text-sm text-clay-600 dark:text-clay-400 hover:underline font-medium"
           >
             + Proponer otra renta
           </button>
@@ -226,7 +226,7 @@ function OfferForm({ label, proposedRent, message, onChangeRent, onChangeMessage
           onChange={(e) => onChangeRent(e.target.value)}
           placeholder="ej. 8500"
           min="1"
-          className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-900 text-sm text-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-400"
+          className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-900 text-sm text-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-clay-400"
         />
       </div>
       <div>
@@ -239,14 +239,14 @@ function OfferForm({ label, proposedRent, message, onChangeRent, onChangeMessage
           rows={2}
           maxLength={500}
           placeholder="Agrega una nota o justificación..."
-          className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-900 text-sm text-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none"
+          className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-900 text-sm text-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-clay-400 resize-none"
         />
       </div>
       <div className="flex gap-2">
         <button
           onClick={onSubmit}
           disabled={loading || !proposedRent}
-          className="px-4 py-2 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white font-semibold rounded-lg text-sm transition-colors"
+          className="px-4 py-2 bg-clay-500 hover:bg-clay-600 disabled:bg-clay-300 text-white font-semibold rounded-lg text-sm transition-colors"
         >
           {loading ? 'Enviando...' : label}
         </button>

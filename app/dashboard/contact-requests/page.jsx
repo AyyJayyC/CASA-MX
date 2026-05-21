@@ -10,7 +10,7 @@ export default function SellerContactRequestsPage() {
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center">
-        <Link href="/login" className="text-amber-600 hover:underline font-medium">
+        <Link href="/login" className="text-clay-600 hover:underline font-medium">
           Iniciar sesión
         </Link>
       </div>

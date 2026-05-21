@@ -183,7 +183,7 @@ function PropertiesContent() {
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
       {/* Hero Section */}
       <section className="
-        bg-gradient-to-br from-amber-50 to-yellow-50 
+        bg-gradient-to-br from-clay-50 to-clay-50 
         dark:from-neutral-900 dark:to-neutral-800
         border-b border-neutral-200 dark:border-neutral-800
       ">
@@ -215,10 +215,10 @@ function PropertiesContent() {
                   font-semibold
                   rounded-lg
                   transition-all
-                  focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2
+                  focus:outline-none focus:ring-2 focus:ring-clay-400 focus:ring-offset-2
                   ${listingType === 'for_sale'
-                    ? 'bg-gradient-to-br from-amber-400 to-yellow-600 text-white shadow-md'
-                    : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-700 hover:border-amber-400 dark:hover:border-amber-400'
+                    ? 'bg-gradient-to-br from-clay-400 to-clay-600 text-white shadow-md'
+                    : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-700 hover:border-clay-400 dark:hover:border-clay-400'
                   }
                 `}
               >
@@ -231,10 +231,10 @@ function PropertiesContent() {
                   font-semibold
                   rounded-lg
                   transition-all
-                  focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2
+                  focus:outline-none focus:ring-2 focus:ring-clay-400 focus:ring-offset-2
                   ${listingType === 'for_rent'
-                    ? 'bg-gradient-to-br from-amber-400 to-yellow-600 text-white shadow-md'
-                    : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-700 hover:border-amber-400 dark:hover:border-amber-400'
+                    ? 'bg-gradient-to-br from-clay-400 to-clay-600 text-white shadow-md'
+                    : 'bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-700 hover:border-clay-400 dark:hover:border-clay-400'
                   }
                 `}
               >
@@ -259,7 +259,7 @@ function PropertiesContent() {
                   rounded-lg
                   text-neutral-900 dark:text-neutral-100
                   placeholder:text-neutral-500
-                  focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                  focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
                   text-base
                 "
               />
@@ -267,13 +267,13 @@ function PropertiesContent() {
                 type="submit"
                 className="
                   px-6 py-3
-                  bg-gradient-to-br from-amber-400 to-yellow-600
-                  hover:from-amber-500 hover:to-yellow-700
+                  bg-gradient-to-br from-clay-400 to-clay-600
+                  hover:from-clay-500 hover:to-clay-700
                   text-white
                   font-semibold
                   rounded-lg
                   transition-all
-                  focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2
+                  focus:outline-none focus:ring-2 focus:ring-clay-400 focus:ring-offset-2
                   whitespace-nowrap
                 "
               >
@@ -307,8 +307,8 @@ function PropertiesContent() {
                     onClick={clearFilters}
                     className="
                       text-xs 
-                      text-amber-600 dark:text-amber-400
-                      hover:text-amber-700 dark:hover:text-amber-300
+                      text-clay-600 dark:text-clay-400
+                      hover:text-clay-700 dark:hover:text-clay-300
                       font-medium
                     "
                   >
@@ -343,7 +343,7 @@ function PropertiesContent() {
                           text-sm
                           text-neutral-900 dark:text-neutral-100
                           placeholder:text-neutral-500
-                          focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                          focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
                         "
                       />
                     </div>
@@ -366,7 +366,7 @@ function PropertiesContent() {
                           text-sm
                           text-neutral-900 dark:text-neutral-100
                           placeholder:text-neutral-500
-                          focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                          focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
                         "
                       />
                     </div>
@@ -402,7 +402,7 @@ function PropertiesContent() {
                           text-sm
                           text-neutral-900 dark:text-neutral-100
                           placeholder:text-neutral-500
-                          focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                          focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
                         "
                       />
                     </div>
@@ -427,7 +427,7 @@ function PropertiesContent() {
                           text-sm
                           text-neutral-900 dark:text-neutral-100
                           placeholder:text-neutral-500
-                          focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                          focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
                         "
                       />
                     </div>
@@ -448,11 +448,11 @@ function PropertiesContent() {
                       onChange={(e) => setFurnished(e.target.checked)}
                       className="
                         w-4 h-4
-                        text-amber-600
+                        text-clay-600
                         bg-white dark:bg-neutral-950
                         border-neutral-300 dark:border-neutral-700
                         rounded
-                        focus:ring-2 focus:ring-amber-400 focus:ring-offset-0
+                        focus:ring-2 focus:ring-clay-400 focus:ring-offset-0
                       "
                     />
                     <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
@@ -474,7 +474,7 @@ function PropertiesContent() {
                         type="checkbox"
                         checked={selectedServices.includes(svc)}
                         onChange={() => toggleFilter(setSelectedServices, selectedServices, svc)}
-                        className="w-4 h-4 text-amber-600 bg-white dark:bg-neutral-950 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-amber-400 focus:ring-offset-0"
+                        className="w-4 h-4 text-clay-600 bg-white dark:bg-neutral-950 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-clay-400 focus:ring-offset-0"
                       />
                       <span className="text-sm text-neutral-700 dark:text-neutral-300">{svc}</span>
                     </label>
@@ -494,7 +494,7 @@ function PropertiesContent() {
                         type="checkbox"
                         checked={selectedAmenities.includes(am)}
                         onChange={() => toggleFilter(setSelectedAmenities, selectedAmenities, am)}
-                        className="w-4 h-4 text-amber-600 bg-white dark:bg-neutral-950 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-amber-400 focus:ring-offset-0"
+                        className="w-4 h-4 text-clay-600 bg-white dark:bg-neutral-950 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-clay-400 focus:ring-offset-0"
                       />
                       <span className="text-sm text-neutral-700 dark:text-neutral-300">{am}</span>
                     </label>
@@ -515,7 +515,7 @@ function PropertiesContent() {
                           type="checkbox"
                           checked={selectedFinancing.includes(fin)}
                           onChange={() => toggleFilter(setSelectedFinancing, selectedFinancing, fin)}
-                          className="w-4 h-4 text-amber-600 bg-white dark:bg-neutral-950 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-amber-400 focus:ring-offset-0"
+                          className="w-4 h-4 text-clay-600 bg-white dark:bg-neutral-950 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-clay-400 focus:ring-offset-0"
                         />
                         <span className="text-sm text-neutral-700 dark:text-neutral-300">{fin}</span>
                       </label>
@@ -551,7 +551,7 @@ function PropertiesContent() {
                         rounded-md
                         text-sm
                         text-neutral-900 dark:text-neutral-100
-                        focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                        focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
                       "
                     >
                       <option value="">Todos</option>
@@ -581,7 +581,7 @@ function PropertiesContent() {
                         rounded-md
                         text-sm
                         text-neutral-900 dark:text-neutral-100
-                        focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                        focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
                         disabled:opacity-60
                       "
                     >
@@ -609,7 +609,7 @@ function PropertiesContent() {
                         rounded-md
                         text-sm
                         text-neutral-900 dark:text-neutral-100
-                        focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                        focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
                         disabled:opacity-60
                       "
                     >
@@ -644,7 +644,7 @@ function PropertiesContent() {
                         text-sm
                         text-neutral-900 dark:text-neutral-100
                         placeholder:text-neutral-500
-                        focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+                        focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
                       "
                     />
                   </div>
@@ -671,7 +671,7 @@ function PropertiesContent() {
                     {hasFilters && (
                       <button
                         onClick={clearFilters}
-                        className="text-xs text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 font-medium"
+                        className="text-xs text-clay-600 dark:text-clay-400 hover:text-clay-700 dark:hover:text-clay-300 font-medium"
                       >
                         Limpiar
                       </button>
@@ -696,7 +696,7 @@ function PropertiesContent() {
                           value={minPrice}
                           onChange={(e) => setMinPrice(e.target.value)}
                           placeholder="$ 0"
-                          className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                          className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent"
                         />
                       </div>
                       <div>
@@ -709,7 +709,7 @@ function PropertiesContent() {
                           value={maxPrice}
                           onChange={(e) => setMaxPrice(e.target.value)}
                           placeholder="$ Sin límite"
-                          className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                          className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent"
                         />
                       </div>
                     </div>
@@ -736,7 +736,7 @@ function PropertiesContent() {
                             min="5000"
                             max="50000"
                             step="1000"
-                            className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                            className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent"
                           />
                         </div>
                         <div>
@@ -751,7 +751,7 @@ function PropertiesContent() {
                             min="5000"
                             max="50000"
                             step="1000"
-                            className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                            className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent"
                           />
                         </div>
                       </div>
@@ -766,7 +766,7 @@ function PropertiesContent() {
                           type="checkbox"
                           checked={furnished}
                           onChange={(e) => setFurnished(e.target.checked)}
-                          className="w-4 h-4 text-amber-600 bg-white dark:bg-neutral-950 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-amber-400 focus:ring-offset-0"
+                          className="w-4 h-4 text-clay-600 bg-white dark:bg-neutral-950 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-clay-400 focus:ring-offset-0"
                         />
                         <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                           Solo amuebladas
@@ -788,7 +788,7 @@ function PropertiesContent() {
                           type="checkbox"
                           checked={selectedServices.includes(svc)}
                           onChange={() => toggleFilter(setSelectedServices, selectedServices, svc)}
-                          className="w-4 h-4 text-amber-600 bg-white dark:bg-neutral-950 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-amber-400 focus:ring-offset-0"
+                          className="w-4 h-4 text-clay-600 bg-white dark:bg-neutral-950 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-clay-400 focus:ring-offset-0"
                         />
                         <span className="text-sm text-neutral-700 dark:text-neutral-300">{svc}</span>
                       </label>
@@ -808,7 +808,7 @@ function PropertiesContent() {
                           type="checkbox"
                           checked={selectedAmenities.includes(am)}
                           onChange={() => toggleFilter(setSelectedAmenities, selectedAmenities, am)}
-                          className="w-4 h-4 text-amber-600 bg-white dark:bg-neutral-950 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-amber-400 focus:ring-offset-0"
+                          className="w-4 h-4 text-clay-600 bg-white dark:bg-neutral-950 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-clay-400 focus:ring-offset-0"
                         />
                         <span className="text-sm text-neutral-700 dark:text-neutral-300">{am}</span>
                       </label>
@@ -829,7 +829,7 @@ function PropertiesContent() {
                             type="checkbox"
                             checked={selectedFinancing.includes(fin)}
                             onChange={() => toggleFilter(setSelectedFinancing, selectedFinancing, fin)}
-                            className="w-4 h-4 text-amber-600 bg-white dark:bg-neutral-950 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-amber-400 focus:ring-offset-0"
+                            className="w-4 h-4 text-clay-600 bg-white dark:bg-neutral-950 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-clay-400 focus:ring-offset-0"
                           />
                           <span className="text-sm text-neutral-700 dark:text-neutral-300">{fin}</span>
                         </label>
@@ -857,7 +857,7 @@ function PropertiesContent() {
                           setCiudad('');
                           setColonia('');
                         }}
-                        className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                        className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent"
                       >
                         <option value="">Todos</option>
                         {estadosDisponibles.map((item) => (
@@ -878,7 +878,7 @@ function PropertiesContent() {
                           setColonia('');
                         }}
                         disabled={!estado}
-                        className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent disabled:opacity-60"
+                        className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent disabled:opacity-60"
                       >
                         <option value="">Todas</option>
                         {ciudadesDisponibles.map((item) => (
@@ -896,7 +896,7 @@ function PropertiesContent() {
                         value={colonia}
                         onChange={(e) => setColonia(e.target.value)}
                         disabled={!estado || !ciudad}
-                        className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent disabled:opacity-60"
+                        className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent disabled:opacity-60"
                       >
                         <option value="">Todas</option>
                         {coloniasDisponibles.map((item) => (
@@ -920,7 +920,7 @@ function PropertiesContent() {
                         }}
                         maxLength={5}
                         placeholder="Ej: 06700"
-                        className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                        className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent"
                       />
                     </div>
                   </div>

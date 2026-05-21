@@ -5,10 +5,14 @@ import AgencyPage from '../../app/dashboard/agency/page.jsx';
 
 const mockGetAgency = vi.fn();
 const mockGetAgents = vi.fn();
+const mockGetAgencyMembership = vi.fn();
+const mockGetAgencyPricing = vi.fn();
 
 vi.mock('../../lib/api/agencies', () => ({
   getMyAgency: (...args) => mockGetAgency(...args),
   getMyAgents: (...args) => mockGetAgents(...args),
+  getMyAgencyMembership: (...args) => mockGetAgencyMembership(...args),
+  getAgencyPricing: (...args) => mockGetAgencyPricing(...args),
 }));
 
 vi.mock('../../lib/auth/useAuth', () => ({
@@ -22,32 +26,53 @@ const mockAgency = {
   legalName: 'Grupo Inmobiliario MX S.A. de C.V.',
   rfc: 'GIM123456XYZ',
   referralCode: 'AG001',
+  billingActive: true,
+  plan: 'pro',
+  agentLimit: 5,
   _count: { members: 3 },
+};
+
+const mockAgentsData = {
+  agents: [
+    { id: 'u-2', name: 'Juan Pérez', email: 'juan@agencia.com', createdAt: '2026-04-01T00:00:00.000Z', roles: ['seller'] },
+    { id: 'u-3', name: 'María López', email: 'maria@agencia.com', createdAt: '2026-04-15T00:00:00.000Z', roles: ['landlord'] },
+  ],
+  total: 2,
+  agentLimit: 5,
+};
+
+const mockPricing = {
+  planPrice: 1999,
+  plans: [
+    { name: 'basico', label: 'Básico', price: 999, agents: 3, leads: 50 },
+    { name: 'pro', label: 'Pro', price: 1999, agents: 10, leads: 100 },
+    { name: 'empresarial', label: 'Empresarial', price: 3999, agents: 30, leads: 300 },
+  ],
+  extraAgentCost: 200,
 };
 
 describe('DashboardAgencyPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockGetAgency.mockResolvedValue(mockAgency);
-    mockGetAgents.mockResolvedValue([
-      { id: 'u-2', name: 'Juan Pérez', email: 'juan@agencia.com', createdAt: '2026-04-01T00:00:00.000Z', roles: ['seller'] },
-      { id: 'u-3', name: 'María López', email: 'maria@agencia.com', createdAt: '2026-04-15T00:00:00.000Z', roles: ['landlord'] },
-    ]);
+    mockGetAgents.mockResolvedValue(mockAgentsData);
+    mockGetAgencyMembership.mockResolvedValue(null);
+    mockGetAgencyPricing.mockResolvedValue(mockPricing);
   });
 
   it('renders the agency name', async () => {
     render(<AgencyPage />);
     await waitFor(() => {
-      const matches = screen.getAllByText('Grupo Inmobiliario MX');
-      expect(matches.length).toBeGreaterThanOrEqual(2);
+      expect(screen.getByText('Grupo Inmobiliario MX')).toBeInTheDocument();
     });
   });
 
-  it('shows agency legal name and RFC', async () => {
+  it('shows the plan status and agent count', async () => {
     render(<AgencyPage />);
     await waitFor(() => {
-      expect(screen.getByText('Grupo Inmobiliario MX S.A. de C.V.')).toBeInTheDocument();
-      expect(screen.getByText('GIM123456XYZ')).toBeInTheDocument();
+      expect(screen.getByText('Activo')).toBeInTheDocument();
+      expect(screen.getByText('Pro')).toBeInTheDocument();
+      expect(screen.getByText(/Agentes: 3 \/ 5/)).toBeInTheDocument();
     });
   });
 
@@ -71,8 +96,7 @@ describe('DashboardAgencyPage', () => {
 
     render(<AgencyPage />);
     await waitFor(() => {
-      expect(screen.getByText(/No tienes una agencia/i)).toBeInTheDocument();
+      expect(screen.getByText(/Quieres registrar tu agencia/i)).toBeInTheDocument();
     });
   });
-
 });

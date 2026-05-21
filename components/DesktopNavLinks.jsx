@@ -29,7 +29,7 @@ export default function DesktopNavLinks({
           onClick={() => setPropertiesDropdownOpen(!propertiesDropdownOpen)}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2
             ${isActivePath('/properties') || propertiesDropdownOpen
-              ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
+              ? 'bg-clay-50 dark:bg-clay-900/20 text-clay-600 dark:text-clay-400'
               : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
             }`}
         >
@@ -61,7 +61,7 @@ export default function DesktopNavLinks({
 
       {isAuthenticated && (
         <Link href="/dashboard" className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
-          ${pathname?.startsWith('/dashboard') ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
+          ${pathname?.startsWith('/dashboard') ? 'bg-clay-50 dark:bg-clay-900/20 text-clay-600 dark:text-clay-400'
             : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'}`}>
           Inicio
         </Link>
@@ -70,6 +70,7 @@ export default function DesktopNavLinks({
       {isAuthenticated && isAdminUser && (
         <>
           <AdminLink href="/admin/analytics" isActivePath={isActivePath}>Análisis</AdminLink>
+          <AdminLink href="/admin/agencies" isActivePath={isActivePath}>Agencias</AdminLink>
           <AdminLink href="/admin/approvals" isActivePath={isActivePath}>Admin</AdminLink>
           <AdminLink href="/admin/properties" isActivePath={isActivePath}>Propiedades</AdminLink>
           {showDebugUI && <AdminLink href="/admin/debug" isActivePath={isActivePath}>Debug</AdminLink>}
@@ -82,7 +83,7 @@ export default function DesktopNavLinks({
 function DropdownLink({ href, onClick, icon, children, bordered }) {
   return (
     <Link href={href} onClick={onClick}
-      className={`flex items-center gap-3 px-4 py-3 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:text-amber-600 dark:hover:text-amber-400 transition-colors
+      className={`flex items-center gap-3 px-4 py-3 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-clay-50 dark:hover:bg-clay-900/20 hover:text-clay-600 dark:hover:text-clay-400 transition-colors
         ${bordered ? 'border-b border-neutral-100 dark:border-neutral-700' : ''}`}>
       <span>{ICON_MAP[icon] || '📌'}</span>
       <span>{children}</span>
@@ -94,7 +95,7 @@ function AdminLink({ href, isActivePath, children }) {
   return (
     <Link href={href} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
       ${isActivePath(href) || (href === '/admin/debug' && isActivePath('/admin/debug'))
-        ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
+        ? 'bg-clay-50 dark:bg-clay-900/20 text-clay-600 dark:text-clay-400'
         : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'}`}>
       {children}
     </Link>

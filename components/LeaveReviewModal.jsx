@@ -108,7 +108,7 @@ export default function LeaveReviewModal({
               rows={5}
               maxLength={1000}
               placeholder="Comparte detalles útiles sobre la experiencia."
-              className="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-950 px-4 py-3 text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-amber-400"
+              className="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-950 px-4 py-3 text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-clay-400"
             />
             <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
               Si das 2 estrellas o menos, se requiere un comentario más detallado.
@@ -132,7 +132,7 @@ export default function LeaveReviewModal({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 rounded-lg text-sm font-semibold text-white bg-gradient-to-br from-amber-400 to-yellow-600 hover:from-amber-500 hover:to-yellow-700 disabled:opacity-60 transition-all"
+              className="px-5 py-2 rounded-lg text-sm font-semibold text-white bg-gradient-to-br from-clay-400 to-clay-600 hover:from-clay-500 hover:to-clay-700 disabled:opacity-60 transition-all"
             >
               {isSubmitting ? 'Enviando...' : 'Enviar reseña'}
             </button>

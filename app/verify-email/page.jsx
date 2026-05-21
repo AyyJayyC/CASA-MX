@@ -28,8 +28,7 @@ function VerifyEmailContent() {
           setStatus('success');
           setMessage(data.message || '¡Correo verificado exitosamente!');
           await refreshUser();
-          // Redirect to inicio after 3 seconds
-          setTimeout(() => router.push('/dashboard'), 3000);
+          setTimeout(() => { window.location.href = '/dashboard'; }, 3000);
         } else {
           setStatus(data.error?.includes('expirado') ? 'expired' : 'error');
           setMessage(data.error || 'El enlace es inválido.');
@@ -47,7 +46,7 @@ function VerifyEmailContent() {
 
         {status === 'loading' && (
           <>
-            <div className="w-12 h-12 border-4 border-amber-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <div className="w-12 h-12 border-4 border-clay-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
             <p className="text-neutral-600 dark:text-neutral-400">Verificando tu correo...</p>
           </>
         )}
@@ -58,7 +57,7 @@ function VerifyEmailContent() {
             <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">¡Correo verificado!</h1>
             <p className="text-neutral-600 dark:text-neutral-400 mb-6">{message}</p>
             <p className="text-sm text-neutral-500 dark:text-neutral-500">Redirigiendo a tu inicio...</p>
-            <Link href="/dashboard" className="mt-4 inline-block px-6 py-2 rounded-lg bg-gradient-to-br from-amber-400 to-yellow-600 text-white font-semibold text-sm hover:from-amber-500 hover:to-yellow-700 transition-all">
+            <Link href="/dashboard" className="mt-4 inline-block px-6 py-2 rounded-lg bg-gradient-to-br from-clay-400 to-clay-600 text-white font-semibold text-sm hover:from-clay-500 hover:to-clay-700 transition-all">
               Ir al inicio
             </Link>
           </>
@@ -129,7 +128,7 @@ function ResendButton() {
       <button
         onClick={handleResend}
         disabled={sending}
-        className="px-6 py-2 rounded-lg bg-gradient-to-br from-amber-400 to-yellow-600 text-white font-semibold text-sm hover:from-amber-500 hover:to-yellow-700 disabled:opacity-60 transition-all"
+        className="px-6 py-2 rounded-lg bg-gradient-to-br from-clay-400 to-clay-600 text-white font-semibold text-sm hover:from-clay-500 hover:to-clay-700 disabled:opacity-60 transition-all"
       >
         {sending ? 'Enviando...' : 'Reenviar correo de verificación'}
       </button>

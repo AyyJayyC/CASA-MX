@@ -6,7 +6,7 @@ import ApplicantReviewSummary from './ApplicantReviewSummary.jsx';
 const NegotiationPanel = dynamic(() => import('./NegotiationPanel.jsx'));
 
 const statusBadgeConfig = {
-  pending: { label: 'Pendiente', bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-800 dark:text-yellow-300' },
+  pending: { label: 'Pendiente', bg: 'bg-clay-100 dark:bg-clay-900/30', text: 'text-clay-800 dark:text-clay-300' },
   under_review: { label: 'En Revisión', bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-800 dark:text-blue-300' },
   approved: { label: 'Aprobada', bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-800 dark:text-green-300' },
   rejected: { label: 'Rechazada', bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-800 dark:text-red-300' },
@@ -77,7 +77,7 @@ export default function ApplicationDetailsModal({
                   <button
                     onClick={onUnlock}
                     disabled={isUnlocking}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white text-sm font-semibold rounded-lg transition-colors"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-clay-500 hover:bg-clay-600 disabled:bg-clay-300 text-white text-sm font-semibold rounded-lg transition-colors"
                   >
                     🔓 {isUnlocking ? 'Desbloqueando...' : 'Ver contacto completo (1 crédito)'}
                   </button>
@@ -156,7 +156,7 @@ export default function ApplicationDetailsModal({
               Descargar Contrato de Arrendamiento
             </a>
             {application.applicantId && (
-              <button onClick={onReview} disabled={hasSubmittedReview} className="w-full px-4 py-2 bg-gradient-to-br from-amber-400 to-yellow-600 text-white font-medium rounded-lg hover:from-amber-500 hover:to-yellow-700 disabled:opacity-60 transition-colors">
+              <button onClick={onReview} disabled={hasSubmittedReview} className="w-full px-4 py-2 bg-gradient-to-br from-clay-400 to-clay-600 text-white font-medium rounded-lg hover:from-clay-500 hover:to-clay-700 disabled:opacity-60 transition-colors">
                 {hasSubmittedReview ? 'Reseña enviada para este inquilino' : 'Calificar inquilino'}
               </button>
             )}

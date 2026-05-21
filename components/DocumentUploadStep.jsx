@@ -222,11 +222,11 @@ export default function DocumentUploadStep({ propertyId, sellerRole = 'seller', 
       )}
 
       {!autoVerified && allDone && (
-        <div className="rounded-xl bg-yellow-50 border border-yellow-200 p-4 text-center">
-          <p className="text-yellow-800 font-semibold text-sm">
+        <div className="rounded-xl bg-clay-50 border border-clay-200 p-4 text-center">
+          <p className="text-clay-800 font-semibold text-sm">
             Documentos recibidos — en revisión
           </p>
-          <p className="text-yellow-700 text-xs mt-1">
+          <p className="text-clay-700 text-xs mt-1">
             Tu propiedad será publicada una vez que un administrador revise tus documentos (24–48 h).
           </p>
         </div>

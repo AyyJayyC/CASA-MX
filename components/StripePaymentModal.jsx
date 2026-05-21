@@ -71,7 +71,7 @@ function CheckoutForm({ pkg, onSuccess, onClose, refresh, clientSecret }) {
         <button
           type="submit"
           disabled={!stripe || processing}
-          className="flex-1 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white text-sm font-semibold transition-colors"
+          className="flex-1 py-2 rounded-lg bg-clay-500 hover:bg-clay-600 disabled:opacity-50 text-white text-sm font-semibold transition-colors"
         >
           {processing ? 'Procesando…' : `Pagar $${pkg?.priceMXN?.toLocaleString('es-MX')} MXN`}
         </button>

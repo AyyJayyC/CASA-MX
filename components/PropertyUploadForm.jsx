@@ -589,7 +589,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
     rounded-lg
     text-neutral-900 dark:text-neutral-100
     placeholder:text-neutral-500
-    focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent
+    focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
     transition-shadow
   `;
 
@@ -710,7 +710,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                   {success.title} — ahora sube los documentos de verificación de la propiedad para publicarla.
                 </p>
                 {success.publishEligibility && !success.publishEligibility.canPublish && (
-                  <p className="text-sm text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2">
+                  <p className="text-sm text-clay-800 dark:text-clay-300 bg-clay-50 dark:bg-clay-900/20 border border-clay-200 dark:border-clay-800 rounded-lg px-3 py-2">
                     Esta propiedad quedó en borrador. Para publicarla necesitas correo verificado e INE verificada en tu cuenta.
                     <Link href="/settings" className="underline ml-1">Ir a Ajustes</Link>
                   </p>
@@ -981,7 +981,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
               />
               {addressSearchLoading && (
                 <div className="absolute right-3 top-3">
-                  <svg className="animate-spin h-4 w-4 text-amber-500" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin h-4 w-4 text-clay-500" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
@@ -1015,15 +1015,15 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                     }}
                     className={`w-full text-left px-4 py-3 text-sm border-b border-neutral-100 dark:border-neutral-700 last:border-0 transition-colors ${
                       activeAddressSuggestionIndex === i
-                        ? 'bg-amber-50 dark:bg-amber-900/20'
-                        : 'hover:bg-amber-50 dark:hover:bg-amber-900/20'
+                        ? 'bg-clay-50 dark:bg-clay-900/20'
+                        : 'hover:bg-clay-50 dark:hover:bg-clay-900/20'
                     }`}
                   >
                     {(() => {
                       const display = getSuggestionDisplay(s);
                       return (
                     <div className="flex items-start gap-2">
-                      <svg className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-4 h-4 text-clay-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                       </svg>
                       <div className="min-w-0">
@@ -1332,7 +1332,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
               accept="image/*"
               multiple
               onChange={handlePhotoFiles}
-              className="block w-full text-sm text-neutral-700 dark:text-neutral-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100"
+              className="block w-full text-sm text-neutral-700 dark:text-neutral-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-clay-50 file:text-clay-700 hover:file:bg-clay-100"
             />
             <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
               La primera imagen será la portada en listados.
@@ -1362,7 +1362,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                       ✕
                     </button>
                     {index === 0 && (
-                      <span className="absolute bottom-1 left-1 rounded bg-amber-500 px-2 py-0.5 text-[10px] font-medium text-white">
+                      <span className="absolute bottom-1 left-1 rounded bg-clay-500 px-2 py-0.5 text-[10px] font-medium text-white">
                         Portada
                       </span>
                     )}
@@ -1388,10 +1388,10 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                 {...register('financeOptions.cash')}
                 className="
                   w-4 h-4
-                  text-amber-600
+                  text-clay-600
                   border-neutral-300 dark:border-neutral-700
                   rounded
-                  focus:ring-2 focus:ring-amber-400
+                  focus:ring-2 focus:ring-clay-400
                 "
               />
               <span className="text-sm text-neutral-700 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-neutral-100">
@@ -1406,10 +1406,10 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                 {...register('financeOptions.bankLoan')}
                 className="
                   w-4 h-4
-                  text-amber-600
+                  text-clay-600
                   border-neutral-300 dark:border-neutral-700
                   rounded
-                  focus:ring-2 focus:ring-amber-400
+                  focus:ring-2 focus:ring-clay-400
                 "
               />
               <span className="text-sm text-neutral-700 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-neutral-100">
@@ -1424,10 +1424,10 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                 {...register('financeOptions.INFONAVIT')}
                 className="
                   w-4 h-4
-                  text-amber-600
+                  text-clay-600
                   border-neutral-300 dark:border-neutral-700
                   rounded
-                  focus:ring-2 focus:ring-amber-400
+                  focus:ring-2 focus:ring-clay-400
                 "
               />
               <span className="text-sm text-neutral-700 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-neutral-100">
@@ -1442,10 +1442,10 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                 {...register('financeOptions.FOVISSSTE')}
                 className="
                   w-4 h-4
-                  text-amber-600
+                  text-clay-600
                   border-neutral-300 dark:border-neutral-700
                   rounded
-                  focus:ring-2 focus:ring-amber-400
+                  focus:ring-2 focus:ring-clay-400
                 "
               />
               <span className="text-sm text-neutral-700 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-neutral-100">
@@ -1460,10 +1460,10 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                 {...register('financeOptions.paymentPlan')}
                 className="
                   w-4 h-4
-                  text-amber-600
+                  text-clay-600
                   border-neutral-300 dark:border-neutral-700
                   rounded
-                  focus:ring-2 focus:ring-amber-400
+                  focus:ring-2 focus:ring-clay-400
                 "
               />
               <span className="text-sm text-neutral-700 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-neutral-100">
@@ -1478,10 +1478,10 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                 {...register('financeOptions.other')}
                 className="
                   w-4 h-4
-                  text-amber-600
+                  text-clay-600
                   border-neutral-300 dark:border-neutral-700
                   rounded
-                  focus:ring-2 focus:ring-amber-400
+                  focus:ring-2 focus:ring-clay-400
                 "
               />
               <span className="text-sm text-neutral-700 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-neutral-100">
@@ -1499,7 +1499,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
               type="checkbox"
               checked={ownershipConfirmed}
               onChange={(e) => setOwnershipConfirmed(e.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-neutral-300 text-amber-500 focus:ring-amber-400 shrink-0"
+              className="mt-0.5 h-4 w-4 rounded border-neutral-300 text-clay-500 focus:ring-clay-400 shrink-0"
             />
             <span className="text-sm text-neutral-700 dark:text-neutral-300 leading-snug">
               Certifico que soy el propietario o tengo autorización legal para publicar esta propiedad, y que la información proporcionada es verídica. Acepto que deberé subir documentos que acrediten la propiedad y que la publicación permanecerá pendiente de verificación hasta su revisión.
@@ -1517,15 +1517,15 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
             className="
               flex-1 sm:flex-none
               px-8 py-3
-              bg-gradient-to-br from-amber-400 to-yellow-600
-              hover:from-amber-500 hover:to-yellow-700
-              disabled:from-amber-300 disabled:to-yellow-500
+              bg-gradient-to-br from-clay-400 to-clay-600
+              hover:from-clay-500 hover:to-clay-700
+              disabled:from-clay-300 disabled:to-clay-500
               disabled:opacity-60 disabled:cursor-not-allowed
               text-white
               font-semibold
               rounded-lg
               transition-all
-              focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2
+              focus:outline-none focus:ring-2 focus:ring-clay-400 focus:ring-offset-2
               flex items-center justify-center gap-2
             "
           >
@@ -1557,7 +1557,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
               font-medium
               rounded-lg
               transition-colors
-              focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2
+              focus:outline-none focus:ring-2 focus:ring-clay-400 focus:ring-offset-2
             "
           >
             Limpiar formulario

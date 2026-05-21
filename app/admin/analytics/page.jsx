@@ -155,7 +155,7 @@ export default function AdminAnalyticsPage() {
           <select
             value={days}
             onChange={(e) => setDays(Number(e.target.value))}
-            className="px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-sm text-neutral-700 dark:text-neutral-300 focus:outline-none focus:ring-2 focus:ring-amber-400"
+            className="px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-sm text-neutral-700 dark:text-neutral-300 focus:outline-none focus:ring-2 focus:ring-clay-400"
           >
             <option value={7}>7 días</option>
             <option value={14}>14 días</option>
@@ -166,7 +166,7 @@ export default function AdminAnalyticsPage() {
 
         {loading && (
           <div className="flex justify-center py-20">
-            <div className="animate-spin h-8 w-8 border-4 border-amber-400 border-t-transparent rounded-full" />
+            <div className="animate-spin h-8 w-8 border-4 border-clay-400 border-t-transparent rounded-full" />
           </div>
         )}
 
@@ -295,7 +295,7 @@ export default function AdminAnalyticsPage() {
                       </div>
                       <div className="w-full bg-neutral-200 dark:bg-neutral-700 rounded-full h-3 overflow-hidden">
                         <div
-                          className="h-full rounded-full bg-gradient-to-r from-amber-400 to-yellow-600 transition-all"
+                          className="h-full rounded-full bg-gradient-to-r from-clay-400 to-clay-600 transition-all"
                           style={{ width: `${Math.min(item.pct, 100)}%` }}
                         />
                       </div>
@@ -363,7 +363,7 @@ export default function AdminAnalyticsPage() {
                         {referralSummary.topReferrers.map((r, i) => (
                           <tr key={r.referralCode} className="border-b border-neutral-100 dark:border-neutral-800 last:border-0">
                             <td className="py-2.5 pr-4">
-                              <code className="text-sm font-mono text-amber-700 dark:text-amber-400">{r.referralCode}</code>
+                              <code className="text-sm font-mono text-clay-700 dark:text-clay-400">{r.referralCode}</code>
                             </td>
                             <td className="py-2.5 text-right text-neutral-700 dark:text-neutral-300">{formatNumber(r.clicks)}</td>
                             <td className="py-2.5 text-right text-neutral-700 dark:text-neutral-300">{formatNumber(r.signups)}</td>
@@ -400,7 +400,7 @@ export default function AdminAnalyticsPage() {
                       {events.slice(0, 25).map((e, i) => (
                         <tr key={e.id || i} className="border-b border-neutral-100 dark:border-neutral-800 last:border-0">
                           <td className="py-2 pr-4">
-                            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300">
+                            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-clay-100 dark:bg-clay-900/30 text-clay-800 dark:text-clay-300">
                               {e.eventName}
                             </span>
                           </td>

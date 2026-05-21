@@ -27,7 +27,7 @@ export default function VerificationBadges({
       ) : null}
 
       {paidSubscriber && (
-        <span className={`${baseClass} bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300`}>
+        <span className={`${baseClass} bg-clay-100 text-clay-800 dark:bg-clay-900/30 dark:text-clay-300`}>
           <span aria-hidden="true">✓</span>
           Suscripcion activa
         </span>

@@ -9,7 +9,7 @@ export default function ContactRequestsList() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
-        <svg className="animate-spin h-10 w-10 text-amber-500 mb-4" fill="none" viewBox="0 0 24 24">
+        <svg className="animate-spin h-10 w-10 text-clay-500 mb-4" fill="none" viewBox="0 0 24 24">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
         </svg>
@@ -35,7 +35,7 @@ export default function ContactRequestsList() {
           </p>
           <Link
             href="/properties"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-amber-400 to-yellow-600 hover:from-amber-500 hover:to-yellow-700 text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-clay-400 to-clay-600 hover:from-clay-500 hover:to-clay-700 text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg"
           >
             Explorar propiedades
           </Link>
@@ -67,7 +67,7 @@ export default function ContactRequestsList() {
                         {new Date(req.createdAt).toLocaleDateString('es-MX')}
                       </p>
                       <p className="flex items-center gap-2">
-                        <span className={`inline-block w-2 h-2 rounded-full ${req.status === 'contacted' ? 'bg-green-500' : 'bg-amber-500'}`} />
+                        <span className={`inline-block w-2 h-2 rounded-full ${req.status === 'contacted' ? 'bg-green-500' : 'bg-clay-500'}`} />
                         {req.status === 'contacted' ? 'Dirección recibida' : 'Pendiente'}
                       </p>
                     </div>
@@ -86,7 +86,7 @@ export default function ContactRequestsList() {
 
                   <Link
                     href={`/properties/${req.propertyId}`}
-                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/30 dark:hover:bg-amber-900/50 text-amber-900 dark:text-amber-400 font-medium text-sm rounded-lg transition-colors"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-clay-100 hover:bg-clay-200 dark:bg-clay-900/30 dark:hover:bg-clay-900/50 text-clay-900 dark:text-clay-400 font-medium text-sm rounded-lg transition-colors"
                   >
                     Ver propiedad
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -103,7 +103,7 @@ export default function PropertyImageGallery({ images = [], title = 'Propiedad',
               key={`${String(image).slice(0, 48)}-${index}`}
               type="button"
               onClick={() => setCurrentIndex(index)}
-              className={`relative aspect-square overflow-hidden rounded-xl border transition ${index === currentIndex ? 'border-amber-500 ring-2 ring-amber-300/70' : 'border-neutral-200 dark:border-neutral-700'}`}
+              className={`relative aspect-square overflow-hidden rounded-xl border transition ${index === currentIndex ? 'border-clay-500 ring-2 ring-clay-300/70' : 'border-neutral-200 dark:border-neutral-700'}`}
               aria-label={`Ver imagen ${index + 1}`}
             >
               <Image

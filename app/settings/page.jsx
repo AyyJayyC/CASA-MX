@@ -5,7 +5,6 @@ import { RequireAuth } from '@/components/guards/RequireAuth';
 import VerificationBadges from '@/components/VerificationBadges';
 import { getUserProfile, updateUserProfile, uploadProfileAvatar } from '@/lib/api/users';
 import { getUserDocuments, uploadUserDocument } from '@/lib/api/userDocuments';
-
 export default function SettingsPage() {
   return (
     <RequireAuth>
@@ -32,6 +31,13 @@ function SettingsContent() {
     paidSubscriber: false,
     subscriptionStatus: 'inactive',
   });
+  const [verified, setVerified] = useState({ email: false, phone: false });
+  const [changingEmail, setChangingEmail] = useState(false);
+  const [changingPhone, setChangingPhone] = useState(false);
+  const [emailChangeMsg, setEmailChangeMsg] = useState('');
+  const [phoneChangeStep, setPhoneChangeStep] = useState(null); // null = idle, 'form' = entering new phone
+  const [newPhone, setNewPhone] = useState('');
+  const [newEmail, setNewEmail] = useState('');
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -56,7 +62,10 @@ function SettingsContent() {
           email: user.email || '',
           phone: user.phone || '',
           whatsapp: user.whatsapp || '',
-          avatarUrl: user.avatarUrl || '',
+        });
+        setVerified({
+          email: Boolean(user.emailVerified),
+          phone: Boolean(user.phoneVerified),
         });
       } catch (err) {
         setError('No se pudo cargar tu perfil. Inténtalo de nuevo.');
@@ -164,7 +173,7 @@ function SettingsContent() {
                     className="w-14 h-14 rounded-full object-cover border border-neutral-200 dark:border-neutral-700"
                   />
                 ) : (
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-yellow-600 text-white font-semibold flex items-center justify-center">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-clay-400 to-clay-600 text-white font-semibold flex items-center justify-center">
                     {form.name?.[0]?.toUpperCase() || 'U'}
                   </div>
                 )}
@@ -202,7 +211,7 @@ function SettingsContent() {
               <p className="text-xs text-neutral-600 dark:text-neutral-400">
                 Necesitas correo verificado e INE verificada para publicar propiedades y enviar ofertas.
               </p>
-              <p className={`text-sm font-medium ${verifiedIne ? 'text-green-600 dark:text-green-400' : pendingIne ? 'text-blue-700 dark:text-blue-300' : 'text-amber-700 dark:text-amber-300'}`}>
+              <p className={`text-sm font-medium ${verifiedIne ? 'text-green-600 dark:text-green-400' : pendingIne ? 'text-blue-700 dark:text-blue-300' : 'text-clay-700 dark:text-clay-300'}`}>
                 {verifiedIne ? 'INE verificada' : rejectedIne ? 'INE rechazada' : pendingIne ? 'INE subida (pendiente de verificacion)' : 'INE pendiente'}
               </p>
               {rejectedIne && officialIneDoc?.reviewNote && (
@@ -228,35 +237,154 @@ function SettingsContent() {
                 name="name"
                 value={form.name}
                 onChange={handleChange}
-                className="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                className="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-clay-400"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                Correo electrónico
+                Correo electrónico {verified.email && <span className="text-clay-400 text-xs ml-1">✓ Verificado</span>}
               </label>
-              <input
-                name="email"
-                type="email"
-                value={form.email}
-                onChange={handleChange}
-                className="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-amber-400"
-              />
+              {verified.email ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      readOnly
+                      value={form.email}
+                      className="flex-1 px-3 py-2 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800/50 text-neutral-500 cursor-not-allowed"
+                    />
+                    {!changingEmail && (
+                      <button type="button" onClick={() => { setChangingEmail(true); setEmailChangeMsg(''); }}
+                        className="px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 text-sm text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800">
+                        Cambiar
+                      </button>
+                    )}
+                  </div>
+                  {changingEmail && (
+                    <div className="p-3 border border-clay-200 dark:border-clay-800 rounded-lg space-y-2 bg-clay-50 dark:bg-clay-900/10">
+                      <p className="text-xs text-neutral-600 dark:text-neutral-400">
+                        Te enviaremos un enlace de verificación a tu nuevo correo.
+                      </p>
+                      <div className="flex gap-2">
+                        <input
+                          type="email"
+                          value={newEmail}
+                          onChange={(e) => setNewEmail(e.target.value)}
+                          placeholder="nuevo@email.com"
+                          className="flex-1 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-sm"
+                        />
+                        <button type="button"
+                          onClick={async () => {
+                            if (!newEmail) return;
+                            setSaving(true);
+                            try {
+                              const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/users/me/change-email`, {
+                                method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+                                body: JSON.stringify({ newEmail }),
+                              });
+                              const data = await res.json();
+                              if (res.ok) setEmailChangeMsg('Revisa tu nuevo correo para verificar el cambio.');
+                              else setEmailChangeMsg(data.error || 'Error');
+                            } catch { setEmailChangeMsg('Error de conexión'); }
+                            setSaving(false);
+                          }}
+                          disabled={saving || !newEmail}
+                          className="px-3 py-2 rounded-lg bg-clay-400 hover:bg-clay-500 disabled:opacity-50 text-white text-sm font-medium"
+                        >
+                          {saving ? 'Enviando...' : 'Enviar verificación'}
+                        </button>
+                      </div>
+                      {emailChangeMsg && <p className="text-xs text-clay-600 dark:text-clay-400">{emailChangeMsg}</p>}
+                      <button type="button" onClick={() => { setChangingEmail(false); setNewEmail(''); setEmailChangeMsg(''); }}
+                        className="text-xs text-neutral-500 hover:underline">Cancelar</button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  <input
+                    name="email" type="email" value={form.email}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-clay-400"
+                  />
+                  {!verified.email && <p className="text-xs text-clay-500">Sin verificar. <a href="/verify-email" className="underline">Verificar ahora</a></p>}
+                </div>
+              )}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                Teléfono
+                Teléfono {verified.phone && <span className="text-clay-400 text-xs ml-1">✓ Verificado</span>}
               </label>
-              <input
-                name="phone"
-                type="tel"
-                value={form.phone}
-                onChange={handleChange}
-                placeholder="+525512345678"
-                className="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-amber-400"
-              />
+              {verified.phone ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      readOnly
+                      value={form.phone}
+                      className="flex-1 px-3 py-2 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800/50 text-neutral-500 cursor-not-allowed"
+                    />
+                    {!changingPhone && (
+                      <button type="button" onClick={() => { setChangingPhone(true); setPhoneChangeStep('form'); setNewPhone(''); }}
+                        className="px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 text-sm text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800">
+                        Cambiar
+                      </button>
+                    )}
+                  </div>
+                  {changingPhone && phoneChangeStep === 'form' && (
+                    <div className="p-3 border border-clay-200 dark:border-clay-800 rounded-lg space-y-2 bg-clay-50 dark:bg-clay-900/10">
+                      <p className="text-xs text-neutral-600 dark:text-neutral-400">
+                        Ingresa tu nuevo número de teléfono. Se verificará automáticamente.
+                      </p>
+                      <div className="flex gap-2">
+                        <input
+                          type="tel"
+                          value={newPhone}
+                          onChange={(e) => setNewPhone(e.target.value)}
+                          placeholder="+525512345678"
+                          className="flex-1 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-sm"
+                        />
+                        <button type="button"
+                          onClick={async () => {
+                            if (!newPhone) return;
+                            setSaving(true);
+                            try {
+                              const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/users/me/change-phone`, {
+                                method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+                                body: JSON.stringify({ phone: newPhone }),
+                              });
+                              const data = await res.json();
+                              if (res.ok) {
+                                setForm(f => ({ ...f, phone: newPhone }));
+                                setVerified(v => ({ ...v, phone: true }));
+                                setChangingPhone(false);
+                                setPhoneChangeStep(null);
+                                setSuccess(true);
+                              } else {
+                                setError(data.error);
+                              }
+                            } catch { setError('Error de conexión'); }
+                            setSaving(false);
+                          }}
+                          disabled={saving || !newPhone}
+                          className="px-3 py-2 rounded-lg bg-clay-400 hover:bg-clay-500 disabled:opacity-50 text-white text-sm font-medium"
+                        >
+                          {saving ? 'Guardando...' : 'Guardar'}
+                        </button>
+                      </div>
+                      <button type="button" onClick={() => { setChangingPhone(false); setPhoneChangeStep(null); }}
+                        className="text-xs text-neutral-500 hover:underline">Cancelar</button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <input
+                  name="phone" type="tel" value={form.phone}
+                  onChange={handleChange}
+                  placeholder="+525512345678"
+                  className="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-clay-400"
+                />
+              )}
             </div>
 
             <div>
@@ -269,7 +397,7 @@ function SettingsContent() {
                 value={form.whatsapp}
                 onChange={handleChange}
                 placeholder="+525512345678"
-                className="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                className="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-clay-400"
               />
               <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
                 Usado para el botón "Contactar por WhatsApp" en tus propiedades
@@ -286,7 +414,7 @@ function SettingsContent() {
             <button
               type="submit"
               disabled={saving}
-              className="w-full py-2.5 rounded-lg bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-semibold transition-colors"
+              className="w-full py-2.5 rounded-lg bg-clay-500 hover:bg-clay-600 disabled:opacity-50 text-white font-semibold transition-colors"
             >
               {saving ? 'Guardando…' : 'Guardar cambios'}
             </button>

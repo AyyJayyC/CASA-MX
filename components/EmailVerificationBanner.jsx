@@ -29,9 +29,9 @@ export default function EmailVerificationBanner() {
   };
 
   return (
-    <div className="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800">
+    <div className="bg-clay-50 dark:bg-clay-900/20 border-b border-clay-200 dark:border-clay-800">
       <div className="container max-w-7xl px-4 py-2.5 flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-2 text-sm text-amber-800 dark:text-amber-300">
+        <div className="flex items-center gap-2 text-sm text-clay-800 dark:text-clay-300">
           <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
           </svg>
@@ -46,14 +46,14 @@ export default function EmailVerificationBanner() {
             <button
               onClick={handleResend}
               disabled={sending}
-              className="text-xs font-semibold text-amber-700 dark:text-amber-300 hover:underline disabled:opacity-50"
+              className="text-xs font-semibold text-clay-700 dark:text-clay-300 hover:underline disabled:opacity-50"
             >
               {sending ? 'Enviando...' : 'Reenviar correo'}
             </button>
           )}
           <button
             onClick={() => setDismissed(true)}
-            className="text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-200"
+            className="text-clay-600 dark:text-clay-400 hover:text-clay-800 dark:hover:text-clay-200"
             aria-label="Cerrar"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

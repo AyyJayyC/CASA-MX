@@ -8,7 +8,7 @@ import { getMyApplications } from '@/lib/api/applications';
 import { getMyAuthoredReviews } from '@/lib/api/reviews';
 
 const statusConfig = {
-  pending: { label: 'Pendiente', badge: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300' },
+  pending: { label: 'Pendiente', badge: 'bg-clay-100 dark:bg-clay-900/30 text-clay-800 dark:text-clay-300' },
   under_review: { label: 'En revisión', badge: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300' },
   approved: { label: 'Aprobada', badge: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' },
   rejected: { label: 'Rechazada', badge: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' },
@@ -90,8 +90,8 @@ function RentalApplicationsContent() {
             type="button"
             onClick={() => setSelectedStatus(filter.value)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${selectedStatus === filter.value
-              ? 'bg-gradient-to-br from-amber-400 to-yellow-600 text-white'
-              : 'bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 hover:border-amber-400'
+              ? 'bg-gradient-to-br from-clay-400 to-clay-600 text-white'
+              : 'bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 hover:border-clay-400'
             }`}
           >
             {filter.label}
@@ -198,7 +198,7 @@ function RentalApplicationsContent() {
                         type="button"
                         onClick={() => setSelectedApplication(application)}
                         disabled={alreadyReviewed}
-                        className="w-full px-4 py-2 rounded-lg text-sm font-semibold text-white bg-gradient-to-br from-amber-400 to-yellow-600 hover:from-amber-500 hover:to-yellow-700 disabled:opacity-60 transition-all"
+                        className="w-full px-4 py-2 rounded-lg text-sm font-semibold text-white bg-gradient-to-br from-clay-400 to-clay-600 hover:from-clay-500 hover:to-clay-700 disabled:opacity-60 transition-all"
                       >
                         {alreadyReviewed ? 'Reseña enviada' : 'Calificar arrendador'}
                       </button>

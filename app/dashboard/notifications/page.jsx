@@ -17,7 +17,7 @@ const TYPE_LABELS = {
 const TYPE_COLORS = {
   offer_accepted: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
   offer_rejected: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-  offer_countered: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
+  offer_countered: 'bg-clay-100 text-clay-800 dark:bg-clay-900/30 dark:text-clay-400',
   offer_received: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
   application_approved: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
   application_rejected: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
@@ -29,6 +29,7 @@ export default function NotificationsPage() {
   const router = useRouter();
   const [data, setData] = useState({ notifications: [], unreadCount: 0 });
   const [fetching, setFetching] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -40,7 +41,10 @@ export default function NotificationsPage() {
     if (!isAuthenticated) return;
     getNotifications()
       .then(setData)
-      .catch(console.error)
+      .catch((err) => {
+        console.error(err);
+        setFetchError('No se pudieron cargar las notificaciones.');
+      })
       .finally(() => setFetching(false));
   }, [isAuthenticated]);
 
@@ -70,6 +74,16 @@ export default function NotificationsPage() {
     );
   }
 
+  if (fetchError) {
+    return (
+      <div className="container max-w-3xl py-12">
+        <div className="text-center py-16 bg-red-50 dark:bg-red-900/10 rounded-xl">
+          <p className="text-red-600 dark:text-red-400">{fetchError}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container max-w-3xl py-8">
       <div className="flex items-center justify-between mb-6">
@@ -84,7 +98,7 @@ export default function NotificationsPage() {
         {data.unreadCount > 0 && (
           <button
             onClick={handleMarkAllRead}
-            className="text-sm text-amber-600 dark:text-amber-400 hover:underline font-medium"
+            className="text-sm text-clay-600 dark:text-clay-400 hover:underline font-medium"
           >
             Marcar todas leídas
           </button>
@@ -103,7 +117,7 @@ export default function NotificationsPage() {
               key={n.id}
               className={`p-4 rounded-xl border transition-colors ${
                 !n.read
-                  ? 'bg-amber-50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-800'
+                  ? 'bg-clay-50 dark:bg-clay-900/10 border-clay-200 dark:border-clay-800'
                   : 'bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700'
               }`}
             >
@@ -114,7 +128,7 @@ export default function NotificationsPage() {
                       {TYPE_LABELS[n.type] || n.type}
                     </span>
                     {!n.read && (
-                      <span className="w-2 h-2 bg-amber-500 rounded-full inline-block" title="No leída" />
+                      <span className="w-2 h-2 bg-clay-500 rounded-full inline-block" title="No leída" />
                     )}
                   </div>
                   <p className="font-medium text-neutral-900 dark:text-neutral-100 text-sm">{n.title}</p>
@@ -126,7 +140,7 @@ export default function NotificationsPage() {
                 {!n.read && (
                   <button
                     onClick={() => handleMarkRead(n.id)}
-                    className="text-xs text-amber-600 dark:text-amber-400 hover:underline shrink-0"
+                    className="text-xs text-clay-600 dark:text-clay-400 hover:underline shrink-0"
                   >
                     Marcar leída
                   </button>

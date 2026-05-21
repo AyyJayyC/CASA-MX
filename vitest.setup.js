@@ -82,5 +82,7 @@ vi.mock('recharts', async () => {
 		Cell: Mock,
 		BarChart: Mock,
 		Bar: Mock,
+		AreaChart: Mock,
+		Area: Mock,
 	};
 });

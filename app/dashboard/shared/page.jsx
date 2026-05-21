@@ -45,7 +45,7 @@ export default function SharedPage() {
       <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center">
         <div className="text-center space-y-4">
           <p className="text-neutral-600 dark:text-neutral-400">Debes iniciar sesión para ver esta página.</p>
-          <Link href="/login" className="text-amber-600 dark:text-amber-400 hover:underline font-medium">Iniciar sesión</Link>
+          <Link href="/login" className="text-clay-600 dark:text-clay-400 hover:underline font-medium">Iniciar sesión</Link>
         </div>
       </div>
     );
@@ -68,12 +68,12 @@ export default function SharedPage() {
             <div className="animate-pulse h-10 bg-neutral-200 dark:bg-neutral-800 rounded-lg" />
           ) : referralCode ? (
             <div className="flex items-center gap-3">
-              <code className="px-4 py-2 bg-neutral-100 dark:bg-neutral-800 rounded-lg text-lg font-mono font-bold text-amber-700 dark:text-amber-400">
+              <code className="px-4 py-2 bg-neutral-100 dark:bg-neutral-800 rounded-lg text-lg font-mono font-bold text-clay-700 dark:text-clay-400">
                 {referralCode}
               </code>
               <button
                 onClick={handleCopyCode}
-                className="px-4 py-2 rounded-lg font-semibold text-sm bg-gradient-to-br from-amber-400 to-yellow-600 hover:from-amber-500 hover:to-yellow-700 text-white transition-all"
+                className="px-4 py-2 rounded-lg font-semibold text-sm bg-gradient-to-br from-clay-400 to-clay-600 hover:from-clay-500 hover:to-clay-700 text-white transition-all"
               >
                 {copied ? '¡Copiado!' : 'Copiar enlace'}
               </button>
@@ -90,7 +90,7 @@ export default function SharedPage() {
         {stats && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="p-6 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl text-center space-y-1">
-              <div className="text-3xl font-bold text-amber-600 dark:text-amber-400">{stats.clicks || 0}</div>
+              <div className="text-3xl font-bold text-clay-600 dark:text-clay-400">{stats.clicks || 0}</div>
               <div className="text-sm text-neutral-500 dark:text-neutral-400">Clics totales</div>
             </div>
             <div className="p-6 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl text-center space-y-1">
@@ -136,7 +136,7 @@ export default function SharedPage() {
             <div className="text-4xl mb-3">🔗</div>
             <p className="font-medium">Aún no has compartido ninguna propiedad</p>
             <p className="text-sm mt-1">Comparte una propiedad para ver estadísticas aquí.</p>
-            <Link href="/properties" className="inline-block mt-4 px-6 py-3 rounded-lg font-semibold text-sm bg-gradient-to-br from-amber-400 to-yellow-600 hover:from-amber-500 hover:to-yellow-700 text-white transition-all">
+            <Link href="/properties" className="inline-block mt-4 px-6 py-3 rounded-lg font-semibold text-sm bg-gradient-to-br from-clay-400 to-clay-600 hover:from-clay-500 hover:to-clay-700 text-white transition-all">
               Explorar propiedades
             </Link>
           </div>

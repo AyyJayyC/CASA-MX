@@ -87,7 +87,7 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
     bg-white dark:bg-neutral-800
     text-neutral-900 dark:text-neutral-100
     placeholder-neutral-400 dark:placeholder-neutral-500
-    focus:outline-none focus:ring-2 focus:ring-amber-400
+    focus:outline-none focus:ring-2 focus:ring-clay-400
     text-sm
   `;
 
@@ -98,8 +98,8 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
         onClick={() => setOpen(true)}
         className="
           w-full py-3 px-6 rounded-lg font-semibold text-sm
-          bg-gradient-to-br from-amber-400 to-yellow-600
-          hover:from-amber-500 hover:to-yellow-700
+          bg-gradient-to-br from-clay-400 to-clay-600
+          hover:from-clay-500 hover:to-clay-700
           text-white shadow-sm
           transition-all
         "
@@ -204,8 +204,8 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
 
                   {/* ── Payment plan extra fields ── */}
                   {form.financing === 'paymentPlan' && (
-                    <div className="space-y-3 p-4 rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800">
-                      <div className="text-xs font-semibold uppercase tracking-widest text-amber-700 dark:text-amber-400">
+                    <div className="space-y-3 p-4 rounded-lg bg-clay-50 dark:bg-clay-900/10 border border-clay-200 dark:border-clay-800">
+                      <div className="text-xs font-semibold uppercase tracking-widest text-clay-700 dark:text-clay-400">
                         Detalles del plan de pagos
                       </div>
 
@@ -237,11 +237,11 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
 
                       {/* Auto-calculated monthly payment */}
                       {cuotaMensual !== null && (
-                        <div className="rounded-lg bg-white dark:bg-neutral-900 border border-amber-300 dark:border-amber-700 px-4 py-3 flex items-center justify-between">
+                        <div className="rounded-lg bg-white dark:bg-neutral-900 border border-clay-300 dark:border-clay-700 px-4 py-3 flex items-center justify-between">
                           <span className="text-sm text-neutral-600 dark:text-neutral-400">
                             Pago mensual estimado
                           </span>
-                          <span className="text-lg font-bold text-amber-600 dark:text-amber-400">
+                          <span className="text-lg font-bold text-clay-600 dark:text-clay-400">
                             ${cuotaMensual.toLocaleString('es-MX', { maximumFractionDigits: 0 })} MXN
                           </span>
                         </div>
@@ -345,8 +345,8 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
                     disabled={loading}
                     className="
                       w-full py-3 px-6 rounded-lg font-semibold text-sm
-                      bg-gradient-to-br from-amber-400 to-yellow-600
-                      hover:from-amber-500 hover:to-yellow-700
+                      bg-gradient-to-br from-clay-400 to-clay-600
+                      hover:from-clay-500 hover:to-clay-700
                       disabled:opacity-50 disabled:cursor-not-allowed
                       text-white shadow-sm transition-all
                     "

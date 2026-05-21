@@ -108,8 +108,8 @@ function ReviewsPageContent() {
             type="button"
             onClick={() => setSelectedRole(role)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${selectedRole === role
-              ? 'bg-gradient-to-br from-amber-400 to-yellow-600 text-white'
-              : 'bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 hover:border-amber-400'
+              ? 'bg-gradient-to-br from-clay-400 to-clay-600 text-white'
+              : 'bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 hover:border-clay-400'
             }`}
           >
             {getRoleLabel(role)}
