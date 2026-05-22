@@ -13,26 +13,24 @@ vi.mock('../../lib/auth/useAuth', () => ({
   }),
 }));
 
+vi.mock('../../lib/api/locations.js', () => ({
+  getUnifiedCatalog: async () => ({
+    estados: [
+      { nombre: 'Ciudad de México', ciudades: [{ nombre: 'Ciudad de México', colonias: ['Demo Colonia', 'Int Colonia'] }] },
+    ],
+    postalCodeRanges: { CDMX: { min: '01000', max: '16550' } },
+  }),
+  getStaticCatalog: () => ({}),
+  getFilterOptions: async () => ({}),
+}));
+
 describe('Upload integration', () => {
   it('submits a full property through API adapter', async () => {
     vi.spyOn(propertiesApi, 'addProperty').mockResolvedValue({ id: 'prop-new', title: 'Integration Prop' });
-    vi.spyOn(propertiesApi, 'getLocationsCatalog').mockResolvedValue({
-      estados: [
-        {
-          nombre: 'Ciudad de México',
-          ciudades: [
-            {
-              nombre: 'Ciudad de México',
-              colonias: ['Demo Colonia', 'Int Colonia'],
-            },
-          ],
-        },
-      ],
-    });
 
     render(<PropertyUploadForm />);
 
-    await screen.findByRole('option', { name: 'Ciudad de México' });
+    await screen.findByLabelText(/Título/);
 
     fireEvent.click(screen.getByLabelText(/Certifico que soy el propietario/i));
 
@@ -47,7 +45,7 @@ describe('Upload integration', () => {
     fireEvent.click(screen.getByLabelText('Departamento'));
     fireEvent.change(screen.getByLabelText(/Recámaras/i), { target: { value: '2' } });
     fireEvent.change(screen.getByLabelText(/Baños/i), { target: { value: '2' } });
-    fireEvent.change(screen.getByLabelText(/Metros cuadrados/), { target: { value: '80' } });
+    fireEvent.change(screen.getByLabelText(/Metros de construcci/i), { target: { value: '80' } });
 
     const latInput = document.querySelector('input[name="latitude"]');
     const lngInput = document.querySelector('input[name="longitude"]');

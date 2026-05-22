@@ -36,16 +36,28 @@ export default function DesktopNavLinks({
         Rentar
       </Link>
       {canPublish && (
-        <Link
-          href="/publish-property"
-          className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
-            ${isActivePath('/publish-property')
-              ? 'bg-clay/10 text-clay'
-              : 'text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800'
-            }`}
-        >
-          Vender
-        </Link>
+        <>
+          <Link
+            href="/publish-property"
+            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
+              ${isActivePath('/publish-property')
+                ? 'bg-clay/10 text-clay'
+                : 'text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800'
+              }`}
+          >
+            Vender
+          </Link>
+          <Link
+            href="/properties/import"
+            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
+              ${isActivePath('/properties/import')
+                ? 'bg-clay/10 text-clay'
+                : 'text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800'
+              }`}
+          >
+            Importar
+          </Link>
+        </>
       )}
       {(!isAuthenticated || !canPublish) && (
         <Link

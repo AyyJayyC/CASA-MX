@@ -41,7 +41,7 @@ describe('PropertyList integration', () => {
     fireEvent.change(input, { target: { value: 'Polanco' } });
 
     await waitFor(() => {
-      expect(screen.getByText(/Polanco/)).toBeInTheDocument();
+      expect(screen.getAllByText(/Polanco/).length).toBeGreaterThanOrEqual(1);
     });
   });
 });

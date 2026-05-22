@@ -1,253 +1,391 @@
 {
   "metadata": {
-    "version": "1.0",
-    "lastUpdated": "2026-02-25",
-    "coverage": "All 31 Mexican states with major cities and neighborhoods",
+    "version": "3.0",
+    "lastUpdated": "2026-05-20",
+    "coverage": "All 32 Mexican states with expanded city and colonia data",
     "source": "Official Mexican administrative divisions"
   },
   "estados": [
     {
-      "id": "CDMX",
-      "nombre": "Ciudad de México",
+      "id": "AGUASCALIENTES",
+      "nombre": "Aguascalientes",
       "ciudades": [
-        {
-          "id": "CDMX-BDHI",
-          "nombre": "Benito Juárez",
-          "colonias": ["Del Valle", "La Roma", "Narvarte", "San José Insurgentes", "Hipódromo", "Santa María la Ribera"]
-        },
-        {
-          "id": "CDMX-CUAT",
-          "nombre": "Cuauhtémoc",
-          "colonias": ["Centro", "Doctores", "Juárez", "Roma", "San Rafael", "Cuauhtémoc"]
-        },
-        {
-          "id": "CDMX-ITZEN",
-          "nombre": "Iztapalapa",
-          "colonias": ["Centro", "Apatlaco", "Ixtapaluca", "La Perla", "San Andrés Tetepilco", "Zaragoza"]
-        },
-        {
-          "id": "CDMX-GUSTAVO",
-          "nombre": "Gustavo A. Madero",
-          "colonias": ["Azcapotzalco", "Fortuna", "Lindavista", "Vallejo", "Villa de Cortés"]
-        },
-        {
-          "id": "CDMX-TLALPAN",
-          "nombre": "Tlalpan",
-          "colonias": ["Ajusco", "Fuentes Brotantes", "La Joya", "Padierna", "San Miguel Topilejo", "Tlalpan Centro"]
-        }
-      ]
-    },
-    {
-      "id": "MEX",
-      "nombre": "Estado de México",
-      "ciudades": [
-        {
-          "id": "MEX-ECATEPEC",
-          "nombre": "Ecatepec de Morelos",
-          "colonias": ["Centro", "Cumbria", "Estado de México", "Las Américas", "Toltitlán"]
-        },
-        {
-          "id": "MEX-TOLUCA",
-          "nombre": "Toluca de Lerdo",
-          "colonias": ["Centro", "Adolfo López Mateos", "Barrio de la Veracruz", "Fondo de Ahorros", "La Asunción"]
-        },
-        {
-          "id": "MEX-NEZAHUALCOYOTL",
-          "nombre": "Nezahualcóyotl",
-          "colonias": ["Benito Juárez", "Emiliano Zapata", "Metropolitana Primera Sección", "Metropolitana Segunda Sección"]
-        },
-        {
-          "id": "MEX-NAUCALPAN",
-          "nombre": "Naucalpan de Juárez",
-          "colonias": ["Centro", "Andalucía", "Benito Juárez", "Lomas de Chapultepec", "San Javier"]
-        }
-      ]
-    },
-    {
-      "id": "JALISCO",
-      "nombre": "Jalisco",
-      "ciudades": [
-        {
-          "id": "JAL-GUADALAJARA",
-          "nombre": "Guadalajara",
-          "colonias": ["Centro", "Agua Blanca", "Analco", "Chapultepec", "Godoy", "Huentitán", "Juncal", "Libertad"]
-        },
-        {
-          "id": "JAL-ZAPOPAN",
-          "nombre": "Zapopan",
-          "colonias": ["Centro", "Arenales Tapatíos", "Chapalita", "Lomas de Guevara", "Pinar de la Venta"]
-        },
-        {
-          "id": "JAL-TLAQUEPAQUE",
-          "nombre": "Tlaquepaque",
-          "colonias": ["Centro", "Atequepaque", "Guadalupana", "San Juan Evangelista"]
-        }
-      ]
-    },
-    {
-      "id": "VERACRUZ",
-      "nombre": "Veracruz",
-      "ciudades": [
-        {
-          "id": "VER-VERACRUZ",
-          "nombre": "Veracruz",
-          "colonias": ["Centro", "Américas", "Artesanos", "Córdoba", "Cristóbal Colón", "Unidad Habitacional Morelos"]
-        },
-        {
-          "id": "VER-XALAPA",
-          "nombre": "Xalapa",
-          "colonias": ["Centro", "Arboledas", "Coatepec", "Progreso", "Xallitic"]
-        }
-      ]
-    },
-    {
-      "id": "NUEVO_LEON",
-      "nombre": "Nuevo León",
-      "ciudades": [
-        {
-          "id": "NL-MONTERREY",
-          "nombre": "Monterrey",
-          "colonias": ["Centro", "Barrio Antiguo", "Escobedo", "Macroplaza", "Monterrey", "San Pedro Garza García"]
-        }
+        { "id": "AGS-AGS", "nombre": "Aguascalientes", "colonias": ["Centro", "Las Américas", "Trojes", "San Marcos", "Ojocaliente", "Jardines de la Concepción", "Bosques del Prado", "Circunvalación", "Gómez Morín", "Lomas del Campestre", "Pirules", "Santa Anita", "Vista Alegre", "Morelos", "Héroes", "Insurgentes", "Los Bosques", "Rancho Santa Mónica", "Colinas del Río", "El Dorado"] },
+        { "id": "AGS-CALVILLO", "nombre": "Calvillo", "colonias": ["Centro", "El Chiquihuite", "Malpaso", "La Panadera", "Ojocaliente", "San Tadeo"] },
+        { "id": "AGS-JESUS", "nombre": "Jesús María", "colonias": ["Centro", "Margaritas", "Los Arquitos", "La Florida", "Corral de Barrancos", "Chichimeco", "Paseos de Aguascalientes", "Arboledas"] },
+        { "id": "AGS-RINCON", "nombre": "Rincón de Romos", "colonias": ["Centro", "El Chaveño", "San José de Gracia", "Estancia de Mosqueira"] },
+        { "id": "AGS-PABELLON", "nombre": "Pabellón de Arteaga", "colonias": ["Centro", "El Milagro", "Santa Isabel", "Las Ánimas"] }
       ]
     },
     {
       "id": "BAJA_CALIFORNIA",
       "nombre": "Baja California",
       "ciudades": [
-        {
-          "id": "BC-TIJUANA",
-          "nombre": "Tijuana",
-          "colonias": ["Centro", "Agua Caliente", "Libertad", "Playas de Tijuana", "Zona Río"]
-        }
+        { "id": "BC-TIJUANA", "nombre": "Tijuana", "colonias": ["Centro", "Agua Caliente", "Libertad", "Playas de Tijuana", "Zona Río", "Otay", "La Mesa", "Altabrisa", "Chapultepec", "Hipódromo", "Mariano Matamoros", "Sánchez Taboada", "Santa Fe", "El Florido", "Villa del Campo", "Cumbres", "Las Huertas", "Buenos Aires", "20 de Noviembre", "El Rubí"] },
+        { "id": "BC-MEXICALI", "nombre": "Mexicali", "colonias": ["Centro", "Cívica", "Independencia", "Prohogar", "Rivera", "González Ortega", "Los Pinos", "Santa Isabel", "Vista Hermosa", "Jardines del Valle", "Fovissste", "Nuevo Mexicali", "Residencial San Marcos", "Villa Florida"] },
+        { "id": "BC-ENSENADA", "nombre": "Ensenada", "colonias": ["Centro", "Chapultepec", "Lomitas", "Playa Hermosa", "Valle Dorado", "Carlos Pacheco", "Hidalgo", "Maneadero", "Punta Banda", "San Quintín", "Santo Tomás", "Valle Verde", "Lomas del Mar"] },
+        { "id": "BC-ROSARITO", "nombre": "Playas de Rosarito", "colonias": ["Centro", "Benito Juárez", "Primo Tapia", "Santa Anita", "Colonia Aviación", "Lomas de Rosarito", "Reforma", "Villa Turística"] },
+        { "id": "BC-TECATE", "nombre": "Tecate", "colonias": ["Centro", "Colinas de Cuchuma", "Cuauhtémoc", "Loma Alta", "Santa Anita"] },
+        { "id": "BC-SANFELIPE", "nombre": "San Felipe", "colonias": ["Centro", "El Dorado", "Los Arcos", "San Rafael"] }
+      ]
+    },
+    {
+      "id": "BAJA_CALIFORNIA_SUR",
+      "nombre": "Baja California Sur",
+      "ciudades": [
+        { "id": "BCS-LAPAZ", "nombre": "La Paz", "colonias": ["Centro", "Chapultepec", "El Centenario", "Independencia", "Santa Rita", "Agustín Olachea", "8 de Octubre", "Colina del Sol", "Fidepaz", "La Fuente", "Loma Linda", "Los Olivos", "Pueblo Nuevo", "El Conchalito", "El Manglito"] },
+        { "id": "BCS-CABO", "nombre": "Cabo San Lucas", "colonias": ["Centro", "El Médano", "San José Viejo", "Las Palmas", "Amalfi", "Cabo del Sol", "Lagunitas", "Lomas del Cabo", "Pedregal", "Puerto Paraíso"] },
+        { "id": "BCS-SANJOSE", "nombre": "San José del Cabo", "colonias": ["Centro", "Las Ánimas", "La Playita", "Santa Rosa", "Chamizal", "Colinas de San José", "Costa Azul", "El Zacatal", "Las Veredas", "Puerto Los Cabos"] },
+        { "id": "BCS-LORETO", "nombre": "Loreto", "colonias": ["Centro", "El Manglito", "Miramar", "Zona Hotelera"] },
+        { "id": "BCS-CONSTITUCION", "nombre": "Ciudad Constitución", "colonias": ["Centro", "Hidalgo", "Las Palmas", "Magisterial"] }
+      ]
+    },
+    {
+      "id": "CAMPECHE",
+      "nombre": "Campeche",
+      "ciudades": [
+        { "id": "CAMP-CAMPECHE", "nombre": "Campeche", "colonias": ["Centro", "Altamira", "Colinas del Sur", "Las Flores", "Montecristo", "Barrio de Guadalupe", "Fidel Velázquez", "Guadalupe Borja", "La Ermita", "Los Laureles", "Miramar", "Sotavento", "Villa Universidad"] },
+        { "id": "CAMP-CARMEN", "nombre": "Ciudad del Carmen", "colonias": ["Centro", "Isla de Tris", "Justo Sierra", "Península", "Buenavista", "Electricistas", "Petrolera", "Santa Rosalía"] },
+        { "id": "CAMP-CHAMPOTON", "nombre": "Champotón", "colonias": ["Centro", "La Ceiba", "San José", "Villas del Mar"] },
+        { "id": "CAMP-ESCARCEGA", "nombre": "Escárcega", "colonias": ["Centro", "Esperanza", "Fidel Velázquez", "Jesús García"] }
+      ]
+    },
+    {
+      "id": "CHIAPAS",
+      "nombre": "Chiapas",
+      "ciudades": [
+        { "id": "CHPS-TUXTLA", "nombre": "Tuxtla Gutiérrez", "colonias": ["Centro", "Colonial", "La Hacienda", "Patria Nueva", "San Roque", "Bienestar Social", "Bosques del Sur", "El Mirador", "Guadalupe", "Jardines de Tuxtla", "Las Granjas", "Los Laureles", "Magisterial", "Santa Elena", "Terán"] },
+        { "id": "CHPS-CRISTOBAL", "nombre": "San Cristóbal de las Casas", "colonias": ["Centro", "El Cerrillo", "Guadalupe", "La Merced", "Cuxtitali", "El Santuario", "Fátima", "Las Delicias", "Molino Utrilla", "Peje de Oro", "San Antonio", "San Ramón"] },
+        { "id": "CHPS-TAPACHULA", "nombre": "Tapachula", "colonias": ["Centro", "Flamboyán", "Las Vegas", "Residencial del Valle", "5 de Febrero", "El Bosque", "Insurgentes", "Los Laureles", "Lomas de Tapachula", "Santa Fe"] },
+        { "id": "CHPS-PALENQUE", "nombre": "Palenque", "colonias": ["Centro", "La Cañada", "Pakal-Ná", "Santa Cruz"] },
+        { "id": "CHPS-COMITAN", "nombre": "Comitán de Domínguez", "colonias": ["Centro", "Belisario Domínguez", "Cruz Grande", "San Sebastián", "Tenam Puente"] },
+        { "id": "CHPS-CHIAPACORZO", "nombre": "Chiapa de Corzo", "colonias": ["Centro", "El Refugio", "Rivera Cupía", "Santa Elena"] }
       ]
     },
     {
       "id": "CHIHUAHUA",
       "nombre": "Chihuahua",
       "ciudades": [
-        {
-          "id": "CHIH-CHIHUAHUA",
-          "nombre": "Chihuahua",
-          "colonias": ["Centro", "Barrio de Alamos", "Fraccionamiento Montebello", "Solidaridad"]
-        }
+        { "id": "CHIH-CHIHUAHUA", "nombre": "Chihuahua", "colonias": ["Centro", "Barrio de Álamos", "Fraccionamiento Montebello", "Solidaridad", "Las Granjas", "Campestre-Lomas", "Cerro de la Cruz", "Colinas del Sol", "Composta", "Dale", "Jardines de Oriente", "Los Arcos", "Panamericana", "Reloj", "San Felipe", "Santa Rita", "Universidad", "Villa Juárez", "Zona Dorada"] },
+        { "id": "CHIH-JUAREZ", "nombre": "Ciudad Juárez", "colonias": ["Centro", "Anáhuac", "El Barreal", "La Cuesta", "Satélite", "Bellavista", "Del Carmen", "El Granjero", "Ex Hipódromo", "Las Misiones", "Los Nogales", "Margaritas", "Plaza de Toros", "Riberas del Bravo", "Rincones del Campestre", "San Antonio", "Torres del Sur", "Valle del Sol"] },
+        { "id": "CHIH-DELICIAS", "nombre": "Delicias", "colonias": ["Centro", "Loma Linda", "Revolución", "Santa María", "Campestre del Río", "Las Morelos", "Oriente", "San Isidro"] },
+        { "id": "CHIH-CUAUHTEMOC", "nombre": "Cuauhtémoc", "colonias": ["Centro", "Agrícola", "Magisterial", "Revolución", "Emiliano Zapata", "Real de Minas", "Tierra y Libertad"] },
+        { "id": "CHIH-PARRAL", "nombre": "Hidalgo del Parral", "colonias": ["Centro", "Américas", "Fátima", "San Andrés"] },
+        { "id": "CHIH-OJINAGA", "nombre": "Ojinaga", "colonias": ["Centro", "Bellavista", "El Edén", "La Prensa"] }
+      ]
+    },
+    {
+      "id": "CDMX",
+      "nombre": "Ciudad de México",
+      "ciudades": [
+        { "id": "CDMX-BDHI", "nombre": "Benito Juárez", "colonias": ["Del Valle", "La Roma", "Narvarte", "San José Insurgentes", "Hipódromo", "Santa María la Ribera", "Álamos", "Actipan", "Crédito Constructor", "Extremadura Insurgentes", "Nápoles", "Niños Héroes", "Nonoalco", "Portales", "San Pedro de los Pinos", "Santa Cruz Atoyac", "Tlacoquemécatl", "Villa de Cortés", "Xoco"] },
+        { "id": "CDMX-CUAT", "nombre": "Cuauhtémoc", "colonias": ["Centro", "Doctores", "Juárez", "Roma", "San Rafael", "Cuauhtémoc", "Buenavista", "Condesa", "Ex Hipódromo de Peralvillo", "Guerrero", "Hipódromo Condesa", "Morelos", "Obrera", "Paseos de la Reforma", "Peralvillo", "Santa María la Ribera", "Tabacalera", "Tlatelolco", "Unidad Habitacional Nonoalco Tlatelolco"] },
+        { "id": "CDMX-IZTAPALAPA", "nombre": "Iztapalapa", "colonias": ["Centro", "Apatlaco", "Ixtapaluca", "La Perla", "San Andrés Tetepilco", "Zaragoza", "Barrio San Miguel", "Cabeza de Juárez", "Desarrollo Urbano Quetzalcóatl", "El Molino", "Guadalupe", "Lomas de Zaragoza", "Los Ángeles", "Paraje San Juan", "Pueblo Culhuacán", "San Juan Xalpa", "Santa Cruz Meyehualco", "Sierra de Santa Catarina"] },
+        { "id": "CDMX-GUSTAVO", "nombre": "Gustavo A. Madero", "colonias": ["Azcapotzalco", "Fortuna", "Lindavista", "Vallejo", "Villa de Cortés", "Acueducto de Guadalupe", "Capultitlán", "Casas Alemán", "Cuautepec", "Del Obrero", "El Coyol", "La Pastora", "San Felipe de Jesús", "San Pedro Zacatenco", "Santa Isabel Tola", "Tepeyac Insurgentes", "Ticoman", "Vasco de Quiroga"] },
+        { "id": "CDMX-TLALPAN", "nombre": "Tlalpan", "colonias": ["Ajusco", "Fuentes Brotantes", "La Joya", "Padierna", "San Miguel Topilejo", "Tlalpan Centro", "Bosques del Pedregal", "Colinas del Ajusco", "Héroes de Padierna", "Isidro Fabela", "Lomas de Padierna", "Pedregal de Santa Úrsula", "San Pedro Mártir", "Villa Coapa", "Villa del Valle"] },
+        { "id": "CDMX-MIGUEL", "nombre": "Miguel Hidalgo", "colonias": ["Polanco", "Anáhuac", "Bosque de las Lomas", "Escandón", "Granada", "Lomas de Chapultepec", "Lomas de Sotelo", "Pensil", "San Miguel Chapultepec", "Tacuba", "Verónica Anzures"] },
+        { "id": "CDMX-ALVARO", "nombre": "Álvaro Obregón", "colonias": ["San Ángel", "Altavista", "Axotla", "Balcones de Ceguayo", "Florida", "Guadalupe Inn", "Jardines del Pedregal", "Las Águilas", "Lomas de San Ángel Inn", "Olivar de los Padres", "San Jerónimo", "Tizapán", "Tlacopac"] },
+        { "id": "CDMX-COYOACAN", "nombre": "Coyoacán", "colonias": ["Centro de Coyoacán", "Churubusco", "Ciudad Jardín", "Copilco", "Del Carmen", "El Rosedal", "Los Cipreses", "Los Reyes", "Pedregal de Carrasco", "Pedregal de Santo Domingo", "Pueblo de los Reyes", "Romero de Terreros", "Santa Catarina", "Unidad Habitacional Villa Panamericana"] },
+        { "id": "CDMX-AZCAPOTZALCO", "nombre": "Azcapotzalco", "colonias": ["Centro de Azcapotzalco", "Clavería", "El Rosario", "Nueva Santa María", "Pasteros", "Petrolera", "San Álvaro", "San Andrés", "San Pedro Xalpa", "San Rafael Chamapa"] }
       ]
     },
     {
       "id": "COAHUILA",
       "nombre": "Coahuila",
       "ciudades": [
-        {
-          "id": "COAH-SALTILLO",
-          "nombre": "Saltillo",
-          "colonias": ["Centro", "Apodaca", "Ramos Arizpe", "San Buenaventura"]
-        }
+        { "id": "COAH-SALTILLO", "nombre": "Saltillo", "colonias": ["Centro", "Apodaca", "Ramos Arizpe", "San Buenaventura", "Reforma", "Ampliación 26 de Marzo", "Brisas Poniente", "La Aurora", "Las Teresitas", "Lomas de Lourdes", "Los Maestros", "Mirasierra", "Real de Peña", "Republica", "Satélite"], "codigoPostal": "25000" },
+        { "id": "COAH-TORREON", "nombre": "Torreón", "colonias": ["Centro", "Alianza", "Las Dalias", "Nueva California", "Residencial Campestre", "Américas", "Caleras", "El Tajito", "Jardines de California", "La Fuente", "La Rosita", "Los Ángeles", "Nueva Merced", "Rinconada de los Nogales", "Santiago Ramírez"] },
+        { "id": "COAH-MONCLOVA", "nombre": "Monclova", "colonias": ["Centro", "Estrella", "La Bodega", "Mirasol", "Azteca", "Del Río", "Guadalupe", "Tecnológico"] },
+        { "id": "COAH-PIEDRAS", "nombre": "Piedras Negras", "colonias": ["Centro", "Las Fuentes", "Roma", "San Felipe", "Buenos Aires", "Francisco I. Madero", "Presidentes", "Sector Arizpe"] },
+        { "id": "COAH-ACUÑA", "nombre": "Ciudad Acuña", "colonias": ["Centro", "Américas", "Benito Juárez", "Celulosa", "Santa Martha"] },
+        { "id": "COAH-SABINAS", "nombre": "Sabinas", "colonias": ["Centro", "Fundadores", "Jardines de San Juan", "Obrera"] }
+      ]
+    },
+    {
+      "id": "COLIMA",
+      "nombre": "Colima",
+      "ciudades": [
+        { "id": "COL-COLIMA", "nombre": "Colima", "colonias": ["Centro", "El Diezmo", "Jardines de la Corregidora", "Lomas de Circunvalación", "Colinas de Santa Bárbara", "El Platanar", "Francisco I. Madero", "La Albarrada", "Libertad", "Los Girasoles", "Magisterial", "Real de Minas"] },
+        { "id": "COL-MANZANILLO", "nombre": "Manzanillo", "colonias": ["Centro", "Las Brisas", "Playa Azul", "Tapeixtles", "Club Santiago", "Hadas", "La Punta", "Náutico", "Puerta del Mar", "Salagua", "Santiago", "Valle de las Garzas"] },
+        { "id": "COL-VILLA", "nombre": "Villa de Álvarez", "colonias": ["Centro", "Las Coloradas", "Los Pinos", "Real del Valle", "Jardines del Llano", "La Reserva", "La Venta", "Los Almendros"] },
+        { "id": "COL-TECOMAN", "nombre": "Tecomán", "colonias": ["Centro", "Elba Cecilia", "San José", "Santa Elena"] }
+      ]
+    },
+    {
+      "id": "DURANGO",
+      "nombre": "Durango",
+      "ciudades": [
+        { "id": "DGO-DURANGO", "nombre": "Durango", "colonias": ["Centro", "La Forestal", "Las Américas", "Los Remedios", "Santa María", "Azteca", "Benito Juárez", "Fidel Velázquez", "Guadalupe", "Jardines de Durango", "Lomas del Parque", "Porfirio Díaz", "Valle del Guadiana", "Valle Dorado", "Villa Jardín"] },
+        { "id": "DGO-GOMEZ", "nombre": "Gómez Palacio", "colonias": ["Centro", "Filadelfia", "Núcleo Universitario", "Rinconada Santa Rita", "Campestre", "El Consuelo", "Hamburgo", "Las Rosas", "Nuevo Gómez"] },
+        { "id": "DGO-LERDO", "nombre": "Ciudad Lerdo", "colonias": ["Centro", "Las Brisas", "Villa Jardín", "San Fernando", "Carmen Carreón", "El Renacimiento", "San Juan"] },
+        { "id": "DGO-SANTIAGO", "nombre": "Santiago Papasquiaro", "colonias": ["Centro", "Barrio Alto", "La Lagunita", "Santa Teresa"] }
       ]
     },
     {
       "id": "GUANAJUATO",
       "nombre": "Guanajuato",
       "ciudades": [
-        {
-          "id": "GTO-LEON",
-          "nombre": "León",
-          "colonias": ["Centro", "Alfonsina", "La Aurora", "Obrera", "San Cayetano"]
-        }
+        { "id": "GTO-LEON", "nombre": "León", "colonias": ["Centro", "Alfonsina", "La Aurora", "Obrera", "San Cayetano", "Andrade", "Bellavista", "Camino Viejo a San Felipe", "Ciudad Satélite", "El Carmen", "El Granjeno", "Julián de Obregón", "La Brisa", "La Martinica", "León Moderno", "La Piscina", "Lomas del Campestre", "Maravillas", "San Juan Bosco", "San Miguel", "Valle del Campestre", "Villa de las Flores"] },
+        { "id": "GTO-GUANAJUATO", "nombre": "Guanajuato", "colonias": ["Centro", "Pastita", "San Javier", "Valenciana", "Cerro del Cuarto", "Cipreses", "Embajadoras", "Mellado", "Paseo de la Presa", "San Luisito"] },
+        { "id": "GTO-IRAPUATO", "nombre": "Irapuato", "colonias": ["Centro", "El Rosario", "La Lupita", "Villas de Irapuato", "Alameda", "Barrio de San José", "El Cantador", "La Moderna", "Las Arboledas", "López Mateos", "Los Álamos", "Los Pinos"] },
+        { "id": "GTO-SALAMANCA", "nombre": "Salamanca", "colonias": ["Centro", "Bellavista", "La Joya", "Reyes", "El Edén", "Los Ángeles", "Nativitas", "San Gonzalo"] },
+        { "id": "GTO-CELAYA", "nombre": "Celaya", "colonias": ["Centro", "Los Álamos", "Residencial Tecnológico", "Villas del Bajío", "Campo Azul", "Del Bosque", "El Cantador", "Jardines de Celaya", "Las Flores", "Los Olivos", "Monteblanco", "San Juanico"] },
+        { "id": "GTO-SANMIGUEL", "nombre": "San Miguel de Allende", "colonias": ["Centro", "Atascadero", "Balcones", "El Mirador", "Guadiana", "La Aurora", "Las Cuevitas", "Los Frailes", "San Antonio", "San Rafael"] },
+        { "id": "GTO-DOLORES", "nombre": "Dolores Hidalgo", "colonias": ["Centro", "El Llanito", "La Cruz", "San Gabriel"] }
       ]
     },
     {
-      "id": "QUERETARO",
-      "nombre": "Querétaro",
+      "id": "GUERRERO",
+      "nombre": "Guerrero",
       "ciudades": [
-        {
-          "id": "QRO-QUERETARO",
-          "nombre": "Querétaro",
-          "colonias": ["Centro", "Campestre", "El Marqués", "Jurica"]
-        }
+        { "id": "GRO-ACAPULCO", "nombre": "Acapulco", "colonias": ["Centro", "La Condesa", "Las Playas", "Icacos", "Diamante", "Caleta", "Costera", "Costa Azul", "Emiliano Zapata", "Farallón", "Hornos", "Magallanes", "Marroquín", "Mozimba", "Parque Meridiano", "Progreso", "Puerto Marqués", "Reforma", "Renaissance", "Villa Kalúa"] },
+        { "id": "GRO-CHILPANCINGO", "nombre": "Chilpancingo", "colonias": ["Centro", "Caminos", "Los Ángeles", "Santa Cruz", "Amojileca", "Insurgentes", "Reforma", "San Mateo", "Universidad"] },
+        { "id": "GRO-TAXCO", "nombre": "Taxco de Alarcón", "colonias": ["Centro", "El Mirador", "La Florida", "San Nicolás", "Agua Blanca", "Cena Obscura", "Huixtac"] },
+        { "id": "GRO-ZIHUATANEJO", "nombre": "Zihuatanejo", "colonias": ["Centro", "Ixtapa", "La Madera", "La Ropa", "Agua de Correa", "La Noria", "Playa Blanca"] },
+        { "id": "GRO-IGUALA", "nombre": "Iguala de la Independencia", "colonias": ["Centro", "Ciudad Industrial", "La Joya", "Los Ángeles", "Ruffo Figueroa"] }
       ]
     },
     {
-      "id": "PUEBLA",
-      "nombre": "Puebla",
+      "id": "HIDALGO",
+      "nombre": "Hidalgo",
       "ciudades": [
-        {
-          "id": "PUE-PUEBLA",
-          "nombre": "Puebla",
-          "colonias": ["Centro Histórico", "Analco", "Belucha", "Cavallotti", "Las Ánimas"]
-        }
+        { "id": "HGO-PACHUCA", "nombre": "Pachuca de Soto", "colonias": ["Centro", "Colonias", "La Raza", "Palmar", "San Cayetano", "Bosques del Peñar", "Bugambilias", "Cubitos", "Los Prismas", "Parque de Poblamiento", "Plaza Bella", "Real de Pachuca", "Santa Julia", "Villa Aquiles", "Zona Plateada"] },
+        { "id": "HGO-TULANCINGO", "nombre": "Tulancingo", "colonias": ["Centro", "Jardines", "La Morena", "San Nicolás", "Francisco I. Madero", "Lindavista", "Los Pinos"] },
+        { "id": "HGO-TULA", "nombre": "Tula de Allende", "colonias": ["Centro", "El Llano", "San José", "San Marcos", "La Malinche", "Santa María Macua"] },
+        { "id": "HGO-HUEJUTLA", "nombre": "Huejutla de Reyes", "colonias": ["Centro", "Chapultepec", "Rojo Gómez", "Santa Catarina"] }
+      ]
+    },
+    {
+      "id": "JALISCO",
+      "nombre": "Jalisco",
+      "ciudades": [
+        { "id": "JAL-GUADALAJARA", "nombre": "Guadalajara", "colonias": ["Centro", "Agua Blanca", "Analco", "Chapultepec", "Godoy", "Huentitán", "Juncal", "Libertad", "Providencia", "Zapopan Centro", "Americana", "Arcos Vallarta", "Colinas de San Javier", "Colomos", "Jardines del Country", "La Estancia", "La Perla", "Ladrón de Guevara", "Lomas de Guevara", "Mezquitán", "Minerva", "Moderna", "Monraz", "Olímpica", "Prados Providencia", "San Juan de Ocotán", "Seattle", "Terranova", "Vallarta Norte", "Villa Universitaria"] },
+        { "id": "JAL-ZAPOPAN", "nombre": "Zapopan", "colonias": ["Centro", "Arenales Tapatíos", "Chapalita", "Lomas de Guevara", "Pinar de la Venta", "Puerta de Hierro", "Bonanza", "Ciudad del Sol", "El Bajío", "Jardines del Sol", "La Calma", "Las Águilas", "Lomas de la Primavera", "Miramar", "Paseos del Sol", "Real Valdepeñas", "Santa Margarita", "Solares", "Valle de los Molinos", "Valle Real"] },
+        { "id": "JAL-TLAQUEPAQUE", "nombre": "San Pedro Tlaquepaque", "colonias": ["Centro", "Atequepaque", "Guadalupana", "San Juan Evangelista", "Álamo Industrial", "El Vergel", "Hacienda del Real", "La Calerilla", "Las Juntas", "Lomas de Tlaquepaque"] },
+        { "id": "JAL-PUERTO", "nombre": "Puerto Vallarta", "colonias": ["Centro", "5 de Diciembre", "Fluvial Vallarta", "Marina Vallarta", "Romantic Zone", "Altavista", "Bugambilias", "Conchas Chinas", "El Pitillal", "Emiliano Zapata", "Gaviotas", "Ixtapa", "Las Juntas", "Lázaro Cárdenas", "Mismaloya", "Palmar de Aramara"] },
+        { "id": "JAL-TLAJOMULCO", "nombre": "Tlajomulco de Zúñiga", "colonias": ["Centro", "Chulavista", "Hacienda Santa Fe", "Los Gavilanes", "El Palomar", "Jardines de San Sebastián", "La Noria", "Los Encinos", "Rancho Alegre", "Santa Anita", "Valle Dorado"] },
+        { "id": "JAL-TONALA", "nombre": "Tonalá", "colonias": ["Centro", "Basilio Badillo", "Lomas de Polanco", "Rey Xólotl", "Santa Cruz", "Zalatitán"] },
+        { "id": "JAL-LAGOS", "nombre": "Lagos de Moreno", "colonias": ["Centro", "La Adelita", "Los Pinos", "Rincón de San Diego"] },
+        { "id": "JAL-CHAPALA", "nombre": "Chapala", "colonias": ["Centro", "Ajijic", "La Floresta", "San Antonio Tlayacapan", "San Juan Cosalá", "Vista del Lago"] }
+      ]
+    },
+    {
+      "id": "MEX",
+      "nombre": "Estado de México",
+      "ciudades": [
+        { "id": "MEX-ECATEPEC", "nombre": "Ecatepec de Morelos", "colonias": ["Centro", "Cumbria", "Estado de México", "Las Américas", "Tultitlán", "Adolfo López Mateos", "Alborada", "Ciudad Azteca", "Fuentes de Aragón", "Granjas Valle de Guadalupe", "Jardines de Morelos", "La Veleta", "Río de Luz", "San Agustín", "Santa Clara", "Tierrillas", "Villas de Ecatepec"] },
+        { "id": "MEX-TOLUCA", "nombre": "Toluca de Lerdo", "colonias": ["Centro", "Adolfo López Mateos", "Barrio de la Veracruz", "Fondo de Ahorros", "La Asunción", "Científicos", "Cuauhtémoc", "Francisco Murguía", "La Crespa", "Las Haciendas", "Metropolitana", "Morelos", "Nueva Oxtotitlán", "San Bernardino"] },
+        { "id": "MEX-NEZAHUALCOYOTL", "nombre": "Nezahualcóyotl", "colonias": ["Benito Juárez", "Emiliano Zapata", "Metropolitana Primera Sección", "Metropolitana Segunda Sección", "Ampliación Vicente Villada", "Ciudad Lago", "El Sol", "Esperanza", "Impulsora", "La Perla", "Las Águilas", "Maravillas", "Modelo"] },
+        { "id": "MEX-NAUCALPAN", "nombre": "Naucalpan de Juárez", "colonias": ["Centro", "Andalucía", "Benito Juárez", "Lomas de Chapultepec", "San Javier", "Ciudad Satélite", "El Mirador", "Echegaray", "La Florida", "Los Remedios", "Misiones", "Pastores", "San Mateo", "Santiago Tepatlaxco", "Tecamachalco"] },
+        { "id": "MEX-TLALNEPANTLA", "nombre": "Tlalnepantla de Baz", "colonias": ["Centro", "El Mirador", "San Lucas Tepetlacalco", "Viveros de la Loma", "Jardines de Santa Mónica", "La Romana", "Los Reyes Iztacala", "Puente de Vigas", "San Javier", "Valle Dorado"] },
+        { "id": "MEX-ATIZAPAN", "nombre": "Atizapán de Zaragoza", "colonias": ["Centro", "Bosques de Ixtacala", "El Potrero", "Hogares de Atizapán", "Lomas Lindas", "Villas de la Hacienda", "Zona Esmeralda"] },
+        { "id": "MEX-CUAUTITLAN", "nombre": "Cuautitlán Izcalli", "colonias": ["Centro", "Bosques de la Hacienda", "Cumbria", "Ensueños", "Infonavit Norte", "La Aurora", "Lago de Guadalupe", "Loma Bonita", "San Francisco Tepojaco"] },
+        { "id": "MEX-HUIXQUILUCAN", "nombre": "Huixquilucan", "colonias": ["Centro", "Antigua", "Bosques de la Herradura", "Interlomas", "La Herradura", "Lomas del Sol", "Magnocentro", "Paseo de las Palmas"] }
       ]
     },
     {
       "id": "MICHOACAN",
       "nombre": "Michoacán",
       "ciudades": [
-        {
-          "id": "MICH-MORELIA",
-          "nombre": "Morelia",
-          "colonias": ["Centro Histórico", "Abasolo", "Camelinas", "Las Américas"]
-        }
+        { "id": "MICH-MORELIA", "nombre": "Morelia", "colonias": ["Centro Histórico", "Abasolo", "Camelinas", "Las Américas", "Altozano", "Vista Bella", "Chapultepec", "Félix Ireta", "Jardines de Morelia", "La Colina", "Lomas de Vista Bella", "Los Ángeles", "Rincón del Silencio", "Santa María", "Torremolinos", "Universidad", "Vasco de Quiroga", "Villa Magna"] },
+        { "id": "MICH-URUAPAN", "nombre": "Uruapan", "colonias": ["Centro", "La Magdalena", "Los Ángeles", "San Francisco", "Bellavista", "El Colorín", "La Tamacua", "Libertad", "Los Fresnos"] },
+        { "id": "MICH-ZAMORA", "nombre": "Zamora de Hidalgo", "colonias": ["Centro", "Jardines del Valle", "Los Laureles", "Ramírez", "Altamira", "Ario de Rayón", "El Porvenir", "Jacinto López"] },
+        { "id": "MICH-LAZARO", "nombre": "Lázaro Cárdenas", "colonias": ["Centro", "La Orilla", "Las Palmas", "Playa Azul", "El Barco", "La Mira", "Los Lavadores"] },
+        { "id": "MICH-PATZCUARO", "nombre": "Pátzcuaro", "colonias": ["Centro", "Benito Juárez", "La Erre", "Lago Azul"] }
+      ]
+    },
+    {
+      "id": "MORELOS",
+      "nombre": "Morelos",
+      "ciudades": [
+        { "id": "MOR-CUERNAVACA", "nombre": "Cuernavaca", "colonias": ["Centro", "Buenavista", "Chipitlán", "Lomas de Cuernavaca", "Rancho Cortés", "Acapantzingo", "Ahuehuetitla", "Amatitlán", "Chamilpa", "Chipitlán", "Del Bosque", "El Mirador", "Las Palmas", "Lomas del Sol", "Los Volcanes", "Pilancón", "Quintana Roo", "Sumiya", "Teopanzolco", "Tetela del Monte"] },
+        { "id": "MOR-CUAUTLA", "nombre": "Cuautla", "colonias": ["Centro", "Emiliano Zapata", "Iztaccíhuatl", "Morelos", "Año de Juárez", "Brisas de Cuautla", "Gabriel Tepepa", "Las Cruces"] },
+        { "id": "MOR-JIUTEPEC", "nombre": "Jiutepec", "colonias": ["Centro", "Ampliación Otilio Montaño", "Civac", "Tejalpa", "Atlahuayan", "El Mango", "Las Delicias"] },
+        { "id": "MOR-TEMIXCO", "nombre": "Temixco", "colonias": ["Centro", "Alta Palmira", "Burgos", "Rubén Jaramillo", "Solidaridad"] },
+        { "id": "MOR-TEPOZTLAN", "nombre": "Tepoztlán", "colonias": ["Centro", "Loma Bonita", "San Juan Tlacotenco", "Santo Domingo"] }
+      ]
+    },
+    {
+      "id": "NAYARIT",
+      "nombre": "Nayarit",
+      "ciudades": [
+        { "id": "NAY-TEPIC", "nombre": "Tepic", "colonias": ["Centro", "Lázaro Cárdenas", "Las Brisas", "Moctezuma", "San Juan", "Aviación", "El Rodeo", "Fovissste", "Huertas de Matatipac", "Juan Escutia", "Lindavista", "Los Pinos", "Valle Verde"] },
+        { "id": "NAY-BAHIA", "nombre": "Bahía de Banderas", "colonias": ["Nuevo Vallarta", "Bucerías", "La Cruz de Huanacaxtle", "San Vicente", "El Porvenir", "Flamingos", "Las Jarretaderas", "Mescalitos", "Punta de Mita", "Sayulita"] },
+        { "id": "NAY-SANTIAGO", "nombre": "Santiago Ixcuintla", "colonias": ["Centro", "El Rosario", "San Miguel", "Villa Hidalgo"] },
+        { "id": "NAY-COMPOSTELA", "nombre": "Compostela", "colonias": ["Centro", "La Loma", "Las Varas", "Mazatán"] }
+      ]
+    },
+    {
+      "id": "NUEVO_LEON",
+      "nombre": "Nuevo León",
+      "ciudades": [
+        { "id": "NL-MONTERREY", "nombre": "Monterrey", "colonias": ["Centro", "Barrio Antiguo", "Escobedo", "Macroplaza", "San Pedro Garza García", "Cumbres", "Contry", "Anáhuac", "Buenos Aires", "Chipinque", "Colinas de San Jerónimo", "Del Valle", "Doctores", "Florida", "Las Torres", "Linda Vista", "Mitras Centro", "Mitras Norte", "Mitras Sur", "Obispado", "San Ángel", "San Bernabé", "San Jerónimo", "Santa Catarina", "Santa Lucía", "Sierra Alta", "Topo Chico", "Valle Oriente", "Vista Hermosa"] },
+        { "id": "NL-SANPEDRO", "nombre": "San Pedro Garza García", "colonias": ["Centro", "Calzada del Valle", "Colinas de San Ángel", "Fuentes del Valle", "Chipinque", "El Obispo", "Haciendas de la Sierra", "San Agustín", "Valle de Chipinque", "Valle Oriente", "Zona Residencial Chipinque"] },
+        { "id": "NL-GUADALUPE", "nombre": "Guadalupe", "colonias": ["Centro", "Linda Vista", "Nuevo León", "Santa Cruz", "Cañada Blanca", "Contry", "Las Quintas", "Los Faisanes", "Tres Caminos", "Zertuche"] },
+        { "id": "NL-APODACA", "nombre": "Apodaca", "colonias": ["Centro", "Misión San Juan", "Paseo de las Flores", "San Andrés", "Bosques de Apodaca", "Hacienda Los Encinos", "Noria Norte", "Parque Industrial Milimex"] },
+        { "id": "NL-SANTA", "nombre": "Santa Catarina", "colonias": ["Centro", "Bosques de la Huasteca", "La Aurora", "La Fama", "Las Sierras", "Zona Industrial"] },
+        { "id": "NL-SANICOLAS", "nombre": "San Nicolás de los Garza", "colonias": ["Centro", "Anáhuac", "Cuauhtémoc", "Industrias del Vidrio", "Las Puentes", "Residencial Anáhuac", "Universidad"] },
+        { "id": "NL-GARCIA", "nombre": "García", "colonias": ["Centro", "Héroes de Capellanía", "Parque Industrial García", "Valle de Lincoln"] }
       ]
     },
     {
       "id": "OAXACA",
       "nombre": "Oaxaca",
       "ciudades": [
-        {
-          "id": "OAX-OAXACA",
-          "nombre": "Oaxaca de Juárez",
-          "colonias": ["Centro Histórico", "Abasolo", "Reforma", "Santa Catalina"]
-        }
+        { "id": "OAX-OAXACA", "nombre": "Oaxaca de Juárez", "colonias": ["Centro Histórico", "Abasolo", "Reforma", "Santa Catalina", "Jalatlaco", "Azompa", "Candiani", "Cuatro de Marzo", "Del Bosque", "El Rosario", "La Joya", "Loma de los Ángeles", "Reyes Mantecón", "San Felipe del Agua", "San Juan Chapultepec", "San Luis Beltrán", "Santa Rosa Panzacola", "Unión y Progreso"] },
+        { "id": "OAX-HUATULCO", "nombre": "Santa María Huatulco", "colonias": ["La Crucecita", "Santa Cruz", "Tangolunda", "Chahué", "Bahías de Huatulco", "Conejos", "El Arrocito", "Magüey"] },
+        { "id": "OAX-PUERTO", "nombre": "Puerto Escondido", "colonias": ["Centro", "Brisas de Zicatela", "La Punta", "Rinconada", "Bacocho", "Carrizalillo", "El Centro", "Marinero"] },
+        { "id": "OAX-TUXTEPEC", "nombre": "San Juan Bautista Tuxtepec", "colonias": ["Centro", "El Castillo", "San Bartolo", "Vista Hermosa", "La Mina", "San Antonio"] },
+        { "id": "OAX-SALINACRUZ", "nombre": "Salina Cruz", "colonias": ["Centro", "Cuauhtémoc", "La Soledad", "Petrolera"] }
+      ]
+    },
+    {
+      "id": "PUEBLA",
+      "nombre": "Puebla",
+      "ciudades": [
+        { "id": "PUE-PUEBLA", "nombre": "Puebla", "colonias": ["Centro Histórico", "Analco", "Belucha", "Cavallotti", "Las Ánimas", "Angelópolis", "La Paz", "Bugambilias", "Carmen", "Chulavista", "El Cerrito", "Huexotitla", "Jardines de San Manuel", "La Calera", "La Libertad", "La Margarita", "Lomas de Angelópolis", "Los Fuertes", "Residencial Solesta", "San Francisco", "San Manuel", "Santa Cruz Buenavista", "Sonata", "Universidades", "Valle del Rey"] },
+        { "id": "PUE-CHOLULA", "nombre": "Cholula", "colonias": ["Centro", "San Andrés", "San Pedro", "Zerezotla", "Forjadores", "Lomas de Zerezotla", "Momoxpan", "San Cristóbal Tepontla"] },
+        { "id": "PUE-TEHUACAN", "nombre": "Tehuacán", "colonias": ["Centro", "Aviación", "San Rafael", "Santa Cecilia", "El Riego", "Granjas de Tehuacán", "La Paz"] },
+        { "id": "PUE-ATLIXCO", "nombre": "Atlixco", "colonias": ["Centro", "La Carolina", "Valle Sur", "Rincón del Bosque", "Bosques de San Martín", "Las Bugambilias"] },
+        { "id": "PUE-SANMARTIN", "nombre": "San Martín Texmelucan", "colonias": ["Centro", "La Santísima", "San Cristóbal", "Santa Catarina"] }
+      ]
+    },
+    {
+      "id": "QUERETARO",
+      "nombre": "Querétaro",
+      "ciudades": [
+        { "id": "QRO-QUERETARO", "nombre": "Querétaro", "colonias": ["Centro", "Campestre", "El Marqués", "Jurica", "Juriquilla", "Milénio III", "Álamos", "Arboledas", "Bosques del Acueducto", "Cimatario", "El Mirador", "Jardines de la Hacienda", "La Loma", "Las Américas", "Lomas de Querétaro", "Lomas del Campestre", "Los Virreyes", "Menfis", "Misión San Diego", "Palmares", "Refugio", "Residencial Italika", "Rinconada de los Álamos", "Tejeda", "Zibatá", "Zona Industrial Benito Juárez"] },
+        { "id": "QRO-SANJUAN", "nombre": "San Juan del Río", "colonias": ["Centro", "Las Fuentes", "Puerta de Piedra", "San Cayetano", "El Pedregoso", "Loma Alta", "San Isidro"] },
+        { "id": "QRO-CORREGIDORA", "nombre": "Corregidora", "colonias": ["El Pueblito", "Colinas del Sur", "Santa Bárbara", "Tejeda", "La Negreta", "Los Olvera", "Villas del Sol"] },
+        { "id": "QRO-AMOLITAS", "nombre": "Amoladeras", "colonias": ["Centro", "San Sebastián", "Santa María Magdalena"] }
+      ]
+    },
+    {
+      "id": "QUINTANA_ROO",
+      "nombre": "Quintana Roo",
+      "ciudades": [
+        { "id": "QROO-CANCUN", "nombre": "Cancún", "colonias": ["Centro", "Bonampak", "Kabah", "La Luna", "Puerto Cancún", "Zona Hotelera", "Alfredo V. Bonfil", "Álamos", "Arboledas", "Donceles", "El Milagro", "La Joya", "Las Palmas", "Los Héroes", "Los Pinos", "Paraíso Maya", "Riviera Cancún", "Santa Cecilia", "Supermanzana 20", "Supermanzana 50", "Toro Valenzuela", "Tulipanes", "Villa Magna", "Vista Real"] },
+        { "id": "QROO-PLAYA", "nombre": "Playa del Carmen", "colonias": ["Centro", "Gonzalo Guerrero", "Playacar", "Zazil-Ha", "Ejidal", "Colosio", "El Pedregal", "Galaxia", "Las Palmas", "Misión Las Flores", "Nuevo Centro Urbano", "Pescadores", "Playa Azul", "Selvanova", "Valle Escondido", "Villas del Carmen"] },
+        { "id": "QROO-TULUM", "nombre": "Tulum", "colonias": ["Centro", "Aldea Zama", "La Veleta", "Tulum Pueblo", "Holistika", "Kabah", "La Florida", "Tumben Kaa"] },
+        { "id": "QROO-CHETUMAL", "nombre": "Chetumal", "colonias": ["Centro", "Andara", "Barrio Bravo", "Proterritorio", "Avenida de los Héroes", "Del Bosque", "Forjadores", "Solidaridad"] },
+        { "id": "QROO-COZUMEL", "nombre": "Cozumel", "colonias": ["Centro", "Altamar", "Colosio", "Miraflores", "San Miguel"] },
+        { "id": "QROO-PUERTOMORELOS", "nombre": "Puerto Morelos", "colonias": ["Centro", "La Colonia", "Zona Turística"] }
+      ]
+    },
+    {
+      "id": "SAN_LUIS_POTOSI",
+      "nombre": "San Luis Potosí",
+      "ciudades": [
+        { "id": "SLP-SLP", "nombre": "San Luis Potosí", "colonias": ["Centro", "Del Valle", "Lomas", "Morales", "Tangamanga", "Aviación", "Balcones del Valle", "Capricornio", "Colinas del Parque", "El Paseo", "Industrial Aviación", "Jardín", "La Garita", "Los Filtros", "Rinconada de los Andes", "Tequisquiapan"] },
+        { "id": "SLP-SOLEDAD", "nombre": "Soledad de Graciano Sánchez", "colonias": ["Centro", "La Virgen", "Santa Mónica", "Valle de San Luis", "Bosques de San Francisco", "La Lomita", "Rinconada del Palmar"] },
+        { "id": "SLP-CIUDADVALLES", "nombre": "Ciudad Valles", "colonias": ["Centro", "Las Palmas", "Palma Sola", "Villa Hermosa", "El Arroyito", "La Diana"] },
+        { "id": "SLP-MATEHUALA", "nombre": "Matehuala", "colonias": ["Centro", "La Paz", "Las Palmas", "Residencial del Valle"] },
+        { "id": "SLP-RIOVERDE", "nombre": "Rioverde", "colonias": ["Centro", "El Refugio", "La Morita", "San José"] }
+      ]
+    },
+    {
+      "id": "SINALOA",
+      "nombre": "Sinaloa",
+      "ciudades": [
+        { "id": "SIN-CULIACAN", "nombre": "Culiacán", "colonias": ["Centro", "Chapultepec", "Colinas de San Miguel", "La Campiña", "Residencial Tres Ríos", "Bachigualato", "Bugambilias", "Cañadas", "Guadalupe", "Humaya", "La Lima", "Las Quintas", "Lomas de San Isidro", "Montebello", "Nuevo Culiacán", "San Rafael", "Santa Fe", "Tierra Blanca"] },
+        { "id": "SIN-MAZATLAN", "nombre": "Mazatlán", "colonias": ["Centro", "Cerritos", "El Dorado", "Marina Mazatlán", "Olas Altas", "Balcones de Lomas", "Brisas del Mar", "El Cid", "Ferrocarrilera", "Fraccionamiento El Toreo", "Lomas de Mazatlán", "Los Pinos", "Palos Prietos", "Playa Sur", "Real del Mar", "Sabalos", "Zona Dorada"] },
+        { "id": "SIN-LOSMOCHIS", "nombre": "Los Mochis", "colonias": ["Centro", "Las Palmas", "Villa Florida", "Villa Universidad", "Campestre", "El Fovissste", "INDECO", "Jardines del Sol", "Las Flores"] }
       ]
     },
     {
       "id": "SONORA",
       "nombre": "Sonora",
       "ciudades": [
-        {
-          "id": "SON-HERMOSILLO",
-          "nombre": "Hermosillo",
-          "colonias": ["Centro", "San Benito", "Pitic", "La Matanza", "Villa de Seris"]
-        },
-        {
-          "id": "SON-OBREGON",
-          "nombre": "Ciudad Obregón",
-          "colonias": ["Centro", "Nainari", "Misión del Sol", "Las Palmas", "Villa Bonita"]
-        },
-        {
-          "id": "SON-NOGALES",
-          "nombre": "Nogales",
-          "colonias": ["Centro", "Héroes", "La Mesa", "Rosarito", "Lomas del Sol"]
-        }
+        { "id": "SON-HERMOSILLO", "nombre": "Hermosillo", "colonias": ["Centro", "San Benito", "Pitic", "La Matanza", "Villa de Seris", "Solidaridad", "Nuevo Hermosillo", "Altares", "Bachoco", "Bugambilias", "Camino del Seri", "Casa Grande", "Choyal", "Colinas del Sur", "El Choyal", "El Cortijo", "El Encanto", "El Llano", "El Saucito", "Fuentes del Mezquital", "Hacienda del Sol", "Jardines de Hermosillo", "La Cañada", "La Florida", "Las Colinas", "Las Lomas", "Los Arcos", "Los Olivos", "Modelo", "Morelos", "Palo Verde", "Pedregal", "Perisur", "Pueblitos", "Puerta del Rey", "Quinta Emilia", "Santa Anita", "Vado del Río"] },
+        { "id": "SON-OBREGON", "nombre": "Ciudad Obregón", "colonias": ["Centro", "Nainari", "Misión del Sol", "Las Palmas", "Villa Bonita", "Alameda", "Cajeme", "Del Valle", "El Campestre", "Jardines de Cajeme", "La Cañada", "Las Misiones", "Los Nogales", "Robles del Castillo", "Tinaco"] },
+        { "id": "SON-NOGALES", "nombre": "Nogales", "colonias": ["Centro", "Héroes", "La Mesa", "Rosarito", "Lomas del Sol", "Buenos Aires", "El Encanto", "El Nogal", "Kennedy", "Las Torres", "Los Olivos", "Reforma", "San Carlos"] },
+        { "id": "SON-SANLUIS", "nombre": "San Luis Río Colorado", "colonias": ["Centro", "Altar", "Jazmín", "Los Portales", "Azteca", "Campestre", "Miraflores", "Progresista", "Residencial San Luis"] },
+        { "id": "SON-GUAYMAS", "nombre": "Guaymas", "colonias": ["Centro", "Las Águilas", "Miramar", "San Carlos", "13 de Julio", "La Huerta"] },
+        { "id": "SON-NAVOJOA", "nombre": "Navojoa", "colonias": ["Centro", "Beltrones", "Deportiva", "El Sabinito", "Rodríguez"] },
+        { "id": "SON-CABORCA", "nombre": "Caborca", "colonias": ["Centro", "Aviación", "Industrial", "Pueblo Viejo"] },
+        { "id": "SON-AGUAPRIETA", "nombre": "Agua Prieta", "colonias": ["Centro", "Benito Juárez", "Independencia", "Magisterial"] },
+        { "id": "SON-PENASCO", "nombre": "Puerto Peñasco", "colonias": ["Centro", "Bella Vista", "Las Conchas", "Playa Bonita", "Sandy Beach"] }
+      ]
+    },
+    {
+      "id": "TABASCO",
+      "nombre": "Tabasco",
+      "ciudades": [
+        { "id": "TAB-VILLAHERMOSA", "nombre": "Villahermosa", "colonias": ["Centro", "Gaviotas", "Indeco", "Las Américas", "Tabasco 2000", "Atasta de Serra", "Campestre", "Ciudad Industrial", "Del Bosque", "El Águila", "El Recreo", "Guadalupe", "La Ceiba", "La Manga", "Los Pinos", "Maculís", "Plaza Villahermosa", "Primero de Mayo"] },
+        { "id": "TAB-CARDENAS", "nombre": "Cárdenas", "colonias": ["Centro", "El Bajío", "Las Palmas", "Santa Rita", "La Purísima", "Santa Ana"] },
+        { "id": "TAB-COMALCALCO", "nombre": "Comalcalco", "colonias": ["Centro", "Norte", "Oriente", "Santa Amalia", "Miguel Hidalgo"] },
+        { "id": "TAB-HUIMANGUILLO", "nombre": "Huimanguillo", "colonias": ["Centro", "La Ceiba", "Mecatepec", "Tierra Colorada"] }
+      ]
+    },
+    {
+      "id": "TAMAULIPAS",
+      "nombre": "Tamaulipas",
+      "ciudades": [
+        { "id": "TAMPS-REYNOSA", "nombre": "Reynosa", "colonias": ["Centro", "Ampliación Delicias", "Hidalgo", "Las Fuentes", "Puerta Grande", "Almaguer", "Almendros", "Campestre", "Cumbres", "El Olmo", "Fuentes del Valle", "Las Cumbres", "Las Torres", "Loma Linda", "Lomas del Real", "Riberas del Carmen", "Villas del Roble"] },
+        { "id": "TAMPS-MATAMOROS", "nombre": "Matamoros", "colonias": ["Centro", "Brisas", "Jardín", "Las Palmas", "Santa Anita", "Bagdad", "Bella Vista", "Del Niño", "El Porvenir", "Las Américas", "Petrolera"] },
+        { "id": "TAMPS-TAMPICO", "nombre": "Tampico", "colonias": ["Centro", "Aguamiro", "Lomas de Rosales", "Petrolera", "Sauce", "Américas", "Águila", "Benito Juárez", "Del Valle", "El Chairel", "Lomas de la Aurora", "Los Pinos", "Sembradores de la Amistad"] },
+        { "id": "TAMPS-VICTORIA", "nombre": "Ciudad Victoria", "colonias": ["Centro", "Adolfo López Mateos", "Villa de las Flores", "Zona Centro", "El Mirador", "La Libertad", "Sierra Vista", "Valle Verde"] },
+        { "id": "TAMPS-NUEVOLAREDO", "nombre": "Nuevo Laredo", "colonias": ["Centro", "Campestre", "Los Ángeles", "Roma", "Victoria", "Guerrero", "La Joya", "Loma Bonita"] }
+      ]
+    },
+    {
+      "id": "TLAXCALA",
+      "nombre": "Tlaxcala",
+      "ciudades": [
+        { "id": "TLAX-TLAXCALA", "nombre": "Tlaxcala de Xicohténcatl", "colonias": ["Centro", "La Loma", "Ocotlán", "Santa Ana Chiautempan", "Adolfo López Mateos", "El Sabinal", "Loma Xicohténcatl", "San Pablo"] },
+        { "id": "TLAX-APIZACO", "nombre": "Apizaco", "colonias": ["Centro", "Guadalupe", "Los Pinos", "Santa María Texcalac", "El Carmen"] },
+        { "id": "TLAX-HUAMANTLA", "nombre": "Huamantla", "colonias": ["Centro", "El Calvario", "San José", "Santa Anita", "San Francisco Yancuitlalpan"] },
+        { "id": "TLAX-CALPULALPAN", "nombre": "Calpulalpan", "colonias": ["Centro", "El Llano", "La Soledad", "San Mateo"] }
+      ]
+    },
+    {
+      "id": "VERACRUZ",
+      "nombre": "Veracruz",
+      "ciudades": [
+        { "id": "VER-VERACRUZ", "nombre": "Veracruz", "colonias": ["Centro", "Américas", "Artesanos", "Córdoba", "Cristóbal Colón", "Unidad Habitacional Morelos", "Astilleros", "Carranza", "Costa Verde", "El Dorado", "El Vergel", "Formando Hogar", "Francisco I. Madero", "Granjas Río Medio", "Playa Linda", "Reforma", "Ricardo Flores Magón", "Villa Rica"] },
+        { "id": "VER-XALAPA", "nombre": "Xalapa", "colonias": ["Centro", "Arboledas", "Coatepec", "Progreso", "Xallitic", "Bugambilias", "El Olmo", "La Piedad", "Las Ánimas", "Lomas del Seminario", "Magisterial", "Pomarrosa", "Río Sedeño", "Rubí Ánimas", "Vicente Guerrero"] },
+        { "id": "VER-COATZACOALCOS", "nombre": "Coatzacoalcos", "colonias": ["Centro", "El Tesoro", "La Florida", "Paraíso", "Country Club", "Las Gaviotas", "Miguel Alemán"] },
+        { "id": "VER-ORIZABA", "nombre": "Orizaba", "colonias": ["Centro", "Cerritos", "Emiliano Zapata", "Santa Gertrudis", "Gustavo Díaz Ordaz", "Moctezuma", "Rincón Grande"] },
+        { "id": "VER-BOCADELRIO", "nombre": "Boca del Río", "colonias": ["Centro", "Costa Verde", "El Dorado", "Mocambo", "Carranza", "Jardines de Virginia", "Reforma"] },
+        { "id": "VER-POZARICA", "nombre": "Poza Rica", "colonias": ["Centro", "La Florida", "Laredo", "Reforma", "Veracruz"] },
+        { "id": "VER-MINATITLAN", "nombre": "Minatitlán", "colonias": ["Centro", "Las Fuentes", "Nueva Mina", "Petrolera"] },
+        { "id": "VER-CORDOBA", "nombre": "Córdoba", "colonias": ["Centro", "Cruz Roja", "Federal", "Las Flores", "Loma Bonita"] }
       ]
     },
     {
       "id": "YUCATAN",
       "nombre": "Yucatán",
       "ciudades": [
-        {
-          "id": "YUC-MERIDA",
-          "nombre": "Mérida",
-          "colonias": ["Centro", "Itzimná", "Paseo de Montejo", "Sambulá", "Xcumpich"]
-        }
+        { "id": "YUC-MERIDA", "nombre": "Mérida", "colonias": ["Centro", "Itzimná", "Paseo de Montejo", "Sambulá", "Xcumpich", "Altabrisa", "Los Héroes", "Ampliación Juan Pablo II", "Bosques del Poniente", "Buenavista", "Castilla Cámara", "Chuburná", "Ciudad Caucel", "Colonial", "Del Carmen", "Díaz Ordaz", "Francisco I. Madero", "García Ginerés", "Gran San Pedro Cholul", "Jardines de Mérida", "La Ceiba", "Las Américas", "Miguel Hidalgo", "Mulsay", "Pacabtún", "Pinos", "Rincón Colonial", "Roma", "San Esteban", "Temozón Norte", "Villas del Rey", "Vista Alegre"] },
+        { "id": "YUC-VALLADOLID", "nombre": "Valladolid", "colonias": ["Centro", "Bacalar", "Candelaria", "Sisal", "Fernando Novelo", "San Juan"] },
+        { "id": "YUC-PROGRESO", "nombre": "Progreso", "colonias": ["Centro", "Chicxulub", "Yaxactún", "Zona Turística", "Flamboyanes", "Paraíso"] },
+        { "id": "YUC-TIZIMIN", "nombre": "Tizimín", "colonias": ["Centro", "La Huayita", "San José", "Santa Cruz"] }
+      ]
+    },
+    {
+      "id": "ZACATECAS",
+      "nombre": "Zacatecas",
+      "ciudades": [
+        { "id": "ZAC-ZACATECAS", "nombre": "Zacatecas", "colonias": ["Centro", "Callejón del Beso", "La Bufa", "Zacatlán", "El Orito", "La Encantada", "Lomas de Cristo", "Los Filtros", "Paseos de la Encantada", "Sierra de Alica"] },
+        { "id": "ZAC-FRESNILLO", "nombre": "Fresnillo", "colonias": ["Centro", "El Mineral", "La Paz", "Piedras", "Guadalupe", "Navarro"] },
+        { "id": "ZAC-GUADALUPE", "nombre": "Guadalupe", "colonias": ["Centro", "La Condesa", "Santa Mónica", "Zona Conurbada", "Américas", "Trancoso"] },
+        { "id": "ZAC-JEREZ", "nombre": "Jerez de García Salinas", "colonias": ["Centro", "El Canguro", "Independencia", "San Juan"] },
+        { "id": "ZAC-RIOGRANDE", "nombre": "Río Grande", "colonias": ["Centro", "Francisco Villa", "Los Pinos", "Tierra y Libertad"] }
       ]
     }
   ],
   "postalCodeRanges": {
-    "CDMX": {
-      "min": "01000",
-      "max": "16550"
-    },
-    "MEX": {
-      "min": "50000",
-      "max": "99999"
-    },
-    "JALISCO": {
-      "min": "44000",
-      "max": "48999"
-    },
-    "SONORA": {
-      "min": "83000",
-      "max": "85799"
-    }
+    "CDMX": { "min": "01000", "max": "16550" },
+    "MEX": { "min": "50000", "max": "99999" },
+    "JALISCO": { "min": "44000", "max": "48999" },
+    "SONORA": { "min": "83000", "max": "85799" },
+    "NUEVO_LEON": { "min": "64000", "max": "67999" },
+    "QUINTANA_ROO": { "min": "77000", "max": "77999" },
+    "VERACRUZ": { "min": "91000", "max": "96999" },
+    "PUEBLA": { "min": "72000", "max": "75999" },
+    "CHIHUAHUA": { "min": "31000", "max": "33999" },
+    "BAJA_CALIFORNIA": { "min": "21000", "max": "22999" },
+    "YUCATAN": { "min": "97000", "max": "97999" },
+    "TAMAULIPAS": { "min": "87000", "max": "89999" }
   }
 }

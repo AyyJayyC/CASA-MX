@@ -218,6 +218,7 @@ export default function NavBar() {
           handleLogout={handleLogout}
           isActivePath={isActivePath}
           pathname={pathname}
+          canPublish={canPublish}
         />
       </div>
     </header>

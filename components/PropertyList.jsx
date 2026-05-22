@@ -100,6 +100,13 @@ export default function PropertyList({
   selectedAmenities = [],
   selectedServices = [],
   selectedFinancing = [],
+  condition = '',
+  status = '',
+  minConstructionMeters = '',
+  maxConstructionMeters = '',
+  minLotSize = '',
+  maxLotSize = '',
+  showPrivate = false,
 }) {
   const { data = [], isLoading } = useProperties();
   const [query, setQuery] = useState(searchQuery || '');
@@ -142,8 +149,33 @@ export default function PropertyList({
         matchesPriceRange = p.monthlyRent >= min && p.monthlyRent <= max;
       }
       
-      // Furnished filter (only for rentals)
-      const matchesFurnished = listingType === 'for_sale' || !furnished || p.furnished === true;
+      // Furnished filter
+      const matchesFurnished = !furnished || p.furnished;
+
+      // Condition filter
+      const matchesCondition = !condition || p.condition === condition;
+
+      // Status filter
+      const matchesStatus = !status || p.status === status;
+
+      // Visibility filter — hide private from public views
+      const matchesVisibility = showPrivate || p.visibility !== 'private';
+
+      // Construction meters range filter
+      const matchesConstructionMeters = (() => {
+        const min = minConstructionMeters ? parseInt(minConstructionMeters) : 0;
+        const max = maxConstructionMeters ? parseInt(maxConstructionMeters) : Infinity;
+        const val = p.squareMeters || 0;
+        return val >= min && val <= max;
+      })();
+
+      // Lot size range filter
+      const matchesLotSize = (() => {
+        const min = minLotSize ? parseInt(minLotSize) : 0;
+        const max = maxLotSize ? parseInt(maxLotSize) : Infinity;
+        const val = p.lotSize || 0;
+        return (!minLotSize && !maxLotSize) || (val >= min && val <= max);
+      })();
 
       // Amenities filter — property must have ALL selected amenities
       const matchesAmenities = selectedAmenities.length === 0 ||
@@ -163,6 +195,11 @@ export default function PropertyList({
         matchesCiudad &&
         matchesColonia &&
         matchesCodigoPostal &&
+        matchesCondition &&
+        matchesStatus &&
+        matchesVisibility &&
+        matchesConstructionMeters &&
+        matchesLotSize &&
         matchesListingType &&
         matchesPriceRange &&
         matchesFurnished &&
@@ -184,9 +221,16 @@ export default function PropertyList({
     minRent,
     maxRent,
     furnished,
+    condition,
+    status,
     selectedAmenities,
     selectedServices,
     selectedFinancing,
+    minConstructionMeters,
+    maxConstructionMeters,
+    minLotSize,
+    maxLotSize,
+    showPrivate,
   ]);
 
   return (
@@ -216,6 +260,12 @@ export default function PropertyList({
           placeholder="Buscar por colonia o título..."
         />
       </div>
+
+      {!isLoading && (
+        <p className="text-sm text-neutral-500 dark:text-neutral-400">
+          {filtered.length} {filtered.length === 1 ? 'propiedad encontrada' : 'propiedades encontradas'}
+        </p>
+      )}
 
       {/* Property Grid */}
       <div className="

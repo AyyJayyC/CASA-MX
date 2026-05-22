@@ -10,7 +10,32 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getAmenityMeta, getServiceMeta } from '../lib/constants/propertyServices';
+import { CONDITION_LABELS, CONDITION_COLORS, FURNISHED_LABELS, PARKING_TYPE_LABELS, STATUS_LABELS, STATUS_COLORS, VISIBILITY_LABELS } from '../lib/constants/propertyOptions';
 import VerificationBadges from '@/components/VerificationBadges';
+
+const TAG_LABELS = {
+  perfil: { flipper: 'Flipper', buy_hold: 'Buy & Hold', wholesaler: 'Wholesaler', developer: 'Desarrollador', realtor: 'Realtor', owner: 'Propietario' },
+  enfoque: { residencial: 'Residencial', comercial: 'Comercial', terrenos: 'Terrenos', industrial: 'Industrial', mixto: 'Mixto' },
+  operacion: { cash: 'Contado', credit: 'Crédito', infonavit: 'INFONAVIT', subject_to: 'Sujeto a', assume_loan: 'Asume hipoteca' },
+  zona: { norte: 'Norte', bajio: 'Bajío', centro: 'Centro', occidente: 'Occidente', sureste: 'Sureste', todo_mexico: 'Todo México' },
+  actividad: { principiante: 'Principiante', intermedio: 'Intermedio', profesional: 'Profesional', alto_volumen: 'Alto volumen' },
+};
+
+function getOwnerTags(tags) {
+  if (!tags) return null;
+  const all = [];
+  if (tags.perfil?.length) all.push(...tags.perfil);
+  if (tags.zona?.length) all.push(...tags.zona);
+  if (tags.operacion?.length) all.push(...tags.operacion);
+  return all.slice(0, 3);
+}
+
+function getTagLabel(value) {
+  for (const cat of Object.values(TAG_LABELS)) {
+    if (cat[value]) return cat[value];
+  }
+  return value;
+}
 
 /**
  * @param {{property: Object}} props
@@ -116,35 +141,55 @@ export default function PropertyCard({ property }) {
             {property.title}
           </h3>
 
-          {/* Location */}
-          <p className="
-            text-sm 
-            text-neutral-600 dark:text-neutral-400
-            mb-3
-          ">
+          {/* Location + Size */}
+          <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">
             <span className="sr-only">Ubicación:</span>
             {property.colonia} • {property.propertyType || 'Propiedad'}
           </p>
+          {(property.squareMeters || property.lotSize) && (
+            <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-3">
+              {property.squareMeters ? `${Number(property.squareMeters).toLocaleString('es-MX')} m² const.` : ''}
+              {property.squareMeters && property.lotSize ? ' · ' : ''}
+              {property.lotSize ? `${Number(property.lotSize).toLocaleString('es-MX')} m² terreno` : ''}
+            </p>
+          )}
 
-          {/* Rental Badges (Furnished & Utilities) */}
-          {isRental && (
-            <div className="flex flex-wrap gap-2 mb-3">
-              {property.furnished && (
-                <span className="
-                  inline-flex items-center gap-1
-                  px-2 py-1
-                  bg-green-100 dark:bg-green-900/30
-                  text-green-700 dark:text-green-400
-                  text-xs font-medium
-                  rounded-md
-                ">
-                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/>
-                  </svg>
-                  Amueblada
-                </span>
-              )}
-              {property.utilitiesIncluded && (
+          {/* Property Badges (Condition, Status, Furnished, Parking, Rental) */}
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {property.condition && CONDITION_LABELS[property.condition] && (
+              <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ${CONDITION_COLORS[property.condition] || 'bg-slate-100 text-slate-800'}`}>
+                {CONDITION_LABELS[property.condition]}
+              </span>
+            )}
+            {property.status && STATUS_LABELS[property.status] && property.status !== 'disponible' && (
+              <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ${STATUS_COLORS[property.status] || 'bg-slate-100 text-slate-800'}`}>
+                {STATUS_LABELS[property.status]}
+                {property.availableFrom && (property.status === 'preventa' || property.status === 'en_remodelacion') && (
+                  <> · {new Date(property.availableFrom).toLocaleDateString('es-MX', { month: 'short', day: 'numeric' })}</>
+                )}
+              </span>
+            )}
+            {property.visibility === 'private' && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                🔒 Privado
+              </span>
+            )}
+            {property.furnished && FURNISHED_LABELS[property.furnished] && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
+                {FURNISHED_LABELS[property.furnished]}
+              </span>
+            )}
+            {property.parkingType && PARKING_TYPE_LABELS[property.parkingType] && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-slate-100 dark:bg-slate-900/30 text-slate-700 dark:text-slate-400">
+                {PARKING_TYPE_LABELS[property.parkingType]}
+              </span>
+            )}
+            {property.petFriendly && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+                🐾 Mascotas
+              </span>
+            )}
+            {isRental && property.utilitiesIncluded && (
                 <span className="
                   inline-flex items-center gap-1
                   px-2 py-1
@@ -160,7 +205,6 @@ export default function PropertyCard({ property }) {
                 </span>
               )}
             </div>
-          )}
 
           {(visibleServices.length > 0 || visibleAmenities.length > 0) && (
             <div className="mb-3 space-y-2">
@@ -220,6 +264,9 @@ export default function PropertyCard({ property }) {
             <div>
               <span className="text-xs text-neutral-500 dark:text-neutral-500">
                 <span className="sr-only">Publicado</span> Por: {owner}
+                {property.seller?.agency?.name && (
+                  <> · <span className="text-neutral-400">{property.seller.agency.name}</span></>
+                )}
               </span>
               {(ownerIdentityVerified || ownerIdentityUploaded || ownerPaidSubscriber) && (
                 <div className="mt-1">
@@ -229,6 +276,15 @@ export default function PropertyCard({ property }) {
                     identityUploaded={ownerIdentityUploaded}
                     paidSubscriber={ownerPaidSubscriber}
                   />
+                </div>
+              )}
+              {property.seller?.tags && getOwnerTags(property.seller.tags)?.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {getOwnerTags(property.seller.tags).map(tag => (
+                    <span key={tag} className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400">
+                      {getTagLabel(tag)}
+                    </span>
+                  ))}
                 </div>
               )}
             </div>

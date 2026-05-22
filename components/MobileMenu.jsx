@@ -15,12 +15,17 @@ export default function MobileMenu({
   handleLogout,
   isActivePath,
   pathname,
+  canPublish,
 }) {
   if (!isOpen) return null;
 
   return (
     <div className="md:hidden border-t border-neutral-200 dark:border-neutral-800 py-4 space-y-2">
       <MobileLink href="/properties" onClick={onClose} isActive={isActivePath('/properties')}>Propiedades</MobileLink>
+
+      {isAuthenticated && canPublish && (
+        <MobileLink href="/properties/import" onClick={onClose} isActive={isActivePath('/properties/import')}>📥 Importar propiedades</MobileLink>
+      )}
 
       {isAuthenticated && (
         <MobileLink href="/dashboard" onClick={onClose} isActive={pathname?.startsWith('/dashboard')}>Inicio</MobileLink>

@@ -9,46 +9,15 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import PropertyList from '../../components/PropertyList.jsx';
 import { useProperties } from '../../lib/queries/properties';
-import { getLocationsCatalog } from '../../lib/api/properties';
-
-const MEXICO_STATES = [
-  'Aguascalientes',
-  'Baja California',
-  'Baja California Sur',
-  'Campeche',
-  'Chiapas',
-  'Chihuahua',
-  'Ciudad de México',
-  'Coahuila',
-  'Colima',
-  'Durango',
-  'Estado de México',
-  'Guanajuato',
-  'Guerrero',
-  'Hidalgo',
-  'Jalisco',
-  'Michoacán',
-  'Morelos',
-  'Nayarit',
-  'Nuevo León',
-  'Oaxaca',
-  'Puebla',
-  'Querétaro',
-  'Quintana Roo',
-  'San Luis Potosí',
-  'Sinaloa',
-  'Sonora',
-  'Tabasco',
-  'Tamaulipas',
-  'Tlaxcala',
-  'Veracruz',
-  'Yucatán',
-  'Zacatecas',
-];
+import { getUnifiedCatalog } from '../../lib/api/locations.js';
+import { CONDITION_LABELS, STATUS_LABELS } from '../../lib/constants/propertyOptions';
+import { useAuth } from '../../lib/auth/useAuth';
+import { getPreferences } from '../../lib/services/preferencesCache';
 
 function PropertiesContent() {
   const { data = [] } = useProperties();
   const searchParams = useSearchParams();
+  const { user } = useAuth();
   const [locationsCatalog, setLocationsCatalog] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
@@ -62,6 +31,24 @@ function PropertiesContent() {
     const type = searchParams.get('type');
     setListingType(type === 'for_rent' ? 'for_rent' : 'for_sale');
   }, [searchParams]);
+
+  // Auto-apply saved preferences on first load
+  useEffect(() => {
+    if (!user) return;
+    const role = user.activeRole || 'buyer';
+    const prefs = getPreferences(role);
+    if (prefs.minPrice) setMinPrice(prefs.minPrice);
+    if (prefs.maxPrice) setMaxPrice(prefs.maxPrice);
+    if (prefs.minMonthlyRent) setMinRent(prefs.minMonthlyRent);
+    if (prefs.maxMonthlyRent) setMaxRent(prefs.maxMonthlyRent);
+    if (prefs.minConstructionMeters) setMinConstructionMeters(prefs.minConstructionMeters);
+    if (prefs.maxConstructionMeters) setMaxConstructionMeters(prefs.maxConstructionMeters);
+    if (prefs.minLotSize) setMinLotSize(prefs.minLotSize);
+    if (prefs.maxLotSize) setMaxLotSize(prefs.maxLotSize);
+    if (prefs.conditions?.length) setCondition(prefs.conditions[0]);
+    if (prefs.petFriendly) setFurnished(prefs.petFriendly);
+  }, [user]);
+
   const [estado, setEstado] = useState('');
   const [ciudad, setCiudad] = useState('');
   const [colonia, setColonia] = useState('');
@@ -74,8 +61,16 @@ function PropertiesContent() {
   const [selectedAmenities, setSelectedAmenities] = useState([]);
   const [selectedServices, setSelectedServices] = useState([]);
   const [selectedFinancing, setSelectedFinancing] = useState([]);
+  const [condition, setCondition] = useState('');
+  const [status, setStatus] = useState('');
+  const [minConstructionMeters, setMinConstructionMeters] = useState('');
+  const [maxConstructionMeters, setMaxConstructionMeters] = useState('');
+  const [minLotSize, setMinLotSize] = useState('');
+  const [maxLotSize, setMaxLotSize] = useState('');
 
-  const AMENITY_OPTIONS = ['Alberca', 'Gimnasio', 'Elevador', 'Roof Garden', 'Vigilancia 24h', 'Área de juegos'];
+  const AMENITY_OPTIONS = ['Alberca', 'Gimnasio', 'Elevador', 'Roof Garden', 'Vigilancia 24h', 'Área de juegos',
+    'Piscina privada', 'Piscina común', 'Jardín', 'Terraza', 'Balcón', 'Seguridad 24h', 'Acceso controlado',
+    'Aire acondicionado', 'Calefacción', 'Amueblado', 'Equipado', 'Cocina integral', 'Walk-in closet']; 
   const SERVICE_OPTIONS_RENT = ['Agua', 'Gas', 'Internet', 'Luz', 'Estacionamiento', 'TV por Cable', 'Vigilancia'];
   const SERVICE_OPTIONS_SALE = ['Estacionamiento', 'Vigilancia', 'Agua'];
   const FINANCING_OPTIONS = ['Efectivo', 'Crédito bancario', 'INFONAVIT', 'FOVISSSTE', 'Plan de pagos'];
@@ -88,7 +83,7 @@ function PropertiesContent() {
     let active = true;
 
     (async () => {
-      const catalog = await getLocationsCatalog();
+      const catalog = await getUnifiedCatalog();
       if (active && catalog) {
         setLocationsCatalog(catalog);
       }
@@ -99,8 +94,7 @@ function PropertiesContent() {
     };
   }, []);
 
-  const estadosCatalogo = (locationsCatalog?.estados || []).map((e) => e?.nombre).filter(Boolean);
-  const estadosDisponibles = [...new Set([...MEXICO_STATES, ...estadosCatalogo])].sort((a, b) =>
+  const estadosDisponibles = (locationsCatalog?.estados || []).map((e) => e?.nombre).filter(Boolean).sort((a, b) =>
     a.localeCompare(b, 'es-MX')
   );
 
@@ -158,12 +152,18 @@ function PropertiesContent() {
     setSelectedAmenities([]);
     setSelectedServices([]);
     setSelectedFinancing([]);
+    setCondition('');
+    setStatus('');
+    setMinConstructionMeters('');
+    setMaxConstructionMeters('');
+    setMinLotSize('');
+    setMaxLotSize('');
     setSearchQuery('');
   };
 
   const hasFilters = listingType === 'for_sale' 
-    ? (estado || ciudad || colonia || codigoPostal || minPrice || maxPrice || selectedAmenities.length || selectedServices.length || selectedFinancing.length)
-    : (estado || ciudad || colonia || codigoPostal || minRent !== '5000' || maxRent !== '50000' || furnished || selectedAmenities.length || selectedServices.length);
+    ? (estado || ciudad || colonia || codigoPostal || condition || minConstructionMeters || maxConstructionMeters || minLotSize || maxLotSize || minPrice || maxPrice || selectedAmenities.length || selectedServices.length || selectedFinancing.length)
+    : (estado || ciudad || colonia || codigoPostal || condition || minConstructionMeters || maxConstructionMeters || minLotSize || maxLotSize || minRent !== '5000' || maxRent !== '50000' || furnished || selectedAmenities.length || selectedServices.length);
   const activeFiltersCount = Object.values({
     estado,
     ciudad,
@@ -441,29 +441,108 @@ function PropertiesContent() {
                 </div>
               )}
 
-              {/* Furnished Checkbox (For Rent Only) */}
-              {listingType === 'for_rent' && (
-                <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={furnished}
-                      onChange={(e) => setFurnished(e.target.checked)}
-                      className="
-                        w-4 h-4
-                        text-clay
-                        bg-white dark:bg-neutral-950
-                        border-neutral-300 dark:border-neutral-700
-                        rounded
-                        focus:ring-2 focus:ring-clay focus:ring-offset-0
-                      "
-                    />
-                    <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                      Solo amuebladas
-                    </span>
-                  </label>
+              {/* Size Filters */}
+              <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
+                  Tamaño
+                </label>
+                <div className="space-y-3">
+                  <div>
+                    <span className="text-xs text-neutral-500 dark:text-neutral-400">Construcción (m²)</span>
+                    <div className="grid grid-cols-2 gap-2 mt-1">
+                      <input type="number" placeholder="Mín" value={minConstructionMeters}
+                        onChange={(e) => setMinConstructionMeters(e.target.value)}
+                        className="w-full px-2 py-1.5 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded text-sm"
+                      />
+                      <input type="number" placeholder="Máx" value={maxConstructionMeters}
+                        onChange={(e) => setMaxConstructionMeters(e.target.value)}
+                        className="w-full px-2 py-1.5 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded text-sm"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-xs text-neutral-500 dark:text-neutral-400">Terreno (m²)</span>
+                    <div className="grid grid-cols-2 gap-2 mt-1">
+                      <input type="number" placeholder="Mín" value={minLotSize}
+                        onChange={(e) => setMinLotSize(e.target.value)}
+                        className="w-full px-2 py-1.5 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded text-sm"
+                      />
+                      <input type="number" placeholder="Máx" value={maxLotSize}
+                        onChange={(e) => setMaxLotSize(e.target.value)}
+                        className="w-full px-2 py-1.5 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded text-sm"
+                      />
+                    </div>
+                  </div>
                 </div>
-              )}
+              </div>
+
+              {/* Furnished Filter */}
+              <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
+                  Amueblado
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={furnished}
+                    onChange={(e) => setFurnished(e.target.checked)}
+                    className="w-4 h-4 text-clay bg-white dark:bg-neutral-950 border-neutral-300 dark:border-neutral-700 rounded focus:ring-2 focus:ring-clay focus:ring-offset-0"
+                  />
+                  <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                    Solo amuebladas
+                  </span>
+                </label>
+              </div>
+
+              {/* Condition Filter */}
+              <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
+                  Condición
+                </label>
+                <div className="space-y-1.5">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="condition" value="" checked={!condition}
+                      onChange={() => setCondition('')}
+                      className="w-4 h-4 text-clay border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-clay"
+                    />
+                    <span className="text-sm text-neutral-600 dark:text-neutral-400">Todas</span>
+                  </label>
+                  {Object.entries(CONDITION_LABELS).map(([value, label]) => (
+                    <label key={value} className="flex items-center gap-2 cursor-pointer">
+                      <input type="radio" name="condition" value={value} checked={condition === value}
+                        onChange={() => setCondition(value)}
+                        className="w-4 h-4 text-clay border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-clay"
+                      />
+                      <span className="text-sm text-neutral-700 dark:text-neutral-300">{label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Status Filter */}
+              <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
+                  Estatus
+                </label>
+                <div className="space-y-1.5">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="status" value="" checked={!status}
+                      onChange={() => setStatus('')}
+                      className="w-4 h-4 text-clay border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-clay"
+                    />
+                    <span className="text-sm text-neutral-600 dark:text-neutral-400">Todos</span>
+                  </label>
+                  {Object.entries(STATUS_LABELS).map(([value, label]) => (
+                    <label key={value} className="flex items-center gap-2 cursor-pointer">
+                      <input type="radio" name="status" value={value} checked={status === value}
+                        onChange={() => setStatus(value)}
+                        className="w-4 h-4 text-clay border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-clay"
+                      />
+                      <span className="text-sm text-neutral-700 dark:text-neutral-300">{label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
 
               {/* Services Filter */}
               <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
@@ -599,10 +678,13 @@ function PropertiesContent() {
                     <label htmlFor="colonia-filter" className="block text-xs text-neutral-600 dark:text-neutral-400 mb-1">
                       Colonia
                     </label>
-                    <select
+                    <input
                       id="colonia-filter"
+                      type="text"
+                      list="colonia-datalist"
                       value={colonia}
                       onChange={(e) => setColonia(e.target.value)}
+                      placeholder={!estado || !ciudad ? 'Selecciona estado y ciudad' : 'Buscar o escribir colonia'}
                       disabled={!estado || !ciudad}
                       className="
                         w-full
@@ -612,15 +694,16 @@ function PropertiesContent() {
                         rounded-md
                         text-sm
                         text-neutral-900 dark:text-neutral-100
+                        placeholder:text-neutral-400
                         focus:outline-none focus:ring-2 focus:ring-clay focus:border-transparent
                         disabled:opacity-60
                       "
-                    >
-                      <option value="">Todas</option>
+                    />
+                    <datalist id="colonia-datalist">
                       {coloniasDisponibles.map((item) => (
-                        <option key={item} value={item}>{item}</option>
+                        <option key={item} value={item} />
                       ))}
-                    </select>
+                    </datalist>
                   </div>
 
                   <div>
@@ -670,9 +753,16 @@ function PropertiesContent() {
               minRent={minRent}
               maxRent={maxRent}
               furnished={furnished}
+              condition={condition}
+              status={status}
+              minConstructionMeters={minConstructionMeters}
+              maxConstructionMeters={maxConstructionMeters}
+              minLotSize={minLotSize}
+              maxLotSize={maxLotSize}
               selectedAmenities={selectedAmenities}
               selectedServices={selectedServices}
               selectedFinancing={selectedFinancing}
+              showPrivate={false}
             />
           </main>
         </div>

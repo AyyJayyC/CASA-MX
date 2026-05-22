@@ -6,6 +6,45 @@
 
 ---
 
+## Project Purpose (Why CASA-MX Exists)
+
+CASA-MX is a real estate marketplace for Mexico that replaces fixed-price listings with an **offer-based model**. Instead of guessing the right price, sellers receive real offers from buyers and choose the best one. Buyers offer what they're willing to pay and get properties at fair prices.
+
+### Mission
+Democratize Mexico's real estate market by connecting **property owners, buyers, renters, real estate agents, and developers** fairly, allowing all parties to negotiate freely and breaking the traditional fixed-price scheme.
+
+### Vision
+Become Mexico's leading platform where any property — from a room for rent to a full residential development — receives real offers, enabling sellers/landlords to make informed decisions and buyers/renters to access fair prices.
+
+### Core Values
+- **Transparency in process** — sellers see all offers; buyers know their offer is considered
+- **Fairness** — no party has an unfair advantage; everyone can offer and counter-offer
+- **Trust** — verified identities, traceable offer system
+- **Collaboration** — agents, developers, and agencies are allies, not rivals
+- **Local empowerment** — respects the practices of each Mexican market
+
+### Key Differentiator: Private Offers, Not Public Auctions
+- Sellers/landlords see ALL offers received
+- Buyers/renters see ONLY their own offer and the response (accepted, rejected, counter-offer)
+- Offers from other buyers are never shown publicly — no artificial price suppression
+- Agent commissions are private (between agent and client)
+
+### Business Model: Credits
+- 1 MXN = 10 credits
+- Credits unlock: contact reveal (phone/email of an interested party), featured badge + search priority, promoted listing (homepage carousel)
+- 3-year goals: 20 cities, 50K monthly active users, 10K offers/month, 1,500 active agents
+
+### Target Audiences (5 distinct user types)
+| User Type | Value |
+|---|---|
+| Property Owner / Landlord | Publish, receive real offers, choose the best. No price guessing. |
+| Buyer / Renter | Offer what you're willing to pay. Get the property at a fair price. |
+| Real Estate Agent | Publish client properties, receive qualified offers. Commission is private. Massive visibility. |
+| Developer / Builder | Showcase full developments. Receive offers by lot or project. Agency alliances for maximum reach. |
+| Agency | Cross-promote properties across the ecosystem. |
+
+---
+
 ## Behavioral Rules
 
 1. **Read before coding** — read every involved file first. Check how similar features are built. If something is unclear, stop and ask. Never assume the structure, verify it first.

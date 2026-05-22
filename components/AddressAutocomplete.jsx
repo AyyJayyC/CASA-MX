@@ -8,12 +8,9 @@
 
 import { useState, useEffect, useRef } from 'react';
 import React from 'react';
-import { getLocationsCatalog } from '../lib/api/properties';
+import { getUnifiedCatalog } from '../lib/api/locations.js';
 import {
   validateField,
-  getValidEstados,
-  getCitiesForEstado,
-  getColoniasForCity,
 } from '../lib/utils/addressValidation';
 import {
   getCachedAddresses,
@@ -55,7 +52,7 @@ export default function AddressAutocomplete({
     let active = true;
 
     (async () => {
-      const catalog = await getLocationsCatalog();
+      const catalog = await getUnifiedCatalog();
       if (active && catalog) {
         setLocationsCatalog(catalog);
       }
@@ -83,8 +80,7 @@ export default function AddressAutocomplete({
   }, [activeDropdown]);
 
   const getStates = () => {
-    const fromCatalog = (locationsCatalog?.estados || []).map((e) => e?.nombre).filter(Boolean);
-    return [...new Set([...getValidEstados(), ...fromCatalog])].sort((a, b) => a.localeCompare(b, 'es-MX'));
+    return (locationsCatalog?.estados || []).map((e) => e?.nombre).filter(Boolean).sort((a, b) => a.localeCompare(b, 'es-MX'));
   };
 
   const getCities = (estado) => {
@@ -92,9 +88,7 @@ export default function AddressAutocomplete({
     const estadoCatalog = (locationsCatalog?.estados || []).find(
       (e) => String(e?.nombre || '').toLowerCase() === String(estado).toLowerCase()
     );
-    const fromCatalog = (estadoCatalog?.ciudades || []).map((c) => c?.nombre).filter(Boolean);
-    const fallback = getCitiesForEstado(estado);
-    return [...new Set([...fallback, ...fromCatalog])].sort((a, b) => a.localeCompare(b, 'es-MX'));
+    return (estadoCatalog?.ciudades || []).map((c) => c?.nombre).filter(Boolean).sort((a, b) => a.localeCompare(b, 'es-MX'));
   };
 
   const getColonias = (estado, ciudad) => {
@@ -105,9 +99,7 @@ export default function AddressAutocomplete({
     const ciudadCatalog = (estadoCatalog?.ciudades || []).find(
       (c) => String(c?.nombre || '').toLowerCase() === String(ciudad).toLowerCase()
     );
-    const fromCatalog = (ciudadCatalog?.colonias || []).filter(Boolean);
-    const fallback = getColoniasForCity(estado, ciudad);
-    return [...new Set([...fallback, ...fromCatalog])].sort((a, b) => a.localeCompare(b, 'es-MX'));
+    return (ciudadCatalog?.colonias || []).filter(Boolean).sort((a, b) => a.localeCompare(b, 'es-MX'));
   };
 
   const handleFieldChange = (field, value) => {

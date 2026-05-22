@@ -9,11 +9,12 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { propertySchema, propertyFormDefaults } from '../lib/validation/propertySchema';
-import { addProperty as addPropertyAPI, getLocationsCatalog } from '../lib/api/properties';
+import { addProperty as addPropertyAPI } from '../lib/api/properties';
+import { getUnifiedCatalog } from '../lib/api/locations.js';
 import { useAuth } from '../lib/auth/useAuth';
 import { useInvalidateProperties } from '../lib/queries/properties';
 import { addAddressToCache } from '../lib/services/addressCache';
-import { getValidEstados, getCitiesForEstado, getColoniasForCity } from '../lib/utils/addressValidation';
+import { CONDITION_LABELS, FURNISHED_LABELS, PARKING_TYPE_LABELS, STATUS_LABELS, VISIBILITY_LABELS } from '../lib/constants/propertyOptions';
 import useNumericInput from '../lib/hooks/useNumericInput';
 import Link from 'next/link';
 import PropertyImageGallery from './PropertyImageGallery.jsx';
@@ -68,7 +69,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
     let active = true;
 
     (async () => {
-      const catalog = await getLocationsCatalog();
+      const catalog = await getUnifiedCatalog();
       if (active && catalog) {
         setLocationsCatalog(catalog);
       }
@@ -257,8 +258,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
     setValue('photos', nextPhotos, { shouldDirty: true, shouldValidate: true });
   };
 
-  const estadosCatalogo = (locationsCatalog?.estados || []).map((e) => e?.nombre).filter(Boolean);
-  const estadosDisponibles = [...new Set([...getValidEstados(), ...estadosCatalogo, selectedEstado].filter(Boolean))].sort((a, b) =>
+  const estadosDisponibles = (locationsCatalog?.estados || []).map((e) => e?.nombre).filter(Boolean).sort((a, b) =>
     a.localeCompare(b, 'es-MX')
   );
 
@@ -266,8 +266,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
     (e) => String(e?.nombre || '').toLowerCase() === String(selectedEstado || '').toLowerCase()
   );
   const ciudadesCatalogo = (estadoCatalogo?.ciudades || []).map((c) => c?.nombre).filter(Boolean);
-  const ciudadesFallback = selectedEstado ? getCitiesForEstado(selectedEstado) : [];
-  const ciudadesDisponibles = [...new Set([...ciudadesFallback, ...ciudadesCatalogo, selectedCiudad].filter(Boolean))].sort((a, b) =>
+  const ciudadesDisponibles = [...new Set([...ciudadesCatalogo, selectedCiudad].filter(Boolean))].sort((a, b) =>
     a.localeCompare(b, 'es-MX')
   );
 
@@ -275,11 +274,26 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
     (c) => String(c?.nombre || '').toLowerCase() === String(selectedCiudad || '').toLowerCase()
   );
   const coloniasCatalogo = (ciudadCatalogo?.colonias || []).filter(Boolean);
-  const coloniasFallback = selectedEstado && selectedCiudad ? getColoniasForCity(selectedEstado, selectedCiudad) : [];
   const selectedColonia = watch('colonia');
-  const coloniasDisponibles = [...new Set([...coloniasFallback, ...coloniasCatalogo, selectedColonia].filter(Boolean))].sort((a, b) =>
+  const coloniasDisponibles = [...new Set([...coloniasCatalogo, selectedColonia].filter(Boolean))].sort((a, b) =>
     a.localeCompare(b, 'es-MX')
   );
+
+  useEffect(() => {
+    if (selectedEstado) {
+      const currentCiudad = getValues('ciudad');
+      if (currentCiudad && !ciudadesCatalogo.includes(currentCiudad)) {
+        setValue('ciudad', '', { shouldDirty: true });
+      }
+      const currentColonia = getValues('colonia');
+      if (currentColonia && !coloniasCatalogo.includes(currentColonia)) {
+        setValue('colonia', '', { shouldDirty: true });
+      }
+    } else {
+      setValue('ciudad', '', { shouldDirty: true });
+      setValue('colonia', '', { shouldDirty: true });
+    }
+  }, [selectedEstado]);
 
   const syncFullAddressFromLocation = useCallback(() => {
     const currentAddress = String(getValues('address') || '').trim();
@@ -507,6 +521,11 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
         ...values,
         listingType,
         imageUrls: values.photos || [],
+        issuesInvoice: values.issuesInvoice ?? false,
+        petFriendly: values.petFriendly ?? false,
+        petFee: values.petFriendly ? (values.petFee ?? null) : null,
+        petDeposit: values.petFriendly ? (values.petDeposit ?? null) : null,
+        childrenWelcome: values.childrenWelcome ?? false,
         ...(listingType === 'for_sale'
           ? {
               price: values.price,
@@ -524,13 +543,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
               ...(values.securityDeposit ? { securityDeposit: values.securityDeposit } : {}),
               ...(values.leaseTermMonths ? { leaseTermMonths: values.leaseTermMonths } : {}),
               ...(values.availableFrom ? { availableFrom: values.availableFrom } : {}),
-              // furnished removed: now covered by 'Amueblado' and 'Equipado' in amenities
               utilitiesIncluded: (values.includedServices || []).length > 0,
-              issuesInvoice: values.issuesInvoice ?? false,
-              petFriendly: values.petFriendly ?? false,
-              petFee: values.petFriendly ? (values.petFee ?? null) : null,
-              petDeposit: values.petFriendly ? (values.petDeposit ?? null) : null,
-              childrenWelcome: values.childrenWelcome ?? false,
               includedServices: values.includedServices || [],
               amenities: values.amenities || [],
             }),
@@ -858,8 +871,9 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
 
             <div>
               <label htmlFor="squareMeters" className={labelClass}>
-                Metros cuadrados *
+                Metros de construcción *
               </label>
+              <span className="text-xs text-neutral-500 dark:text-neutral-400 block -mt-1 mb-1">Superficie construida / espacio habitable</span>
               <input 
                 id="squareMeters" 
                 {...getNumericInputProps(squareMetersRegister, squareMetersInput)}
@@ -874,6 +888,14 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                   {errors.squareMeters.message}
                 </p>
               )}
+            </div>
+            <div>
+              <label htmlFor="lotSize" className={labelClass}>Metros de terreno</label>
+              <span className="text-xs text-neutral-500 dark:text-neutral-400 block -mt-1 mb-1">Superficie total del lote</span>
+              <input id="lotSize" type="number" min="0"
+                {...register('lotSize', { setValueAs: v => v === '' ? undefined : Number(v) })}
+                className={inputClass} placeholder="Ej: 200"
+              />
             </div>
           </div>
         </div>
@@ -1063,7 +1085,209 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                             {display.secondary}
                           </p>
                         )}
-                      </div>
+          </div>
+
+          {/* Property Condition */}
+          <div>
+            <label className={labelClass}>Condición de la propiedad</label>
+            <div className="flex flex-wrap gap-2 mt-1">
+              {Object.entries(CONDITION_LABELS).map(([value, label]) => (
+                <label key={value} className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border cursor-pointer text-sm transition-colors ${
+                  watch('condition') === value
+                    ? 'border-clay-400 bg-clay-50 dark:bg-clay-900/20 text-clay-700 dark:text-clay-400'
+                    : 'border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-400 hover:border-clay-300'
+                }`}>
+                  <input type="radio" value={value} className="sr-only"
+                    {...register('condition')}
+                  />
+                  {label}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Additional Details Row */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div>
+              <label htmlFor="yearBuilt" className={labelClass}>Año de construcción</label>
+              <input id="yearBuilt" type="number" min="1900" max="2027"
+                {...register('yearBuilt', { setValueAs: v => v === '' ? undefined : Number(v) })}
+                className={inputClass} placeholder="2020"
+              />
+            </div>
+            <div>
+              <label htmlFor="floors" className={labelClass}>Número de pisos</label>
+              <input id="floors" type="number" min="1" max="100"
+                {...register('floors', { setValueAs: v => v === '' ? undefined : Number(v) })}
+                className={inputClass} placeholder="1"
+              />
+            </div>
+            <div>
+              <label htmlFor="halfBaths" className={labelClass}>Medios baños</label>
+              <input id="halfBaths" type="number" min="0" max="20"
+                {...register('halfBaths', { setValueAs: v => v === '' ? undefined : Number(v) })}
+                className={inputClass} placeholder="0"
+              />
+            </div>
+            <div>
+              <label htmlFor="maintenanceFee" className={labelClass}>Cuota de mantenimiento (MXN/mes)</label>
+              <input id="maintenanceFee" type="number" min="0"
+                {...register('maintenanceFee', { setValueAs: v => v === '' ? undefined : Number(v) })}
+                className={inputClass} placeholder="0"
+              />
+            </div>
+          </div>
+
+          {/* Parking Type */}
+          <div>
+            <label className={labelClass}>Tipo de estacionamiento</label>
+            <div className="flex flex-wrap gap-2 mt-1">
+              {Object.entries(PARKING_TYPE_LABELS).map(([value, label]) => (
+                <label key={value} className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border cursor-pointer text-sm transition-colors ${
+                  watch('parkingType') === value
+                    ? 'border-clay-400 bg-clay-50 dark:bg-clay-900/20 text-clay-700 dark:text-clay-400'
+                    : 'border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-400 hover:border-clay-300'
+                }`}>
+                  <input type="radio" value={value} className="sr-only"
+                    {...register('parkingType')}
+                  />
+                  {label}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Furnished */}
+          <div>
+            <label className={labelClass}>Amueblado</label>
+            <div className="flex flex-wrap gap-2 mt-1">
+              {Object.entries(FURNISHED_LABELS).map(([value, label]) => (
+                <label key={value} className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border cursor-pointer text-sm transition-colors ${
+                  watch('furnished') === value
+                    ? 'border-clay-400 bg-clay-50 dark:bg-clay-900/20 text-clay-700 dark:text-clay-400'
+                    : 'border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-400 hover:border-clay-300'
+                }`}>
+                  <input type="radio" value={value} className="sr-only"
+                    {...register('furnished')}
+                  />
+                  {label}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Property Status */}
+          <div>
+            <label className={labelClass}>Estatus de la propiedad</label>
+            <div className="flex flex-wrap gap-2 mt-1">
+              {Object.entries(STATUS_LABELS).map(([value, label]) => (
+                <label key={value} className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border cursor-pointer text-sm transition-colors ${
+                  (watch('status') || 'disponible') === value
+                    ? 'border-clay-400 bg-clay-50 dark:bg-clay-900/20 text-clay-700 dark:text-clay-400'
+                    : 'border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-400 hover:border-clay-300'
+                }`}>
+                  <input type="radio" value={value} className="sr-only"
+                    {...register('status')}
+                  />
+                  {label}
+                </label>
+              ))}
+            </div>
+            <p className="text-xs text-neutral-500 mt-1">
+              {watch('status') === 'preventa' || watch('status') === 'en_remodelacion'
+                ? 'La propiedad se mostrará como próximamente disponible.'
+                : watch('status') === 'bajo_promesa'
+                ? 'La propiedad ya tiene un acuerdo pero aún no se ha cerrado.'
+                : watch('status') === 'vendido' || watch('status') === 'rentado' || watch('status') === 'retirado'
+                ? 'La propiedad será removida de las búsquedas.'
+                : 'La propiedad está disponible y lista para mostrarse.'}
+            </p>
+          </div>
+
+          {/* Available From (when pre-release) */}
+          {(watch('status') === 'preventa' || watch('status') === 'en_remodelacion') && (
+            <div className="p-4 border border-clay-200 dark:border-clay-800 rounded-lg bg-clay-50 dark:bg-clay-900/10">
+              <label htmlFor="availableFrom" className={labelClass}>
+                Fecha de disponibilidad
+              </label>
+              <span className="text-xs text-neutral-500 dark:text-neutral-400 block -mt-1 mb-1">
+                ¿Cuándo estará lista la propiedad?
+              </span>
+              <input
+                id="availableFrom"
+                type="date"
+                {...register('availableFrom')}
+                className={inputClass}
+              />
+            </div>
+          )}
+
+          {/* Visibility */}
+          <div>
+            <label className={labelClass}>Visibilidad de la propiedad</label>
+            <div className="flex flex-wrap gap-2 mt-1">
+              {Object.entries(VISIBILITY_LABELS).map(([value, label]) => (
+                <label key={value} className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border cursor-pointer text-sm transition-colors ${
+                  (watch('visibility') || 'public') === value
+                    ? 'border-clay-400 bg-clay-50 dark:bg-clay-900/20 text-clay-700 dark:text-clay-400'
+                    : 'border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-400 hover:border-clay-300'
+                }`}>
+                  <input type="radio" value={value} className="sr-only"
+                    {...register('visibility')}
+                  />
+                  {label}
+                </label>
+              ))}
+            </div>
+            <p className="text-xs text-neutral-500 mt-1">
+              {watch('visibility') === 'private'
+                ? '🔒 Solo visible para mayoristas, realtors y administradores. No aparecerá en búsquedas públicas.'
+                : '🌐 Visible para todos los usuarios en búsquedas públicas.'}
+            </p>
+          </div>
+
+          {/* Policies */}
+          <div className="space-y-3 p-4 border border-neutral-200 dark:border-neutral-700 rounded-lg">
+            <h3 className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Políticas</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" {...register('petFriendly')}
+                  className="w-4 h-4 rounded border-neutral-300 text-clay-500 focus:ring-clay-400"
+                />
+                <span className="text-sm text-neutral-700 dark:text-neutral-300">Acepta mascotas</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" {...register('childrenWelcome')}
+                  className="w-4 h-4 rounded border-neutral-300 text-clay-500 focus:ring-clay-400"
+                />
+                <span className="text-sm text-neutral-700 dark:text-neutral-300">Apto para niños</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" {...register('issuesInvoice')}
+                  className="w-4 h-4 rounded border-neutral-300 text-clay-500 focus:ring-clay-400"
+                />
+                <span className="text-sm text-neutral-700 dark:text-neutral-300">Emite factura</span>
+              </label>
+            </div>
+            {watch('petFriendly') && (
+              <div className="grid grid-cols-2 gap-3 pt-2 border-t border-neutral-200 dark:border-neutral-700">
+                <div>
+                  <label htmlFor="petFee" className={labelClass}>Cuota por mascota (MXN/mes)</label>
+                  <input id="petFee" type="number" min="0"
+                    {...register('petFee', { setValueAs: v => v === '' ? undefined : Number(v) })}
+                    className={inputClass} placeholder="0"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="petDeposit" className={labelClass}>Depósito por mascota (MXN)</label>
+                  <input id="petDeposit" type="number" min="0"
+                    {...register('petDeposit', { setValueAs: v => v === '' ? undefined : Number(v) })}
+                    className={inputClass} placeholder="0"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
                     </div>
                       );
                     })()}

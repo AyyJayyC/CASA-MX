@@ -10,6 +10,27 @@ import Link from 'next/link';
 import PropertyImageGallery from '../../../components/PropertyImageGallery.jsx';
 import { getAmenityMeta, getServiceMeta, groupAmenitiesByCategory } from '../../../lib/constants/propertyServices';
 import { FINANCING_SHORT_LABELS, FINANCING_ICONS } from '../../../lib/constants/financing';
+import { STATUS_LABELS, STATUS_COLORS } from '../../../lib/constants/propertyOptions';
+
+const TAG_LABELS = {
+  perfil: { flipper: 'Flipper', buy_hold: 'Buy & Hold', wholesaler: 'Wholesaler', developer: 'Desarrollador', realtor: 'Realtor', owner: 'Propietario' },
+  enfoque: { residencial: 'Residencial', comercial: 'Comercial', terrenos: 'Terrenos', industrial: 'Industrial', mixto: 'Mixto' },
+  operacion: { cash: 'Contado', credit: 'Crédito', infonavit: 'INFONAVIT', subject_to: 'Sujeto a', assume_loan: 'Asume hipoteca' },
+  zona: { norte: 'Norte', bajio: 'Bajío', centro: 'Centro', occidente: 'Occidente', sureste: 'Sureste', todo_mexico: 'Todo México' },
+  actividad: { principiante: 'Principiante', intermedio: 'Intermedio', profesional: 'Profesional', alto_volumen: 'Alto volumen' },
+};
+
+function getTagLabel(value) {
+  for (const cat of Object.values(TAG_LABELS)) {
+    if (cat[value]) return cat[value];
+  }
+  return value;
+}
+
+function getOwnerTagsList(tags) {
+  if (!tags) return [];
+  return [...(tags.perfil || []), ...(tags.zona || []), ...(tags.operacion || [])].slice(0, 4);
+}
 
 const ContactRequestModal = dynamic(() => import('../../../components/ContactRequestModal.jsx'));
 const MakeOfferModal = dynamic(() => import('../../../components/MakeOfferModal.jsx'));
@@ -66,8 +87,11 @@ export default async function PropertyDetail({ params }) {
   const features = [
     { icon: '🛏️', label: 'Recámaras', value: property.bedrooms ?? 'N/D' },
     { icon: '🚿', label: 'Baños', value: property.bathrooms ?? 'N/D' },
-    { icon: '📐', label: 'Área', value: property.squareMeters ? `${property.squareMeters} m²` : 'N/D' },
-    { icon: '🚗', label: 'Estacionamiento', value: includedServices.includes('Estacionamiento') ? 'Incluido' : 'No incluido' },
+    { icon: '🏗️', label: 'Construcción', value: property.squareMeters ? `${Number(property.squareMeters).toLocaleString('es-MX')} m²` : 'N/D' },
+    { icon: '🌳', label: 'Terreno', value: property.lotSize ? `${Number(property.lotSize).toLocaleString('es-MX')} m²` : 'N/D' },
+    { icon: '🚗', label: 'Estacionamiento', value: property.parkingSpaces ? `${property.parkingSpaces} cajones` : 'N/D' },
+    { icon: '🏢', label: 'Pisos', value: property.floors ? `${property.floors}` : 'N/D' },
+    { icon: '📅', label: 'Año const.', value: property.yearBuilt ? `${property.yearBuilt}` : 'N/D' },
   ];
 
   return (
@@ -130,6 +154,16 @@ export default async function PropertyDetail({ params }) {
                   : `$${property.price.toLocaleString('es-MX')} MXN`
                 }
               </div>
+
+              {/* Status badge */}
+              {property.status && STATUS_LABELS[property.status] && property.status !== 'disponible' && (
+                <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-md text-sm font-medium ${STATUS_COLORS[property.status] || 'bg-slate-100 text-slate-800'}`}>
+                  {STATUS_LABELS[property.status]}
+                  {property.availableFrom && (property.status === 'preventa' || property.status === 'en_remodelacion') && (
+                    <> · Disponible {new Date(property.availableFrom).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}</>
+                  )}
+                </div>
+              )}
               
               {/* Rental-specific badges */}
               {isRental && (
@@ -259,7 +293,23 @@ export default async function PropertyDetail({ params }) {
                 </div>
                 <div>
                   <dt className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">Publicado por</dt>
-                  <dd className="text-base font-medium text-neutral-900 dark:text-neutral-100">{property.owner || 'Propietario'}</dd>
+                  <dd className="text-base font-medium text-neutral-900 dark:text-neutral-100">
+                    {property.owner || 'Propietario'}
+                    {property.seller?.agency?.name && (
+                      <span className="text-sm text-neutral-500 dark:text-neutral-400 font-normal ml-1">
+                        · {property.seller.agency.name}
+                      </span>
+                    )}
+                  </dd>
+                  {property.seller?.tags && getOwnerTagsList(property.seller.tags).length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1.5">
+                      {getOwnerTagsList(property.seller.tags).map(tag => (
+                        <span key={tag} className="px-2 py-0.5 rounded-full text-xs font-medium bg-clay-50 dark:bg-clay-900/20 text-clay-700 dark:text-clay-400">
+                          {getTagLabel(tag)}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </dl>
             </div>

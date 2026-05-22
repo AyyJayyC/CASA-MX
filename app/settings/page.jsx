@@ -5,6 +5,7 @@ import { RequireAuth } from '@/components/guards/RequireAuth';
 import VerificationBadges from '@/components/VerificationBadges';
 import { getUserProfile, updateUserProfile, uploadProfileAvatar } from '@/lib/api/users';
 import { getUserDocuments, uploadUserDocument } from '@/lib/api/userDocuments';
+import UserPreferences from '@/components/UserPreferences.jsx';
 export default function SettingsPage() {
   return (
     <RequireAuth>
@@ -154,7 +155,7 @@ function SettingsContent() {
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
-      <main className="max-w-lg mx-auto px-4 py-10">
+      <main className="max-w-2xl mx-auto px-4 py-10">
         <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-6">
           Ajustes de perfil
         </h1>
@@ -419,6 +420,12 @@ function SettingsContent() {
               {saving ? 'Guardando…' : 'Guardar cambios'}
             </button>
           </form>
+        )}
+
+        {!loading && (
+          <div className="mt-12 pt-8 border-t border-neutral-200 dark:border-neutral-700">
+            <UserPreferences />
+          </div>
         )}
       </main>
     </div>
