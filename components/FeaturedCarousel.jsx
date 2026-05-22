@@ -26,14 +26,14 @@ function CarouselSlide({ property, isActive }) {
           <span className="shrink-0 px-2 py-0.5 rounded-full text-[11px] font-bold bg-clay">🔥 Promocionado</span>
           <span className="font-semibold text-sm truncate max-w-[280px]">{property.title}</span>
           <span className="text-white/60 text-xs truncate max-w-[200px] hidden lg:block">{location}</span>
-          <Link href={`/propiedades/${property.id}`} className="ml-auto shrink-0 px-3 py-1 bg-white/15 hover:bg-white/25 rounded-lg text-xs font-semibold transition-colors">
+          <Link href={`/properties/${property.id}`} className="ml-auto shrink-0 px-3 py-1 bg-white/15 hover:bg-white/25 rounded-lg text-xs font-semibold transition-colors">
             {price} Ver ›
           </Link>
         </div>
         {/* Mobile: minimal single line */}
         <div className="md:hidden flex items-center justify-between text-white">
           <span className="shrink-0 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-clay">🔥 Promocionado</span>
-          <Link href={`/propiedades/${property.id}`} className="ml-auto shrink-0 px-2 py-0.5 bg-white/15 hover:bg-white/25 rounded text-[11px] font-semibold">
+          <Link href={`/properties/${property.id}`} className="ml-auto shrink-0 px-2 py-0.5 bg-white/15 hover:bg-white/25 rounded text-[11px] font-semibold">
             {price} Ver ›
           </Link>
         </div>

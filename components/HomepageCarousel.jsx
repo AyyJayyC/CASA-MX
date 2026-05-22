@@ -7,8 +7,9 @@ import { useProperties } from '@/lib/queries/properties';
 export default function HomepageCarousel() {
   const { data = [] } = useProperties();
   const promoted = data.filter(p => p.promotionTier === 'carousel');
+  const carouselProps = promoted.length > 0 ? promoted : data.slice(0, 8);
 
-  if (promoted.length === 0) {
+  if (carouselProps.length === 0) {
     return (
       <section className="relative w-full h-[450px] md:h-[550px] lg:h-[600px] overflow-hidden bg-gradient-to-br from-sand-50 via-white to-sand-100 dark:from-ink dark:via-ink/95 dark:to-ink/90 flex items-center justify-center">
         <div className="container max-w-2xl text-center px-4">
@@ -32,6 +33,6 @@ export default function HomepageCarousel() {
   }
 
   return (
-    <FeaturedCarousel properties={promoted} />
+    <FeaturedCarousel properties={carouselProps} />
   );
 }
