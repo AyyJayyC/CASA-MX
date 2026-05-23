@@ -7,7 +7,7 @@ import { useProperties } from '@/lib/queries/properties';
 export default function HomepageCarousel() {
   const { data = [] } = useProperties();
   const promoted = data.filter(p => p.promotionTier === 'carousel');
-  const carouselProps = promoted.length > 0 ? promoted : data.slice(0, 8);
+  const carouselProps = promoted.length > 0 ? promoted : data.slice(0, 6);
 
   if (carouselProps.length === 0) {
     return (

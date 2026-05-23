@@ -46,7 +46,7 @@ export default function FeaturedCarousel({ properties }) {
   const [current, setCurrent] = useState(0);
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
-  const total = properties?.length || 0;
+  const total = Math.min(properties?.length || 0, 6);
 
   const goTo = useCallback((index) => {
     setCurrent(((index % total) + total) % total);
