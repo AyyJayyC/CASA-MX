@@ -308,7 +308,8 @@ export default function RegisterPage() {
 
             {/* Submit */}
             <button
-              type="submit"
+              type="button"
+              onClick={handleSubmit(onSubmit)}
               disabled={isSubmitting || selectedRoles.length === 0}
               className="
                 w-full py-3 mt-2

@@ -157,6 +157,7 @@ export default function LoginPage() {
               <input
                 id="email"
                 type="email"
+                autoComplete="off"
                 {...register('email')}
                 className="
                   w-full px-4 py-3 
@@ -191,6 +192,7 @@ export default function LoginPage() {
               <input
                 id="password"
                 type="password"
+                autoComplete="off"
                 {...register('password')}
                 className="
                   w-full px-4 py-3 
@@ -221,7 +223,8 @@ export default function LoginPage() {
 
             {/* Submit */}
             <button
-              type="submit"
+              type="button"
+              onClick={handleSubmit(onSubmit)}
               disabled={isSubmitting}
               className="
                 w-full py-3 mt-2

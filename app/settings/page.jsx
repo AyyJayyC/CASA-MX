@@ -413,7 +413,8 @@ function SettingsContent() {
             )}
 
             <button
-              type="submit"
+              type="button"
+              onClick={handleSubmit}
               disabled={saving}
               className="w-full py-2.5 rounded-lg bg-clay-500 hover:bg-clay-600 disabled:opacity-50 text-white font-semibold transition-colors"
             >
