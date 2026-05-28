@@ -1,353 +1,203 @@
 # CASA MX — Knowledge Reference
 
-> Last updated: 2026-05-07  
-> This file is the source of truth about this codebase.  
+> Last updated: 2026-05-27
 > OpenCode reads this first before any task.
 
----
+## Full Stack — Two Repos
 
-## Project Purpose (Why CASA-MX Exists)
+This project spans **two repositories**. Always consider both when making changes:
 
-CASA-MX is a real estate marketplace for Mexico that replaces fixed-price listings with an **offer-based model**. Instead of guessing the right price, sellers receive real offers from buyers and choose the best one. Buyers offer what they're willing to pay and get properties at fair prices.
+| Repo | Path | Stack |
+|---|---|---|
+| **Frontend** | `C:\Users\axelj\casa-mx` | Next.js 15 (App Router), React 18, Tailwind 3.4 |
+| **Backend** | `C:\Users\axelj\casa-mx-backend` | Fastify 5, TypeScript, Prisma 5, PostgreSQL 16, Redis 7 |
 
-### Mission
-Democratize Mexico's real estate market by connecting **property owners, buyers, renters, real estate agents, and developers** fairly, allowing all parties to negotiate freely and breaking the traditional fixed-price scheme.
-
-### Vision
-Become Mexico's leading platform where any property — from a room for rent to a full residential development — receives real offers, enabling sellers/landlords to make informed decisions and buyers/renters to access fair prices.
-
-### Core Values
-- **Transparency in process** — sellers see all offers; buyers know their offer is considered
-- **Fairness** — no party has an unfair advantage; everyone can offer and counter-offer
-- **Trust** — verified identities, traceable offer system
-- **Collaboration** — agents, developers, and agencies are allies, not rivals
-- **Local empowerment** — respects the practices of each Mexican market
-
-### Key Differentiator: Private Offers, Not Public Auctions
-- Sellers/landlords see ALL offers received
-- Buyers/renters see ONLY their own offer and the response (accepted, rejected, counter-offer)
-- Offers from other buyers are never shown publicly — no artificial price suppression
-- Agent commissions are private (between agent and client)
-
-### Business Model: Credits
-- 1 MXN = 10 credits
-- Credits unlock: contact reveal (phone/email of an interested party), featured badge + search priority, promoted listing (homepage carousel)
-- 3-year goals: 20 cities, 50K monthly active users, 10K offers/month, 1,500 active agents
-
-### Target Audiences (5 distinct user types)
-| User Type | Value |
-|---|---|
-| Property Owner / Landlord | Publish, receive real offers, choose the best. No price guessing. |
-| Buyer / Renter | Offer what you're willing to pay. Get the property at a fair price. |
-| Real Estate Agent | Publish client properties, receive qualified offers. Commission is private. Massive visibility. |
-| Developer / Builder | Showcase full developments. Receive offers by lot or project. Agency alliances for maximum reach. |
-| Agency | Cross-promote properties across the ecosystem. |
+Both repos share: Zod schemas, JWT httpOnly cookie auth, Stripe integration. Frontend deploys to Vercel, backend to Railway via Docker.
 
 ---
 
 ## Behavioral Rules
 
-1. **Read before coding** — read every involved file first. Check how similar features are built. If something is unclear, stop and ask. Never assume the structure, verify it first.
+1. **Read before coding** — read every involved file first. Check how similar features are built. If unclear, stop and ask.
+2. **Simplicity first** — fewer lines wins. No premature abstractions. If a junior dev can't read it, rewrite it.
+3. **Surgical changes only** — edit what's broken, nothing else. No rewriting files to fix one function. Small diffs.
+4. **Goal-driven execution** — ask *why* before *how*. Build what's asked, not what you think is wanted.
+5. **Never remove existing endpoints** — keep old endpoints with original response shapes. Add new alongside.
+6. **Prisma schema changes need migration files** — use `prisma migrate dev`, not `prisma db push`. CI needs `.sql` files.
+7. **Check Docker first for infra** — backend runs PostgreSQL + Redis + backend via Docker Compose. Check `docker compose ps` first.
+8. **Check git branch** — verify with `git status` before changes.
 
-2. **Simplicity first** — fewer lines always wins. No premature abstractions. No over-engineering. No 12 file solution for a 2 line problem. If a junior dev can't read it, rewrite it.
-
-3. **Surgical changes only** — edit what's broken, nothing else. No rewriting entire files to fix one function. No touching imports you weren't asked about. Small diffs always.
-
-4. **Goal-driven execution** — ask *why* before writing *how*. If the task is unclear, stop and ask. Don't build what you think I want — build what I actually ask for.
-
-5. **Never remove existing endpoints** — when enhancing route files, keep old endpoints with original response shapes. Add new endpoints alongside. Existing tests depend on them.
-
-6. **Prisma schema changes need migration files** — use `prisma migrate dev`, not just `prisma db push`. CI runs `prisma migrate deploy` and needs `.sql` files.
-
-7. **Check Docker first for infra** — the backend runs PostgreSQL + Redis + backend via Docker Compose. Always check `docker compose ps` before installing anything manually.
-
-8. **Check which git branch you're on** — verify with `git status` before making changes. Don't work on stale branches.
-
-See also: `docs/DEVELOPMENT_RULES.md` for the full lessons-learned guide.
-
----
-
-## Tech Stack
-
-### Frontend: `CASA-MX` → Vercel (`casa-mx.com`)
-| Tech | Version | Purpose |
-|---|---|---|
-| Next.js | 15.5.14 | Framework, App Router |
-| React | 18.2 | UI library |
-| Tailwind CSS | 3.4.8 | Styling, `class` dark mode |
-| react-hook-form | 7.45 | Form management (login, register, contact request) |
-| zod | 3.23 | Validation schemas |
-| @tanstack/react-query | 4.35 | Server state / caching |
-| Leaflet | 1.9.4 | Maps |
-| Stripe.js | 9.2 | Payments |
-| lucide-react | 1.7 | Icons |
-| recharts | 3.6 | Charts |
-| Vitest | 1.6.1 | Unit/integration tests |
-| Playwright | 1.41+ | E2E tests |
-| @testing-library/react | 14 | Component testing |
-
-### Backend: `casa-mx-backend` → Railway
-| Tech | Version | Purpose |
-|---|---|---|
-| Node.js | 18-20 | Runtime |
-| TypeScript | 5.5 | Language |
-| Fastify | 5.8 | Web framework |
-| Prisma | 5.19 | ORM + migrations |
-| PostgreSQL | 16 | Database |
-| Redis | 7 | Caching (ioredis) |
-| JWT | 9.0 | Auth tokens |
-| bcrypt | 6.0 | Password hashing |
-| Stripe | 22.0 | Payments/subscriptions |
-| AWS S3 | client 3.10 | Document uploads |
-| SendGrid | 8.1 | Email |
-| pdfkit | 0.18 | Contract PDFs |
-| zod | 3.23 | API validation |
-
-### Infrastructure
-- **Frontend** → Vercel (connected to Namecheap domain `casa-mx.com`)
-- **Backend** → Railway Docker (PostgreSQL 16 + Redis 7)
-- **CI** → GitHub Actions: `CI` (test+build), `Security Scan` (gitleaks + npm audit), `Playwright E2E`
-- **Git** → GitHub (`AyyJayyC/CASA-MX`, `AyyJayyC/casa-mx-backend`)
-- **Authentication** → httpOnly cookies + `credentials: 'include'` pattern (no auth headers)
+See also: `docs/DEVELOPMENT_RULES.md`
 
 ---
 
 ## Project Architecture
 
-### Frontend (`/mnt/c/Users/axelj/casa-mx/`)
+### Frontend (`casa-mx/`)
 
 ```
-app/                    # Next.js App Router pages
-  dashboard/            # Role-filtered dashboard hub + sub-pages
-    contact-requests/   # Seller's incoming contact requests (Phase 1)
-    offers/             # Seller's received purchase offers
-    my-offers/          # Buyer's sent purchase offers
-    applications/       # Landlord's rental applications
-    rental-applications/# Tenant's submitted applications
-  properties/           # Property listing + [id] detail
-  login/                # Login with role selection screen
-  register/             # Registration
-  requested/            # Buyer's contact requests list
-  settings/             # User profile + documents
-
+app/                      # Next.js App Router pages
+  admin/                  # Admin: approvals, properties, analytics, agencies, maps, debug
+  dashboard/              # Role-filtered hub: offers, applications, my-offers, contact-requests
+  properties/             # Listings, detail [id], import, map
+  login/ register/ settings/ credits/ reviews/ requested/
 components/
-  NavBar.jsx            # Shell (222L) — imports DesktopNavLinks + MobileMenu
-  DesktopNavLinks.jsx   # Desktop nav + properties dropdown (Phase 3)
-  MobileMenu.jsx        # Mobile hamburger menu (Phase 3)
-  ApplicationsTable.jsx # Rental applications list (388L, split Phase 3)
-  ApplicationDetailsModal.jsx  # Extracted from ApplicationsTable (Phase 3)
-  ApplicantReviewSummary.jsx   # Extracted from ApplicationsTable (Phase 3)
-  OfferRespondModal.jsx # Shared offer respond form (Phase 3)
-  MakeOfferModal.jsx    # Purchase offer submission
-  ContactRequestModal.jsx  # Address request modal (Phase 1)
-  ContactRequestForm.jsx   # Simplified 3-field form (Phase 1)
-  ContactRequestsList.jsx  # Buyer's request list with address reveal (Phase 1)
-  SellerContactRequests.jsx  # Seller dashboard for incoming requests (Phase 1)
-  LeaveReviewModal.jsx     # Simplified review form (Phase 2)
-  ReviewList.jsx           # Review cards (Phase 2)
-  ReviewSummaryCard.jsx    # Review summary (Phase 2)
-  NegotiationPanel.jsx     # Rent negotiation, uses useAuth() (Phase 4)
-
+  analytics/              # MarketAnalytics: KPI cards, charts, city table, opportunities (Phase 6)
+  guards/                 # RequireAuth, RequireRole
+  map/                    # Leaflet: PropertyMap, createMarker
+  NavBar.jsx, DesktopNavLinks.jsx, MobileMenu.jsx
+  MakeOfferModal, OfferRespondModal, ContactRequestModal, LeaveReviewModal
+  PropertyUploadForm, PropertyImportWizard, PropertyCard, PropertyList
 lib/
-  api/                  # Backend API wrappers (13 files)
-  auth/                 # AuthContext, CreditsContext, useAuth hook
-  constants/            # financing.js (centralized FINANCING options, Phase 3)
-  queries/              # React Query hooks
-  validation/           # Zod schemas (contactRequestSchema.js, propertySchema.js)
-  reviews.js            # REVIEW_ROLE_LABELS (all 6 roles), helper functions
-
-public/brand/           # logo-primary.png, logo-mark.png, favicon.ico
+  api/                    # Backend API wrappers (16 files)
+  auth/                   # AuthContext, CreditsContext, useAuth
+  analytics/              # Event tracking (providers, useAnalytics)
+  queries/                # React Query hooks (properties, requests)
+  validation/             # Zod schemas (propertySchema, contactRequestSchema)
+  constants/              # financing, propertyOptions, propertyServices, statusLabels
+  utils/format.js         # formatNumber, formatCurrency, formatDate, formatPercentage
 ```
 
-### Backend (`/mnt/c/Users/axelj/casa-mx-backend/`)
+### Backend (`casa-mx-backend/`)
 
 ```
 prisma/
-  schema.prisma         # 23 models: User, Role, Property, PropertyRequest,
-                        # RentalApplication, Review, PropertyOffer, Negotiation,
-                        # NegotiationOffer, CreditBalance, CreditTransaction,
-                        # CreditPackage, UserSubscription, + debug/log models
-
+  schema.prisma           # 23 models: User, Role, Property, PropertyOffer, PropertyRequest,
+                           # RentalApplication, Review, Negotiation, Credit*, AnalyticsEvent,
+                           # Notification, Debug*, AuditLog, ApiLog
 src/
-  routes/               # 22 route files (requests, offers, negotiations,
-                        # reviews, properties, credits, auth, debug, etc.)
-  services/             # credits.service.ts, reviews.service.ts, auth.service.ts,
-                        # cache.service.ts, maps.service.ts, email.service.ts, etc.
-  schemas/              # Zod validation schemas per route
-  utils/                # guards.ts (auth middleware), errorHandling.ts, badges.ts
-  config/               # env.ts (environment validation)
-  plugins/              # jwt.ts, prisma.ts, logging.ts, mapsMonitor.ts
+  routes/                 # 22 route files (auth, properties, offers, requests, reviews,
+                           # applications, negotiations, credits, admin, analytics, debug...)
+  services/               # auth.service, credits.service, reviews.service, cache.service,
+                           # maps.service, email.service
+  schemas/                # Zod validation per route
+  utils/                  # guards.ts (auth middleware), errorHandling, badges
+  config/                 # env.ts
+  plugins/                # jwt.ts, prisma.ts, logging.ts, mapsMonitor.ts
 ```
+
+---
+
+## Tech Stack (abbreviated)
+
+- **Frontend:** Next.js 15 (App Router), React 18, Tailwind 3.4 (`class` dark mode), react-hook-form + zod, @tanstack/react-query 4, Leaflet, recharts 3.6, Stripe.js
+- **Backend:** Fastify 5, Prisma 5, PostgreSQL 16, Redis 7, JWT httpOnly cookies, AWS S3, SendGrid, Zod
+- **Tests:** Vitest (unit/integration), Playwright (E2E)
+- **CI:** GitHub Actions — CI, Security Scan, Playwright E2E (on push to main)
+- **Infra:** Frontend → Vercel, Backend → Railway Docker
 
 ---
 
 ## Key Patterns
 
 ### Auth
-- JWT stored in httpOnly cookies (not localStorage)
-- All API calls use `credentials: 'include'` to send cookies
-- `useAuth()` hook wraps `AuthContext` — provides `login`, `logout`, `switchRole`, `user`
-- `getRoleLabel()` maps role IDs to Spanish labels (Vendedor, Comprador, etc.)
-- `activeRole` on user object controls dashboard visibility
-- Login page shows role picker if user has 2+ approved roles (Phase 5 UX)
+- JWT in httpOnly cookies (not localStorage). All fetches use `credentials: 'include'`.
+- `useAuth()` hook from `lib/auth/useAuth.js` wraps `AuthContext` — provides `login`, `logout`, `switchRole`, `user`, `refreshUser`.
+- `activeRole` on user object controls dashboard visibility.
+- `RequireRole` guard (`components/guards/RequireRole.jsx`) checks approved role; uses `router.replace` (not push) to avoid back-button traps.
 
 ### API Calls
-- All API files use `process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'`
+- `BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'`
 - `credentials: 'include'` on every fetch
-- `parseResponse()` pattern: check `res.ok` first, then throw with server error
-- Files with `parseResponse`: applications, offers, requests, reviews, subscriptions, negotiations, notifications
+- `parseResponse()` pattern: `lib/api/requests.js`, `offers.js`, `applications.js`, `reviews.js`, `negotiations.js`, `notifications.js`, `subscriptions.js`
+- `fetchWithAuthRetry()` pattern: `lib/api/properties.js` (retries on 401 after token refresh)
 
-### Forms
-- `react-hook-form` + `zod`: login, register, ContactRequestForm
-- Manual `useState`: MakeOfferModal, LeaveReviewModal, RentalApplicationForm
-
-### Credit System
-- 1 credit = 1 MXN contact unlock
-- `CreditBalance`: per-user balance, `CreditTransaction`: purchase/spend/refund
-- `CreditPackage`: purchasable bundles with Stripe Price IDs
-- `UserSubscription`: tracks subscription status (active/trialing/canceled)
-- Subscription bypass NOT yet implemented (model exists on cleanup branch, not deployed to main)
-
-### Guards
-- `RequireAuth`: redirects unauthenticated to /login
-- `RequireRole`: checks user has specific approved role
-- Settings page uses `RequireAuth` wrapper (fixed redirect loop in Phase 5)
-
----
-
-## Recent Changes Summary
-
-### Phase 1 — Contact/Address Request System
-- Simplified request form: 3 fields (name, phone, message)
-- Added `GET /requests/seller` + `POST /requests/:id/approve` endpoints
-- Address revealed to buyer only on seller approval
-- Seller credit-gated contact unlock
-- Fixed hardcoded `BACKEND_URL` + `buyerId: 'buyer-demo'` fallback
-
-### Phase 2 — Review + Offer Simplification
-- Dropped `ReviewCategoryScore` model — reviews are single rating + comment
-- Removed dead `OfferNegotiationTimeline` component (backend model doesn't exist on main)
-- Removed dead `getOfferThread` API function
-- Removed "2 counter-offer required to reject" lock from NegotiationPanel
-
-### Phase 3 — Dedup + Refactor
-- Extracted `OfferRespondModal` (shared by seller/buyer offer pages, -250 lines)
-- Centralized `FINANCING_LABELS/OPTIONS/ICONS` into `lib/constants/financing.js`
-- Split `ApplicationsTable` (686→388L): extracted `ApplicationDetailsModal` + `ApplicantReviewSummary`
-- Split `NavBar` (747→222L): extracted `DesktopNavLinks` (90L) + `MobileMenu` (107L)
-- Deleted orphan `/terms` page, redirects to `/terminos`
-
-### Phase 4 — Code Quality
-- Standardized `parseResponse` in `negotiations.js` and `notifications.js`
-- Fixed `NegotiationPanel` to use `useAuth()` instead of `useContext(AuthContext)`
-
-### Phase 5 — UX Polish
-- Dashboard now filters by `activeRole` (not all approved roles)
-- Login page: role selection screen when user has 2+ roles
-- Settings page: wrapped in `RequireAuth` (fixes redirect loop bug)
-- NavBar settings: SVG gear icon replaced emoji (alignment fix)
-- Logo: heart centered in `logo-primary.png` and `logo-mark.png` (shifted left 3-35px)
-- E2E workflow: added backend service, changed trigger to `push: [main]`
-- Security: added `.gitleaks.toml`, fixed high-severity npm vulns
+### Credits
+- 1 MXN = 10 credits. Credits unlock contact info, featured badges, promoted listings.
+- `CreditBalance`, `CreditTransaction`, `CreditPackage`, `UserSubscription` models.
 
 ---
 
 ## Testing
 
-### Frontend
-- 25 test files, 69 unit tests (Vitest)
-- Command: `npm test -- --run`
-- E2E: 6 Playwright test files (a11y, map, production-smoke, publish-upload-live, rental-flow, integrity)
-- E2E auto-starts on push to main (requires backend service in CI)
-
-### Backend
-- Vitest with real PostgreSQL test database (`casamx_test`)
-- Command: `npm run test`
-- Slow tests due to DB integration — use GitHub CI for full suite
+```
+npm test -- --run          # Vitest (77 tests, 29 files)
+npm run test:e2e:auto      # Playwright E2E (starts dev server automatically)
+```
 
 ---
 
-## Common Issues & Fixes
+## Recent Changes (2026-05-27)
 
-| Problem | Fix |
-|---|---|
-| NavBar test fails with `React is not defined` | Extracted components need `import React from 'react'` (Next.js JSX transform doesn't require it but vitest+jsdom does) |
-| Settings button redirect loop | Wrap page content in `<RequireAuth>` instead of manual `isUnauthorized` check |
-| Security scan fails | Run `npm audit fix --omit=dev` for high vulns; add `.gitleaks.toml` for false positives |
-| E2E fails with backend unavailable | Add PostgreSQL service + backend clone + migration steps to E2E workflow |
-| WSL npm operations fail | Use `sudo` for `rm -rf node_modules` if permissions break; prefer Git Bash for npm operations |
-| `main` branch protected (backend) | Push to feature branch, create PR, let CI pass, merge |
-| HTTPS push fails without credentials | Use `https://TOKEN@github.com/...` as remote URL, or configure credential helper |
+### Phase 6 — Admin Market Analytics Dashboard
+
+**New files (7):**
+- `lib/api/analytics.js` — admin analytics API wrapper for 7 new endpoints
+- `app/admin/analytics/market/page.jsx` — dashboard shell (admin-only, Venta/Renta toggle synced to URL)
+- `components/analytics/MarketKpiCards.jsx` — 6 KPI cards with MoM trend arrows
+- `components/analytics/OpportunitiesPanel.jsx` — 5 actionable alerts (hot zones, underpriced, stale, trends)
+- `components/analytics/OfferIndexChart.jsx` — bar chart: median offer/m² by city
+- `components/analytics/OfferTrendChart.jsx` — multi-line 12-month trend
+- `components/analytics/CityMarketTable.jsx` — sortable city table + colonia drilldown + trend chart + comps
+
+**Modified files (2):**
+- `components/MobileMenu.jsx` — added "📊 Análisis de mercado" admin link
+- `components/guards/RequireRole.jsx` — `router.push` → `router.replace` fixes back-button trap
+
+**Key design:**
+- All state: loading skeleton, error with retry, empty placeholder, data display
+- Performance: `React.memo` on CityRow, `useMemo` on chart data, `useCallback` on sort/fetch
+- URL-synced Venta/Renta toggle (`?tipo=renta`), drilldown respects active type
+- Error differentiation: 401/403 → null, 5xx/network → throws with message
+
+### Other recent fixes
+- `lib/queries/properties.js` — removed error-swallowing try/catch; `useProperties` now surfaces `isError`/`error`
+- `components/HomepageCarousel.jsx` — added loading skeleton + error state + retry button
+- `components/FeaturedCarousel.jsx` — replaced `return null` with placeholder on empty
+- `components/PropertyImportWizard.jsx` — added `listingType` column (Venta/Renta) to bulk import
+- `ejemplo-importacion-casamx.xlsx` — example sheet with 25 columns, 5 sample properties
+
+### Verification
+- 77 Vitest tests pass, build clean (37 pages), back button works correctly
 
 ---
 
-## Prisma Models (Active on main)
+## Pending / Known Gaps
 
-23 models total:
-`User`, `Role`, `UserRole`, `Property`, `PropertyDocument`, `UserDocument`,
-`PropertyRequest` (has `name`, `phone` added in Phase 1),
-`RentalApplication`, `Review` (no `categoryScores` relation, removed Phase 2),
-`Notification`, `AnalyticsEvent`, `AuditLog`,
-`DebugSession`, `ActionLog`, `ErrorLog`, `ApiLog`,
-`ApiUsageLog`, `UsageLimit`, `LimitAlert`,
-`CreditBalance`, `CreditTransaction`, `CreditPackage`, `UserSubscription`,
-`Negotiation`, `NegotiationOffer`, `PropertyOffer`
+### Backend endpoints — COMPLETED
+7 admin analytics endpoints built in `casa-mx-backend/src/routes/analytics.ts` + `src/services/analytics.service.ts`:
+- `GET /admin/analytics/market-summary`, `/market-by-city`, `/market-by-colonia`
+- `GET /admin/analytics/offer-trends`, `/offer-analysis`, `/opportunities`, `/comps`
+- Backend compiles clean, all endpoints guarded with `requireAdmin`
 
-Not on main: `ReviewCategoryScore` (dropped Phase 2), `PropertyOfferEvent` (never deployed)
+### Security — Status
 
----
+**FIXED (20 of 25):**
+| ID | Issue | Resolution |
+|---|---|---|
+| VULN-01 | JWT in response body | Removed from login, refresh, OAuth responses |
+| VULN-02 | API log PII | `requestBody`/`responseBody` no longer captured |
+| VULN-03 | Gitleaks whitelist | Already resolved |
+| VULN-04 | No password reset | `POST /auth/forgot-password` + `POST /auth/reset-password` added |
+| VULN-05 | No CSRF | `@fastify/csrf-protection` installed + frontend sends `x-csrf-token` header |
+| VULN-07 | Stored XSS | Already resolved (uses textContent) |
+| VULN-08 | Type bypass applications | `as any` cast removed |
+| VULN-09 | Type bypass properties | Already resolved |
+| VULN-10 | No account lockout | 5 failed attempts → 15min lockout |
+| VULN-12 | Logout cookie missing secure | Already resolved |
+| VULN-13 | CSP `unsafe-inline` | Replaced with `'strict-dynamic'`, removed `unpkg.com` from styleSrc |
+| VULN-14 | Docker root build | `USER node` in builder stage |
+| VULN-15/16/17 | Hardcoded creds + exposed port | Env vars, backend port → 127.0.0.1 |
+| VULN-18 | Debug PII | `userEmail`/`ipAddress` no longer captured in debug logs |
+| VULN-19 | User enumeration | Already resolved |
+| VULN-20 | Missing Zod .max() | Added to Login, Refresh, OAuth schemas |
+| VULN-21 | Missing numeric bounds | Added to properties, applications, offers schemas |
+| VULN-22 | Weak passwords | Now require uppercase + lowercase + digit in register + reset |
+| VULN-24 | Timestamp disclose | Removed from health endpoint |
+| VULN-25 | E2E hardcoded repo | Uses `${{ vars.BACKEND_REPO }}` |
 
-## Security Audit Findings (2026-05-07)
+**REMAINING (5 of 25):**
+- VULN-06 — secrets on disk (needs key rotation on provider dashboards)
+- VULN-11 — MFA (full feature, future)
+- VULN-23 — OAuth audience skip already fixed (mandatory check now)
+- Migration file generated at `prisma/migrations/20260527210000_add_password_reset_and_lockout/migration.sql`
 
-### Critical (Must Fix Before Launch)
-
-| ID | Category | File:Line | Issue |
-|----|----------|-----------|-------|
-| VULN-01 | JWT Exposure | `backend/src/routes/auth.ts:117-132` | Tokens returned in JSON response body (login, refresh, OAuth). Defeats httpOnly cookies. Any XSS can steal tokens. |
-| VULN-02 | PII Leakage | `backend/prisma/schema.prisma:376-378` | `ApiLog` stores raw `requestBody`/`responseBody` — captures passwords, tokens, all PII in plaintext |
-| VULN-03 | Secrets | `casa-mx/.gitleaks.toml:32` | `.env.local` in gitleaks path allowlist — secrets committed to this file will NEVER be flagged |
-| VULN-04 | No Password Reset | `backend/src/routes/auth.ts` | No `/auth/forgot-password` or `/auth/reset-password`. Users permanently locked out if password forgotten |
-| VULN-05 | No CSRF | All backend routes | Zero anti-CSRF protection. Relies solely on SameSite=Lax. State-changing POST/PATCH/DELETE unprotected |
-| VULN-06 | Secrets on Disk | `backend/.env` | Live AWS IAM, Stripe, SendGrid, Google OAuth keys. Rotate immediately |
-
-### High
-
-| ID | Category | File:Line | Issue |
-|----|----------|-----------|-------|
-| VULN-07 | Stored XSS | `casa-mx/components/map/createMarker.js:33` | `innerHTML` with unescaped `property.title` and `property.address` — no max length or sanitization |
-| VULN-08 | Type Bypass | `backend/src/routes/applications.ts:87` | `(input as any).offeredMonthlyRent` bypasses Zod validation |
-| VULN-09 | Type Bypass | `backend/src/routes/properties.ts:301,523` | `(input as any).financeOptions` bypasses Zod validation |
-| VULN-10 | No Account Lockout | `backend/src/services/auth.service.ts` | No lockout after repeated login failures. Brute-force via rate limit only |
-| VULN-11 | No MFA | — | Multi-factor authentication not implemented |
-| VULN-12 | Logout Broken | `backend/src/routes/auth.ts:270-271` | `clearCookie` lacks `secure` flag — cookies may not clear in production |
-| VULN-13 | CSP Disabled | `backend/src/app.ts:108` | `contentSecurityPolicy: false` — no CSP header sent |
-| VULN-14 | Docker Root | `backend/Dockerfile:1-36` | No `USER` directive — container runs as root |
-| VULN-15 | Exposed DB | `backend/docker-compose.yml:7` | PostgreSQL port 5432 exposed to `0.0.0.0` |
-| VULN-16 | Exposed Redis | `backend/docker-compose.yml:25` | Redis port 6379 exposed with no password |
-| VULN-17 | Hardcoded DB Creds | `backend/docker-compose.yml:9-10,46` | `postgres:postgres` in committed file |
-| VULN-18 | Debug PII | `backend/prisma/schema.prisma:289-392` | DebugSession/ActionLog/ErrorLog store userEmail, ipAddress, raw body in plaintext |
-
-### Medium
-
-| ID | Category | File:Line | Issue |
-|----|----------|-----------|-------|
-| VULN-19 | User Enum | `backend/src/routes/auth.ts:62` | Registration returns "Email already exists" |
-| VULN-20 | Missing max Length | All Zod schemas | No `.max()` on name, title, address, description, etc. — DoS risk |
-| VULN-21 | No Upper Bounds | Property/Application schemas | `monthlyIncome`, `price`, `bedrooms` have no max — overflow risk |
-| VULN-22 | Weak Passwords | `backend/src/schemas/auth.ts:8` | Only `min(8)`, no complexity requirements |
-| VULN-23 | OAuth Audience Skip | `backend/src/routes/auth.ts:362` | Audience check skipped if `GOOGLE_CLIENT_ID` not set |
-| VULN-24 | Timestamp Disclose | `backend/src/routes/health.ts:17-18` | Health endpoint reveals `NODE_ENV` and `uptime` |
-| VULN-25 | E2E Repo Clone | `casa-mx/.github/workflows/e2e.yml:34` | E2E pipeline clones backend repo — supply chain risk |
-
-### Positive Findings
-- Passwords bcrypt-hashed (cost 10) ✅
-- JWT algorithm pinned to HS256, no `alg:none` possible ✅
-- CORS uses origin whitelist, no wildcard with credentials ✅
-- All API calls use `credentials: 'include'` (httpOnly cookie auth) ✅
-- No `eval()`, `new Function()`, or `dangerouslySetInnerHTML` in React code ✅
-- Rate limiting on login (10/15min) and register (5/15min) ✅
-- Refresh token rotation with JTI revocation ✅
-- Prisma parameterized queries throughout (no raw SQL injection) ✅
-- `.env` files in `.gitignore` — not tracked in git ✅
-- Security scan in CI (gitleaks + npm audit) ✅
-- `poweredByHeader: false` in Next.js config ✅
+### Pre-launch checklist
+- [x] Migration `.sql` file generated and marked as applied
+- [x] CSRF protection: `@fastify/csrf-protection` + frontend `x-csrf-token` header
+- [x] `sameSite: 'lax'` (strict would block cross-origin cookie sends for OAuth)
+- [x] Railway env vars documented in `.env.example` — `POSTGRES_USER`, `POSTGRES_PASSWORD`, `REDIS_PASSWORD` required
+- [ ] Set `POSTGRES_USER`, `POSTGRES_PASSWORD`, `REDIS_PASSWORD` in Railway dashboard
+- [ ] Deploy backend first, verify `/health` + `/admin/analytics/market-summary`
+- [ ] Deploy frontend, check browser console for CSP violations (Google Maps, Stripe)
+- [ ] Test: login → OAuth → market analytics → carousel on mobile

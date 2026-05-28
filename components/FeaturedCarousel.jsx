@@ -80,7 +80,13 @@ export default function FeaturedCarousel({ properties }) {
     return () => clearInterval(timer);
   }, [total, next]);
 
-  if (!properties || total === 0) return null;
+  if (!properties || total === 0) {
+    return (
+      <section className="relative w-full h-[450px] md:h-[550px] lg:h-[600px] overflow-hidden bg-ink flex items-center justify-center">
+        <p className="text-white/40 text-sm">Sin propiedades destacadas</p>
+      </section>
+    );
+  }
 
   return (
     <>

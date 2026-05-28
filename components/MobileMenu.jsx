@@ -34,7 +34,8 @@ export default function MobileMenu({
       {isAuthenticated && isAdminUser && (
         <>
           <MobileLink href="/admin/approvals" onClick={onClose} isActive={isActivePath('/admin/approvals')}>Admin</MobileLink>
-          <MobileLink href="/admin/properties" onClick={onClose} isActive={isActivePath('/admin/properties')}>Propiedades</MobileLink>
+          <MobileLink href="/admin/properties" onClick={onClose} isActive={isActivePath('/admin/properties')}>🗂️ Admin: Propiedades</MobileLink>
+          <MobileLink href="/admin/analytics/market" onClick={onClose} isActive={isActivePath('/admin/analytics/market')}>📊 Análisis de mercado</MobileLink>
           {showDebugUI && (
             <MobileLink href="/admin/debug" onClick={onClose} isActive={isActivePath('/admin/debug') || pathname?.startsWith('/admin/debug/')}>Debug</MobileLink>
           )}

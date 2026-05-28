@@ -10,6 +10,7 @@ const FIELD_DEFINITIONS = [
   { key: 'colonia', label: 'Colonia', required: true, aliases: ['colonia', 'neighborhood', 'barrio', 'col'] },
   { key: 'codigoPostal', label: 'Código Postal', required: false, aliases: ['codigopostal', 'codigo postal', 'código postal', 'cp', 'zip'] },
   { key: 'propertyType', label: 'Tipo de propiedad', required: true, aliases: ['propertytype', 'tipo de propiedad', 'tipo', 'tipo_propiedad', 'type'] },
+  { key: 'listingType', label: 'Tipo de operación', required: true, aliases: ['listingtype', 'tipo de operacion', 'tipo de operación', 'operacion', 'operación', 'venta/renta', 'ventarent', 'tipo_listado'] },
   { key: 'price', label: 'Precio (MXN)', required: false, aliases: ['price', 'precio', 'precio_mxn', 'costo'] },
   { key: 'monthlyRent', label: 'Renta mensual (MXN)', required: false, aliases: ['monthlyrent', 'renta', 'renta mensual', 'rent'] },
   { key: 'bedrooms', label: 'Recámaras', required: false, aliases: ['bedrooms', 'recamaras', 'recámaras', 'beds', 'cuartos'] },
@@ -71,6 +72,8 @@ function applyMapping(headers, rows, mapping) {
           obj[fieldKey] = ['si', 'sí', 'yes', 'true', '1', 'acepta'].includes(val.toLowerCase());
         } else if (fieldKey === 'visibility') {
           obj[fieldKey] = ['privado', 'private', 'privada'].includes(val.toLowerCase()) ? 'private' : 'public';
+        } else if (fieldKey === 'listingType') {
+          obj[fieldKey] = ['renta', 'for_rent', 'alquiler', 'arrendamiento', 'rentar', 'alquilar', 'arrendar'].includes(val.toLowerCase()) ? 'for_rent' : 'for_sale';
         } else {
           obj[fieldKey] = val || undefined;
         }

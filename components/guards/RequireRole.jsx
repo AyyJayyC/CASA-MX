@@ -17,12 +17,12 @@ export function RequireRole({ children, roles = [], allowInProduction = true }) 
   useEffect(() => {
     if (!loading && isHydrated) {
       if (!allowInProduction && isProduction) {
-        router.push('/');
+        router.replace('/');
         return;
       }
 
       if (!isAuthenticated) {
-        router.push('/login');
+        router.replace('/login');
         return;
       }
 
@@ -33,7 +33,7 @@ export function RequireRole({ children, roles = [], allowInProduction = true }) 
         );
 
         if (!hasRole) {
-          router.push('/');
+          router.replace('/');
         }
       }
     }

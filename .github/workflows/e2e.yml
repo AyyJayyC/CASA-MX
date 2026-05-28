@@ -43,7 +43,8 @@ jobs:
       - name: Checkout backend
         uses: actions/checkout@v4
         with:
-          repository: AyyJayyC/casa-mx-backend
+          repository: ${{ vars.BACKEND_REPO || 'AyyJayyC/casa-mx-backend' }}
+          ref: ${{ vars.BACKEND_REF || 'main' }}
           path: backend
 
       - name: Setup Node.js
