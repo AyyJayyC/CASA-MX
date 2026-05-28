@@ -87,6 +87,13 @@ const SECTIONS = [
     icon: '🏢',
     roles: ['seller', 'landlord', 'wholesaler', 'admin'],
   },
+  {
+    href: '/admin/analytics/market',
+    title: 'Análisis de mercado',
+    description: 'Ofertas, tendencias y oportunidades por ciudad y colonia. Solo administradores.',
+    icon: '📊',
+    roles: ['admin'],
+  },
 ];
 
 export default function DashboardPage() {

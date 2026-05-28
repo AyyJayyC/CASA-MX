@@ -196,8 +196,10 @@ npm run test:e2e:auto      # Playwright E2E (starts dev server automatically)
 - [x] Migration `.sql` file generated and marked as applied
 - [x] CSRF protection: `@fastify/csrf-protection` + frontend `x-csrf-token` header
 - [x] `sameSite: 'lax'` (strict would block cross-origin cookie sends for OAuth)
-- [x] Railway env vars documented in `.env.example` — `POSTGRES_USER`, `POSTGRES_PASSWORD`, `REDIS_PASSWORD` required
-- [ ] Set `POSTGRES_USER`, `POSTGRES_PASSWORD`, `REDIS_PASSWORD` in Railway dashboard
-- [ ] Deploy backend first, verify `/health` + `/admin/analytics/market-summary`
-- [ ] Deploy frontend, check browser console for CSP violations (Google Maps, Stripe)
-- [ ] Test: login → OAuth → market analytics → carousel on mobile
+- [x] Railway env vars: `ADMIN_EMAIL`, `MIGRATION_SECRET` set
+- [x] `prisma db push` synced all missing columns on Railway
+- [x] Bootstrap admin: `POST /admin/setup-admin` creates admin account with all roles
+- [x] Account lockout: 5 failed attempts → 15min lockout (re-enabled after DB sync)
+- [x] Backend deployed, health endpoint sanitized
+- [x] Frontend deployed, CORS whitelisted `casa-mx.com` + `www.casa-mx.com`
+- [x] Admin login verified: `5axelj@gmail.com` with all 6 roles approved
