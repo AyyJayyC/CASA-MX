@@ -115,7 +115,7 @@ export default function RegisterPage() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <form method="POST" onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* Name */}
             <div>
               <label 

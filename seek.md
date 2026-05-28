@@ -26,6 +26,33 @@ Both repos share: Zod schemas, JWT httpOnly cookie auth, Stripe integration. Fro
 6. **Prisma schema changes need migration files** — use `prisma migrate dev`, not `prisma db push`. CI needs `.sql` files.
 7. **Check Docker first for infra** — backend runs PostgreSQL + Redis + backend via Docker Compose. Check `docker compose ps` first.
 8. **Check git branch** — verify with `git status` before changes.
+9. **Test critical paths after every code change** — before pushing, verify the most vulnerable flows still work. See checklist below.
+
+### Pre-push testing checklist
+
+**If auth files changed** (`lib/api/auth.js`, `src/routes/auth.ts`, `AuthContext.jsx`, `auth.service.ts`):
+```
+curl -X POST https://api.casa-mx.com/auth/login -H "Content-Type: application/json" -d '{"email":"5axelj@gmail.com","password":"CasaMX2026!"}'
+```
+Expect 200. If 401 or 500, DO NOT PUSH.
+
+**If API wrappers changed** (`lib/api/*.js`):
+```
+npm run build    # both repos must compile
+npm test -- --run  # 77 tests must pass
+```
+
+**If forms changed** (`app/*/page.*`):
+- Verify all `<form>` elements have `method="POST"` — prevents credential leak via URL query params
+
+**After deploy:**
+```
+1. Login at casa-mx.com → role picker should appear
+2. Carousel loads on homepage (mobile too)
+3. /admin/analytics/market shows data
+4. Back button works, no redirect loops
+5. DevTools Console: no CSP violations, no CORS errors
+```
 
 See also: `docs/DEVELOPMENT_RULES.md`
 
