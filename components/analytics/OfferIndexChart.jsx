@@ -20,6 +20,13 @@ function CustomTooltip({ active, payload, label }) {
 }
 
 export default function OfferIndexChart({ data, loading }) {
+  const chartData = useMemo(() =>
+    data && data.length > 0
+      ? [...data].sort((a, b) => b.medianOfferPerSqm - a.medianOfferPerSqm).slice(0, 12)
+      : [],
+    [data]
+  );
+
   if (loading) {
     return (
       <div className="p-5 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl animate-pulse">
@@ -29,7 +36,7 @@ export default function OfferIndexChart({ data, loading }) {
     );
   }
 
-  if (!data || data.length === 0) {
+  if (chartData.length === 0) {
     return (
       <div className="p-5 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl">
         <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-2">Índice de Oferta por m²</h2>
@@ -37,13 +44,6 @@ export default function OfferIndexChart({ data, loading }) {
       </div>
     );
   }
-
-  const chartData = useMemo(() =>
-    [...data]
-      .sort((a, b) => b.medianOfferPerSqm - a.medianOfferPerSqm)
-      .slice(0, 12),
-    [data]
-  );
 
   return (
     <div className="p-5 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl">

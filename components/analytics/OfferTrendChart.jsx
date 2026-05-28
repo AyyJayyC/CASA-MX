@@ -20,6 +20,31 @@ function CustomTooltip({ active, payload, label }) {
 }
 
 export default function OfferTrendChart({ trends, loading, error }) {
+  const { chartData, dataKeys, allZero } = useMemo(() => {
+    if (!trends || trends.length === 0) return { chartData: [], dataKeys: [], allZero: true };
+    const maxMonths = Math.max(...trends.map((t) => t.values?.length || 0));
+    const rawKeys = trends.map((t, i) => t.label || t.colonia || t.ciudad || `Serie ${i + 1}`);
+    const seen = {};
+    const keys = rawKeys.map((k, i) => {
+      if (!seen[k]) { seen[k] = 1; return k; }
+      seen[k]++;
+      return `${k} (${seen[k]})`;
+    });
+
+    const data = [];
+    for (let i = 0; i < maxMonths; i++) {
+      const point = {};
+      trends.forEach((t, ti) => {
+        if (t.dates?.[i]) point.month = t.dates[i];
+        point[keys[ti]] = t.values?.[i];
+      });
+      if (Object.keys(point).length > 1) data.push(point);
+    }
+
+    const allZero = keys.every((k) => data.every((d) => !d[k]));
+    return { chartData: data, dataKeys: keys, allZero };
+  }, [trends]);
+
   if (loading) {
     return (
       <div className="p-5 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl animate-pulse">
@@ -46,31 +71,6 @@ export default function OfferTrendChart({ trends, loading, error }) {
       </div>
     );
   }
-
-  const { chartData, dataKeys, allZero } = useMemo(() => {
-    const maxMonths = Math.max(...trends.map((t) => t.values?.length || 0));
-    const rawKeys = trends.map((t, i) => t.label || t.colonia || t.ciudad || `Serie ${i + 1}`);
-    const seen = {};
-    const keys = rawKeys.map((k, i) => {
-      if (!seen[k]) { seen[k] = 1; return k; }
-      seen[k]++;
-      return `${k} (${seen[k]})`;
-    });
-
-    const data = [];
-    for (let i = 0; i < maxMonths; i++) {
-      const point = {};
-      trends.forEach((t, ti) => {
-        if (t.dates?.[i]) point.month = t.dates[i];
-        point[keys[ti]] = t.values?.[i];
-      });
-      if (Object.keys(point).length > 1) data.push(point);
-    }
-
-    const allZero = keys.every((k) => data.every((d) => !d[k]));
-
-    return { chartData: data, dataKeys: keys, allZero };
-  }, [trends]);
 
   if (chartData.length === 0 || allZero) {
     return (

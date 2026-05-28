@@ -20,6 +20,26 @@ export default function CityMarketTable({ cities, loading, onDrilldown, listingT
   const [sortKey, setSortKey] = useState('activeListings');
   const [sortDir, setSortDir] = useState('desc');
 
+  const handleSort = useCallback((key) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'));
+    } else {
+      setSortKey(key);
+      setSortDir('desc');
+    }
+  }, [sortKey]);
+
+  const sorted = useMemo(() =>
+    (cities || []).length > 0
+      ? [...cities].sort((a, b) => {
+          const va = a[sortKey] ?? 0;
+          const vb = b[sortKey] ?? 0;
+          return sortDir === 'desc' ? vb - va : va - vb;
+        })
+      : [],
+    [cities, sortKey, sortDir]
+  );
+
   if (loading) {
     return (
       <div className="p-5 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl animate-pulse">
@@ -41,24 +61,6 @@ export default function CityMarketTable({ cities, loading, onDrilldown, listingT
       </div>
     );
   }
-
-  const handleSort = useCallback((key) => {
-    if (sortKey === key) {
-      setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'));
-    } else {
-      setSortKey(key);
-      setSortDir('desc');
-    }
-  }, [sortKey]);
-
-  const sorted = useMemo(() =>
-    [...cities].sort((a, b) => {
-      const va = a[sortKey] ?? 0;
-      const vb = b[sortKey] ?? 0;
-      return sortDir === 'desc' ? vb - va : va - vb;
-    }),
-    [cities, sortKey, sortDir]
-  );
 
   return (
     <div className="p-5 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl">
