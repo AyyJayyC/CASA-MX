@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth/useAuth';
-import { getMyProperties, updateProperty, deleteProperty } from '@/lib/api/properties';
+import { getMyProperties, updateProperty } from '@/lib/api/properties';
 import { formatCurrency, formatNumber } from '@/lib/utils/format';
 
 const SALE_RENT_LABELS = { for_sale: 'Venta', for_rent: 'Renta' };
@@ -29,26 +29,19 @@ const RETIRE_REASONS = [
 const REASON_LABELS = Object.fromEntries(RETIRE_REASONS.map(r => [r.value, r.label]));
 const REASON_COLORS = Object.fromEntries(RETIRE_REASONS.map(r => [r.value, r.color]));
 
-function RetireModal({ propertyId, propertyTitle, onClose, onDone, mode = 'retire' }) {
+function RetireModal({ propertyId, propertyTitle, onClose, onDone }) {
   const [reason, setReason] = useState('');
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
 
-  const isDelete = mode === 'delete';
-
-  const handleAction = async () => {
+  const handleRetire = async () => {
     setSaving(true);
     try {
-      const notes = JSON.stringify({ retiredReason: reason, retiredNote: note, retiredAt: new Date().toISOString() });
-      if (isDelete) {
-        await deleteProperty(propertyId);
-      } else {
-        await updateProperty(propertyId, {
-          status: 'retirado',
-          visibility: 'private',
-          inventoryNotes: notes,
-        });
-      }
+      await updateProperty(propertyId, {
+        status: 'retirado',
+        visibility: 'private',
+        inventoryNotes: JSON.stringify({ retiredReason: reason, retiredNote: note, retiredAt: new Date().toISOString() }),
+      });
       onDone(propertyId);
     } catch { setSaving(false); }
   };
@@ -56,9 +49,7 @@ function RetireModal({ propertyId, propertyTitle, onClose, onDone, mode = 'retir
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-xl max-w-md w-full p-6 space-y-4">
-        <h3 className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
-          {isDelete ? '¿Por qué eliminas esta propiedad?' : '¿Por qué retiras esta propiedad?'}
-        </h3>
+        <h3 className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">¿Por qué retiras esta propiedad?</h3>
         <p className="text-xs text-neutral-400 truncate">{propertyTitle}</p>
 
         <div className="space-y-1.5">
@@ -84,9 +75,9 @@ function RetireModal({ propertyId, propertyTitle, onClose, onDone, mode = 'retir
 
         <div className="flex gap-2">
           <button onClick={onClose} className="flex-1 px-4 py-2 text-xs font-medium border border-neutral-300 dark:border-neutral-600 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">Cancelar</button>
-          <button onClick={handleAction} disabled={!reason || saving}
+          <button onClick={handleRetire} disabled={!reason || saving}
             className="flex-1 px-4 py-2 text-xs font-medium bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white rounded-lg transition-colors">
-            {saving ? (isDelete ? 'Eliminando...' : 'Retirando...') : (isDelete ? 'Eliminar propiedad' : 'Retirar propiedad')}
+            {saving ? 'Retirando...' : 'Retirar propiedad'}
           </button>
         </div>
       </div>
@@ -134,10 +125,10 @@ function DraftCard({ property, onRetire }) {
           Completar
         </Link>
         <button
-          onClick={() => onRetire(property, 'delete')}
+          onClick={() => onRetire(property)}
           className="px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg transition-colors"
         >
-          Eliminar
+          Retirar
         </button>
       </div>
     </div>
@@ -170,7 +161,7 @@ function PropertyCard({ property, onRetire }) {
           Ver detalles →
         </Link>
         {property.status !== 'retirado' && (
-          <button onClick={() => onRetire(property, 'retire')}
+          <button onClick={() => onRetire(property)}
             className="ml-auto px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg transition-colors">
             Retirar
           </button>
@@ -186,9 +177,9 @@ export default function MyPropertiesPage() {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [retireTarget, setRetireTarget] = useState(null); // { property, mode }
+  const [retireTarget, setRetireTarget] = useState(null);
 
-  const handleOpenRetire = (property, mode) => setRetireTarget({ property, mode });
+  const handleOpenRetire = (property) => setRetireTarget(property);
 
   useEffect(() => {
     if (!isAuthenticated || !user) return;
@@ -260,9 +251,8 @@ export default function MyPropertiesPage() {
 
       {retireTarget && (
         <RetireModal
-          propertyId={retireTarget.property.id}
-          propertyTitle={retireTarget.property.title}
-          mode={retireTarget.mode}
+          propertyId={retireTarget.id}
+          propertyTitle={retireTarget.title}
           onClose={() => setRetireTarget(null)}
           onDone={handleRetireDone}
         />
