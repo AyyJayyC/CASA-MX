@@ -174,10 +174,11 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
             <ul className="max-h-80 overflow-y-auto text-sm space-y-1">
               {results.errors.map((e, i) => (
                 <li key={i} className={`px-3 py-1.5 rounded ${
+                  e.status === 'reactivated' ? 'bg-blue-50 dark:bg-blue-900/10 text-blue-700 dark:text-blue-400' :
                   e.status === 'incomplete' ? 'bg-amber-50 dark:bg-amber-900/10 text-amber-700 dark:text-amber-400' :
                   'bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400'
                 }`}>
-                  <span className="mr-1">{e.status === 'incomplete' ? '⚠️' : '❌'}</span>
+                  <span className="mr-1">{e.status === 'reactivated' ? '♻️' : e.status === 'incomplete' ? '⚠️' : '❌'}</span>
                   <strong>{e.title}:</strong> {e.error}
                 </li>
               ))}
