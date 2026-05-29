@@ -147,22 +147,35 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
   };
 
   if (step === 4 && results) {
+    const total = results.created + (results.incomplete || 0) + results.failed;
     return (
       <div className="space-y-6">
         <div className="text-center py-8">
-          <div className="text-5xl mb-4">✅</div>
+          <div className="text-5xl mb-4">{results.failed > 0 ? '📋' : '✅'}</div>
           <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">Importación completada</h2>
+          <p className="text-sm text-neutral-500 mb-2">{total} propiedades procesadas</p>
           <div className="flex justify-center gap-6 mt-4">
-            <div className="text-center"><p className="text-3xl font-bold text-green-600">{results.created}</p><p className="text-sm text-neutral-500">Creadas</p></div>
-            {results.updated > 0 && <div className="text-center"><p className="text-3xl font-bold text-blue-600">{results.updated}</p><p className="text-sm text-neutral-500">Actualizadas</p></div>}
-            <div className="text-center"><p className="text-3xl font-bold text-red-600">{results.failed}</p><p className="text-sm text-neutral-500">Fallidas</p></div>
+            <div className="text-center"><p className="text-3xl font-bold text-green-600">{results.created}</p><p className="text-sm text-neutral-500">Completas</p></div>
+            {results.incomplete > 0 && <div className="text-center"><p className="text-3xl font-bold text-amber-600">{results.incomplete}</p><p className="text-sm text-neutral-500">Borrador</p></div>}
+            {results.failed > 0 && <div className="text-center"><p className="text-3xl font-bold text-red-600">{results.failed}</p><p className="text-sm text-neutral-500">Fallidas</p></div>}
           </div>
+          {results.incomplete > 0 && (
+            <p className="text-xs text-neutral-400 mt-3">Las propiedades en borrador son privadas y no aparecen en búsquedas. Complétalas desde tu panel.</p>
+          )}
         </div>
         {results.errors.length > 0 && (
-          <div className="p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg">
-            <h3 className="text-sm font-semibold text-red-700 dark:text-red-400 mb-2">Errores</h3>
-            <ul className="text-sm text-red-600 dark:text-red-400 space-y-1">
-              {results.errors.map((e, i) => <li key={i}><strong>{e.title}:</strong> {e.error}</li>)}
+          <div className="p-4 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg">
+            <h3 className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">Detalles</h3>
+            <ul className="max-h-80 overflow-y-auto text-sm space-y-1">
+              {results.errors.map((e, i) => (
+                <li key={i} className={`px-3 py-1.5 rounded ${
+                  e.status === 'incomplete' ? 'bg-amber-50 dark:bg-amber-900/10 text-amber-700 dark:text-amber-400' :
+                  'bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400'
+                }`}>
+                  <span className="mr-1">{e.status === 'incomplete' ? '⚠️' : '❌'}</span>
+                  <strong>{e.title}:</strong> {e.error}
+                </li>
+              ))}
             </ul>
           </div>
         )}
