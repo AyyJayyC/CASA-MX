@@ -16,8 +16,8 @@ export default function ImportPage() {
 function ImportContent() {
   const router = useRouter();
 
-  const handleSubmit = async (rows) => {
-    return bulkImportProperties(rows, 'private');
+  const handleSubmit = async (rows, onProgress) => {
+    return bulkImportProperties(rows, 'private', onProgress);
   };
 
   return (
