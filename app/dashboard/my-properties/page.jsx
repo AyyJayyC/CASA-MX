@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth/useAuth';
-import { getMyProperties } from '@/lib/api/properties';
+import { getMyProperties, deleteProperty } from '@/lib/api/properties';
 import { formatCurrency, formatNumber } from '@/lib/utils/format';
 
 const SALE_RENT_LABELS = { for_sale: 'Venta', for_rent: 'Renta' };
@@ -15,7 +15,7 @@ const TABS = [
   { key: 'rentado', label: 'Rentadas' },
 ];
 
-function DraftCard({ property }) {
+function DraftCard({ property, onDelete }) {
   let warnings = [];
   try { warnings = JSON.parse(property.inventoryNotes || '{}')?.warnings || []; } catch {}
   const photoCount = property.imageUrls?.length || 0;
@@ -54,6 +54,12 @@ function DraftCard({ property }) {
         >
           Completar
         </Link>
+        <button
+          onClick={() => onDelete(property.id)}
+          className="px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg transition-colors"
+        >
+          Eliminar
+        </button>
       </div>
     </div>
   );
@@ -124,6 +130,14 @@ export default function MyPropertiesPage() {
   const drafts = properties.filter(p => p.status === 'incompleto');
   const published = properties.filter(p => p.status !== 'incompleto');
 
+  const handleDelete = async (id) => {
+    if (!confirm('¿Eliminar esta propiedad?')) return;
+    try {
+      await deleteProperty(id);
+      setProperties(p => p.filter(prop => prop.id !== id));
+    } catch {}
+  };
+
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 p-4 sm:p-6 space-y-5">
       <div>
@@ -174,7 +188,7 @@ export default function MyPropertiesPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {properties.map(p =>
             p.status === 'incompleto'
-              ? <DraftCard key={p.id} property={p} />
+              ? <DraftCard key={p.id} property={p} onDelete={handleDelete} />
               : <PropertyCard key={p.id} property={p} />
           )}
         </div>
