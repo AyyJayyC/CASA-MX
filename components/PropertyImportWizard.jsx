@@ -67,7 +67,11 @@ function applyMapping(headers, rows, mapping) {
       const field = FIELD_DEFINITIONS.find(f => f.key === fieldKey);
       if (field) {
         if (['price', 'monthlyRent', 'bedrooms', 'bathrooms', 'squareMeters', 'lotSize', 'parkingSpaces', 'halfBaths', 'floors', 'yearBuilt', 'maintenanceFee'].includes(fieldKey)) {
-          obj[fieldKey] = val ? Number(val) : undefined;
+          if (!val) {
+            obj[fieldKey] = ['bedrooms', 'bathrooms'].includes(fieldKey) ? 0 : fieldKey === 'squareMeters' ? 1 : undefined;
+          } else {
+            obj[fieldKey] = Number(val);
+          }
         } else if (fieldKey === 'petFriendly') {
           obj[fieldKey] = ['si', 'sí', 'yes', 'true', '1', 'acepta'].includes(val.toLowerCase());
         } else if (fieldKey === 'visibility') {
