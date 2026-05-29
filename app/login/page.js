@@ -223,8 +223,7 @@ export default function LoginPage() {
 
             {/* Submit */}
             <button
-              type="button"
-              onClick={handleSubmit(onSubmit)}
+              type="submit"
               disabled={isSubmitting}
               className="
                 w-full py-3 mt-2
