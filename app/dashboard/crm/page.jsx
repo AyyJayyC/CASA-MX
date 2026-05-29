@@ -20,6 +20,25 @@ const PIPELINE_COLUMNS = [
 
 const SALE_RENT = { for_sale: 'Venta', for_rent: 'Renta' };
 
+const RETIRE_REASONS = {
+  precio_alto: { label: 'Precio fuera de mercado', color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' },
+  sin_interes: { label: 'Falta de interés', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400' },
+  vendida_fuera: { label: 'Se vendió por fuera', color: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' },
+  retirada_dueno: { label: 'El propietario desistió', color: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' },
+  duplicada: { label: 'Registro duplicado', color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' },
+  datos_erroneos: { label: 'Datos erróneos', color: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300' },
+  captacion_termino: { label: 'Captación se terminó (180 días)', color: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300' },
+  otro: { label: 'Otro motivo', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400' },
+};
+
+function getRetiredReason(p) {
+  try {
+    const notes = JSON.parse(p.inventoryNotes || '{}');
+    if (notes.retiredReason) return RETIRE_REASONS[notes.retiredReason] || null;
+  } catch {}
+  return null;
+}
+
 const MONTHS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
 // ─── Pipeline Board ─────────────────────────────────────────────────
@@ -48,16 +67,23 @@ function PipelineBoard({ properties, loading }) {
               <span className="text-xs text-neutral-400">{byStatus[col.status]?.length || 0}</span>
             </div>
             <div className="space-y-2 max-h-[500px] overflow-y-auto">
-              {(byStatus[col.status] || []).map(p => (
+              {(byStatus[col.status] || []).map(p => {
+                const retired = col.status === 'retirado' ? getRetiredReason(p) : null;
+                return (
                 <Link key={p.id} href={`/properties/${p.id}`} className="block p-2.5 bg-neutral-50 dark:bg-neutral-800 rounded-lg hover:shadow-sm transition-shadow border border-transparent hover:border-clay/30">
                   <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200 truncate">{p.title}</p>
                   <p className="text-[11px] text-neutral-400 truncate">{p.colonia}{p.ciudad ? `, ${p.ciudad}` : ''}</p>
                   <p className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 mt-1">
                     {p.listingType === 'for_sale' ? formatCurrency(p.price) : `${formatCurrency(p.monthlyRent)}/mes`}
                   </p>
-                  <p className="text-[10px] text-neutral-400">{SALE_RENT[p.listingType] || ''} · {formatNumber(p.squareMeters)}m² · {(p.imageUrls?.length || 0)} fotos</p>
+                  {retired ? (
+                    <span className={`inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${retired.color}`}>{retired.label}</span>
+                  ) : (
+                    <p className="text-[10px] text-neutral-400">{SALE_RENT[p.listingType] || ''} · {formatNumber(p.squareMeters)}m² · {(p.imageUrls?.length || 0)} fotos</p>
+                  )}
                 </Link>
-              ))}
+                );
+              })}
               {(byStatus[col.status] || []).length === 0 && <p className="text-xs text-neutral-400 text-center py-4">Vacío</p>}
             </div>
           </div>

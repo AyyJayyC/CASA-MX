@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth/useAuth';
-import { getMyProperties, deleteProperty } from '@/lib/api/properties';
+import { getMyProperties, updateProperty } from '@/lib/api/properties';
 import { formatCurrency, formatNumber } from '@/lib/utils/format';
 
 const SALE_RENT_LABELS = { for_sale: 'Venta', for_rent: 'Renta' };
@@ -15,7 +15,79 @@ const TABS = [
   { key: 'rentado', label: 'Rentadas' },
 ];
 
-function DraftCard({ property, onDelete }) {
+const RETIRE_REASONS = [
+  { value: 'precio_alto', label: 'Precio fuera de mercado', color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' },
+  { value: 'sin_interes', label: 'Falta de interés', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400' },
+  { value: 'vendida_fuera', label: 'Se vendió por fuera', color: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' },
+  { value: 'retirada_dueno', label: 'El propietario desistió', color: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' },
+  { value: 'duplicada', label: 'Registro duplicado', color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' },
+  { value: 'datos_erroneos', label: 'Datos erróneos', color: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300' },
+  { value: 'captacion_termino', label: 'Captación se terminó (180 días)', color: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300' },
+  { value: 'otro', label: 'Otro motivo', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400' },
+];
+
+const REASON_LABELS = Object.fromEntries(RETIRE_REASONS.map(r => [r.value, r.label]));
+const REASON_COLORS = Object.fromEntries(RETIRE_REASONS.map(r => [r.value, r.color]));
+
+function RetireModal({ propertyId, propertyTitle, onClose, onDone }) {
+  const [reason, setReason] = useState('');
+  const [note, setNote] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const handleRetire = async () => {
+    setSaving(true);
+    try {
+      await updateProperty(propertyId, {
+        status: 'retirado',
+        visibility: 'private',
+        inventoryNotes: JSON.stringify({ retiredReason: reason, retiredNote: note, retiredAt: new Date().toISOString() }),
+      });
+      onDone(propertyId);
+    } catch { setSaving(false); }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-xl max-w-md w-full p-6 space-y-4">
+        <h3 className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">¿Por qué retiras esta propiedad?</h3>
+        <p className="text-xs text-neutral-400 truncate">{propertyTitle}</p>
+
+        <div className="space-y-1.5">
+          {RETIRE_REASONS.map(r => (
+            <label key={r.value} className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-colors text-xs ${
+              reason === r.value
+                ? 'border-clay bg-clay/5 dark:bg-clay/10 dark:border-clay-400'
+                : 'border-neutral-200 dark:border-neutral-700 hover:border-clay/50'
+            }`}>
+              <input type="radio" name="retire-reason" value={r.value} checked={reason === r.value} onChange={e => setReason(e.target.value)} className="accent-clay" />
+              {r.label}
+            </label>
+          ))}
+        </div>
+
+        <textarea
+          placeholder="Notas adicionales (opcional)"
+          rows={2}
+          value={note}
+          onChange={e => setNote(e.target.value)}
+          className="w-full px-3 py-2 text-xs border border-neutral-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100"
+        />
+
+        <div className="flex gap-2">
+          <button onClick={onClose} className="flex-1 px-4 py-2 text-xs font-medium border border-neutral-300 dark:border-neutral-600 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
+            Cancelar
+          </button>
+          <button onClick={handleRetire} disabled={!reason || saving}
+            className="flex-1 px-4 py-2 text-xs font-medium bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white rounded-lg transition-colors">
+            {saving ? 'Retirando...' : 'Retirar propiedad'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DraftCard({ property, onRetire }) {
   let warnings = [];
   try { warnings = JSON.parse(property.inventoryNotes || '{}')?.warnings || []; } catch {}
   const photoCount = property.imageUrls?.length || 0;
@@ -55,10 +127,10 @@ function DraftCard({ property, onDelete }) {
           Completar
         </Link>
         <button
-          onClick={() => onDelete(property.id)}
+          onClick={() => onRetire(property)}
           className="px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg transition-colors"
         >
-          Eliminar
+          Retirar
         </button>
       </div>
     </div>
@@ -78,7 +150,6 @@ function PropertyCard({ property }) {
           {property.status === 'disponible' ? '✅ Publicada' : property.status}
         </span>
       </div>
-
       <div className="flex items-center gap-3 text-xs text-neutral-600 dark:text-neutral-400">
         <span>{SALE_RENT_LABELS[property.listingType] || 'Venta'}</span>
         {property.listingType === 'for_sale' && <span className="font-medium">{formatCurrency(property.price)}</span>}
@@ -86,11 +157,8 @@ function PropertyCard({ property }) {
         <span>{formatNumber(property.squareMeters)} m²</span>
         <span>{photoCount} fotos</span>
       </div>
-
-      <Link
-        href={`/properties/${property.id}`}
-        className="inline-block text-xs font-medium text-clay hover:text-clay-500 transition-colors"
-      >
+      <Link href={`/properties/${property.id}`}
+        className="inline-block text-xs font-medium text-clay hover:text-clay-500 transition-colors">
         Ver detalles →
       </Link>
     </div>
@@ -103,25 +171,25 @@ export default function MyPropertiesPage() {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [retireTarget, setRetireTarget] = useState(null);
 
   useEffect(() => {
     if (!isAuthenticated || !user) return;
     setLoading(true);
     setError(null);
-
     const filters = { limit: 100 };
-    if (tab === 'incompleto') {
-      filters.status = 'incompleto';
-      filters.visibility = 'private';
-    } else if (tab) {
-      filters.status = tab;
-    }
-
+    if (tab === 'incompleto') { filters.status = 'incompleto'; filters.visibility = 'private'; }
+    else if (tab) { filters.status = tab; }
     getMyProperties(filters)
       .then(data => setProperties(data || []))
       .catch(() => setError('No se pudieron cargar tus propiedades'))
       .finally(() => setLoading(false));
   }, [isAuthenticated, user, tab]);
+
+  const handleRetireDone = (id) => {
+    setProperties(p => p.filter(prop => prop.id !== id));
+    setRetireTarget(null);
+  };
 
   if (!isAuthenticated) {
     return <div className="p-10 text-center text-neutral-500">Inicia sesión para ver tus propiedades.</div>;
@@ -130,68 +198,56 @@ export default function MyPropertiesPage() {
   const drafts = properties.filter(p => p.status === 'incompleto');
   const published = properties.filter(p => p.status !== 'incompleto');
 
-  const handleDelete = async (id) => {
-    if (!confirm('¿Eliminar esta propiedad?')) return;
-    try {
-      await deleteProperty(id);
-      setProperties(p => p.filter(prop => prop.id !== id));
-    } catch {}
-  };
-
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 p-4 sm:p-6 space-y-5">
       <div>
         <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">Mis Propiedades</h1>
-        <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
-          {properties.length} {properties.length === 1 ? 'propiedad' : 'propiedades'}
-        </p>
+        <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">{properties.length} {properties.length === 1 ? 'propiedad' : 'propiedades'}</p>
       </div>
 
       <div className="flex gap-1 overflow-x-auto pb-1">
         {TABS.map(t => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
+          <button key={t.key} onClick={() => setTab(t.key)}
             className={`shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               tab === t.key
                 ? 'bg-clay text-white shadow-sm'
                 : 'bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:border-clay'
-            }`}
-          >
+            }`}>
             {t.label}
             {t.key === 'incompleto' && drafts.length > 0 && ` (${drafts.length})`}
           </button>
         ))}
       </div>
 
-      {error && (
-        <div className="p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">
-          {error}
-        </div>
-      )}
+      {error && <div className="p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">{error}</div>}
 
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-36 bg-neutral-100 dark:bg-neutral-800 rounded-xl animate-pulse" />
-          ))}
+          {Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-36 bg-neutral-100 dark:bg-neutral-800 rounded-xl animate-pulse" />)}
         </div>
       ) : properties.length === 0 ? (
         <div className="text-center py-16 text-neutral-400">
           <p className="text-4xl mb-3">🏠</p>
           <p className="font-medium text-neutral-600 dark:text-neutral-400">No tienes propiedades aún.</p>
-          <Link href="/publish-property" className="text-sm text-clay hover:underline mt-2 inline-block">
-            Publicar primera propiedad
-          </Link>
+          <Link href="/publish-property" className="text-sm text-clay hover:underline mt-2 inline-block">Publicar primera propiedad</Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {properties.map(p =>
             p.status === 'incompleto'
-              ? <DraftCard key={p.id} property={p} onDelete={handleDelete} />
+              ? <DraftCard key={p.id} property={p} onRetire={setRetireTarget} />
               : <PropertyCard key={p.id} property={p} />
           )}
         </div>
+      )}
+
+      {retireTarget && (
+        <RetireModal
+          propertyId={retireTarget.id}
+          propertyTitle={retireTarget.title}
+          onClose={() => setRetireTarget(null)}
+          onDone={handleRetireDone}
+        />
       )}
     </div>
   );
