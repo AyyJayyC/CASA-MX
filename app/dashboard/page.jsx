@@ -88,6 +88,20 @@ const SECTIONS = [
     roles: ['seller', 'landlord', 'wholesaler', 'admin'],
   },
   {
+    href: '/dashboard/my-properties',
+    title: 'Mis propiedades',
+    description: 'Administra tus propiedades, completa borradores y publica.',
+    icon: '🏘️',
+    roles: ['seller', 'wholesaler', 'landlord', 'admin'],
+  },
+  {
+    href: '/properties/import',
+    title: 'Importar propiedades',
+    description: 'Importa propiedades desde Excel en lote.',
+    icon: '📥',
+    roles: ['seller', 'wholesaler', 'admin'],
+  },
+  {
     href: '/admin/analytics/market',
     title: 'Análisis de mercado',
     description: 'Ofertas, tendencias y oportunidades por ciudad y colonia. Solo administradores.',
