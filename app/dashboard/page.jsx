@@ -95,6 +95,13 @@ const SECTIONS = [
     roles: ['seller', 'wholesaler', 'landlord', 'admin'],
   },
   {
+    href: '/dashboard/crm',
+    title: 'CRM',
+    description: 'Pipeline de ventas, calendario y lista de compradores.',
+    icon: '📊',
+    roles: ['seller', 'wholesaler', 'landlord', 'admin'],
+  },
+  {
     href: '/properties/import',
     title: 'Importar propiedades',
     description: 'Importa propiedades desde Excel en lote.',
