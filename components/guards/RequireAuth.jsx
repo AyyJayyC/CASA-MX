@@ -15,7 +15,7 @@ export function RequireAuth({ children }) {
 
   useEffect(() => {
     if (!loading && isHydrated && !isAuthenticated) {
-      router.push('/login');
+      router.replace('/login');
     }
   }, [loading, isHydrated, isAuthenticated, router]);
 

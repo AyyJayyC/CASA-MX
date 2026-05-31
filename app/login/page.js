@@ -5,8 +5,8 @@
  * Purpose: Authenticate user with email and select active role
  */
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -28,13 +28,24 @@ const roleDescriptions = {
   admin: 'Administrar la plataforma',
 };
 
-export default function LoginPage() {
+export default function LoginPageWrapper() {
+  return (
+    <Suspense fallback={null}>
+      <LoginPage />
+    </Suspense>
+  );
+}
+
+function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login, switchRole, isAuthenticated, user } = useAuth();
   const [socialError, setSocialError] = useState(null);
   const [loginError, setLoginError] = useState(null);
+  const [registeredMessage, setRegisteredMessage] = useState(null);
   const [pendingRoles, setPendingRoles] = useState(null);
   const [selectingRole, setSelectingRole] = useState(false);
+  const [loggingIn, setLoggingIn] = useState(false);
   const {
     register,
     handleSubmit,
@@ -44,13 +55,21 @@ export default function LoginPage() {
   });
 
   useEffect(() => {
-    if (isAuthenticated && !pendingRoles) {
-      router.push('/');
+    if (searchParams.get('registered') === 'true') {
+      const msg = searchParams.get('message');
+      if (msg) setRegisteredMessage(decodeURIComponent(msg));
     }
-  }, [isAuthenticated, pendingRoles, router]);
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (isAuthenticated && !pendingRoles && !loggingIn) {
+      router.replace('/');
+    }
+  }, [isAuthenticated, pendingRoles, router, loggingIn]);
 
   const onSubmit = async (data) => {
     setLoginError(null);
+    setLoggingIn(true);
     try {
       const result = await login({ email: data.email, password: data.password });
 
@@ -145,7 +164,13 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <form method="POST" onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            {/* Registration success message */}
+            {registeredMessage && (
+              <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                <p className="text-sm text-green-700 dark:text-green-400">{registeredMessage}</p>
+              </div>
+            )}
             {/* Email */}
             <div>
               <label 

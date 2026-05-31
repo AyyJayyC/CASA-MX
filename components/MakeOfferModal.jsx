@@ -2,6 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { submitPropertyOffer } from '../lib/api/offers.js';
 import { FINANCING_OPTIONS } from '@/lib/constants/financing';
+import MoneyInput from './MoneyInput';
 
 export default function MakeOfferModal({ propertyId, askingPrice }) {
   const [open, setOpen] = useState(false);
@@ -10,7 +11,7 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
   const [error, setError] = useState(null);
 
   const [form, setForm] = useState({
-    offerAmount:  askingPrice ? String(askingPrice) : '',
+    offerAmount:  askingPrice || 0,
     financing:    '',
     closingDate:  '',
     message:      '',
@@ -18,7 +19,7 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
     buyerEmail:   '',
     buyerPhone:   '',
     // payment plan
-    enganche:     '',
+    enganche:     0,
     plazoMeses:   '',
   });
 
@@ -29,8 +30,8 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
   // Auto-calculate monthly payment (simple, no interest)
   const cuotaMensual = useMemo(() => {
     if (form.financing !== 'paymentPlan') return null;
-    const offer    = parseFloat(form.offerAmount);
-    const enganche = parseFloat(form.enganche) || 0;
+    const offer    = form.offerAmount || 0;
+    const enganche = form.enganche || 0;
     const plazo    = parseInt(form.plazoMeses, 10);
     if (!offer || !plazo || plazo <= 0) return null;
     const saldo = offer - enganche;
@@ -49,7 +50,7 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
     setLoading(true);
     try {
       await submitPropertyOffer(propertyId, {
-        offerAmount: parseFloat(form.offerAmount),
+        offerAmount: form.offerAmount,
         financing: form.financing,
         closingDate: form.closingDate || undefined,
         message: form.message || undefined,
@@ -57,7 +58,7 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
         buyerEmail: form.buyerEmail,
         buyerPhone: form.buyerPhone,
         // payment plan
-        enganche:     form.enganche   ? parseFloat(form.enganche)     : undefined,
+        enganche:     form.enganche > 0 ? form.enganche : undefined,
         plazoMeses:   form.plazoMeses ? parseInt(form.plazoMeses, 10) : undefined,
         cuotaMensual: cuotaMensual    ?? undefined,
       });
@@ -171,13 +172,9 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
                     <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
                       Tu oferta (MXN) <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="number"
-                      name="offerAmount"
+                    <MoneyInput
                       value={form.offerAmount}
-                      onChange={handleChange}
-                      required
-                      min={1}
+                      onChange={(num) => setForm((prev) => ({ ...prev, offerAmount: num ?? 0 }))}
                       placeholder="Ej. 2500000"
                       className={inputClass}
                     />
@@ -214,9 +211,9 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
                         <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
                           Enganche / Pago inicial (MXN)
                         </label>
-                        <input
-                          type="number" name="enganche" value={form.enganche}
-                          onChange={handleChange} min={0}
+                        <MoneyInput
+                          value={form.enganche}
+                          onChange={(num) => setForm((prev) => ({ ...prev, enganche: num ?? 0 }))}
                           placeholder="Ej. 500000"
                           className={inputClass}
                         />

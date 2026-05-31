@@ -25,7 +25,7 @@ export default class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     // Store error details
-    const errorId = Math.random().toString(36).substr(2, 9);
+    const errorId = Math.random().toString(36).substring(2, 11);
     
     this.setState({
       error,

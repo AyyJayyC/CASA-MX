@@ -37,7 +37,7 @@ export function RequireRole({ children, roles = [], allowInProduction = true }) 
         }
       }
     }
-  }, [loading, isHydrated, isAuthenticated, user, roles, router, allowInProduction, isProduction]);
+  }, [loading, isHydrated, isAuthenticated, user, router, allowInProduction, isProduction]);
 
   if (loading || !isHydrated) {
     return <div className="text-center py-12">Cargando...</div>;

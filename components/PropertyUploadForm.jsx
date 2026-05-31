@@ -386,6 +386,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
       const res = await fetch(`${BACKEND_URL}/maps/geocode`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ address: description }),
       });
       const payload = await res.json().catch(() => null);
@@ -947,7 +948,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                           sessionTokenRef.current = crypto.randomUUID();
                         }
                         const params = new URLSearchParams({ input: v, sessionToken: sessionTokenRef.current });
-                        const r = await fetch(`${BACKEND_URL}/maps/autocomplete?${params}`);
+                        const r = await fetch(`${BACKEND_URL}/maps/autocomplete?${params}`, { credentials: 'include' });
                         const payload = await r.json().catch(() => null);
                         if (!r.ok) {
                           throw new Error(getMapsErrorMessage(payload, 'No se pudo autocompletar la direccion.'));

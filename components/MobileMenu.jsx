@@ -23,10 +23,6 @@ export default function MobileMenu({
     <div className="md:hidden border-t border-neutral-200 dark:border-neutral-800 py-4 space-y-2">
       <MobileLink href="/properties" onClick={onClose} isActive={isActivePath('/properties')}>Propiedades</MobileLink>
 
-      {isAuthenticated && canPublish && (
-        <MobileLink href="/properties/import" onClick={onClose} isActive={isActivePath('/properties/import')}>📥 Importar propiedades</MobileLink>
-      )}
-
       {isAuthenticated && (
         <MobileLink href="/dashboard" onClick={onClose} isActive={pathname?.startsWith('/dashboard')}>Inicio</MobileLink>
       )}
@@ -34,8 +30,7 @@ export default function MobileMenu({
       {isAuthenticated && isAdminUser && (
         <>
           <MobileLink href="/admin/approvals" onClick={onClose} isActive={isActivePath('/admin/approvals')}>Admin</MobileLink>
-          <MobileLink href="/admin/properties" onClick={onClose} isActive={isActivePath('/admin/properties')}>🗂️ Admin: Propiedades</MobileLink>
-          <MobileLink href="/admin/analytics/market" onClick={onClose} isActive={isActivePath('/admin/analytics/market')}>📊 Análisis de mercado</MobileLink>
+          <MobileLink href="/admin/properties" onClick={onClose} isActive={isActivePath('/admin/properties')}>Admin: Propiedades</MobileLink>
           {showDebugUI && (
             <MobileLink href="/admin/debug" onClick={onClose} isActive={isActivePath('/admin/debug') || pathname?.startsWith('/admin/debug/')}>Debug</MobileLink>
           )}

@@ -55,7 +55,9 @@ export default function createMarker({ L, property, track, router }) {
     const id = e.currentTarget.getAttribute('data-prop-id');
     try {
       track && track('PropertyViewed', { entityId: id, metadata: { via: 'map.popup.link' } });
-    } catch (err) {}
+    } catch (err) {
+      if (process.env.NODE_ENV === 'development') console.error('Map popup track failed:', err);
+    }
     router && router.push(`/properties/${id}`);
   });
 

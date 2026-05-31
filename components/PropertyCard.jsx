@@ -115,13 +115,13 @@ export default function PropertyCard({ property }) {
               font-semibold text-sm
             "
             aria-label={isRental 
-              ? `Renta mensual: ${property.monthlyRent.toLocaleString('es-MX')} pesos mexicanos`
-              : `Precio: ${property.price.toLocaleString('es-MX')} pesos mexicanos`
+              ? `Renta mensual: ${(property.monthlyRent ?? 0).toLocaleString('es-MX')} pesos mexicanos`
+              : `Precio: ${(property.price ?? 0).toLocaleString('es-MX')} pesos mexicanos`
             }
           >
             {isRental 
-              ? `$${property.monthlyRent.toLocaleString('es-MX')}/mes` 
-              : `$${property.price.toLocaleString('es-MX')} MXN`
+              ? `$${(property.monthlyRent ?? 0).toLocaleString('es-MX')}/mes` 
+              : `$${(property.price ?? 0).toLocaleString('es-MX')} MXN`
             }
           </div>
         </div>

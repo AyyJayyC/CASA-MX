@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { respondToOffer } from '@/lib/api/offers';
+import MoneyInput from './MoneyInput';
 
 const inputClass = 'w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-800 text-sm text-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-clay-400';
 
@@ -14,7 +15,7 @@ export default function OfferRespondModal({
 }) {
   const [respondForm, setRespondForm] = useState({
     status: '',
-    counterAmount: '',
+    counterAmount: 0,
     note: '',
     proposedFurnishedStatus: '',
   });
@@ -51,7 +52,7 @@ export default function OfferRespondModal({
       setSubmitting(true);
       await respondToOffer(offer.id, {
         status: respondForm.status === 'countered' ? 'countered' : respondForm.status,
-        counterAmount: respondForm.counterAmount ? parseFloat(respondForm.counterAmount) : undefined,
+        counterAmount: respondForm.counterAmount || undefined,
         [noteFieldKey]: respondForm.note || undefined,
         proposedFurnishedStatus: respondForm.proposedFurnishedStatus || undefined,
       });
@@ -137,12 +138,10 @@ export default function OfferRespondModal({
               <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
                 Tu contraoferta (MXN) <span className="text-red-500">*</span>
               </label>
-              <input
-                type="number"
+              <MoneyInput
                 value={respondForm.counterAmount}
-                onChange={(e) => setRespondForm((f) => ({ ...f, counterAmount: e.target.value }))}
+                onChange={(num) => setRespondForm((f) => ({ ...f, counterAmount: num ?? 0 }))}
                 placeholder="Ej. 2800000"
-                min={1}
                 className={inputClass}
               />
             </div>

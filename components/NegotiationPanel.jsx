@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth/useAuth';
 import * as negotiationsAPI from '@/lib/api/negotiations';
+import MoneyInput from './MoneyInput';
 
 const formatMXN = (amount) =>
   new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(amount);
@@ -13,7 +14,7 @@ export default function NegotiationPanel({ applicationId, originalRent, applican
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [proposedRent, setProposedRent] = useState('');
+  const [proposedRent, setProposedRent] = useState(0);
   const [message, setMessage] = useState('');
   const [showForm, setShowForm] = useState(false);
 
@@ -42,11 +43,11 @@ export default function NegotiationPanel({ applicationId, originalRent, applican
     try {
       await negotiationsAPI.startNegotiation({
         rentalApplicationId: applicationId,
-        proposedRent: parseFloat(proposedRent),
+        proposedRent: proposedRent,
         message,
       });
       setShowForm(false);
-      setProposedRent('');
+      setProposedRent(0);
       setMessage('');
       await load();
     } catch (err) {
@@ -61,11 +62,11 @@ export default function NegotiationPanel({ applicationId, originalRent, applican
     setError(null);
     try {
       await negotiationsAPI.submitCounterOffer(negotiation.id, {
-        proposedRent: parseFloat(proposedRent),
+        proposedRent: proposedRent,
         message,
       });
       setShowForm(false);
-      setProposedRent('');
+      setProposedRent(0);
       setMessage('');
       await load();
     } catch (err) {
@@ -220,12 +221,10 @@ function OfferForm({ label, proposedRent, message, onChangeRent, onChangeMessage
         <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-1">
           Renta propuesta (MXN/mes) *
         </label>
-        <input
-          type="number"
+        <MoneyInput
           value={proposedRent}
-          onChange={(e) => onChangeRent(e.target.value)}
+          onChange={(num) => setProposedRent(num ?? 0)}
           placeholder="ej. 8500"
-          min="1"
           className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-900 text-sm text-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-clay-400"
         />
       </div>

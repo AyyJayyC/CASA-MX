@@ -83,12 +83,10 @@ export default function RegisterPage() {
       });
 
       const requiresApproval = selectedRoles.some((role) => role === 'admin');
-      alert(
-        requiresApproval
-          ? '¡Registro exitoso! El acceso de administrador requiere aprobación.'
-          : '¡Registro exitoso! Ya puedes iniciar sesión.'
-      );
-      router.push('/login');
+      const message = requiresApproval
+        ? '¡Registro exitoso! El acceso de administrador requiere aprobación.'
+        : '¡Registro exitoso! Ya puedes iniciar sesión.';
+      router.push(`/login?registered=true&message=${encodeURIComponent(message)}`);
     } catch (err) {
       console.error('Register error:', err);
       setRegisterError(err.message || 'Error al registrar');
@@ -115,7 +113,7 @@ export default function RegisterPage() {
             </p>
           </div>
 
-          <form method="POST" onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* Name */}
             <div>
               <label 

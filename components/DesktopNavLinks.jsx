@@ -36,28 +36,16 @@ export default function DesktopNavLinks({
         Rentar
       </Link>
       {canPublish && (
-        <>
-          <Link
-            href="/publish-property"
-            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
-              ${isActivePath('/publish-property')
-                ? 'bg-clay/10 text-clay'
-                : 'text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800'
-              }`}
-          >
-            Vender
-          </Link>
-          <Link
-            href="/properties/import"
-            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
-              ${isActivePath('/properties/import')
-                ? 'bg-clay/10 text-clay'
-                : 'text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800'
-              }`}
-          >
-            Importar
-          </Link>
-        </>
+        <Link
+          href="/publish-property"
+          className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
+            ${isActivePath('/publish-property')
+              ? 'bg-clay/10 text-clay'
+              : 'text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800'
+            }`}
+        >
+          Vender
+        </Link>
       )}
       {(!isAuthenticated || !canPublish) && (
         <Link
@@ -65,18 +53,6 @@ export default function DesktopNavLinks({
           className="ml-2 px-4 py-2 rounded-lg text-sm font-semibold bg-clay hover:bg-clay-500 text-white transition-all shadow-sm"
         >
           Publicar propiedad
-        </Link>
-      )}
-      {isAuthenticated && isAdminUser && (
-        <Link
-          href="/admin/analytics/market"
-          className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
-            ${isActivePath('/admin/analytics/market')
-              ? 'bg-clay/10 text-clay'
-              : 'text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800'
-            }`}
-        >
-          Análisis
         </Link>
       )}
     </nav>
