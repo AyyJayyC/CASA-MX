@@ -7,7 +7,7 @@ try { apiOrigin = new URL(apiUrl).origin; } catch { apiOrigin = 'http://localhos
 
 const cspProduction = [
   "default-src 'self'",
-  "script-src 'self' 'strict-dynamic' https://js.stripe.com https://maps.googleapis.com",
+  "script-src 'self' https://js.stripe.com https://maps.googleapis.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "img-src 'self' data: blob: https://*.unsplash.com https://*.tile.openstreetmap.org https://maps.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
