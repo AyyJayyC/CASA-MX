@@ -1,16 +1,20 @@
+'use client';
+
 /**
  * Property detail page
  * Purpose: Show property details with image gallery, information, and contact form.
  * Design: Hero image section, two-column layout, feature grid, contact card
  * Checkpoint 5: Added rental application form for rental properties
  */
-import { getPropertyById } from '../../../lib/queries/properties';
+import { use } from 'react';
+import { useProperty } from '@/lib/queries/properties';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import PropertyImageGallery from '../../../components/PropertyImageGallery.jsx';
-import { getAmenityMeta, getServiceMeta, groupAmenitiesByCategory } from '../../../lib/constants/propertyServices';
-import { FINANCING_SHORT_LABELS, FINANCING_ICONS } from '../../../lib/constants/financing';
-import { STATUS_LABELS, STATUS_COLORS } from '../../../lib/constants/propertyOptions';
+import PropertyImageGallery from '@/components/PropertyImageGallery.jsx';
+import { getAmenityMeta, getServiceMeta, groupAmenitiesByCategory } from '@/lib/constants/propertyServices';
+import { FINANCING_SHORT_LABELS, FINANCING_ICONS } from '@/lib/constants/financing';
+import { STATUS_LABELS, STATUS_COLORS } from '@/lib/constants/propertyOptions';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 const TAG_LABELS = {
   perfil: { flipper: 'Flipper', buy_hold: 'Buy & Hold', wholesaler: 'Wholesaler', developer: 'Desarrollador', realtor: 'Realtor', owner: 'Propietario' },
@@ -32,17 +36,26 @@ function getOwnerTagsList(tags) {
   return [...(tags.perfil || []), ...(tags.zona || []), ...(tags.operacion || [])].slice(0, 4);
 }
 
-const ContactRequestModal = dynamic(() => import('../../../components/ContactRequestModal.jsx'));
-const MakeOfferModal = dynamic(() => import('../../../components/MakeOfferModal.jsx'));
-const PropertyAnalytics = dynamic(() => import('../../../components/analytics/PropertyAnalytics.jsx'));
-const RentalApplicationForm = dynamic(() => import('../../../components/RentalApplicationForm.jsx'));
-const SharePropertyButton = dynamic(() => import('../../../components/SharePropertyButton.jsx'));
-const PromotePropertyButton = dynamic(() => import('../../../components/PromotePropertyButton.jsx'));
+const ContactRequestModal = dynamic(() => import('@/components/ContactRequestModal.jsx'));
+const MakeOfferModal = dynamic(() => import('@/components/MakeOfferModal.jsx'));
+const PropertyAnalytics = dynamic(() => import('@/components/analytics/PropertyAnalytics.jsx'));
+const RentalApplicationForm = dynamic(() => import('@/components/RentalApplicationForm.jsx'));
+const SharePropertyButton = dynamic(() => import('@/components/SharePropertyButton.jsx'));
+const PromotePropertyButton = dynamic(() => import('@/components/PromotePropertyButton.jsx'));
 
-export default async function PropertyDetail({ params }) {
-  const { id } = await params;
-  const property = await getPropertyById(id);
-  if (!property) {
+export default function PropertyDetail({ params }) {
+  const { id } = use(params);
+  const { data: property, isLoading, error } = useProperty(id);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (error || !property) {
     return (
       <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center p-4">
         <div className="text-center">
@@ -150,8 +163,8 @@ export default async function PropertyDetail({ params }) {
               </div>
               <div className="text-4xl font-bold text-clay dark:text-clay">
                 {isRental 
-                  ? `$${property.monthlyRent.toLocaleString('es-MX')} MXN/mes`
-                  : `$${property.price.toLocaleString('es-MX')} MXN`
+                  ? `$${(property.monthlyRent ?? 0).toLocaleString('es-MX')} MXN/mes`
+                  : `$${(property.price ?? 0).toLocaleString('es-MX')} MXN`
                 }
               </div>
 
@@ -169,14 +182,7 @@ export default async function PropertyDetail({ params }) {
               {isRental && (
                 <div className="flex flex-wrap gap-2 mt-2">
                   {property.furnished && (
-                    <span className="
-                      inline-flex items-center gap-1
-                      px-3 py-1
-                      bg-green-100 dark:bg-green-900/30
-                      text-green-700 dark:text-green-400
-                      text-sm font-medium
-                      rounded-md
-                    ">
+                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-sm font-medium rounded-md">
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/>
                       </svg>
@@ -184,14 +190,7 @@ export default async function PropertyDetail({ params }) {
                     </span>
                   )}
                   {property.utilitiesIncluded && (
-                    <span className="
-                      inline-flex items-center gap-1
-                      px-3 py-1
-                      bg-blue-100 dark:bg-blue-900/30
-                      text-blue-700 dark:text-blue-400
-                      text-sm font-medium
-                      rounded-md
-                    ">
+                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-sm font-medium rounded-md">
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd"/>
                       </svg>
@@ -199,15 +198,13 @@ export default async function PropertyDetail({ params }) {
                     </span>
                   )}
                   {includedServices.includes('Internet') && (
-                    <span className="
-                      inline-flex items-center gap-1
-                      px-3 py-1
-                      bg-violet-100 dark:bg-violet-900/30
-                      text-violet-700 dark:text-violet-400
-                      text-sm font-medium
-                      rounded-md
-                    ">
+                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400 text-sm font-medium rounded-md">
                       Internet incluido
+                    </span>
+                  )}
+                  {property.petFriendly && (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-sm font-medium rounded-md">
+                      Pet Friendly
                     </span>
                   )}
                 </div>
@@ -215,50 +212,36 @@ export default async function PropertyDetail({ params }) {
             </div>
 
             {/* Features Grid */}
-            <div className="
-              grid grid-cols-2 sm:grid-cols-4 gap-4
-              p-6
-              bg-white dark:bg-neutral-900
-              border border-neutral-200 dark:border-neutral-800
-              rounded-lg
-            ">
-              {features.map((feature, idx) => (
-                <div key={idx} className="text-center space-y-2">
-                  <div className="text-3xl">{feature.icon}</div>
-                  <div className="text-sm text-neutral-600 dark:text-neutral-400">
-                    {feature.label}
+            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-6">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {features.map((feature, idx) => (
+                  <div key={idx} className="text-center space-y-2">
+                    <div className="text-3xl">{feature.icon}</div>
+                    <div className="text-sm text-neutral-600 dark:text-neutral-400">
+                      {feature.label}
+                    </div>
+                    <div className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+                      {feature.value}
+                    </div>
                   </div>
-                  <div className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-                    {feature.value}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
             {/* Description */}
-            <div className="
-              p-6
-              bg-white dark:bg-neutral-900
-              border border-neutral-200 dark:border-neutral-800
-              rounded-lg
-              space-y-4
-            ">
-              <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
-                Descripción
-              </h2>
-              <p className="text-base text-neutral-600 dark:text-neutral-400 leading-relaxed whitespace-pre-line">
-                {property.description || 'Esta hermosa propiedad ofrece un espacio ideal para vivir. Con excelente ubicación y acabados de calidad, es perfecta para familias que buscan comodidad y estilo.'}
-              </p>
-            </div>
+            {property.description && (
+              <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-6 space-y-4">
+                <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+                  Descripción
+                </h2>
+                <p className="text-base text-neutral-600 dark:text-neutral-400 leading-relaxed whitespace-pre-line">
+                  {property.description}
+                </p>
+              </div>
+            )}
 
             {/* Additional Details */}
-            <div className="
-              p-6
-              bg-white dark:bg-neutral-900
-              border border-neutral-200 dark:border-neutral-800
-              rounded-lg
-              space-y-4
-            ">
+            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-6 space-y-4">
               <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
                 Detalles adicionales
               </h2>
@@ -314,43 +297,32 @@ export default async function PropertyDetail({ params }) {
               </dl>
             </div>
 
+            {/* Included Services */}
             {includedServices.length > 0 && (
-              <div className="
-                p-6
-                bg-white dark:bg-neutral-900
-                border border-neutral-200 dark:border-neutral-800
-                rounded-lg
-                space-y-4
-              ">
+              <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-6 space-y-4">
                 <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
                   Servicios incluidos
                 </h2>
                 <div className="flex flex-wrap gap-2">
                   {includedServices.map((service) => {
                     const meta = getServiceMeta(service);
-
                     return (
-                    <span
-                      key={service}
-                      className="rounded-full bg-clay/10 px-3 py-1 text-sm font-medium text-clay-600 dark:bg-clay-900/30 dark:text-clay-300"
-                    >
-                      <span className="mr-1" aria-hidden="true">{meta.emoji}</span>
-                      {meta.label}
-                    </span>
+                      <span
+                        key={service}
+                        className="inline-flex items-center gap-1 rounded-full bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-3 py-1 text-sm font-medium text-amber-800 dark:text-amber-300"
+                      >
+                        {meta?.icon && <span>{meta.icon}</span>}
+                        {meta?.label || service}
+                      </span>
                     );
                   })}
                 </div>
               </div>
             )}
 
-            {amenities.length > 0 && (
-              <div className="
-                p-6
-                bg-white dark:bg-neutral-900
-                border border-neutral-200 dark:border-neutral-800
-                rounded-lg
-                space-y-4
-              ">
+            {/* Amenities */}
+            {Object.keys(groupedAmenities).length > 0 && (
+              <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-6 space-y-5">
                 <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
                   Amenidades y equipamiento
                 </h2>
@@ -366,10 +338,10 @@ export default async function PropertyDetail({ params }) {
                           return (
                             <span
                               key={meta.value}
-                              className="inline-flex items-center gap-2 rounded-full bg-neutral-100 px-3 py-1 text-sm font-medium text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
+                              className="inline-flex items-center gap-1 rounded-full bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-3 py-1 text-sm font-medium text-neutral-700 dark:text-neutral-200"
                             >
-                              <span aria-hidden="true">{meta.emoji}</span>
-                              <span>{meta.label}</span>
+                              {meta?.icon && <span>{meta.icon}</span>}
+                              {meta?.label || amenity.value}
                             </span>
                           );
                         })}
@@ -382,13 +354,7 @@ export default async function PropertyDetail({ params }) {
 
             {/* Financing Options (Sale only) */}
             {!isRental && financeOptions.length > 0 && (
-              <div className="
-                p-6
-                bg-white dark:bg-neutral-900
-                border border-neutral-200 dark:border-neutral-800
-                rounded-lg
-                space-y-4
-              ">
+              <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-6 space-y-4">
                 <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
                   Métodos de pago aceptados
                 </h2>
@@ -396,10 +362,10 @@ export default async function PropertyDetail({ params }) {
                   {financeOptions.map((option) => (
                     <span
                       key={option}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-sm font-medium rounded-full"
+                      className="inline-flex items-center gap-1 rounded-full bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800 px-3 py-1 text-sm font-medium text-green-800 dark:text-green-300"
                     >
-                      <span>{FINANCING_ICONS[option] ?? '✅'}</span>
-                      <span>{FINANCING_SHORT_LABELS[option] ?? option}</span>
+                      {FINANCING_ICONS[option] && <span>{FINANCING_ICONS[option]}</span>}
+                      {FINANCING_SHORT_LABELS[option] || option}
                     </span>
                   ))}
                 </div>
@@ -409,14 +375,7 @@ export default async function PropertyDetail({ params }) {
 
           {/* Right Column - Contact Card or Rental Application */}
           <div className="lg:col-span-1">
-            <div className="
-              sticky top-8
-              p-6
-              bg-white dark:bg-neutral-900
-              border border-neutral-200 dark:border-neutral-800
-              rounded-lg
-              space-y-6
-            ">
+            <div className="sticky top-8 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-6 space-y-6">
               {isRental ? (
                 <>
                   {/* Rental Application Form */}
