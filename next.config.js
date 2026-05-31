@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
-const isProd = process.env.NODE_ENV === 'production';
+const vercelEnv = process.env.VERCEL_ENV;
+const isProd = vercelEnv === 'production' || (!vercelEnv && process.env.NODE_ENV === 'production');
+const isPreview = vercelEnv === 'preview';
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 let apiOrigin;
