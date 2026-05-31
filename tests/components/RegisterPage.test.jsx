@@ -48,8 +48,7 @@ describe('RegisterPage', () => {
     fireEvent.click(submit);
 
     await waitFor(() => expect(mockRegister).toHaveBeenCalled());
-    expect(alertSpy).toHaveBeenCalled();
-
-    alertSpy.mockRestore();
+    expect(pushSpy).toHaveBeenCalled();
+    expect(pushSpy.mock.calls[0][0]).toMatch(/^\/login\?registered=true/);
   });
 });

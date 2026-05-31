@@ -21,7 +21,7 @@ export default function PublishPropertyPage() {
 
     // Redirect to login if not authenticated
     if (!user) {
-      router.push('/login');
+      router.replace('/login');
       return;
     }
     setIsLoading(false);

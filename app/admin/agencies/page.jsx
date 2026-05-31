@@ -15,9 +15,11 @@ export default function AdminAgenciesPage() {
   const [createForm, setCreateForm] = useState({ name: '', legalName: '', rfc: '', ownerEmail: '', plan: 'basico', customCredits: 0 });
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
+  const [fetchError, setFetchError] = useState(null);
 
   useEffect(() => {
-    getAdminAgencies().then((data) => { setAgencies(data); setLoading(false); });
+    getAdminAgencies().then((data) => { setAgencies(data); setLoading(false); })
+      .catch((err) => { setFetchError(err.message || 'Error al cargar agencias'); setLoading(false); });
   }, []);
 
   const handleUpdate = async (id, updates) => {
@@ -25,7 +27,9 @@ export default function AdminAgenciesPage() {
     try {
       const updated = await updateAgency(id, updates);
       setAgencies((prev) => prev.map((a) => (a.id === id ? { ...a, ...updated } : a)));
-    } catch {}
+    } catch (err) {
+      alert(err.message || 'Error al actualizar');
+    }
     setSaving(null);
   };
 
@@ -67,6 +71,21 @@ export default function AdminAgenciesPage() {
       <RequireRole roles={['admin']}>
         <div className="min-h-screen flex items-center justify-center">
           <div className="animate-spin h-8 w-8 border-4 border-clay-400 border-t-transparent rounded-full" />
+        </div>
+      </RequireRole>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <RequireRole roles={['admin']}>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center text-red-600">
+            <p className="text-lg font-medium">{fetchError}</p>
+            <button onClick={() => window.location.reload()} className="mt-4 px-4 py-2 bg-clay text-white rounded-lg text-sm">
+              Reintentar
+            </button>
+          </div>
         </div>
       </RequireRole>
     );

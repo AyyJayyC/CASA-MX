@@ -203,6 +203,70 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  // Login with Facebook access token
+  const loginWithFacebook = useCallback(async (accessToken) => {
+    try {
+      setError(null);
+      setLoading(true);
+      const result = await authAPI.loginWithFacebook(accessToken);
+
+      setSession({
+        userId: result.user.id,
+        email: result.user.email,
+        name: result.user.name,
+        emailVerified: result.user.emailVerified,
+        officialIdUploaded: result.user.officialIdUploaded,
+        officialIdVerified: result.user.officialIdVerified,
+        paidSubscriber: result.user.paidSubscriber,
+        subscriptionStatus: result.user.subscriptionStatus,
+        subscriptionCurrentPeriodEnd: result.user.subscriptionCurrentPeriodEnd,
+        avatarUrl: result.user.avatarUrl,
+        provider: result.user.provider,
+        activeRole: result.user.activeRole,
+        roles: result.user.roles,
+      });
+      setUser(result.user);
+      setLoading(false);
+      return { user: result.user };
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+      throw err;
+    }
+  }, []);
+
+  // Login with Apple
+  const loginWithApple = useCallback(async (identityToken, authorizationCode, name) => {
+    try {
+      setError(null);
+      setLoading(true);
+      const result = await authAPI.loginWithApple(identityToken, authorizationCode, name);
+
+      setSession({
+        userId: result.user.id,
+        email: result.user.email,
+        name: result.user.name,
+        emailVerified: result.user.emailVerified,
+        officialIdUploaded: result.user.officialIdUploaded,
+        officialIdVerified: result.user.officialIdVerified,
+        paidSubscriber: result.user.paidSubscriber,
+        subscriptionStatus: result.user.subscriptionStatus,
+        subscriptionCurrentPeriodEnd: result.user.subscriptionCurrentPeriodEnd,
+        avatarUrl: result.user.avatarUrl,
+        provider: result.user.provider,
+        activeRole: result.user.activeRole,
+        roles: result.user.roles,
+      });
+      setUser(result.user);
+      setLoading(false);
+      return { user: result.user };
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+      throw err;
+    }
+  }, []);
+
   const value = {
     session,
     user,
@@ -213,6 +277,8 @@ export function AuthProvider({ children }) {
     register,
     login,
     loginWithGoogle,
+    loginWithFacebook,
+    loginWithApple,
     logout,
     switchRole,
     refreshUser,

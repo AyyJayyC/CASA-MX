@@ -16,7 +16,7 @@ export default function SaleUploadPage() {
     }
 
     if (!user) {
-      router.push('/login');
+      router.replace('/login');
       return;
     }
     setIsLoading(false);

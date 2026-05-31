@@ -241,6 +241,7 @@ function BuyersList({ isAuthenticated }) {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({ name: '', phone: '', email: '', budgetMin: '', budgetMax: '', preferredZones: '', propertyType: '', notes: '' });
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
 
   const loadBuyers = async () => {
     setLoading(true);
@@ -273,8 +274,11 @@ function BuyersList({ isAuthenticated }) {
       setForm({ name: '', phone: '', email: '', budgetMin: '', budgetMax: '', preferredZones: '', propertyType: '', notes: '' });
       setShowForm(false);
       setEditing(null);
+      setSaveError(null);
       await loadBuyers();
-    } catch {} finally { setSaving(false); }
+    } catch (err) {
+      setSaveError(err.message || 'Error al guardar');
+    } finally { setSaving(false); }
   };
 
   const handleEdit = (buyer) => {
@@ -341,6 +345,7 @@ function BuyersList({ isAuthenticated }) {
             className="px-4 py-2 text-sm font-medium bg-clay hover:bg-clay-500 text-white rounded-lg disabled:opacity-50">
             {saving ? 'Guardando...' : editing ? 'Actualizar' : 'Guardar'}
           </button>
+          {saveError && <p className="text-sm text-red-600">{saveError}</p>}
         </div>
       )}
 

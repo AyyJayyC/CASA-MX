@@ -10,6 +10,7 @@ export default function AdminMapsPage(){
   const [limits, setLimits] = useState([])
   const [usage, setUsage] = useState([])
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   useEffect(()=>{ fetchAll() }, [])
 
@@ -19,6 +20,7 @@ export default function AdminMapsPage(){
 
   async function fetchAll(){
     setLoading(true)
+    setError(null)
     try{
       const [r1, r2] = await Promise.all([
         fetch(`${API_BASE}/admin/maps/limits`, { headers: {...authHeader()}, credentials: 'include' }),
@@ -29,7 +31,7 @@ export default function AdminMapsPage(){
       setUsage(await r2.json())
     }catch(err){
       console.error(err)
-      alert('Unable to load maps admin data')
+      setError('No se pudo cargar la información de mapas')
     }finally{ setLoading(false) }
   }
 
@@ -77,8 +79,14 @@ export default function AdminMapsPage(){
       <div className="p-6">
         <h1 className="text-2xl font-semibold mb-4">Maps — Usage & Limits</h1>
         <div className="mb-4">
-          <button className="btn" onClick={fetchAll} disabled={loading}>Refresh</button>
+          <button className="btn" onClick={fetchAll} disabled={loading}>{loading ? 'Cargando...' : 'Refresh'}</button>
         </div>
+
+        {error && (
+          <div className="p-4 mb-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">
+            {error}
+          </div>
+        )}
 
         <section className="grid grid-cols-3 gap-4 mb-6">
           {usage && usage.length ? usage.map(u=> (

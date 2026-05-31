@@ -16,7 +16,7 @@ export default function RentalUploadPage() {
     }
 
     if (!user) {
-      router.push('/login');
+      router.replace('/login');
       return;
     }
     setIsLoading(false);

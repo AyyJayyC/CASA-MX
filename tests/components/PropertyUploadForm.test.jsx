@@ -99,7 +99,8 @@ describe('PropertyUploadForm', () => {
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/maps/autocomplete?input=Begonia+10')
+        expect.stringContaining('/maps/autocomplete'),
+        expect.objectContaining({ credentials: 'include' })
       );
       expect(screen.getByText(/Google Maps is not configured/i)).toBeInTheDocument();
     }, { timeout: 3000 });

@@ -33,7 +33,7 @@ export default function NotificationsPage() {
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      router.push('/login');
+      router.replace('/login');
     }
   }, [loading, isAuthenticated, router]);
 

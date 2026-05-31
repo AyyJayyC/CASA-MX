@@ -18,8 +18,9 @@ export default function AgencyPage() {
   const [showAddAgent, setShowAddAgent] = useState(false);
   const [newAgent, setNewAgent] = useState({ email: '', name: '', password: '' });
   const [addAgentError, setAddAgentError] = useState('');
-  const [addingAgent, setAddingAgent] = useState(false);
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [addingAgent, setAddingAgent] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const handleAddAgent = async () => {
@@ -53,6 +54,10 @@ export default function AgencyPage() {
       setMembership(m);
       setAgentData(ad || { agents: [], agentLimit: 0, total: 0 });
       setPricing(pr);
+    }).catch((err) => {
+      console.error('Failed to load agency data:', err);
+      setError('No se pudo cargar la información de la agencia');
+    }).finally(() => {
       setLoading(false);
     });
   }, [isAuthenticated]);
@@ -70,6 +75,19 @@ export default function AgencyPage() {
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin h-8 w-8 border-4 border-clay-400 border-t-transparent rounded-full" /></div>;
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center">
+        <div className="text-center bg-white dark:bg-neutral-900 rounded-xl p-8 border border-neutral-200 dark:border-neutral-800 shadow-sm max-w-md">
+          <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
+          <button onClick={() => { setError(null); setLoading(true); window.location.reload(); }} className="px-4 py-2 bg-clay text-white rounded-lg">
+            Reintentar
+          </button>
+        </div>
+      </div>
+    );
   }
 
   // Agent view
