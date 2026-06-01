@@ -10,7 +10,7 @@ function FallbackHero() {
     <section className="relative w-full h-[450px] md:h-[550px] lg:h-[600px] overflow-hidden bg-gradient-to-br from-sand-50 via-white to-sand-100 dark:from-ink dark:via-ink/95 dark:to-ink/90 flex items-center justify-center">
       <div className="flex flex-col items-center gap-4 px-4">
         <img
-          src="/brand/logo-light.png"
+          src="/brand/logo-primary.png"
           alt="Casa-MX.com"
           className="h-10 w-auto opacity-80 dark:opacity-60"
         />
