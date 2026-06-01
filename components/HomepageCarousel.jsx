@@ -31,9 +31,19 @@ function FallbackHero() {
 function LoadingSkeleton() {
   return (
     <section className="relative w-full h-[450px] md:h-[550px] lg:h-[600px] overflow-hidden bg-gradient-to-br from-sand-50 via-white to-sand-100 dark:from-ink dark:via-ink/95 dark:to-ink/90 flex items-center justify-center">
-      <div className="flex flex-col items-center gap-3 text-ink-muted dark:text-sand-200">
-        <div className="w-10 h-10 border-2 border-clay/30 border-t-clay rounded-full animate-spin" />
-        <p className="text-sm">Cargando propiedades...</p>
+      <div className="flex flex-col items-center gap-4">
+        <div className="flex items-center gap-3 text-ink-muted dark:text-sand-200">
+          <div className="w-6 h-6 border-2 border-clay/30 border-t-clay rounded-full animate-spin" />
+          <p className="text-sm">Cargando...</p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Link href="/publish-property" className="px-5 py-2.5 bg-clay hover:bg-clay-500 text-white font-semibold text-sm rounded-lg transition-all shadow-md hover:shadow-lg">
+            Publicar propiedad
+          </Link>
+          <Link href="/properties" className="px-5 py-2.5 bg-white dark:bg-ink border-2 border-sand-200 dark:border-slate-700 text-ink dark:text-sand-50 hover:border-clay dark:hover:border-clay font-semibold text-sm rounded-lg transition-all">
+            Explorar propiedades
+          </Link>
+        </div>
       </div>
     </section>
   );
