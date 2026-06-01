@@ -5,8 +5,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { BACKEND_URL } from '@/lib/api/client';
-import RequireAuth from '@/components/guards/RequireAuth';
-import RequireRole from '@/components/guards/RequireRole';
+import { RequireAuth } from '@/components/guards/RequireAuth';
+import { RequireRole } from '@/components/guards/RequireRole';
 
 const slideSchema = z.object({
   imageUrl: z.string().url('URL de imagen inválida'),
