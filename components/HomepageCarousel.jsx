@@ -100,13 +100,11 @@ export default function HomepageCarousel() {
   const { data = [], isLoading, isError, error, refetch } = useProperties();
   const [customSlides, setCustomSlides] = useState([]);
   const [mostViewed, setMostViewed] = useState([]);
-  const [fallbackLoading, setFallbackLoading] = useState(false);
 
   // Fetch custom slides and most-viewed as fallbacks
   useEffect(() => {
     let cancelled = false;
     async function loadFallbacks() {
-      setFallbackLoading(true);
       try {
         const [slides, viewed] = await Promise.all([
           getCarouselSlides().catch(() => []),
@@ -118,15 +116,26 @@ export default function HomepageCarousel() {
         }
       } catch {
         // Silently fail — fallbacks are optional
-      } finally {
-        if (!cancelled) setFallbackLoading(false);
       }
     }
     loadFallbacks();
     return () => { cancelled = true; };
   }, []);
 
-  const showLoading = isLoading && data.length === 0 && customSlides.length === 0;
+  // Timeout bail: after 3 seconds, skip to fallback if nothing loaded yet
+  const [timedOut, setTimedOut] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setTimedOut(true), 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const nothingLoaded = customSlides.length === 0 && mostViewed.length === 0 && data.length === 0;
+  const showLoading = !timedOut && isLoading && nothingLoaded;
+
+  // Bail to fallback if timed out and nothing loaded
+  if (timedOut && nothingLoaded) {
+    return <FallbackHero />;
+  }
 
   if (showLoading) {
     return <LoadingSkeleton />;
