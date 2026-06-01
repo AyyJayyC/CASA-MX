@@ -11,7 +11,7 @@ const cspProduction = [
   "default-src 'self'",
   "script-src 'self' https://js.stripe.com https://maps.googleapis.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "img-src 'self' data: blob: https://*.unsplash.com https://*.tile.openstreetmap.org https://maps.googleapis.com",
+  `img-src 'self' data: blob: https://*.unsplash.com https://*.tile.openstreetmap.org https://maps.googleapis.com https://*.s3.amazonaws.com https://*.s3.*.amazonaws.com ${apiOrigin}`,
   "font-src 'self' https://fonts.gstatic.com",
   `connect-src 'self' https://api.stripe.com https://*.tile.openstreetmap.org ${apiOrigin}`,
   "frame-src https://js.stripe.com https://hooks.stripe.com",
@@ -26,6 +26,14 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.s3.amazonaws.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.s3.*.amazonaws.com',
       },
     ],
   },

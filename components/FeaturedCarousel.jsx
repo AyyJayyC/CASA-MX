@@ -15,7 +15,7 @@ function CarouselSlide({ property, isActive }) {
   const location = [property.colonia, property.ciudad, property.estado].filter(Boolean).join(', ');
 
   return (
-    <div className={`absolute inset-0 transition-opacity duration-700 ${isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
+    <div className={`absolute inset-0 transition-opacity duration-700 first:opacity-100 first:z-10 ${isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
       <div className="absolute inset-0">
         <Image src={imgSrc} alt={property.title} fill className="object-cover" priority={isActive} sizes="100vw" />
       </div>
@@ -30,11 +30,12 @@ function CarouselSlide({ property, isActive }) {
             {price} Ver ›
           </Link>
         </div>
-        {/* Mobile: minimal single line */}
+         {/* Mobile: title + price */}
         <div className="md:hidden flex items-center justify-between text-white">
-          <span className="shrink-0 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-clay">🔥 Promocionado</span>
-          <Link href={`/properties/${property.id}`} className="ml-auto shrink-0 px-2 py-0.5 bg-white/15 hover:bg-white/25 rounded text-[11px] font-semibold">
-            {price} Ver ›
+          <span className="shrink-0 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-clay">🔥</span>
+          <span className="text-xs font-semibold truncate mx-2 flex-1">{property.title}</span>
+          <Link href={`/properties/${property.id}`} className="shrink-0 px-2 py-0.5 bg-white/15 hover:bg-white/25 rounded text-[11px] font-semibold">
+            {price} ›
           </Link>
         </div>
       </div>

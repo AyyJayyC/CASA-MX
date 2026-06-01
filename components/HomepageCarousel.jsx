@@ -29,9 +29,9 @@ function FallbackHero() {
 
 function LoadingSkeleton() {
   return (
-    <section className="relative w-full h-[450px] md:h-[550px] lg:h-[600px] overflow-hidden bg-ink flex items-center justify-center">
-      <div className="flex flex-col items-center gap-3 text-white/60">
-        <div className="w-10 h-10 border-2 border-white/30 border-t-clay rounded-full animate-spin" />
+    <section className="relative w-full h-[450px] md:h-[550px] lg:h-[600px] overflow-hidden bg-gradient-to-br from-sand-50 via-white to-sand-100 dark:from-ink dark:via-ink/95 dark:to-ink/90 flex items-center justify-center">
+      <div className="flex flex-col items-center gap-3 text-ink-muted dark:text-sand-200">
+        <div className="w-10 h-10 border-2 border-clay/30 border-t-clay rounded-full animate-spin" />
         <p className="text-sm">Cargando propiedades...</p>
       </div>
     </section>

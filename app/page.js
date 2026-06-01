@@ -37,7 +37,7 @@ export default function Home() {
           <p className="text-center text-ink-muted dark:text-sand-200 mb-12 max-w-xl mx-auto text-sm md:text-base">
             Un camino claro que guía cada decisión inmobiliaria
           </p>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <ValueCard icon={ICONS.transparencia} title="Transparencia" description="Información clara para todos." />
             <ValueCard icon={ICONS.negociacion} title="Negociación" description="Acuerdos justos entre personas." />
             <ValueCard icon={ICONS.datos} title="Datos reales" description="Decisiones basadas en información real." />

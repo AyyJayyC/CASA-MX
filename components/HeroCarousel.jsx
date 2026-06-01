@@ -58,7 +58,7 @@ export default function HeroCarousel({ properties }) {
   const direction = !isPlaceholder ? (p.listingType === 'for_rent' ? 'RENTA' : 'VENTA') : '';
 
   return (
-    <section className="relative w-full overflow-hidden bg-[#1A1A18]" style={{ height: 'min(600px, 80vh)' }}>
+    <section className="relative w-full overflow-hidden bg-[#1A1A18] h-[50vh] sm:h-[55vh] md:h-[500px] lg:h-[600px]">
       {/* Image with crossfade */}
       {!isPlaceholder ? (
         <div className="absolute inset-0">

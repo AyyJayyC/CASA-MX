@@ -75,7 +75,7 @@ export default function RootLayout({ children }) {
                 <NavBar />
                 <EmailVerificationBanner />
                 <ReferralTracker />
-                <main className="container mt-8">{children}</main>
+                <main className="container max-w-7xl mt-8">{children}</main>
                 <footer className="mt-12 border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
                   <div className="container max-w-7xl py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-neutral-600 dark:text-neutral-400">
                     <p>© <FooterYear /> Casa-MX.com. Todos los derechos reservados.</p>
