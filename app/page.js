@@ -1,8 +1,8 @@
 import HomepageCarousel from '@/components/HomepageCarousel.jsx';
 
-function ValueCard({ icon, title, description }) {
+function ValueCard({ icon, title, description, className = '' }) {
   return (
-    <div className="text-center p-6 bg-sand-100 dark:bg-ink/50 rounded-xl border border-sand-200 dark:border-slate-700/30 hover:shadow-md transition-shadow">
+    <div className={`text-center p-6 bg-sand-100 dark:bg-ink/50 rounded-xl border border-sand-200 dark:border-slate-700/30 hover:shadow-md transition-shadow ${className}`}>
       <div className="inline-flex items-center justify-center w-14 h-14 bg-clay/10 rounded-full mb-4">
         <svg className="w-7 h-7 text-clay" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           {icon}
@@ -42,7 +42,7 @@ export default function Home() {
             <ValueCard icon={ICONS.negociacion} title="Negociación" description="Acuerdos justos entre personas." />
             <ValueCard icon={ICONS.datos} title="Datos reales" description="Decisiones basadas en información real." />
             <ValueCard icon={ICONS.confianza} title="Confianza" description="Seguridad y tranquilidad en cada paso." />
-            <ValueCard icon={ICONS.equidad} title="Equidad" description="Un mercado justo para todos." />
+            <ValueCard icon={ICONS.equidad} title="Equidad" description="Un mercado justo para todos." className="col-span-2 lg:col-span-1" />
           </div>
         </div>
       </section>
