@@ -134,36 +134,30 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
   }, [headers, rows, mapping]);
 
   // Initialize all rows as selected when mapping changes
-  const allSelected = useMemo(() => {
-    const sel = {};
-    mappedRows.forEach((_, i) => { sel[i] = true; });
-    return sel;
-  }, [mappedRows]);
 
   const toggleRow = (idx) => {
     setSelectedRows(prev => {
-      const next = { ...prev, ...allSelected };
-      next[idx] = !(prev[idx] ?? true);
+      const next = { ...prev };
+      next[idx] = prev[idx] === false;
       return next;
     });
   };
 
   const toggleAll = () => {
-    const current = { ...selectedRows, ...allSelected };
-    const allOn = mappedRows.every((_, i) => current[i] !== false);
-    const next = {};
-    mappedRows.forEach((_, i) => { next[i] = !allOn; });
-    setSelectedRows(next);
+    setSelectedRows(prev => {
+      const allOn = mappedRows.every((_, i) => prev[i] !== false);
+      const next = { ...prev };
+      mappedRows.forEach((_, i) => { next[i] = allOn; });
+      return next;
+    });
   };
 
   const selectedCount = useMemo(() => {
-    const current = { ...selectedRows, ...allSelected };
-    return mappedRows.filter((_, i) => current[i] !== false).length;
-  }, [mappedRows, selectedRows, allSelected]);
+    return mappedRows.filter((_, i) => selectedRows[i] !== false).length;
+  }, [mappedRows, selectedRows]);
 
   const getSelectedRows = () => {
-    const current = { ...selectedRows, ...allSelected };
-    return mappedRows.filter((_, i) => current[i] !== false);
+    return mappedRows.filter((_, i) => selectedRows[i] !== false);
   };
 
   const handleMappingChange = (fieldKey, headerIdx) => {
@@ -371,7 +365,7 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
 
           <div className="mb-2">
             <button onClick={toggleAll} className="text-xs text-clay hover:text-clay-600 dark:text-clay-400 underline">
-              {mappedRows.every((_, i) => (selectedRows[i] ?? true) !== false) ? 'Deseleccionar todo' : 'Seleccionar todo'}
+              {mappedRows.every((_, i) => selectedRows[i] !== false) ? 'Deseleccionar todo' : 'Seleccionar todo'}
             </button>
           </div>
 
@@ -382,7 +376,7 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
                   <thead className="sticky top-0 z-10">
                     <tr className="bg-neutral-50 dark:bg-neutral-800">
                       <th className="px-2 py-1.5 w-8">
-                        <input type="checkbox" checked={mappedRows.every((_, i) => (selectedRows[i] ?? true) !== false)} onChange={toggleAll} />
+                        <input type="checkbox" checked={mappedRows.every((_, i) => selectedRows[i] !== false)} onChange={toggleAll} />
                       </th>
                       {Object.keys(mapping).map(k => (
                         <th key={k} className="px-2 py-1.5 text-left font-medium text-neutral-600 dark:text-neutral-400 whitespace-nowrap">
@@ -393,7 +387,7 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
                   </thead>
                   <tbody>
                     {mappedRows.map((row, i) => {
-                      const checked = (selectedRows[i] ?? true) !== false;
+                      const checked = selectedRows[i] !== false;
                       return (
                         <tr key={i} className={`border-t border-neutral-100 dark:border-neutral-800 ${!checked ? 'opacity-40' : ''}`}>
                           <td className="px-2 py-1">
