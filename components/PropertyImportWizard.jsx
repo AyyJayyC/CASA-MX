@@ -88,6 +88,15 @@ function applyMapping(headers, rows, mapping) {
   });
 }
 
+function getFriendlyError(status, row) {
+  const title = row.title || 'Sin título';
+  if (status === 401) return `Sesión expirada. Refresca la página y vuelve a intentarlo.`;
+  if (status === 429) return `Límite de importación alcanzado (100/15min).`;
+  if (status === 500) return `Error del servidor al procesar "${title}".`;
+  if (status === 0) return `Error de conexión con el servidor. Verifica tu internet.`;
+  return `Error inesperado (HTTP ${status}).`;
+}
+
 export default function PropertyImportWizard({ onSubmit, onCancel }) {
   const [step, setStep] = useState(1);
   const [file, setFile] = useState(null);
@@ -98,6 +107,9 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
   const [processing, setProcessing] = useState(false);
   const [results, setResults] = useState(null);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
+  const [selectedRows, setSelectedRows] = useState({});
+  const [failedRows, setFailedRows] = useState([]);
+  const [rateLimited, setRateLimited] = useState(false);
 
   const handleFileDrop = useCallback(async (e) => {
     const f = e.target.files?.[0] || e.dataTransfer?.files?.[0];
@@ -121,6 +133,39 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
     return applyMapping(headers, rows, mapping);
   }, [headers, rows, mapping]);
 
+  // Initialize all rows as selected when mapping changes
+  const allSelected = useMemo(() => {
+    const sel = {};
+    mappedRows.forEach((_, i) => { sel[i] = true; });
+    return sel;
+  }, [mappedRows]);
+
+  const toggleRow = (idx) => {
+    setSelectedRows(prev => {
+      const next = { ...prev, ...allSelected };
+      next[idx] = !(prev[idx] ?? true);
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    const current = { ...selectedRows, ...allSelected };
+    const allOn = mappedRows.every((_, i) => current[i] !== false);
+    const next = {};
+    mappedRows.forEach((_, i) => { next[i] = !allOn; });
+    setSelectedRows(next);
+  };
+
+  const selectedCount = useMemo(() => {
+    const current = { ...selectedRows, ...allSelected };
+    return mappedRows.filter((_, i) => current[i] !== false).length;
+  }, [mappedRows, selectedRows, allSelected]);
+
+  const getSelectedRows = () => {
+    const current = { ...selectedRows, ...allSelected };
+    return mappedRows.filter((_, i) => current[i] !== false);
+  };
+
   const handleMappingChange = (fieldKey, headerIdx) => {
     setMapping(prev => {
       const next = { ...prev };
@@ -133,15 +178,21 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
     });
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (rowsToImport) => {
+    const toImport = rowsToImport || getSelectedRows();
     setProcessing(true);
     setResults(null);
-    setProgress({ current: 0, total: mappedRows.length });
+    setRateLimited(false);
+    setProgress({ current: 0, total: toImport.length });
     try {
-      const res = await onSubmit(mappedRows, (latest) => {
+      const res = await onSubmit(toImport, (latest, stopped) => {
         const done = latest.created + (latest.incomplete || 0) + latest.failed;
-        setProgress({ current: done, total: mappedRows.length });
+        setProgress({ current: done, total: toImport.length });
+        if (stopped) setRateLimited(true);
       });
+      // Store failed rows for retry
+      const failedTitles = new Set(res.errors.filter(e => e.status === 'failed').map(e => e.title));
+      setFailedRows(mappedRows.filter(r => failedTitles.has(r.title)));
       setResults(res);
       setStep(4);
     } catch (err) {
@@ -149,6 +200,20 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
     } finally {
       setProcessing(false);
     }
+  };
+
+  const handleRetryFailed = () => {
+    if (failedRows.length > 0) {
+      handleSubmit(failedRows);
+    }
+  };
+
+  const resetWizard = () => {
+    setStep(2);
+    setResults(null);
+    setFailedRows([]);
+    setRateLimited(false);
+    setSelectedRows({});
   };
 
   if (step === 4 && results) {
@@ -164,6 +229,11 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
             {results.incomplete > 0 && <div className="text-center"><p className="text-3xl font-bold text-amber-600">{results.incomplete}</p><p className="text-sm text-neutral-500">Borrador</p></div>}
             {results.failed > 0 && <div className="text-center"><p className="text-3xl font-bold text-red-600">{results.failed}</p><p className="text-sm text-neutral-500">Fallidas</p></div>}
           </div>
+          {rateLimited && (
+            <p className="text-xs text-amber-600 dark:text-amber-400 mt-3 bg-amber-50 dark:bg-amber-900/20 p-2 rounded-lg">
+              ⚠️ Límite de tasa alcanzado. Las propiedades restantes se pueden reintentar.
+            </p>
+          )}
           {results.incomplete > 0 && (
             <p className="text-xs text-neutral-400 mt-3">Las propiedades en borrador son privadas y no aparecen en búsquedas. Complétalas desde tu panel.</p>
           )}
@@ -185,14 +255,21 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
             </ul>
           </div>
         )}
-        <div className="flex gap-2">
-          <button onClick={() => { setStep(1); setResults(null); setFile(null); setHeaders([]); setRows([]); setMapping({}); }}
-            className="flex-1 px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800">
-            Importar otro archivo
-          </button>
-          <button onClick={onCancel} className="px-4 py-2 rounded-lg bg-clay-500 hover:bg-clay-600 text-white text-sm font-medium">
-            Ir a propiedades
-          </button>
+        <div className="flex flex-col gap-2">
+          {failedRows.length > 0 && (
+            <button onClick={handleRetryFailed} className="w-full px-4 py-3 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold transition-all">
+              Reintentar {failedRows.length} fallidas
+            </button>
+          )}
+          <div className="flex gap-2">
+            <button onClick={resetWizard}
+              className="flex-1 px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800">
+              Importar otro archivo
+            </button>
+            <button onClick={onCancel} className="px-4 py-2 rounded-lg bg-clay-500 hover:bg-clay-600 text-white text-sm font-medium">
+              Ir a propiedades
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -287,7 +364,16 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
       {/* Step 3: Review */}
       {step === 3 && (
         <div>
-          <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-3">Revisa los datos antes de importar</h2>
+          <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-1">Revisa los datos antes de importar</h2>
+          <p className="text-sm text-neutral-500 mb-3">
+            Desmarca las propiedades que no quieras importar. Se importarán {selectedCount} de {mappedRows.length}.
+          </p>
+
+          <div className="mb-2">
+            <button onClick={toggleAll} className="text-xs text-clay hover:text-clay-600 dark:text-clay-400 underline">
+              {mappedRows.every((_, i) => (selectedRows[i] ?? true) !== false) ? 'Deseleccionar todo' : 'Seleccionar todo'}
+            </button>
+          </div>
 
           {mappedRows.length > 0 && (
             <>
@@ -295,6 +381,9 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
                 <table className="w-full text-xs">
                   <thead className="sticky top-0 z-10">
                     <tr className="bg-neutral-50 dark:bg-neutral-800">
+                      <th className="px-2 py-1.5 w-8">
+                        <input type="checkbox" checked={mappedRows.every((_, i) => (selectedRows[i] ?? true) !== false)} onChange={toggleAll} />
+                      </th>
                       {Object.keys(mapping).map(k => (
                         <th key={k} className="px-2 py-1.5 text-left font-medium text-neutral-600 dark:text-neutral-400 whitespace-nowrap">
                           {FIELD_DEFINITIONS.find(f => f.key === k)?.label || k}
@@ -303,19 +392,25 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {mappedRows.map((row, i) => (
-                      <tr key={i} className="border-t border-neutral-100 dark:border-neutral-800">
-                        {Object.keys(mapping).map(k => (
-                          <td key={k} className="px-2 py-1 text-neutral-700 dark:text-neutral-300 whitespace-nowrap max-w-[150px] truncate">
-                            {row[k] !== undefined && row[k] !== null ? String(row[k]) : '-'}
+                    {mappedRows.map((row, i) => {
+                      const checked = (selectedRows[i] ?? true) !== false;
+                      return (
+                        <tr key={i} className={`border-t border-neutral-100 dark:border-neutral-800 ${!checked ? 'opacity-40' : ''}`}>
+                          <td className="px-2 py-1">
+                            <input type="checkbox" checked={checked} onChange={() => toggleRow(i)} />
                           </td>
-                        ))}
-                      </tr>
-                    ))}
+                          {Object.keys(mapping).map(k => (
+                            <td key={k} className="px-2 py-1 text-neutral-700 dark:text-neutral-300 whitespace-nowrap max-w-[150px] truncate">
+                              {row[k] !== undefined && row[k] !== null ? String(row[k]) : '-'}
+                            </td>
+                          ))}
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
-              <p className="p-2 text-xs text-neutral-500 text-center">{mappedRows.length} propiedades</p>
+              <p className="p-2 text-xs text-neutral-500 text-center">{selectedCount} propiedades seleccionadas de {mappedRows.length}</p>
             </>
           )}
 
@@ -336,9 +431,9 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
               <button onClick={() => setStep(2)} className="flex-1 px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800">
                 Volver
               </button>
-              <button onClick={handleSubmit} disabled={!mappedRows.length}
+              <button onClick={() => handleSubmit()} disabled={!mappedRows.length || selectedCount === 0}
                 className="flex-1 px-4 py-2 rounded-lg bg-clay-500 hover:bg-clay-600 disabled:opacity-50 text-white text-sm font-medium">
-                Importar {mappedRows.length} propiedades
+                Importar {selectedCount} propiedades
               </button>
             </div>
           )}
