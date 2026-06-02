@@ -10,6 +10,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { propertySchema, propertyFormDefaults } from '../lib/validation/propertySchema';
 import { addProperty as addPropertyAPI } from '../lib/api/properties';
+import { updateProperty as updatePropertyAPI } from '../lib/api/properties';
 import { getUnifiedCatalog } from '../lib/api/locations.js';
 import { useAuth } from '../lib/auth/useAuth';
 import { useInvalidateProperties } from '../lib/queries/properties';
@@ -26,7 +27,8 @@ import DocumentUploadStep from './DocumentUploadStep.jsx';
 /**
  * @returns {JSX.Element}
  */
-export default function PropertyUploadForm({ listingType = 'for_sale' }) {
+export default function PropertyUploadForm({ listingType = 'for_sale', initialValues = null, propertyId = null, onSave }) {
+  const isEditing = Boolean(initialValues && propertyId);
   const { session } = useAuth();
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -92,7 +94,12 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
     getValues,
     watch
   } = useForm({
-    defaultValues: {
+    defaultValues: isEditing && initialValues ? {
+      ...propertyFormDefaults,
+      ...initialValues,
+      listingType: initialValues.listingType || listingType,
+      photos: initialValues.imageUrls || initialValues.photos || [],
+    } : {
       ...propertyFormDefaults,
       listingType,
     },
@@ -553,7 +560,9 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
       };
 
         // Call real backend API
-        const created = await addPropertyAPI(payload);
+        const created = isEditing
+          ? await updatePropertyAPI(propertyId, payload)
+          : await addPropertyAPI(payload);
 
       // Save address to cache for future suggestions
       const addressData = {
@@ -746,24 +755,41 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
               </svg>
               <div className="flex-1">
                 <h3 className="font-semibold text-green-800 dark:text-green-300 mb-1">
-                  ¡Propiedad registrada!
+                  {isEditing ? '¡Cambios guardados!' : '¡Propiedad registrada!'}
                 </h3>
                 <p className="text-sm text-green-700 dark:text-green-400 mb-3">
-                  {success.title} — ahora sube los documentos de verificación de la propiedad para publicarla.
+                  {isEditing 
+                    ? `"${success.title || 'Propiedad'}" actualizada correctamente.`
+                    : `${success.title} — ahora sube los documentos de verificación de la propiedad para publicarla.`
+                  }
                 </p>
-                {success.publishEligibility && !success.publishEligibility.canPublish && (
+                {!isEditing && success.publishEligibility && !success.publishEligibility.canPublish && (
                   <p className="text-sm text-clay-800 dark:text-clay-300 bg-clay-50 dark:bg-clay-900/20 border border-clay-200 dark:border-clay-800 rounded-lg px-3 py-2">
                     Esta propiedad quedó en borrador. Para publicarla necesitas correo verificado e INE verificada en tu cuenta.
                     <Link href="/settings" className="underline ml-1">Ir a Ajustes</Link>
                   </p>
                 )}
+                {isEditing && (
+                  <div className="flex gap-2 mt-3">
+                    <Link href={`/properties/${propertyId}`} className="px-4 py-2 bg-clay hover:bg-clay-500 text-white text-sm font-semibold rounded-lg transition-colors">
+                      Ver propiedad
+                    </Link>
+                    {onSave && (
+                      <button onClick={() => onSave(success)} className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors">
+                        Ir a Mis Propiedades
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
-          <DocumentUploadStep
-            propertyId={success.id}
-            sellerRole={session?.activeRole ?? 'seller'}
-          />
+          {!isEditing && success.id && (
+            <DocumentUploadStep
+              propertyId={success.id}
+              sellerRole={session?.activeRole ?? 'seller'}
+            />
+          )}
         </div>
       )}
 
@@ -1781,7 +1807,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale' }) {
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
             )}
-            {loading ? 'Publicando...' : 'Publicar propiedad'}
+            {loading ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Publicar propiedad'}
           </button>
           
           <button 

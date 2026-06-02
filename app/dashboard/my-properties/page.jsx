@@ -119,7 +119,7 @@ function DraftCard({ property, onRetire }) {
 
       <div className="flex gap-2 pt-1">
         <Link
-          href={`/properties/${property.id}?edit=true`}
+          href={`/properties/${property.id}/edit`}
           className="px-3 py-1.5 text-xs font-medium bg-clay hover:bg-clay-500 text-white rounded-lg transition-colors"
         >
           Completar
