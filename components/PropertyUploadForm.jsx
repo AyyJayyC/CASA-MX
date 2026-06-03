@@ -1077,7 +1077,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
               <div
                 id="address-suggestions-listbox"
                 role="listbox"
-                className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-lg z-20 max-h-72 overflow-y-auto"
+                className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-lg z-50 max-h-72 overflow-y-auto"
               >
                 {addressSuggestions.map((s, i) => (
                   <button
