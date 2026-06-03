@@ -241,6 +241,15 @@ function LoginPage() {
               )}
             </div>
 
+            <div className="text-right mt-1">
+              <a
+                href="/forgot-password"
+                className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-clay dark:hover:text-clay-400 transition-colors"
+              >
+                ¿Olvidaste tu contraseña?
+              </a>
+            </div>
+
             {/* Error */}
             {loginError && (
               <p className="text-sm text-red-600 dark:text-red-400 text-center bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">{loginError}</p>
