@@ -794,7 +794,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
       )}
 
       {!success && (
-      <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6 overflow-hidden">
         {submitValidationError && (
           <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {submitValidationError}
@@ -934,7 +934,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
           </h2>
 
           {/* Google Places Search */}
-          <div className="relative" ref={addressSearchRef}>
+          <div className="relative max-w-full overflow-hidden" ref={addressSearchRef}>
             <label className={labelClass}>
               Buscar dirección <span className="text-red-500">*</span>
             </label>
@@ -1054,7 +1054,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
                   }
                 }}
                 placeholder="Ej: San Miguel de Horcasitas 36, Hermosillo"
-                className={inputClass}
+                className={`${inputClass} truncate`}
               />
               {addressSearchLoading && (
                 <div className="absolute right-3 top-3">
