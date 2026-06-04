@@ -12,5 +12,12 @@
     "opencode-notify",
     "opencode-wakatime",
     "~/.config/opencode/node_modules/superpowers"
-  ]
+  ],
+  "mcp": {
+    "auto-browser": {
+      "type": "local",
+      "command": ["python", "C:\\Users\\axelj\\auto-browser\\scripts\\mcp_stdio_bridge.py"],
+      "enabled": true
+    }
+  }
 }

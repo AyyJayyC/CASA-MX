@@ -13,7 +13,7 @@ export const SecurityHardening = async ({ client }) => {
       if (input.tool === "bash") {
         const dangerous = [
           "AWS_SECRET", "STRIPE_SECRET", "JWT_SECRET", "DATABASE_URL",
-          "SENDGRID_API_KEY", "GOOGLE_CLIENT_SECRET", "REDIS_URL",
+          "RESEND_API_KEY", "GOOGLE_CLIENT_SECRET", "REDIS_URL",
           "MAPS_API_KEY", "POSTGRES_PASSWORD"
         ]
         for (const secret of dangerous) {

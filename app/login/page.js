@@ -74,16 +74,27 @@ function LoginPage() {
       const result = await login({ email: data.email, password: data.password });
 
       const approvedRoles = (result.user?.roles || []).filter(r => r.status === 'approved');
+      const pendingRolesList = (result.user?.roles || []).filter(r => r.status === 'pending');
       // Deduplicate: buyer+tenant → buyer, seller+landlord → seller
       const hasBuyer = approvedRoles.some(r => r.type === 'buyer');
       const hasTenant = approvedRoles.some(r => r.type === 'tenant');
       const hasSeller = approvedRoles.some(r => r.type === 'seller');
       const hasLandlord = approvedRoles.some(r => r.type === 'landlord');
-      const displayRoles = approvedRoles
+      const displayApproved = approvedRoles
         .filter(r => !(r.type === 'tenant' && hasBuyer))
         .filter(r => !(r.type === 'landlord' && hasSeller));
-      if (displayRoles.length > 1) {
-        setPendingRoles(displayRoles);
+      const pendingBuyer = pendingRolesList.some(r => r.type === 'buyer');
+      const pendingTenant = pendingRolesList.some(r => r.type === 'tenant');
+      const pendingSeller = pendingRolesList.some(r => r.type === 'seller');
+      const pendingLandlord = pendingRolesList.some(r => r.type === 'landlord');
+      // Deduplicate pending same way
+      const displayPending = pendingRolesList
+        .filter(r => !(r.type === 'tenant' && pendingBuyer))
+        .filter(r => !(r.type === 'landlord' && pendingSeller))
+        .filter(r => !displayApproved.some(a => a.type === r.type));
+      const allRoles = [...displayApproved, ...displayPending];
+      if (allRoles.length > 1) {
+        setPendingRoles(allRoles);
       } else {
         router.push('/properties');
       }
@@ -112,25 +123,39 @@ function LoginPage() {
                 ¿Cómo quieres ingresar?
               </h1>
               <p className="text-neutral-600 dark:text-neutral-400 text-sm">
-                Tu cuenta tiene múltiples roles. Elige cómo deseas usar Casa-MX.
+                {pendingRoles.some(r => r.status === 'approved')
+                  ? 'Tu cuenta tiene múltiples roles. Elige cómo deseas usar Casa-MX.'
+                  : 'Todos tus roles están pendientes de aprobación. Espera la confirmación de un administrador.'}
               </p>
             </div>
             <div className="space-y-3">
-              {pendingRoles.map((role) => (
-                <button
-                  key={role.type}
-                  onClick={() => handleRoleSelect(role.type)}
-                  disabled={selectingRole}
-                  className="w-full p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 hover:border-clay dark:hover:border-amber-500 bg-white dark:bg-neutral-800 hover:bg-clay/10 dark:hover:bg-amber-900/20 transition-all text-left group"
-                >
-                  <div className="font-semibold text-neutral-900 dark:text-neutral-100 group-hover:text-clay dark:group-hover:text-clay-400">
-                    {getRoleLabel(role.type)}
-                  </div>
-                  <div className="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
-                    {roleDescriptions[role.type] || 'Acceder a la plataforma'}
-                  </div>
-                </button>
-              ))}
+              {pendingRoles.map((role) => {
+                const isPending = role.status === 'pending';
+                const label = isPending ? `${getRoleLabel(role.type)} — Pendiente de aprobación` : getRoleLabel(role.type);
+                return (
+                  <button
+                    key={role.type}
+                    onClick={() => !isPending && handleRoleSelect(role.type)}
+                    disabled={isPending || selectingRole}
+                    className={`w-full p-4 rounded-xl border transition-all text-left group ${
+                      isPending
+                        ? 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/10 cursor-not-allowed opacity-70'
+                        : 'border-neutral-200 dark:border-neutral-700 hover:border-clay dark:hover:border-amber-500 bg-white dark:bg-neutral-800 hover:bg-clay/10 dark:hover:bg-amber-900/20'
+                    }`}
+                  >
+                    <div className={`font-semibold ${
+                      isPending
+                        ? 'text-amber-700 dark:text-amber-400'
+                        : 'text-neutral-900 dark:text-neutral-100 group-hover:text-clay dark:group-hover:text-clay-400'
+                    }`}>
+                      {label}
+                    </div>
+                    <div className="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
+                      {isPending ? 'Un administrador debe aprobar este rol antes de usarlo' : (roleDescriptions[role.type] || 'Acceder a la plataforma')}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
             <button
               onClick={() => setPendingRoles(null)}
