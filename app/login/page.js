@@ -178,6 +178,7 @@ function LoginPage() {
               <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-xs font-mono">
                 <pre className="text-red-700 whitespace-pre-wrap">
 {`=== LOGIN DEBUG ===
+API: ${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}
 ActiveRole: ${user?.activeRole || 'N/A'}
 Raw roles: ${JSON.stringify(debugInfo.raw.map(r => `${r.type}:${r.status}`))}
 Approved: ${JSON.stringify(debugInfo.approved.map(r => `${r.type}:${r.status}`))}
