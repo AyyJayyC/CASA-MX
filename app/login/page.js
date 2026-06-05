@@ -46,6 +46,7 @@ function LoginPage() {
   const [pendingRoles, setPendingRoles] = useState(null);
   const [selectingRole, setSelectingRole] = useState(false);
   const [loggingIn, setLoggingIn] = useState(false);
+  const [debugInfo, setDebugInfo] = useState(null);
   const {
     register,
     handleSubmit,
@@ -73,6 +74,10 @@ function LoginPage() {
     try {
       const result = await login({ email: data.email, password: data.password });
 
+      // DEBUG: log what the backend returned
+      const rawRoles = result.user?.roles || [];
+      console.error('[LOGIN DEBUG] Raw roles from backend:', JSON.stringify(rawRoles));
+
       const approvedRoles = (result.user?.roles || []).filter(r => r.status === 'approved');
       const pendingRolesList = (result.user?.roles || []).filter(r => r.status === 'pending');
       // Deduplicate: buyer+tenant → buyer, seller+landlord → seller
@@ -93,6 +98,12 @@ function LoginPage() {
         .filter(r => !(r.type === 'landlord' && pendingSeller))
         .filter(r => !displayApproved.some(a => a.type === r.type));
       const allRoles = [...displayApproved, ...displayPending];
+
+      console.error('[LOGIN DEBUG] approved:', JSON.stringify(displayApproved.map(r => r.type)));
+      console.error('[LOGIN DEBUG] pending:', JSON.stringify(displayPending.map(r => r.type)));
+      console.error('[LOGIN DEBUG] allRoles count:', allRoles.length);
+      setDebugInfo({ raw: rawRoles, approved: displayApproved, pending: displayPending, count: allRoles.length });
+
       if (allRoles.length > 1) {
         setPendingRoles(allRoles);
       } else {
@@ -163,6 +174,18 @@ function LoginPage() {
             >
               Cancelar y volver al inicio
             </button>
+            {debugInfo && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-xs font-mono">
+                <pre className="text-red-700 whitespace-pre-wrap">
+{`=== LOGIN DEBUG ===
+ActiveRole: ${user?.activeRole || 'N/A'}
+Raw roles: ${JSON.stringify(debugInfo.raw.map(r => `${r.type}:${r.status}`))}
+Approved: ${JSON.stringify(debugInfo.approved.map(r => `${r.type}:${r.status}`))}
+Pending: ${JSON.stringify(debugInfo.pending.map(r => `${r.type}:${r.status}`))}
+Total in picker: ${debugInfo.count}`}
+                </pre>
+              </div>
+            )}
           </div>
         </div>
       </div>
