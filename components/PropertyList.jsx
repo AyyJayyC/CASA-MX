@@ -149,8 +149,8 @@ export default function PropertyList({
         matchesPriceRange = p.monthlyRent >= min && p.monthlyRent <= max;
       }
       
-      // Furnished filter
-      const matchesFurnished = !furnished || p.furnished;
+      // Furnished filter — matches if no filter selected, or property.furnished equals the filter value
+      const matchesFurnished = !furnished || p.furnished === furnished;
 
       // Condition filter
       const matchesCondition = !condition || p.condition === condition;
