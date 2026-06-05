@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth/useAuth';
 import { getPreferences, savePreferences, getNotifications, saveNotifications, getTags, saveTags } from '@/lib/services/preferencesCache';
 import { PROPERTY_TYPE_OPTIONS, CONDITION_LABELS, FURNISHED_LABELS } from '@/lib/constants/propertyOptions';
+import TagSubscriptions from './TagSubscriptions';
 
 const PERFIL_OPTIONS = [
   { value: 'flipper', label: 'Flipper' },
@@ -137,6 +138,14 @@ export default function UserPreferences() {
               : 'text-neutral-500 hover:text-neutral-700'
           }`}>
           Etiquetas
+        </button>
+        <button onClick={() => setActiveTab('suscripciones')}
+          className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            activeTab === 'suscripciones'
+              ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-sm'
+              : 'text-neutral-500 hover:text-neutral-700'
+          }`}>
+          Suscripciones
         </button>
       </div>
 
@@ -349,6 +358,8 @@ export default function UserPreferences() {
             </button>
           </div>
         )}
+        {/* Tab: Suscripciones */}
+        {activeTab === 'suscripciones' && <TagSubscriptions />}
       </div>
     </div>
   );

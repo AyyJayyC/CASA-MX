@@ -9,8 +9,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { propertySchema, propertyFormDefaults } from '../lib/validation/propertySchema';
-import { addProperty as addPropertyAPI } from '../lib/api/properties';
-import { updateProperty as updatePropertyAPI } from '../lib/api/properties';
+import { addProperty as addPropertyAPI, updateProperty as updatePropertyAPI, publishProperty as publishPropertyAPI } from '../lib/api/properties';
 import { getUnifiedCatalog } from '../lib/api/locations.js';
 import { useAuth } from '../lib/auth/useAuth';
 import { useInvalidateProperties } from '../lib/queries/properties';
@@ -520,46 +519,52 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
     }
   }, [BACKEND_URL, setValue]);
 
-  async function onSubmit(values) {
+  function buildPayload(values, mode = 'save') {
+    const payload = {
+      ...values,
+      listingType,
+      imageUrls: values.photos || [],
+      issuesInvoice: values.issuesInvoice ?? false,
+      petFriendly: values.petFriendly ?? false,
+      petFee: values.petFriendly ? (values.petFee ?? null) : null,
+      petDeposit: values.petFriendly ? (values.petDeposit ?? null) : null,
+      childrenWelcome: values.childrenWelcome ?? false,
+      ...(mode === 'draft' ? { status: 'incompleto', visibility: 'private' } : {}),
+      ...(listingType === 'for_sale'
+        ? {
+            price: values.price,
+            financeOptions: [
+              values.financeOptions?.cash ? 'cash' : null,
+              values.financeOptions?.bankLoan ? 'bankLoan' : null,
+              values.financeOptions?.INFONAVIT ? 'INFONAVIT' : null,
+              values.financeOptions?.FOVISSSTE ? 'FOVISSSTE' : null,
+              values.financeOptions?.paymentPlan ? 'paymentPlan' : null,
+              values.financeOptions?.other ? 'other' : null,
+            ].filter(Boolean),
+          }
+        : {
+            monthlyRent: values.monthlyRent,
+            ...(values.securityDeposit ? { securityDeposit: values.securityDeposit } : {}),
+            ...(values.leaseTermMonths ? { leaseTermMonths: values.leaseTermMonths } : {}),
+            ...(values.availableFrom ? { availableFrom: values.availableFrom } : {}),
+            utilitiesIncluded: (values.includedServices || []).length > 0,
+            includedServices: values.includedServices || [],
+            amenities: values.amenities || [],
+          }),
+      ...(Number.isFinite(values.latitude) ? { lat: values.latitude } : {}),
+      ...(Number.isFinite(values.longitude) ? { lng: values.longitude } : {}),
+    };
+    return payload;
+  }
+
+  async function onSubmit(values, mode = 'save') {
     try {
       setSubmitValidationError('');
       setLoading(true);
-      
-      const payload = {
-        ...values,
-        listingType,
-        imageUrls: values.photos || [],
-        issuesInvoice: values.issuesInvoice ?? false,
-        petFriendly: values.petFriendly ?? false,
-        petFee: values.petFriendly ? (values.petFee ?? null) : null,
-        petDeposit: values.petFriendly ? (values.petDeposit ?? null) : null,
-        childrenWelcome: values.childrenWelcome ?? false,
-        ...(listingType === 'for_sale'
-          ? {
-              price: values.price,
-              financeOptions: [
-                values.financeOptions?.cash ? 'cash' : null,
-                values.financeOptions?.bankLoan ? 'bankLoan' : null,
-                values.financeOptions?.INFONAVIT ? 'INFONAVIT' : null,
-                values.financeOptions?.FOVISSSTE ? 'FOVISSSTE' : null,
-                values.financeOptions?.paymentPlan ? 'paymentPlan' : null,
-                values.financeOptions?.other ? 'other' : null,
-              ].filter(Boolean),
-            }
-          : {
-              monthlyRent: values.monthlyRent,
-              ...(values.securityDeposit ? { securityDeposit: values.securityDeposit } : {}),
-              ...(values.leaseTermMonths ? { leaseTermMonths: values.leaseTermMonths } : {}),
-              ...(values.availableFrom ? { availableFrom: values.availableFrom } : {}),
-              utilitiesIncluded: (values.includedServices || []).length > 0,
-              includedServices: values.includedServices || [],
-              amenities: values.amenities || [],
-            }),
-        ...(Number.isFinite(values.latitude) ? { lat: values.latitude } : {}),
-        ...(Number.isFinite(values.longitude) ? { lng: values.longitude } : {}),
-      };
 
-        // Call real backend API
+      const payload = buildPayload(values, mode);
+
+      // Call real backend API
         const created = isEditing
           ? await updatePropertyAPI(propertyId, payload)
           : await addPropertyAPI(payload);
@@ -1783,32 +1788,58 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
         <input type="hidden" {...register('latitude', { valueAsNumber: true })} />
         <input type="hidden" {...register('longitude', { valueAsNumber: true })} />
         <div className="pt-4 flex flex-col sm:flex-row gap-3">
-          <button 
-            type="submit"
-            disabled={loading || !ownershipConfirmed}
-            className="
-              flex-1 sm:flex-none
-              px-8 py-3
-              bg-gradient-to-br from-clay-400 to-clay-600
-              hover:from-clay-500 hover:to-clay-700
-              disabled:from-clay-300 disabled:to-clay-500
-              disabled:opacity-60 disabled:cursor-not-allowed
-              text-white
-              font-semibold
-              rounded-lg
-              transition-all
-              focus:outline-none focus:ring-2 focus:ring-clay-400 focus:ring-offset-2
-              flex items-center justify-center gap-2
-            "
-          >
-            {loading && (
-              <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-              </svg>
-            )}
-            {loading ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Publicar propiedad'}
-          </button>
+          {isEditing ? (
+            <>
+              <button 
+                type="button"
+                onClick={handleSubmit((data) => onSubmit(data, 'draft'))}
+                disabled={loading}
+                className="flex-1 sm:flex-none px-8 py-3 bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700 border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 font-semibold rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-clay-400 focus:ring-offset-2 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Guardando...' : 'Guardar borrador'}
+              </button>
+              <button 
+                type="button"
+                onClick={async () => {
+                  const data = getValues();
+                  if (!data.photos || data.photos.length === 0) {
+                    setSubmitValidationError('Agrega al menos una foto para publicar');
+                    return;
+                  }
+                  setLoading(true);
+                  try {
+                    const payload = buildPayload(data);
+                    await updatePropertyAPI(propertyId, payload);
+                    await publishPropertyAPI(propertyId);
+                    setSuccess('¡Propiedad publicada!');
+                    if (onSave) onSave();
+                  } catch (err) {
+                    setSubmitValidationError(err.message || 'Error al publicar');
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                disabled={loading}
+                className="flex-1 sm:flex-none px-8 py-3 bg-gradient-to-br from-clay-400 to-clay-600 hover:from-clay-500 hover:to-clay-700 disabled:from-clay-300 disabled:to-clay-500 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-clay-400 focus:ring-offset-2 flex items-center justify-center gap-2"
+              >
+                {loading ? 'Publicando...' : 'Publicar'}
+              </button>
+            </>
+          ) : (
+            <button 
+              type="submit"
+              disabled={loading || !ownershipConfirmed}
+              className="flex-1 sm:flex-none px-8 py-3 bg-gradient-to-br from-clay-400 to-clay-600 hover:from-clay-500 hover:to-clay-700 disabled:from-clay-300 disabled:to-clay-500 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-clay-400 focus:ring-offset-2 flex items-center justify-center gap-2"
+            >
+              {loading && (
+                <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+              )}
+              {loading ? 'Guardando...' : 'Publicar propiedad'}
+            </button>
+          )}
           
           <button 
             type="button" 
@@ -1819,18 +1850,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
                 photoInputRef.current.value = '';
               }
             }}
-            className="
-              flex-1 sm:flex-none
-              px-8 py-3
-              bg-white dark:bg-neutral-800
-              hover:bg-neutral-50 dark:hover:bg-neutral-700
-              border border-neutral-300 dark:border-neutral-700
-              text-neutral-700 dark:text-neutral-300
-              font-medium
-              rounded-lg
-              transition-colors
-              focus:outline-none focus:ring-2 focus:ring-clay-400 focus:ring-offset-2
-            "
+            className="flex-1 sm:flex-none px-8 py-3 bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700 border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-clay-400 focus:ring-offset-2"
           >
             Limpiar formulario
           </button>

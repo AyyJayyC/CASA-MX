@@ -12,6 +12,7 @@ const TYPE_LABELS = {
   application_approved: 'Solicitud Aprobada',
   application_rejected: 'Solicitud Rechazada',
   application_received: 'Nueva Solicitud',
+  new_property_in_area: 'Propiedad en tu área',
 };
 
 const TYPE_COLORS = {
@@ -22,6 +23,7 @@ const TYPE_COLORS = {
   application_approved: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
   application_rejected: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
   application_received: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+  new_property_in_area: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
 };
 
 export default function NotificationsPage() {
