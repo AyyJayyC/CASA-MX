@@ -15,7 +15,13 @@ const TABS = [
   { key: 'rentado', label: 'Rentadas' },
 ];
 
-const STATUS_ORDER = ['disponible', 'rentado', 'vendido', 'retirado', 'incompleto'];
+const STATUS_ORDER = [
+  'disponible', 'available',
+  'rentado', 'rented',
+  'vendido', 'sold',
+  'retirado',
+  'incompleto', 'pending',
+];
 
 const LISTING_TYPE_FILTERS = [
   { key: '', label: 'Todos' },
@@ -212,11 +218,14 @@ export default function MyPropertiesPage() {
     return <div className="p-10 text-center text-neutral-500">Inicia sesión para ver tus propiedades.</div>;
   }
 
-  // Sort by status priority, then by most recently created
+  // Sort by status priority, then by most recently created.
+  // Unknown statuses (e.g., legacy English values) go to the end.
   const sorted = [...properties].sort((a, b) => {
     const aIdx = STATUS_ORDER.indexOf(a.status);
     const bIdx = STATUS_ORDER.indexOf(b.status);
-    if (aIdx !== bIdx) return aIdx - bIdx;
+    const aPos = aIdx === -1 ? 999 : aIdx;
+    const bPos = bIdx === -1 ? 999 : bIdx;
+    if (aPos !== bPos) return aPos - bPos;
     return new Date(b.createdAt) - new Date(a.createdAt);
   });
 

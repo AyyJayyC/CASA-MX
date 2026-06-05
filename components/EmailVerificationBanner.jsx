@@ -5,14 +5,15 @@ import { useAuth } from '@/lib/auth/useAuth';
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export default function EmailVerificationBanner() {
-  const { isAuthenticated, user, refreshUser } = useAuth();
+  const { isAuthenticated, user, session, refreshUser } = useAuth();
   const [checking, setChecking] = useState(false);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
-  // Only show if logged in and email not verified
-  if (!isAuthenticated || !user || user.emailVerified || dismissed) return null;
+  // Only show if logged in and email not verified (check both user and session)
+  const emailVerified = user?.emailVerified || session?.emailVerified;
+  if (!isAuthenticated || !user || emailVerified || dismissed) return null;
 
   const handleResend = async () => {
     setSending(true);
