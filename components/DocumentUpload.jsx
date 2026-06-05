@@ -6,6 +6,7 @@
  */
 
 import { useRef, useState } from 'react';
+import { getCsrfToken } from '@/lib/api/csrf';
 
 const FIELD_LABELS = {
   idDocument: 'Identificación oficial (INE/Pasaporte)',
@@ -18,6 +19,21 @@ const FIELD_DESCRIPTIONS = {
   incomeProof: 'Últimos 3 meses de estados de cuenta o recibos de nómina',
   additional: 'Cartas de recomendación, contratos anteriores, etc.',
 };
+
+const ALLOWED_TYPES = new Set(['application/pdf', 'image/jpeg', 'image/png', 'image/webp']);
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+function validateFile(file) {
+  if (!file) return { valid: false, error: 'No file selected.' };
+  if (!ALLOWED_TYPES.has(file.type)) {
+    return { valid: false, error: `File type "${file.type}" not accepted. Use PDF, JPEG, PNG, or WebP.` };
+  }
+  if (file.size > MAX_FILE_SIZE) {
+    const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+    return { valid: false, error: `File too large (${sizeMB} MB). Maximum: 10 MB.` };
+  }
+  return { valid: true };
+}
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -43,6 +59,12 @@ export default function DocumentUpload({ applicationId, currentUrls = {}, onUplo
     const file = fileInputRefs[fieldName].current?.files?.[0];
     if (!file) return;
 
+    const validation = validateFile(file);
+    if (!validation.valid) {
+      setErrors((prev) => ({ ...prev, [fieldName]: validation.error }));
+      return;
+    }
+
     setUploading(fieldName);
     setErrors((prev) => ({ ...prev, [fieldName]: null }));
 
@@ -50,9 +72,12 @@ export default function DocumentUpload({ applicationId, currentUrls = {}, onUplo
     form.append(fieldName, file);
 
     try {
+      const csrf = getCsrfToken();
+      const headers = { ...(csrf ? { 'x-csrf-token': csrf } : {}) };
       const res = await fetch(`${BACKEND_URL}/documents/upload/${applicationId}`, {
         method: 'POST',
         credentials: 'include',
+        headers,
         body: form,
       });
 
