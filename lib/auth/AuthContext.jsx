@@ -28,8 +28,9 @@ export function AuthProvider({ children }) {
         return null;
       }
 
-      setSession(nextSession);
       const nextUser = await authAPI.getUserById(nextSession.userId);
+      // Update both atomically — if either fails, nothing changes
+      setSession(nextSession);
       setUser(nextUser);
       return nextUser;
     } catch (err) {
