@@ -15,6 +15,14 @@ const TABS = [
   { key: 'rentado', label: 'Rentadas' },
 ];
 
+const STATUS_ORDER = ['disponible', 'rentado', 'vendido', 'retirado', 'incompleto'];
+
+const LISTING_TYPE_FILTERS = [
+  { key: '', label: 'Todos' },
+  { key: 'for_sale', label: 'Venta' },
+  { key: 'for_rent', label: 'Renta' },
+];
+
 const RETIRE_REASONS = [
   { value: 'precio_alto', label: 'Precio fuera de mercado', color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' },
   { value: 'sin_interes', label: 'Falta de interés', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400' },
@@ -174,6 +182,7 @@ function PropertyCard({ property, onRetire }) {
 export default function MyPropertiesPage() {
   const { user, isAuthenticated } = useAuth();
   const [tab, setTab] = useState('');
+  const [listingTypeFilter, setListingTypeFilter] = useState('');
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -203,28 +212,55 @@ export default function MyPropertiesPage() {
     return <div className="p-10 text-center text-neutral-500">Inicia sesión para ver tus propiedades.</div>;
   }
 
-  const drafts = properties.filter(p => p.status === 'incompleto');
-  const published = properties.filter(p => p.status !== 'incompleto');
+  // Sort by status priority, then by most recently created
+  const sorted = [...properties].sort((a, b) => {
+    const aIdx = STATUS_ORDER.indexOf(a.status);
+    const bIdx = STATUS_ORDER.indexOf(b.status);
+    if (aIdx !== bIdx) return aIdx - bIdx;
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
+
+  // Apply listing type filter
+  const filtered = listingTypeFilter
+    ? sorted.filter(p => p.listingType === listingTypeFilter)
+    : sorted;
+
+  const drafts = filtered.filter(p => p.status === 'incompleto');
+  const published = filtered.filter(p => p.status !== 'incompleto');
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 p-4 sm:p-6 space-y-5">
       <div>
         <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">Mis Propiedades</h1>
-        <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">{properties.length} {properties.length === 1 ? 'propiedad' : 'propiedades'}</p>
+        <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">{filtered.length} {filtered.length === 1 ? 'propiedad' : 'propiedades'}</p>
       </div>
 
-      <div className="flex gap-1 overflow-x-auto pb-1">
-        {TABS.map(t => (
-          <button key={t.key} onClick={() => setTab(t.key)}
-            className={`shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              tab === t.key
-                ? 'bg-clay text-white shadow-sm'
-                : 'bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:border-clay'
-            }`}>
-            {t.label}
-            {t.key === 'incompleto' && drafts.length > 0 && ` (${drafts.length})`}
-          </button>
-        ))}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="flex gap-1 overflow-x-auto pb-1">
+          {TABS.map(t => (
+            <button key={t.key} onClick={() => setTab(t.key)}
+              className={`shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                tab === t.key
+                  ? 'bg-clay text-white shadow-sm'
+                  : 'bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:border-clay'
+              }`}>
+              {t.label}
+              {t.key === 'incompleto' && drafts.length > 0 && ` (${drafts.length})`}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-1">
+          {LISTING_TYPE_FILTERS.map(f => (
+            <button key={f.key} onClick={() => setListingTypeFilter(f.key)}
+              className={`shrink-0 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                listingTypeFilter === f.key
+                  ? 'bg-neutral-800 dark:bg-neutral-200 text-white dark:text-neutral-900 shadow-sm'
+                  : 'bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400 hover:border-neutral-400'
+              }`}>
+              {f.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {error && <div className="p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">{error}</div>}
@@ -233,7 +269,7 @@ export default function MyPropertiesPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-36 bg-neutral-100 dark:bg-neutral-800 rounded-xl animate-pulse" />)}
         </div>
-      ) : properties.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <div className="text-center py-16 text-neutral-400">
           <p className="text-4xl mb-3">🏠</p>
           <p className="font-medium text-neutral-600 dark:text-neutral-400">No tienes propiedades aún.</p>
@@ -241,7 +277,7 @@ export default function MyPropertiesPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {properties.map(p =>
+          {filtered.map(p =>
             p.status === 'incompleto'
               ? <DraftCard key={p.id} property={p} onRetire={handleOpenRetire} />
               : <PropertyCard key={p.id} property={p} onRetire={handleOpenRetire} />
