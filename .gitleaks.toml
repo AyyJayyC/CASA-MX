@@ -1,0 +1,52 @@
+title = "Casa MX Monorepo Gitleaks Config"
+
+[extend]
+useDefault = true
+
+[[rules]]
+  id = "generic-api-key"
+  [rules.allowlist]
+    regexes = [
+      "password123",
+      "TestPassword123",
+      "HashedPassword123",
+      "hashedpassword123",
+      "hashed-password",
+      "admin123",
+      "seller123",
+      "buyer123",
+      "tenant123",
+    ]
+
+[allowlist]
+  description = "Global allowlist"
+  paths = [
+    '''node_modules''',
+    '''\.next''',
+    '''dist''',
+    '''playwright-report''',
+    '''test-results''',
+    '''package-lock\.json''',
+    '''apps/api/OPERATIONS\.md''',
+    '''apps/api/tests/checkpoint3\.test\.ts''',
+    '''\.env\.example''',
+    '''apps/api/tests/''',
+    '''apps/web/tests/''',
+    '''apps/api/prisma/seed\.ts''',
+    '''apps/api/scripts/''',
+    '''apps/web/scripts/''',
+    '''apps/api/SEEK\.md''',
+    '''\.github/''',
+  ]
+  regexes = [
+    '''password123''',
+    '''TestPassword123''',
+    '''HashedPassword123''',
+    '''hashedpassword123''',
+    '''hashed-password''',
+    '''admin123''',
+    '''seller123''',
+    '''buyer123''',
+    '''tenant123''',
+    '''test-secret-key''',
+  ]

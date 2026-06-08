@@ -1,0 +1,27 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["INSTRUCTIONS.md"],
+  "command": {
+    "deploy": {
+      "description": "Merge staging into main, push to GitHub. Vercel auto-deploys apps/web, Railway auto-deploys apps/api.",
+      "prompt": "Merge the staging branch into main, push to GitHub. Verify CI passes on GitHub Actions. Vercel auto-deploys the frontend (apps/web) and Railway auto-deploys the backend (apps/api) from the main branch."
+    }
+  },
+  "plugin": [
+    "opencode-dynamic-context-pruning",
+    "opencode-notify",
+    "opencode-wakatime"
+  ],
+  "mcp": {
+    "auto-browser": {
+      "type": "local",
+      "command": ["python", "C:\\Users\\axelj\\auto-browser\\scripts\\mcp_stdio_bridge.py"],
+      "enabled": true
+    },
+    "code-review-mcp": {
+      "type": "local",
+      "command": ["ai-code-review-mcp"],
+      "enabled": true
+    }
+  }
+}

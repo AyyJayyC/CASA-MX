@@ -1,0 +1,6 @@
+export {
+  FINANCING_OPTIONS,
+  FINANCING_VALUES,
+  FINANCING_LABELS,
+  FINANCING_SHORT_LABELS,
+} from "@casa-mx/shared";

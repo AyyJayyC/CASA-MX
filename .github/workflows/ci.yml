@@ -1,0 +1,146 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop, staging]
+  pull_request:
+    branches: [main, develop, staging]
+
+jobs:
+  test-shared:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      - run: npm run build:shared
+
+  test-web:
+    needs: [test-shared]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      - run: npm run build:shared
+      - name: Run unit tests
+        env:
+          NEXT_PUBLIC_BACKEND_URL: http://localhost:3001
+        run: npm run test:web
+
+  build-web:
+    needs: [test-web]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      - run: npm run build:shared
+      - name: Build frontend
+        env:
+          NEXT_PUBLIC_BACKEND_URL: http://localhost:3001
+        run: npm run build:web
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nextjs-build
+          path: apps/web/.next
+          retention-days: 7
+
+  test-api:
+    needs: [test-shared]
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: casamx_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 3s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      - run: npm run build:shared
+      - name: Generate Prisma client
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/casamx_test
+        run: npx prisma generate -w apps/api
+      - name: Run database migrations
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/casamx_test
+        run: npx prisma migrate deploy -w apps/api
+      - name: Seed database
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/casamx_test
+          JWT_SECRET: test-secret-key-for-ci-minimum-32-chars
+          NODE_ENV: test
+        run: npx tsx apps/api/prisma/seed.ts
+      - name: Run tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/casamx_test
+          JWT_SECRET: test-secret-key-for-ci-minimum-32-chars
+          NODE_ENV: test
+          PORT: 3001
+          FRONTEND_URL: http://localhost:3000
+          REDIS_URL: redis://localhost:6379
+        run: npm run test:api
+
+  build-api:
+    needs: [test-api]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      - run: npm run build:shared
+      - name: Build backend
+        run: npm run build:api
+      - uses: actions/upload-artifact@v4
+        with:
+          name: backend-dist
+          path: apps/api/dist
+          retention-days: 7
+
+  deploy-notify:
+    needs: [build-web, build-api]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy notification
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          echo "All tests passed for branch: $BRANCH"
+          echo "Vercel auto-deploys apps/web from this branch"
+          echo "Railway auto-deploys apps/api from branch watch at railway.com"

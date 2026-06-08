@@ -1,0 +1,100 @@
+name: Playwright E2E
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: casamx_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 3s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install all workspace dependencies
+        run: npm ci
+
+      - name: Build shared package
+        run: npm run build:shared
+
+      - name: Generate Prisma client
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/casamx_test
+        run: npx prisma generate -w apps/api
+
+      - name: Run database migrations
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/casamx_test
+        run: npx prisma migrate deploy -w apps/api
+
+      - name: Seed database
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/casamx_test
+          JWT_SECRET: test-secret-key-for-ci-minimum-32-chars
+          NODE_ENV: test
+        run: npx tsx apps/api/prisma/seed.ts
+
+      - name: Start backend
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/casamx_test
+          JWT_SECRET: test-secret-key-for-ci-minimum-32-chars
+          NODE_ENV: test
+          PORT: 3001
+          FRONTEND_URL: http://localhost:3000
+          REDIS_URL: redis://localhost:6379
+        run: npx tsx apps/api/src/server.ts &
+        shell: bash
+
+      - name: Wait for backend
+        run: |
+          for i in $(seq 1 60); do
+            curl -s http://localhost:3001/health && break || sleep 2
+          done
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright E2E tests
+        env:
+          CI: true
+          PLAYWRIGHT_API_URL: http://localhost:3001
+        run: npm run test:e2e -w apps/web
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report

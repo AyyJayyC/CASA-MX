@@ -1,0 +1,1 @@
+-- This migration was applied before syncing local schema

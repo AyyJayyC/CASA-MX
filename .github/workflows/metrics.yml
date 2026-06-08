@@ -1,0 +1,26 @@
+name: Metrics
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  actions: read
+  pull-requests: write
+
+jobs:
+  metrics:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      - run: npm run build:shared
+      - run: npm run test:web -- --coverage
+      - uses: unentropy/track-metrics@v1
+        with:
+          storage-type: sqlite-artifact

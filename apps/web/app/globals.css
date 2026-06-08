@@ -1,0 +1,57 @@
+/*
+  Global Tailwind CSS — Casa MX "Ruta Clara" Design System
+  Clay/terracotta palette with cream backdrop
+*/
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Clay palette */
+    --color-clay: #C46A4D;
+    --color-clay-dark: #B05E43;
+    --color-clay-darker: #9A5239;
+    
+    /* Light mode */
+    --bg-primary: #F5F1EC;
+    --bg-surface: #FFFFFF;
+    --border-color: #EAE4DD;
+    --text-primary: #1C1B19;
+    --text-secondary: #6B6B6B;
+    
+    /* Semantic colors */
+    --color-success: #10B981;
+    --color-error: #EF4444;
+    --color-warning: #C46A4D;
+    --color-info: #6B6B6B;
+  }
+  
+  .dark {
+    --bg-primary: #1C1B19;
+    --bg-surface: #2A2725;
+    --border-color: #3D3935;
+    --text-primary: #F5F1EC;
+    --text-secondary: #A39E98;
+  }
+  
+  html {
+    @apply antialiased;
+  }
+  
+  body {
+    @apply text-ink bg-sand-50 dark:bg-ink dark:text-sand-50;
+  }
+}
+
+html, body {
+  height: 100%;
+}
+
+.container {
+  @apply mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+* {
+  @apply transition-colors duration-200;
+}
