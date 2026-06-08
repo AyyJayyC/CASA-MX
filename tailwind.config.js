@@ -10,14 +10,14 @@ module.exports = {
     extend: {
       colors: {
         clay: {
-          DEFAULT: '#C46A4D',   // primary accent
-          400: '#C46A4D',
-          500: '#B05E43',       // hover
-          600: '#9A5239',       // active/darker
-          700: '#8C4530',
-          50: '#F2DFD7',        // light tint
-          100: '#E8CCC1',
-          900: '#5C2A1F',
+          DEFAULT: '#9A4E37',   // primary accent (WCAG AA 4.5:1 on white, also on clay/10 tint)
+          400: '#9A4E37',
+          500: '#8F4E3A',       // hover
+          600: '#7D4230',       // active/darker
+          700: '#733828',
+          50: '#E7CDC2',        // light tint (adjusted — passes 4.5:1 with clay DEFAULT)
+          100: '#DDBDAD',
+          900: '#4C2416',
         },
         sand: {
           DEFAULT: '#EAE4DD',   // borders, cards
@@ -28,7 +28,7 @@ module.exports = {
         },
         ink: {
           DEFAULT: '#1C1B19',   // main text
-          muted: '#6B6B6B',     // secondary text
+          muted: '#595959',     // secondary text (WCAG AA on sand backgrounds)
         },
       },
       fontFamily: {

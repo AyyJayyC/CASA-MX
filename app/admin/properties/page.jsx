@@ -1,36 +1,39 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { RequireRole } from '@/components/guards/RequireRole';
+import { useEffect, useState } from "react";
+import { RequireRole } from "@/components/guards/RequireRole";
 import {
   getPropertiesPendingVerification,
   adminVerifyProperty,
   getPropertyDocuments,
-} from '@/lib/api/propertyDocuments';
+} from "@/lib/api/propertyDocuments";
 
 const STATUS_LABELS = {
-  unverified:    { label: 'Sin documentos', color: 'text-gray-500 bg-gray-100' },
-  docs_uploaded: { label: 'Docs subidos',   color: 'text-clay-700 bg-clay-100' },
-  verified:      { label: 'Verificado',     color: 'text-green-700 bg-green-100' },
-  rejected:      { label: 'Rechazado',      color: 'text-red-700 bg-red-100' },
+  unverified: { label: "Sin documentos", color: "text-gray-500 bg-gray-100" },
+  docs_uploaded: { label: "Docs subidos", color: "text-clay-700 bg-clay-100" },
+  verified: { label: "Verificado", color: "text-green-700 bg-green-100" },
+  rejected: { label: "Rechazado", color: "text-red-700 bg-red-100" },
 };
 
 const DOC_TYPE_LABELS = {
-  title_deed:           'Escritura',
-  official_id:          'ID oficial',
-  agent_authorization:  'Carta autorización',
-  other:                'Otro',
+  title_deed: "Escritura",
+  official_id: "ID oficial",
+  agent_authorization: "Carta autorización",
+  other: "Otro",
 };
 
 function PropertyRow({ property, onAction }) {
   const [expanded, setExpanded] = useState(false);
   const [docs, setDocs] = useState(null);
   const [docsLoading, setDocsLoading] = useState(false);
-  const [note, setNote] = useState('');
+  const [note, setNote] = useState("");
   const [acting, setActing] = useState(false);
 
   async function loadDocs() {
-    if (docs !== null) { setExpanded((v) => !v); return; }
+    if (docs !== null) {
+      setExpanded((v) => !v);
+      return;
+    }
     setExpanded(true);
     setDocsLoading(true);
     try {
@@ -55,19 +58,25 @@ function PropertyRow({ property, onAction }) {
     }
   }
 
-  const st = STATUS_LABELS[property.verificationStatus] ?? STATUS_LABELS.unverified;
+  const st =
+    STATUS_LABELS[property.verificationStatus] ?? STATUS_LABELS.unverified;
 
   return (
     <div className="border rounded-xl overflow-hidden">
       {/* Header row */}
       <div className="flex items-center justify-between gap-4 px-4 py-3 bg-white dark:bg-neutral-900">
         <div className="min-w-0 flex-1">
-          <p className="font-medium text-gray-900 dark:text-gray-100 truncate">{property.title}</p>
+          <p className="font-medium text-gray-900 dark:text-gray-100 truncate">
+            {property.title}
+          </p>
           <p className="text-xs text-gray-500 mt-0.5">
-            {property.seller?.name} &middot; {property.seller?.email} &middot; ID: {property.id}
+            {property.seller?.name} &middot; {property.seller?.email} &middot;
+            ID: {property.id}
           </p>
         </div>
-        <span className={`shrink-0 px-2 py-0.5 rounded-full text-xs font-medium ${st.color}`}>
+        <span
+          className={`shrink-0 px-2 py-0.5 rounded-full text-xs font-medium ${st.color}`}
+        >
           {st.label}
         </span>
         <button
@@ -75,14 +84,16 @@ function PropertyRow({ property, onAction }) {
           className="shrink-0 text-xs text-blue-600 hover:underline"
           type="button"
         >
-          {expanded ? 'Ocultar' : 'Ver docs'}
+          {expanded ? "Ocultar" : "Ver docs"}
         </button>
       </div>
 
       {/* Expanded docs + actions */}
       {expanded && (
         <div className="border-t px-4 py-3 bg-gray-50 dark:bg-neutral-800 space-y-3">
-          {docsLoading && <p className="text-sm text-gray-500">Cargando documentos…</p>}
+          {docsLoading && (
+            <p className="text-sm text-gray-500">Cargando documentos…</p>
+          )}
 
           {!docsLoading && docs?.length === 0 && (
             <p className="text-sm text-gray-500">Sin documentos subidos.</p>
@@ -105,7 +116,9 @@ function PropertyRow({ property, onAction }) {
                       {doc.fileName} ↗
                     </a>
                   ) : (
-                    <span className="text-gray-500 truncate">{doc.fileName}</span>
+                    <span className="text-gray-500 truncate">
+                      {doc.fileName}
+                    </span>
                   )}
                 </li>
               ))}
@@ -122,7 +135,7 @@ function PropertyRow({ property, onAction }) {
             />
             <div className="flex gap-2">
               <button
-                onClick={() => handle('verified')}
+                onClick={() => handle("verified")}
                 disabled={acting}
                 className="flex-1 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 disabled:opacity-60 text-white text-sm font-medium transition"
                 type="button"
@@ -130,7 +143,7 @@ function PropertyRow({ property, onAction }) {
                 ✅ Aprobar
               </button>
               <button
-                onClick={() => handle('rejected')}
+                onClick={() => handle("rejected")}
                 disabled={acting}
                 className="flex-1 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white text-sm font-medium transition"
                 type="button"
@@ -165,7 +178,9 @@ export default function AdminPropertiesPage() {
 
   function handleAction(propertyId, newStatus) {
     setProperties((prev) =>
-      prev.map((p) => (p.id === propertyId ? { ...p, verificationStatus: newStatus } : p))
+      prev.map((p) =>
+        p.id === propertyId ? { ...p, verificationStatus: newStatus } : p,
+      ),
     );
   }
 
@@ -177,7 +192,8 @@ export default function AdminPropertiesPage() {
             Verificación de propiedades
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            Revisa los documentos de propiedad subidos por vendedores y aprueba o rechaza cada listado.
+            Revisa los documentos de propiedad subidos por vendedores y aprueba
+            o rechaza cada listado.
           </p>
         </div>
 
@@ -190,9 +206,10 @@ export default function AdminPropertiesPage() {
           </div>
         )}
 
-        {!loading && properties.map((p) => (
-          <PropertyRow key={p.id} property={p} onAction={handleAction} />
-        ))}
+        {!loading &&
+          properties.map((p) => (
+            <PropertyRow key={p.id} property={p} onAction={handleAction} />
+          ))}
       </div>
     </RequireRole>
   );

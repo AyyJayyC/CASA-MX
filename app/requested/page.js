@@ -1,4 +1,4 @@
-import ContactRequestsList from '../../components/ContactRequestsList.jsx';
+import ContactRequestsList from "../../components/ContactRequestsList.jsx";
 
 export default function RequestedPage() {
   return (

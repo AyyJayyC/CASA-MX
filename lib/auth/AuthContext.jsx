@@ -1,16 +1,28 @@
-'use client';
+"use client";
 
-/**
- * Authentication Context
- * Provides session state, login/logout/register, and role management across the app
- */
-
-import React, { createContext, useCallback, useEffect, useState } from 'react';
-import * as authAPI from '@/lib/api/auth';
-import analytics from '@/lib/analytics';
-import { EVENT_NAMES } from '@/lib/analytics/events';
+import React, { createContext, useCallback, useEffect, useState } from "react";
+import * as authAPI from "@/lib/api/auth";
+import analytics from "@/lib/analytics";
+import { EVENT_NAMES } from "@/lib/analytics/events";
 
 export const AuthContext = createContext();
+
+function buildSession(user) {
+  return {
+    userId: user.id,
+    email: user.email,
+    name: user.name,
+    avatarUrl: user.avatarUrl,
+    emailVerified: user.emailVerified,
+    officialIdUploaded: user.officialIdUploaded,
+    officialIdVerified: user.officialIdVerified,
+    paidSubscriber: user.paidSubscriber,
+    subscriptionStatus: user.subscriptionStatus,
+    subscriptionCurrentPeriodEnd: user.subscriptionCurrentPeriodEnd,
+    activeRole: user.activeRole,
+    roles: user.roles,
+  };
+}
 
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
@@ -27,28 +39,23 @@ export function AuthProvider({ children }) {
         setUser(null);
         return null;
       }
-
       const nextUser = await authAPI.getUserById(nextSession.userId);
-      // Update both atomically — if either fails, nothing changes
       setSession(nextSession);
       setUser(nextUser);
       return nextUser;
     } catch (err) {
-      console.error('Failed to refresh user:', err);
+      console.error("Failed to refresh user:", err);
       return null;
     }
   }, []);
 
-  // Hydrate session from storage on mount
   useEffect(() => {
     const hydrate = async () => {
       try {
-        // Only run on client side
-        if (typeof window === 'undefined') {
+        if (typeof window === "undefined") {
           setIsHydrated(true);
           return;
         }
-        
         const initialSession = await authAPI.getSession();
         if (initialSession) {
           setSession(initialSession);
@@ -56,23 +63,24 @@ export function AuthProvider({ children }) {
           setUser(initialUser);
         }
       } catch (err) {
-        console.error('Failed to hydrate session:', err);
-        setError('Failed to load session');
+        console.error("Failed to hydrate session:", err);
+        setError("Failed to load session");
       } finally {
         setIsHydrated(true);
       }
     };
-
     hydrate();
   }, []);
 
-  // Register a new user
   const register = useCallback(async (payload) => {
     try {
       setError(null);
       const result = await authAPI.register(payload);
-      analytics.trackEvent(EVENT_NAMES.USER_REGISTER, { metadata: { roles: payload.roles } }, { userId: result.user.id });
-      // Don't auto-login; wait for admin approval
+      analytics.trackEvent(
+        EVENT_NAMES.USER_REGISTER,
+        { metadata: { roles: payload.roles } },
+        { userId: result.user.id }
+      );
       return result;
     } catch (err) {
       setError(err.message);
@@ -80,29 +88,17 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // Login with email and password
   const login = useCallback(async (payload) => {
     try {
       setError(null);
       setLoading(true);
       const result = await authAPI.login(payload);
-      analytics.trackEvent(EVENT_NAMES.USER_LOGIN, {}, { userId: result.user.id, activeRole: result.user.activeRole });
-
-      // Success - update context
-      setSession({
-        userId: result.user.id,
-        email: result.user.email,
-        name: result.user.name,
-        avatarUrl: result.user.avatarUrl,
-        emailVerified: result.user.emailVerified,
-        officialIdUploaded: result.user.officialIdUploaded,
-        officialIdVerified: result.user.officialIdVerified,
-        paidSubscriber: result.user.paidSubscriber,
-        subscriptionStatus: result.user.subscriptionStatus,
-        subscriptionCurrentPeriodEnd: result.user.subscriptionCurrentPeriodEnd,
-        activeRole: result.user.activeRole,
-        roles: result.user.roles,
-      });
+      analytics.trackEvent(
+        EVENT_NAMES.USER_LOGIN,
+        {},
+        { userId: result.user.id, activeRole: result.user.activeRole }
+      );
+      setSession(buildSession(result.user));
       setUser(result.user);
       setLoading(false);
       return { user: result.user };
@@ -113,7 +109,31 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // Logout
+  const loginWithProvider = useCallback(async (provider, ...args) => {
+    try {
+      setError(null);
+      setLoading(true);
+
+      const apiCall = {
+        google: () => authAPI.loginWithGoogle(args[0]),
+        facebook: () => authAPI.loginWithFacebook(args[0]),
+        apple: () => authAPI.loginWithApple(args[0], args[1], args[2]),
+      }[provider];
+
+      if (!apiCall) throw new Error(`Unknown provider: ${provider}`);
+      const result = await apiCall();
+
+      setSession(buildSession(result.user));
+      setUser(result.user);
+      setLoading(false);
+      return { user: result.user };
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+      throw err;
+    }
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       setError(null);
@@ -126,147 +146,32 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // Change active role (must be approved)
-  const switchRole = useCallback(async (roleType) => {
-    if (!user) {
-      setError('No user logged in');
-      return;
-    }
-
-    const role = user.roles.find((r) => r.type === roleType);
-    if (!role) {
-      setError('Role not found');
-      return;
-    }
-
-    if (role.status !== 'approved') {
-      setError(`Role ${roleType} is not approved`);
-      return;
-    }
-
-    try {
-      setError(null);
-      setSession((currentSession) => {
-        if (!currentSession) {
-          return currentSession;
-        }
-
-        return {
-          ...currentSession,
-          activeRole: roleType,
-        };
-      });
-      setUser((currentUser) => {
-        if (!currentUser) {
-          return currentUser;
-        }
-
-        return {
-          ...currentUser,
-          activeRole: roleType,
-        };
-      });
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    }
-  }, [user]);
-
-  // Login with Google ID token (from Google Sign-In)
-  const loginWithGoogle = useCallback(async (idToken) => {
-    try {
-      setError(null);
-      setLoading(true);
-      const result = await authAPI.loginWithGoogle(idToken);
-
-      setSession({
-        userId: result.user.id,
-        email: result.user.email,
-        name: result.user.name,
-        emailVerified: result.user.emailVerified,
-        officialIdUploaded: result.user.officialIdUploaded,
-        officialIdVerified: result.user.officialIdVerified,
-        paidSubscriber: result.user.paidSubscriber,
-        subscriptionStatus: result.user.subscriptionStatus,
-        subscriptionCurrentPeriodEnd: result.user.subscriptionCurrentPeriodEnd,
-        avatarUrl: result.user.avatarUrl,
-        provider: result.user.provider,
-        activeRole: result.user.activeRole,
-        roles: result.user.roles,
-      });
-      setUser(result.user);
-      setLoading(false);
-      return { user: result.user };
-    } catch (err) {
-      setError(err.message);
-      setLoading(false);
-      throw err;
-    }
-  }, []);
-
-  // Login with Facebook access token
-  const loginWithFacebook = useCallback(async (accessToken) => {
-    try {
-      setError(null);
-      setLoading(true);
-      const result = await authAPI.loginWithFacebook(accessToken);
-
-      setSession({
-        userId: result.user.id,
-        email: result.user.email,
-        name: result.user.name,
-        emailVerified: result.user.emailVerified,
-        officialIdUploaded: result.user.officialIdUploaded,
-        officialIdVerified: result.user.officialIdVerified,
-        paidSubscriber: result.user.paidSubscriber,
-        subscriptionStatus: result.user.subscriptionStatus,
-        subscriptionCurrentPeriodEnd: result.user.subscriptionCurrentPeriodEnd,
-        avatarUrl: result.user.avatarUrl,
-        provider: result.user.provider,
-        activeRole: result.user.activeRole,
-        roles: result.user.roles,
-      });
-      setUser(result.user);
-      setLoading(false);
-      return { user: result.user };
-    } catch (err) {
-      setError(err.message);
-      setLoading(false);
-      throw err;
-    }
-  }, []);
-
-  // Login with Apple
-  const loginWithApple = useCallback(async (identityToken, authorizationCode, name) => {
-    try {
-      setError(null);
-      setLoading(true);
-      const result = await authAPI.loginWithApple(identityToken, authorizationCode, name);
-
-      setSession({
-        userId: result.user.id,
-        email: result.user.email,
-        name: result.user.name,
-        emailVerified: result.user.emailVerified,
-        officialIdUploaded: result.user.officialIdUploaded,
-        officialIdVerified: result.user.officialIdVerified,
-        paidSubscriber: result.user.paidSubscriber,
-        subscriptionStatus: result.user.subscriptionStatus,
-        subscriptionCurrentPeriodEnd: result.user.subscriptionCurrentPeriodEnd,
-        avatarUrl: result.user.avatarUrl,
-        provider: result.user.provider,
-        activeRole: result.user.activeRole,
-        roles: result.user.roles,
-      });
-      setUser(result.user);
-      setLoading(false);
-      return { user: result.user };
-    } catch (err) {
-      setError(err.message);
-      setLoading(false);
-      throw err;
-    }
-  }, []);
+  const switchRole = useCallback(
+    async (roleType) => {
+      if (!user) {
+        setError("No user logged in");
+        return;
+      }
+      const role = user.roles.find((r) => r.type === roleType);
+      if (!role) {
+        setError("Role not found");
+        return;
+      }
+      if (role.status !== "approved") {
+        setError(`Role ${roleType} is not approved`);
+        return;
+      }
+      try {
+        setError(null);
+        setSession((prev) => (prev ? { ...prev, activeRole: roleType } : prev));
+        setUser((prev) => (prev ? { ...prev, activeRole: roleType } : prev));
+      } catch (err) {
+        setError(err.message);
+        throw err;
+      }
+    },
+    [user]
+  );
 
   const value = {
     session,
@@ -277,17 +182,13 @@ export function AuthProvider({ children }) {
     isAuthenticated: !!session,
     register,
     login,
-    loginWithGoogle,
-    loginWithFacebook,
-    loginWithApple,
+    loginWithGoogle: (...args) => loginWithProvider("google", ...args),
+    loginWithFacebook: (...args) => loginWithProvider("facebook", ...args),
+    loginWithApple: (...args) => loginWithProvider("apple", ...args),
     logout,
     switchRole,
     refreshUser,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

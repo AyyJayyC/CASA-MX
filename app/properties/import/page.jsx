@@ -1,13 +1,18 @@
-'use client';
-import React from 'react';
-import { useRouter } from 'next/navigation';
-import { RequireRole } from '@/components/guards/RequireRole';
-import { bulkImportProperties } from '@/lib/api/properties';
-import PropertyImportWizard from '@/components/PropertyImportWizard.jsx';
+"use client";
+import React from "react";
+import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+import { RequireRole } from "@/components/guards/RequireRole";
+import { bulkImportProperties } from "@/lib/api/properties";
+
+const PropertyImportWizard = dynamic(
+  () => import("@/components/PropertyImportWizard.jsx"),
+  { loading: () => <div className="p-8 text-center text-neutral-500">Cargando importador...</div> }
+);
 
 export default function ImportPage() {
   return (
-    <RequireRole roles={['wholesaler', 'seller', 'landlord', 'admin']}>
+    <RequireRole roles={["wholesaler", "seller", "landlord", "admin"]}>
       <ImportContent />
     </RequireRole>
   );
@@ -17,7 +22,7 @@ function ImportContent() {
   const router = useRouter();
 
   const handleSubmit = async (rows, onProgress) => {
-    return bulkImportProperties(rows, 'private', onProgress);
+    return bulkImportProperties(rows, "private", onProgress);
   };
 
   return (
@@ -27,11 +32,13 @@ function ImportContent() {
           Importar propiedades
         </h1>
         <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-8">
-          Importa múltiples propiedades desde Excel. Las propiedades importadas se marcarán como <strong>Privadas</strong> por defecto (solo visibles para mayoristas y realtors).
+          Importa múltiples propiedades desde Excel. Las propiedades importadas
+          se marcarán como <strong>Privadas</strong> por defecto (solo visibles
+          para mayoristas y realtors).
         </p>
         <PropertyImportWizard
           onSubmit={handleSubmit}
-          onCancel={() => router.push('/properties')}
+          onCancel={() => router.push("/properties")}
         />
       </div>
     </div>

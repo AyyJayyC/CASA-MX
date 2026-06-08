@@ -1,119 +1,127 @@
-'use client';
-import Link from 'next/link';
-import { useAuth } from '@/lib/auth/useAuth';
+"use client";
+import Link from "next/link";
+import { useAuth } from "@/lib/auth/useAuth";
 
 const SECTIONS = [
   {
-    href: '/dashboard/applications',
-    title: 'Solicitudes de renta',
-    description: 'Revisa y gestiona las solicitudes de inquilinos para tus propiedades en renta.',
-    icon: '📋',
-    roles: ['landlord'],
+    href: "/dashboard/applications",
+    title: "Solicitudes de renta",
+    description:
+      "Revisa y gestiona las solicitudes de inquilinos para tus propiedades en renta.",
+    icon: "📋",
+    roles: ["landlord"],
   },
   {
-    href: '/dashboard/offers',
-    title: 'Ofertas de compra',
-    description: 'Revisa y responde las ofertas que has recibido en tus propiedades en venta.',
-    icon: '🤝',
-    roles: ['seller', 'wholesaler', 'admin'],
+    href: "/dashboard/offers",
+    title: "Ofertas de compra",
+    description:
+      "Revisa y responde las ofertas que has recibido en tus propiedades en venta.",
+    icon: "🤝",
+    roles: ["seller", "wholesaler", "admin"],
   },
   {
-    href: '/dashboard/my-offers',
-    title: 'Mis negociaciones de compra',
-    description: 'Sigue el árbol de negociación y responde contraofertas de vendedores.',
-    icon: '🧭',
-    roles: ['buyer', 'admin'],
+    href: "/dashboard/my-offers",
+    title: "Mis negociaciones de compra",
+    description:
+      "Sigue el árbol de negociación y responde contraofertas de vendedores.",
+    icon: "🧭",
+    roles: ["buyer", "admin"],
   },
   {
-    href: '/dashboard/rental-applications',
-    title: 'Mis solicitudes de renta',
-    description: 'Consulta el estado de tus solicitudes como inquilino.',
-    icon: '🏠',
-    roles: ['tenant'],
+    href: "/dashboard/rental-applications",
+    title: "Mis solicitudes de renta",
+    description: "Consulta el estado de tus solicitudes como inquilino.",
+    icon: "🏠",
+    roles: ["tenant"],
   },
   {
-    href: '/publish-property',
-    title: 'Publicar propiedad',
-    description: 'Crea un nuevo listado de propiedad en venta o en renta.',
-    icon: '➕',
-    roles: ['seller', 'wholesaler', 'landlord', 'admin'],
+    href: "/publish-property",
+    title: "Publicar propiedad",
+    description: "Crea un nuevo listado de propiedad en venta o en renta.",
+    icon: "➕",
+    roles: ["seller", "wholesaler", "landlord", "admin"],
   },
   {
-    href: '/properties',
-    title: 'Buscar propiedades',
-    description: 'Explora propiedades disponibles para comprar o rentar.',
-    icon: '🔍',
-    roles: ['buyer', 'tenant', 'seller', 'wholesaler', 'landlord', 'admin'],
+    href: "/properties",
+    title: "Buscar propiedades",
+    description: "Explora propiedades disponibles para comprar o rentar.",
+    icon: "🔍",
+    roles: ["buyer", "tenant", "seller", "wholesaler", "landlord", "admin"],
   },
   {
-    href: '/dashboard/contact-requests',
-    title: 'Solicitudes de contacto',
-    description: 'Compradores que han solicitado la dirección de tus propiedades. Revela datos de contacto.',
-    icon: '📩',
-    roles: ['seller', 'landlord', 'wholesaler', 'admin'],
+    href: "/dashboard/contact-requests",
+    title: "Solicitudes de contacto",
+    description:
+      "Compradores que han solicitado la dirección de tus propiedades. Revela datos de contacto.",
+    icon: "📩",
+    roles: ["seller", "landlord", "wholesaler", "admin"],
   },
   {
-    href: '/requested',
-    title: 'Mis solicitudes de contacto',
-    description: 'Propiedades de las que has solicitado la dirección. Consulta las respuestas.',
-    icon: '📍',
-    roles: ['buyer'],
+    href: "/requested",
+    title: "Mis solicitudes de contacto",
+    description:
+      "Propiedades de las que has solicitado la dirección. Consulta las respuestas.",
+    icon: "📍",
+    roles: ["buyer"],
   },
   {
-    href: '/reviews',
-    title: 'Reseñas',
-    description: 'Consulta y gestiona tus reseñas de propiedades.',
-    icon: '⭐',
-    roles: ['tenant', 'landlord'],
+    href: "/reviews",
+    title: "Reseñas",
+    description: "Consulta y gestiona tus reseñas de propiedades.",
+    icon: "⭐",
+    roles: ["tenant", "landlord"],
   },
   {
-    href: '/dashboard/account',
-    title: 'Mi cuenta',
-    description: 'Gestiona tus documentos de identidad (INE/IFE) y datos personales.',
-    icon: '🪪',
-    roles: ['buyer', 'tenant', 'seller', 'wholesaler', 'landlord', 'admin'],
+    href: "/dashboard/account",
+    title: "Mi cuenta",
+    description:
+      "Gestiona tus documentos de identidad (INE/IFE) y datos personales.",
+    icon: "🪪",
+    roles: ["buyer", "tenant", "seller", "wholesaler", "landlord", "admin"],
   },
   {
-    href: '/dashboard/shared',
-    title: 'Enlaces compartidos',
-    description: 'Tus propiedades compartidas, clics y personas registradas a través de tus enlaces.',
-    icon: '🔗',
-    roles: ['buyer', 'tenant', 'seller', 'wholesaler', 'landlord', 'admin'],
+    href: "/dashboard/shared",
+    title: "Enlaces compartidos",
+    description:
+      "Tus propiedades compartidas, clics y personas registradas a través de tus enlaces.",
+    icon: "🔗",
+    roles: ["buyer", "tenant", "seller", "wholesaler", "landlord", "admin"],
   },
   {
-    href: '/dashboard/agency',
-    title: 'Mi agencia',
-    description: 'Gestiona tu agencia, invita agentes, revisa estadísticas.',
-    icon: '🏢',
-    roles: ['seller', 'landlord', 'wholesaler', 'admin'],
+    href: "/dashboard/agency",
+    title: "Mi agencia",
+    description: "Gestiona tu agencia, invita agentes, revisa estadísticas.",
+    icon: "🏢",
+    roles: ["seller", "landlord", "wholesaler", "admin"],
   },
   {
-    href: '/dashboard/my-properties',
-    title: 'Mis propiedades',
-    description: 'Administra tus propiedades, completa borradores y publica.',
-    icon: '🏘️',
-    roles: ['seller', 'wholesaler', 'landlord', 'admin'],
+    href: "/dashboard/my-properties",
+    title: "Mis propiedades",
+    description: "Administra tus propiedades, completa borradores y publica.",
+    icon: "🏘️",
+    roles: ["seller", "wholesaler", "landlord", "admin"],
   },
   {
-    href: '/dashboard/crm',
-    title: 'CRM',
-    description: 'Pipeline de ventas, calendario y lista de compradores.',
-    icon: '📊',
-    roles: ['seller', 'wholesaler', 'landlord', 'admin'],
+    href: "/dashboard/crm",
+    title: "CRM",
+    description: "Pipeline de ventas, calendario y lista de compradores.",
+    icon: "📊",
+    roles: ["seller", "wholesaler", "landlord", "admin"],
   },
   {
-    href: '/properties/import',
-    title: 'Importar propiedades',
-    description: 'Importa propiedades desde Excel en lote.',
-    icon: '📥',
-    roles: ['seller', 'wholesaler', 'admin'],
+    href: "/properties/import",
+    title: "Importar propiedades",
+    description: "Importa propiedades desde Excel en lote.",
+    icon: "📥",
+    roles: ["seller", "wholesaler", "admin"],
   },
   {
-    href: '/admin/analytics/market',
-    title: 'Análisis de mercado',
-    description: 'Ofertas, tendencias y oportunidades por ciudad y colonia. Solo administradores.',
-    icon: '📊',
-    roles: ['admin'],
+    href: "/admin/analytics/market",
+    title: "Análisis de mercado",
+    description:
+      "Ofertas, tendencias y oportunidades por ciudad y colonia. Solo administradores.",
+    icon: "📊",
+    roles: ["admin"],
   },
 ];
 
@@ -124,8 +132,13 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center">
         <div className="text-center space-y-4">
-          <p className="text-neutral-600 dark:text-neutral-400">Debes iniciar sesión para ver el inicio.</p>
-          <Link href="/login" className="text-clay dark:text-clay hover:underline font-medium">
+          <p className="text-neutral-600 dark:text-neutral-400">
+            Debes iniciar sesión para ver el inicio.
+          </p>
+          <Link
+            href="/login"
+            className="text-clay dark:text-clay hover:underline font-medium"
+          >
             Iniciar sesión
           </Link>
         </div>
@@ -134,13 +147,13 @@ export default function DashboardPage() {
   }
 
   const approvedRoles = (user?.roles ?? [])
-    .filter((r) => r.status === 'approved')
+    .filter((r) => r.status === "approved")
     .map((r) => r.type);
 
   const activeSectionRoles = [user?.activeRole];
 
   const visibleSections = SECTIONS.filter((s) =>
-    s.roles.some((r) => activeSectionRoles.includes(r))
+    s.roles.some((r) => activeSectionRoles.includes(r)),
   );
 
   return (
@@ -149,7 +162,7 @@ export default function DashboardPage() {
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
-            Bienvenido, {user?.name?.split(' ')[0]}
+            Bienvenido, {user?.name?.split(" ")[0]}
           </h1>
           <p className="text-neutral-500 dark:text-neutral-400 mt-1">
             ¿Qué quieres hacer hoy?
@@ -189,8 +202,12 @@ export default function DashboardPage() {
         {visibleSections.length === 0 && (
           <div className="text-center py-16 text-neutral-400 dark:text-neutral-600">
             <div className="text-4xl mb-3">⏳</div>
-            <p className="font-medium">Tu cuenta está pendiente de aprobación.</p>
-            <p className="text-sm mt-1">Un administrador revisará tu solicitud pronto.</p>
+            <p className="font-medium">
+              Tu cuenta está pendiente de aprobación.
+            </p>
+            <p className="text-sm mt-1">
+              Un administrador revisará tu solicitud pronto.
+            </p>
           </div>
         )}
       </div>

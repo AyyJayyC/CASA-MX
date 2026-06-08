@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import RatingStars from './RatingStars.jsx';
-import { createReview } from '@/lib/api/reviews';
-import { getRoleLabel, REVIEWEE_ROLE_BY_REVIEWER_ROLE } from '@/lib/reviews';
+import { useEffect, useState } from "react";
+import RatingStars from "./RatingStars.jsx";
+import { createReview } from "@/lib/api/reviews";
+import { getRoleLabel, REVIEWEE_ROLE_BY_REVIEWER_ROLE } from "@/lib/reviews";
 
 export default function LeaveReviewModal({
   isOpen,
@@ -15,14 +15,14 @@ export default function LeaveReviewModal({
   propertyTitle,
 }) {
   const [overallRating, setOverallRating] = useState(0);
-  const [comment, setComment] = useState('');
+  const [comment, setComment] = useState("");
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
       setOverallRating(0);
-      setComment('');
+      setComment("");
       setError(null);
       setIsSubmitting(false);
     }
@@ -39,12 +39,14 @@ export default function LeaveReviewModal({
     setError(null);
 
     if (!overallRating) {
-      setError('Selecciona una calificación general.');
+      setError("Selecciona una calificación general.");
       return;
     }
 
     if (overallRating <= 2 && comment.trim().length < 20) {
-      setError('Para 2 estrellas o menos, agrega un comentario detallado de al menos 20 caracteres.');
+      setError(
+        "Para 2 estrellas o menos, agrega un comentario detallado de al menos 20 caracteres.",
+      );
       return;
     }
 
@@ -60,7 +62,7 @@ export default function LeaveReviewModal({
       onSubmitted?.();
       onClose?.();
     } catch (submitError) {
-      setError(submitError.message || 'No se pudo enviar la reseña');
+      setError(submitError.message || "No se pudo enviar la reseña");
     } finally {
       setIsSubmitting(false);
     }
@@ -72,10 +74,11 @@ export default function LeaveReviewModal({
         <div className="sticky top-0 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 px-6 py-5 flex items-start justify-between gap-4">
           <div>
             <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
-              Calificar a {revieweeName || getRoleLabel(revieweeRole).toLowerCase()}
+              Calificar a{" "}
+              {revieweeName || getRoleLabel(revieweeRole).toLowerCase()}
             </h2>
             <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
-              Reseña verificada para {propertyTitle || 'una renta aprobada'}.
+              Reseña verificada para {propertyTitle || "una renta aprobada"}.
             </p>
           </div>
           <button
@@ -83,8 +86,18 @@ export default function LeaveReviewModal({
             onClick={onClose}
             className="text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -94,11 +107,18 @@ export default function LeaveReviewModal({
             <label className="block text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-3">
               Calificación general
             </label>
-            <RatingStars value={overallRating} onChange={setOverallRating} size="lg" />
+            <RatingStars
+              value={overallRating}
+              onChange={setOverallRating}
+              size="lg"
+            />
           </div>
 
           <div>
-            <label htmlFor="review-comment" className="block text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-2">
+            <label
+              htmlFor="review-comment"
+              className="block text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-2"
+            >
               Comentario
             </label>
             <textarea
@@ -111,7 +131,8 @@ export default function LeaveReviewModal({
               className="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-950 px-4 py-3 text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-clay-400"
             />
             <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
-              Si das 2 estrellas o menos, se requiere un comentario más detallado.
+              Si das 2 estrellas o menos, se requiere un comentario más
+              detallado.
             </p>
           </div>
 
@@ -134,7 +155,7 @@ export default function LeaveReviewModal({
               disabled={isSubmitting}
               className="px-5 py-2 rounded-lg text-sm font-semibold text-white bg-gradient-to-br from-clay-400 to-clay-600 hover:from-clay-500 hover:to-clay-700 disabled:opacity-60 transition-all"
             >
-              {isSubmitting ? 'Enviando...' : 'Enviar reseña'}
+              {isSubmitting ? "Enviando..." : "Enviar reseña"}
             </button>
           </div>
         </form>

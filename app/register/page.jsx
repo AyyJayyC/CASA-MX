@@ -1,29 +1,31 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useAuth } from '@/lib/auth/useAuth';
-import SocialLoginButtons from '@/components/SocialLoginButtons';
+import React from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useAuth } from "@/lib/auth/useAuth";
+import SocialLoginButtons from "@/components/SocialLoginButtons";
 
 const registerSchema = z.object({
-  name: z.string().min(2, 'Nombre debe tener al menos 2 caracteres'),
-  email: z.string().email('Email inválido'),
-  password: z.string().min(8, 'Contraseña debe tener al menos 8 caracteres'),
-  roles: z.array(z.string()).min(1, 'Selecciona al menos un rol'),
+  name: z.string().min(2, "Nombre debe tener al menos 2 caracteres"),
+  email: z.string().email("Email inválido"),
+  password: z.string().min(8, "Contraseña debe tener al menos 8 caracteres"),
+  roles: z.array(z.string()).min(1, "Selecciona al menos un rol"),
   acceptLegal: z.literal(true, {
-    errorMap: () => ({ message: 'Debes aceptar Términos y Privacidad para continuar' }),
-  })
+    errorMap: () => ({
+      message: "Debes aceptar Términos y Privacidad para continuar",
+    }),
+  }),
 });
 
 const AVAILABLE_ROLES = [
-  { value: 'buyer', label: 'Comprar propiedad' },
-  { value: 'tenant', label: 'Rentar propiedad' },
-  { value: 'seller', label: 'Publicar propiedad (vender o rentar)' },
-  { value: 'wholesaler', label: 'Intermediar oportunidades' }
+  { value: "buyer", label: "Comprar propiedad" },
+  { value: "tenant", label: "Rentar propiedad" },
+  { value: "seller", label: "Publicar propiedad (vender o rentar)" },
+  { value: "wholesaler", label: "Intermediar oportunidades" },
 ];
 
 export default function RegisterPage() {
@@ -36,40 +38,42 @@ export default function RegisterPage() {
     register,
     handleSubmit,
     setValue,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       roles: selectedRoles,
       acceptLegal: false,
-    }
+    },
   });
 
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      router.push('/');
+      router.push("/");
     }
   }, [isAuthenticated, router]);
 
   const handleRoleChange = (role) => {
     setSelectedRoles((prev) => {
-      const next = prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role];
+      const next = prev.includes(role)
+        ? prev.filter((r) => r !== role)
+        : [...prev, role];
       // Keep the form's roles value in sync so validation passes
-      setValue('roles', next);
+      setValue("roles", next);
       return next;
     });
   };
 
   const onSubmit = async (data) => {
     if (selectedRoles.length === 0) {
-      setRegisterError('Selecciona al menos un rol');
+      setRegisterError("Selecciona al menos un rol");
       return;
     }
 
     const roles = [...selectedRoles];
-    if (roles.includes('seller') && !roles.includes('landlord')) {
-      roles.push('landlord');
+    if (roles.includes("seller") && !roles.includes("landlord")) {
+      roles.push("landlord");
     }
 
     try {
@@ -82,14 +86,16 @@ export default function RegisterPage() {
         acceptLegal: data.acceptLegal,
       });
 
-      const requiresApproval = selectedRoles.some((role) => role === 'admin');
+      const requiresApproval = selectedRoles.some((role) => role === "admin");
       const message = requiresApproval
-        ? '¡Registro exitoso! El acceso de administrador requiere aprobación.'
-        : '¡Registro exitoso! Ya puedes iniciar sesión.';
-      router.push(`/login?registered=true&message=${encodeURIComponent(message)}`);
+        ? "¡Registro exitoso! El acceso de administrador requiere aprobación."
+        : "¡Registro exitoso! Ya puedes iniciar sesión.";
+      router.push(
+        `/login?registered=true&message=${encodeURIComponent(message)}`,
+      );
     } catch (err) {
-      console.error('Register error:', err);
-      setRegisterError(err.message || 'Error al registrar');
+      console.error("Register error:", err);
+      setRegisterError(err.message || "Error al registrar");
     }
   };
 
@@ -116,8 +122,8 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* Name */}
             <div>
-              <label 
-                htmlFor="name" 
+              <label
+                htmlFor="name"
                 className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2"
               >
                 Nombre Completo
@@ -125,7 +131,7 @@ export default function RegisterPage() {
               <input
                 id="name"
                 type="text"
-                {...register('name')}
+                {...register("name")}
                 className="
                   w-full px-4 py-3 
                   bg-neutral-50 dark:bg-neutral-800
@@ -140,8 +146,16 @@ export default function RegisterPage() {
               />
               {errors.name && (
                 <p className="text-red-600 dark:text-red-400 text-sm mt-2 flex items-center gap-1">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   {errors.name.message}
                 </p>
@@ -150,8 +164,8 @@ export default function RegisterPage() {
 
             {/* Email */}
             <div>
-              <label 
-                htmlFor="email" 
+              <label
+                htmlFor="email"
                 className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2"
               >
                 Email
@@ -159,7 +173,7 @@ export default function RegisterPage() {
               <input
                 id="email"
                 type="email"
-                {...register('email')}
+                {...register("email")}
                 className="
                   w-full px-4 py-3 
                   bg-neutral-50 dark:bg-neutral-800
@@ -174,8 +188,16 @@ export default function RegisterPage() {
               />
               {errors.email && (
                 <p className="text-red-600 dark:text-red-400 text-sm mt-2 flex items-center gap-1">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   {errors.email.message}
                 </p>
@@ -184,8 +206,8 @@ export default function RegisterPage() {
 
             {/* Password */}
             <div>
-              <label 
-                htmlFor="password" 
+              <label
+                htmlFor="password"
                 className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2"
               >
                 Contraseña
@@ -193,7 +215,7 @@ export default function RegisterPage() {
               <input
                 id="password"
                 type="password"
-                {...register('password')}
+                {...register("password")}
                 className="
                   w-full px-4 py-3 
                   bg-neutral-50 dark:bg-neutral-800
@@ -208,8 +230,16 @@ export default function RegisterPage() {
               />
               {errors.password && (
                 <p className="text-red-600 dark:text-red-400 text-sm mt-2 flex items-center gap-1">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   {errors.password.message}
                 </p>
@@ -234,31 +264,45 @@ export default function RegisterPage() {
                       onClick={() => handleRoleChange(role.value)}
                       className={`
                         w-full px-4 py-3 rounded-lg border-2 text-left transition-all
-                        ${isSelected
-                          ? 'border-clay bg-clay/10 dark:bg-clay-900/20'
-                          : 'border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:border-clay dark:hover:border-clay'
+                        ${
+                          isSelected
+                            ? "border-clay bg-clay/10 dark:bg-clay-900/20"
+                            : "border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:border-clay dark:hover:border-clay"
                         }
                       `}
                     >
                       <div className="flex items-center gap-3">
-                        <div className={`
+                        <div
+                          className={`
                           w-5 h-5 rounded border-2 flex items-center justify-center transition-colors
-                          ${isSelected
-                            ? 'border-amber-500 bg-clay/100'
-                            : 'border-neutral-400 dark:border-neutral-600'
+                          ${
+                            isSelected
+                              ? "border-amber-500 bg-clay/100"
+                              : "border-neutral-400 dark:border-neutral-600"
                           }
-                        `}>
+                        `}
+                        >
                           {isSelected && (
-                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            <svg
+                              className="w-3 h-3 text-white"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clipRule="evenodd"
+                              />
                             </svg>
                           )}
                         </div>
-                        <span className={`text-sm font-medium ${
-                          isSelected
-                            ? 'text-clay dark:text-clay'
-                            : 'text-neutral-700 dark:text-neutral-300'
-                        }`}>
+                        <span
+                          className={`text-sm font-medium ${
+                            isSelected
+                              ? "text-clay dark:text-clay"
+                              : "text-neutral-700 dark:text-neutral-300"
+                          }`}
+                        >
                           {role.label}
                         </span>
                       </div>
@@ -268,8 +312,16 @@ export default function RegisterPage() {
               </div>
               {selectedRoles.length === 0 && (
                 <p className="text-red-600 dark:text-red-400 text-sm mt-2 flex items-center gap-1">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   Selecciona al menos un rol
                 </p>
@@ -279,7 +331,9 @@ export default function RegisterPage() {
             {/* Error Message */}
             {registerError && (
               <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                <p className="text-red-700 dark:text-red-400 text-sm">{registerError}</p>
+                <p className="text-red-700 dark:text-red-400 text-sm">
+                  {registerError}
+                </p>
               </div>
             )}
 
@@ -287,17 +341,39 @@ export default function RegisterPage() {
               <label className="flex items-start gap-3 text-sm text-neutral-700 dark:text-neutral-300">
                 <input
                   type="checkbox"
-                  {...register('acceptLegal')}
+                  {...register("acceptLegal")}
                   className="mt-0.5 h-4 w-4 rounded border-neutral-300 dark:border-neutral-700 text-clay focus:ring-clay"
                 />
                 <span>
-                  Acepto los <a href="/terminos" className="text-clay dark:text-clay-400 hover:underline">Términos y Condiciones</a> y el <a href="/aviso-legal" className="text-clay dark:text-clay-400 hover:underline">Aviso de Privacidad</a>.
+                  Acepto los{" "}
+                  <a
+                    href="/terminos"
+                    className="text-clay dark:text-clay-400 hover:underline"
+                  >
+                    Términos y Condiciones
+                  </a>{" "}
+                  y el{" "}
+                  <a
+                    href="/aviso-legal"
+                    className="text-clay dark:text-clay-400 hover:underline"
+                  >
+                    Aviso de Privacidad
+                  </a>
+                  .
                 </span>
               </label>
               {errors.acceptLegal && (
                 <p className="text-red-600 dark:text-red-400 text-sm mt-2 flex items-center gap-1">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   {errors.acceptLegal.message}
                 </p>
@@ -323,14 +399,29 @@ export default function RegisterPage() {
             >
               {isSubmitting ? (
                 <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  <svg
+                    className="animate-spin h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
                   </svg>
                   Registrando...
                 </span>
               ) : (
-                'Crear Cuenta'
+                "Crear Cuenta"
               )}
             </button>
           </form>
@@ -349,16 +440,17 @@ export default function RegisterPage() {
               ℹ️ Nota sobre Roles
             </p>
             <p className="text-sm text-clay-600 dark:text-clay-400">
-              Un administrador debe aprobar tus roles antes de que puedas usarlos. Te notificaremos cuando estén aprobados.
+              Un administrador debe aprobar tus roles antes de que puedas
+              usarlos. Te notificaremos cuando estén aprobados.
             </p>
           </div>
         </div>
 
         {/* Login Link */}
         <p className="mt-6 text-center text-sm text-neutral-600 dark:text-neutral-400">
-          ¿Ya tienes cuenta?{' '}
-          <a 
-            href="/login" 
+          ¿Ya tienes cuenta?{" "}
+          <a
+            href="/login"
             className="font-semibold text-clay dark:text-clay-400 hover:text-clay-600 dark:hover:text-amber-300 transition-colors"
           >
             Inicia sesión aquí
@@ -368,4 +460,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-

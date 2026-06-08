@@ -4,70 +4,84 @@
  * Design: Multi-section form with 15 required fields, client-side validation, success/error states
  * Checkpoint 5: Integrates with POST /applications backend endpoint
  */
-'use client';
-import React, { useState } from 'react';
-import { z } from 'zod';
-import DocumentUpload from './DocumentUpload';
+"use client";
+import React, { useState } from "react";
+import { z } from "zod";
+import DocumentUpload from "./DocumentUpload";
 
 // Zod validation schema matching backend requirements
 const applicationSchema = z.object({
-  fullName: z.string().min(1, 'El nombre completo es requerido'),
-  email: z.string().email('Email inválido'),
-  phone: z.string().min(10, 'El teléfono debe tener al menos 10 dígitos'),
-  employer: z.string().min(1, 'El empleador es requerido'),
-  jobTitle: z.string().min(1, 'El puesto de trabajo es requerido'),
-  monthlyIncome: z.number({ invalid_type_error: 'El ingreso mensual debe ser un número' })
-    .positive('El ingreso mensual debe ser mayor a 0'),
-  employmentDuration: z.string().min(1, 'La duración del empleo es requerida'),
-  desiredMoveInDate: z.string().min(1, 'La fecha de mudanza es requerida'),
-  desiredLeaseTerm: z.number({ invalid_type_error: 'El término del contrato debe ser un número' })
-    .int('El término debe ser un número entero')
-    .positive('El término debe ser mayor a 0'),
-  numberOfOccupants: z.number({ invalid_type_error: 'El número de ocupantes debe ser un número' })
-    .int('El número de ocupantes debe ser un número entero')
-    .positive('El número de ocupantes debe ser mayor a 0'),
-  reference1Name: z.string().min(1, 'El nombre de la referencia 1 es requerido'),
-  reference1Phone: z.string().min(10, 'El teléfono de la referencia 1 debe tener al menos 10 dígitos'),
+  fullName: z.string().min(1, "El nombre completo es requerido"),
+  email: z.string().email("Email inválido"),
+  phone: z.string().min(10, "El teléfono debe tener al menos 10 dígitos"),
+  employer: z.string().min(1, "El empleador es requerido"),
+  jobTitle: z.string().min(1, "El puesto de trabajo es requerido"),
+  monthlyIncome: z
+    .number({ invalid_type_error: "El ingreso mensual debe ser un número" })
+    .positive("El ingreso mensual debe ser mayor a 0"),
+  employmentDuration: z.string().min(1, "La duración del empleo es requerida"),
+  desiredMoveInDate: z.string().min(1, "La fecha de mudanza es requerida"),
+  desiredLeaseTerm: z
+    .number({
+      invalid_type_error: "El término del contrato debe ser un número",
+    })
+    .int("El término debe ser un número entero")
+    .positive("El término debe ser mayor a 0"),
+  numberOfOccupants: z
+    .number({ invalid_type_error: "El número de ocupantes debe ser un número" })
+    .int("El número de ocupantes debe ser un número entero")
+    .positive("El número de ocupantes debe ser mayor a 0"),
+  reference1Name: z
+    .string()
+    .min(1, "El nombre de la referencia 1 es requerido"),
+  reference1Phone: z
+    .string()
+    .min(10, "El teléfono de la referencia 1 debe tener al menos 10 dígitos"),
   reference2Name: z.string().optional(),
   reference2Phone: z.string().optional(),
-  offeredMonthlyRent: z.number({ invalid_type_error: 'La renta ofrecida debe ser un número' })
-    .positive('La renta ofrecida debe ser mayor a 0')
+  offeredMonthlyRent: z
+    .number({ invalid_type_error: "La renta ofrecida debe ser un número" })
+    .positive("La renta ofrecida debe ser mayor a 0")
     .optional(),
   messageToLandlord: z.string().optional(),
 });
 
-export default function RentalApplicationForm({ propertyId, monthlyRent, onSuccess }) {
+export default function RentalApplicationForm({
+  propertyId,
+  monthlyRent,
+  onSuccess,
+}) {
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    employer: '',
-    jobTitle: '',
-    monthlyIncome: '',
-    employmentDuration: '',
-    desiredMoveInDate: '',
-    desiredLeaseTerm: '',
-    numberOfOccupants: '',
-    reference1Name: '',
-    reference1Phone: '',
-    reference2Name: '',
-    reference2Phone: '',
-    offeredMonthlyRent: '',
-    messageToLandlord: '',
+    fullName: "",
+    email: "",
+    phone: "",
+    employer: "",
+    jobTitle: "",
+    monthlyIncome: "",
+    employmentDuration: "",
+    desiredMoveInDate: "",
+    desiredLeaseTerm: "",
+    numberOfOccupants: "",
+    reference1Name: "",
+    reference1Phone: "",
+    reference2Name: "",
+    reference2Phone: "",
+    offeredMonthlyRent: "",
+    messageToLandlord: "",
   });
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null); // 'success' | 'error'
-  const [submitMessage, setSubmitMessage] = useState('');
+  const [submitMessage, setSubmitMessage] = useState("");
   const [createdApplicationId, setCreatedApplicationId] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     // Clear error for this field when user types
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
@@ -75,23 +89,31 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
     e.preventDefault();
     setErrors({});
     setSubmitStatus(null);
-    setSubmitMessage('');
+    setSubmitMessage("");
 
     // Convert string numbers to actual numbers for validation
     const dataToValidate = {
       ...formData,
-      monthlyIncome: formData.monthlyIncome ? parseFloat(formData.monthlyIncome) : undefined,
-      desiredLeaseTerm: formData.desiredLeaseTerm ? parseInt(formData.desiredLeaseTerm) : undefined,
-      numberOfOccupants: formData.numberOfOccupants ? parseInt(formData.numberOfOccupants) : undefined,
-      offeredMonthlyRent: formData.offeredMonthlyRent ? parseFloat(formData.offeredMonthlyRent) : undefined,
+      monthlyIncome: formData.monthlyIncome
+        ? parseFloat(formData.monthlyIncome)
+        : undefined,
+      desiredLeaseTerm: formData.desiredLeaseTerm
+        ? parseInt(formData.desiredLeaseTerm)
+        : undefined,
+      numberOfOccupants: formData.numberOfOccupants
+        ? parseInt(formData.numberOfOccupants)
+        : undefined,
+      offeredMonthlyRent: formData.offeredMonthlyRent
+        ? parseFloat(formData.offeredMonthlyRent)
+        : undefined,
     };
 
     // Client-side validation with Zod
     const result = applicationSchema.safeParse(dataToValidate);
-    
+
     if (!result.success) {
       const fieldErrors = {};
-      result.error.errors.forEach(err => {
+      result.error.errors.forEach((err) => {
         fieldErrors[err.path[0]] = err.message;
       });
       setErrors(fieldErrors);
@@ -102,56 +124,66 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
 
     try {
       // Submit to backend API
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/applications`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/applications`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            propertyId,
+            ...result.data,
+            desiredMoveInDate: new Date(
+              result.data.desiredMoveInDate,
+            ).toISOString(),
+          }),
         },
-        body: JSON.stringify({
-          propertyId,
-          ...result.data,
-          desiredMoveInDate: new Date(result.data.desiredMoveInDate).toISOString(),
-        }),
-      });
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Error al enviar la solicitud');
+        throw new Error(data.message || "Error al enviar la solicitud");
       }
 
       // Success
-      setSubmitStatus('success');
-      setSubmitMessage('¡Solicitud enviada exitosamente! El propietario revisará tu aplicación pronto.');
+      setSubmitStatus("success");
+      setSubmitMessage(
+        "¡Solicitud enviada exitosamente! El propietario revisará tu aplicación pronto.",
+      );
       if (data.application?.id) setCreatedApplicationId(data.application.id);
-      
+
       // Reset form
       setFormData({
-        fullName: '',
-        email: '',
-        phone: '',
-        employer: '',
-        jobTitle: '',
-        monthlyIncome: '',
-        employmentDuration: '',
-        desiredMoveInDate: '',
-        desiredLeaseTerm: '',
-        numberOfOccupants: '',
-        reference1Name: '',
-        reference1Phone: '',
-        reference2Name: '',
-        reference2Phone: '',
-        offeredMonthlyRent: '',
-        messageToLandlord: '',
+        fullName: "",
+        email: "",
+        phone: "",
+        employer: "",
+        jobTitle: "",
+        monthlyIncome: "",
+        employmentDuration: "",
+        desiredMoveInDate: "",
+        desiredLeaseTerm: "",
+        numberOfOccupants: "",
+        reference1Name: "",
+        reference1Phone: "",
+        reference2Name: "",
+        reference2Phone: "",
+        offeredMonthlyRent: "",
+        messageToLandlord: "",
       });
 
       if (onSuccess) {
         onSuccess(data);
       }
     } catch (error) {
-      setSubmitStatus('error');
-      setSubmitMessage(error.message || 'Ocurrió un error al enviar la solicitud. Por favor intenta de nuevo.');
+      setSubmitStatus("error");
+      setSubmitMessage(
+        error.message ||
+          "Ocurrió un error al enviar la solicitud. Por favor intenta de nuevo.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -160,19 +192,28 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
   return (
     <>
       {/* Success modal overlay */}
-      {submitStatus === 'success' && (
+      {submitStatus === "success" && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
           <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl max-w-md w-full p-8 flex flex-col items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center">
-              <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              <svg
+                className="w-8 h-8 text-green-600 dark:text-green-400"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
               </svg>
             </div>
             <h2 className="text-xl font-bold text-neutral-900 dark:text-neutral-100 text-center">
               ¡Solicitud enviada!
             </h2>
             <p className="text-sm text-neutral-600 dark:text-neutral-400 text-center">
-              El propietario revisará tu aplicación y se pondrá en contacto contigo directamente.
+              El propietario revisará tu aplicación y se pondrá en contacto
+              contigo directamente.
             </p>
             {createdApplicationId && (
               <div className="w-full p-3 rounded-lg border border-clay-200 dark:border-clay-800 bg-clay-50 dark:bg-clay-900/20">
@@ -186,7 +227,7 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
               type="button"
               onClick={() => {
                 setSubmitStatus(null);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                window.scrollTo({ top: 0, behavior: "smooth" });
               }}
               className="mt-2 px-6 py-2.5 bg-gradient-to-br from-clay-400 to-clay-600 hover:from-clay-500 hover:to-clay-700 text-white font-semibold rounded-lg transition-all text-sm"
             >
@@ -196,428 +237,511 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
         </div>
       )}
 
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Error message */}
-      {submitStatus === 'error' && (
-        <div className="p-4 rounded-lg border bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-800 dark:text-red-300">
-          <div className="flex items-start gap-3">
-            <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-            </svg>
-            <p className="text-sm font-medium">{submitMessage}</p>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Error message */}
+        {submitStatus === "error" && (
+          <div className="p-4 rounded-lg border bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-800 dark:text-red-300">
+            <div className="flex items-start gap-3">
+              <svg
+                className="w-5 h-5 flex-shrink-0 mt-0.5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <p className="text-sm font-medium">{submitMessage}</p>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Personal Information */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-          Información Personal
-        </h3>
+        {/* Personal Information */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+            Información Personal
+          </h3>
 
-        <div>
-          <label htmlFor="fullName" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Nombre Completo *
-          </label>
-          <input
-            type="text"
-            id="fullName"
-            name="fullName"
-            value={formData.fullName}
-            onChange={handleChange}
-            className={`
+          <div>
+            <label
+              htmlFor="fullName"
+              className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
+            >
+              Nombre Completo *
+            </label>
+            <input
+              type="text"
+              id="fullName"
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
+              className={`
               w-full px-3 py-2
               bg-white dark:bg-neutral-950
-              border ${errors.fullName ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'}
+              border ${errors.fullName ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"}
               rounded-md text-sm
               text-neutral-900 dark:text-neutral-100
               placeholder:text-neutral-500
               focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
             `}
-            placeholder="Juan Pérez García"
-          />
-          {errors.fullName && (
-            <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.fullName}</p>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-              Email *
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className={`
-                w-full px-3 py-2
-                bg-white dark:bg-neutral-950
-                border ${errors.email ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'}
-                rounded-md text-sm
-                text-neutral-900 dark:text-neutral-100
-                placeholder:text-neutral-500
-                focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
-              `}
-              placeholder="juan@example.com"
+              placeholder="Juan Pérez García"
             />
-            {errors.email && (
-              <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.email}</p>
-            )}
-          </div>
-
-          <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-              Teléfono *
-            </label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className={`
-                w-full px-3 py-2
-                bg-white dark:bg-neutral-950
-                border ${errors.phone ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'}
-                rounded-md text-sm
-                text-neutral-900 dark:text-neutral-100
-                placeholder:text-neutral-500
-                focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
-              `}
-              placeholder="5512345678"
-            />
-            {errors.phone && (
-              <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.phone}</p>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Employment Information */}
-      <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800 space-y-4">
-        <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-          Información Laboral
-        </h3>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="employer" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-              Empleador *
-            </label>
-            <input
-              type="text"
-              id="employer"
-              name="employer"
-              value={formData.employer}
-              onChange={handleChange}
-              className={`
-                w-full px-3 py-2
-                bg-white dark:bg-neutral-950
-                border ${errors.employer ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'}
-                rounded-md text-sm
-                text-neutral-900 dark:text-neutral-100
-                placeholder:text-neutral-500
-                focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
-              `}
-              placeholder="Empresa S.A."
-            />
-            {errors.employer && (
-              <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.employer}</p>
-            )}
-          </div>
-
-          <div>
-            <label htmlFor="jobTitle" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-              Puesto *
-            </label>
-            <input
-              type="text"
-              id="jobTitle"
-              name="jobTitle"
-              value={formData.jobTitle}
-              onChange={handleChange}
-              className={`
-                w-full px-3 py-2
-                bg-white dark:bg-neutral-950
-                border ${errors.jobTitle ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'}
-                rounded-md text-sm
-                text-neutral-900 dark:text-neutral-100
-                placeholder:text-neutral-500
-                focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
-              `}
-              placeholder="Gerente de Ventas"
-            />
-            {errors.jobTitle && (
-              <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.jobTitle}</p>
-            )}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="monthlyIncome" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-              Ingreso Mensual (MXN) *
-            </label>
-            <input
-              type="number"
-              id="monthlyIncome"
-              name="monthlyIncome"
-              value={formData.monthlyIncome}
-              onChange={handleChange}
-              className={`
-                w-full px-3 py-2
-                bg-white dark:bg-neutral-950
-                border ${errors.monthlyIncome ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'}
-                rounded-md text-sm
-                text-neutral-900 dark:text-neutral-100
-                placeholder:text-neutral-500
-                focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
-              `}
-              placeholder="25000"
-              min="0"
-              step="1000"
-            />
-            {errors.monthlyIncome && (
-              <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.monthlyIncome}</p>
-            )}
-            {monthlyRent && formData.monthlyIncome && (
-              <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-                Ratio ingreso/renta: {(parseFloat(formData.monthlyIncome) / monthlyRent).toFixed(1)}x
+            {errors.fullName && (
+              <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                {errors.fullName}
               </p>
             )}
           </div>
 
-          <div>
-            <label htmlFor="employmentDuration" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-              Tiempo en Empleo (años) *
-            </label>
-            <input
-              type="number"
-              id="employmentDuration"
-              name="employmentDuration"
-              value={formData.employmentDuration}
-              onChange={handleChange}
-              className={`
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
+              >
+                Email *
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className={`
                 w-full px-3 py-2
                 bg-white dark:bg-neutral-950
-                border ${errors.employmentDuration ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'}
+                border ${errors.email ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"}
                 rounded-md text-sm
                 text-neutral-900 dark:text-neutral-100
                 placeholder:text-neutral-500
                 focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
               `}
-              placeholder="1"
-              min="0"
-              step="0.5"
-            />
-            {errors.employmentDuration && (
-              <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.employmentDuration}</p>
-            )}
-            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-              Ingresa el tiempo en años. Si llevas menos de un año, usa decimales (ej. 0.5 = 6 meses).
-            </p>
-          </div>
-        </div>
-      </div>
+                placeholder="juan@example.com"
+              />
+              {errors.email && (
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                  {errors.email}
+                </p>
+              )}
+            </div>
 
-      {/* Rental Details */}
-      <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800 space-y-4">
-        <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-          Detalles de Renta
-        </h3>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label htmlFor="desiredMoveInDate" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-              Fecha de Mudanza *
-            </label>
-            <input
-              type="date"
-              id="desiredMoveInDate"
-              name="desiredMoveInDate"
-              value={formData.desiredMoveInDate}
-              onChange={handleChange}
-              className={`
+            <div>
+              <label
+                htmlFor="phone"
+                className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
+              >
+                Teléfono *
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className={`
                 w-full px-3 py-2
                 bg-white dark:bg-neutral-950
-                border ${errors.desiredMoveInDate ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'}
+                border ${errors.phone ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"}
                 rounded-md text-sm
                 text-neutral-900 dark:text-neutral-100
                 placeholder:text-neutral-500
                 focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
               `}
-            />
-            {errors.desiredMoveInDate && (
-              <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.desiredMoveInDate}</p>
-            )}
-          </div>
-
-          <div>
-            <label htmlFor="desiredLeaseTerm" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-              Término de Contrato (meses) *
-            </label>
-            <input
-              type="number"
-              id="desiredLeaseTerm"
-              name="desiredLeaseTerm"
-              value={formData.desiredLeaseTerm}
-              onChange={handleChange}
-              className={`
-                w-full px-3 py-2
-                bg-white dark:bg-neutral-950
-                border ${errors.desiredLeaseTerm ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'}
-                rounded-md text-sm
-                text-neutral-900 dark:text-neutral-100
-                placeholder:text-neutral-500
-                focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
-              `}
-              placeholder="12"
-              min="1"
-            />
-            {errors.desiredLeaseTerm && (
-              <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.desiredLeaseTerm}</p>
-            )}
-          </div>
-
-          <div>
-            <label htmlFor="numberOfOccupants" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-              Número de Ocupantes *
-            </label>
-            <input
-              type="number"
-              id="numberOfOccupants"
-              name="numberOfOccupants"
-              value={formData.numberOfOccupants}
-              onChange={handleChange}
-              className={`
-                w-full px-3 py-2
-                bg-white dark:bg-neutral-950
-                border ${errors.numberOfOccupants ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'}
-                rounded-md text-sm
-                text-neutral-900 dark:text-neutral-100
-                placeholder:text-neutral-500
-                focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
-              `}
-              placeholder="2"
-              min="1"
-            />
-            {errors.numberOfOccupants && (
-              <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.numberOfOccupants}</p>
-            )}
+                placeholder="5512345678"
+              />
+              {errors.phone && (
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                  {errors.phone}
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Offered rent */}
-        <div>
-          <label htmlFor="offeredMonthlyRent" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Renta mensual ofrecida (MXN)
-            {monthlyRent && (
-              <span className="ml-2 text-xs font-normal text-neutral-500 dark:text-neutral-400">
-                Precio publicado: ${monthlyRent.toLocaleString('es-MX')}
-              </span>
-            )}
-          </label>
-          <input
-            type="number"
-            id="offeredMonthlyRent"
-            name="offeredMonthlyRent"
-            value={formData.offeredMonthlyRent}
-            onChange={handleChange}
-            className={`
+        {/* Employment Information */}
+        <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800 space-y-4">
+          <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+            Información Laboral
+          </h3>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label
+                htmlFor="employer"
+                className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
+              >
+                Empleador *
+              </label>
+              <input
+                type="text"
+                id="employer"
+                name="employer"
+                value={formData.employer}
+                onChange={handleChange}
+                className={`
+                w-full px-3 py-2
+                bg-white dark:bg-neutral-950
+                border ${errors.employer ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"}
+                rounded-md text-sm
+                text-neutral-900 dark:text-neutral-100
+                placeholder:text-neutral-500
+                focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
+              `}
+                placeholder="Empresa S.A."
+              />
+              {errors.employer && (
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                  {errors.employer}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label
+                htmlFor="jobTitle"
+                className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
+              >
+                Puesto *
+              </label>
+              <input
+                type="text"
+                id="jobTitle"
+                name="jobTitle"
+                value={formData.jobTitle}
+                onChange={handleChange}
+                className={`
+                w-full px-3 py-2
+                bg-white dark:bg-neutral-950
+                border ${errors.jobTitle ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"}
+                rounded-md text-sm
+                text-neutral-900 dark:text-neutral-100
+                placeholder:text-neutral-500
+                focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
+              `}
+                placeholder="Gerente de Ventas"
+              />
+              {errors.jobTitle && (
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                  {errors.jobTitle}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label
+                htmlFor="monthlyIncome"
+                className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
+              >
+                Ingreso Mensual (MXN) *
+              </label>
+              <input
+                type="number"
+                id="monthlyIncome"
+                name="monthlyIncome"
+                value={formData.monthlyIncome}
+                onChange={handleChange}
+                className={`
+                w-full px-3 py-2
+                bg-white dark:bg-neutral-950
+                border ${errors.monthlyIncome ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"}
+                rounded-md text-sm
+                text-neutral-900 dark:text-neutral-100
+                placeholder:text-neutral-500
+                focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
+              `}
+                placeholder="25000"
+                min="0"
+                step="1000"
+              />
+              {errors.monthlyIncome && (
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                  {errors.monthlyIncome}
+                </p>
+              )}
+              {monthlyRent && formData.monthlyIncome && (
+                <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                  Ratio ingreso/renta:{" "}
+                  {(parseFloat(formData.monthlyIncome) / monthlyRent).toFixed(
+                    1,
+                  )}
+                  x
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label
+                htmlFor="employmentDuration"
+                className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
+              >
+                Tiempo en Empleo (años) *
+              </label>
+              <input
+                type="number"
+                id="employmentDuration"
+                name="employmentDuration"
+                value={formData.employmentDuration}
+                onChange={handleChange}
+                className={`
+                w-full px-3 py-2
+                bg-white dark:bg-neutral-950
+                border ${errors.employmentDuration ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"}
+                rounded-md text-sm
+                text-neutral-900 dark:text-neutral-100
+                placeholder:text-neutral-500
+                focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
+              `}
+                placeholder="1"
+                min="0"
+                step="0.5"
+              />
+              {errors.employmentDuration && (
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                  {errors.employmentDuration}
+                </p>
+              )}
+              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                Ingresa el tiempo en años. Si llevas menos de un año, usa
+                decimales (ej. 0.5 = 6 meses).
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Rental Details */}
+        <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800 space-y-4">
+          <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+            Detalles de Renta
+          </h3>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label
+                htmlFor="desiredMoveInDate"
+                className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
+              >
+                Fecha de Mudanza *
+              </label>
+              <input
+                type="date"
+                id="desiredMoveInDate"
+                name="desiredMoveInDate"
+                value={formData.desiredMoveInDate}
+                onChange={handleChange}
+                className={`
+                w-full px-3 py-2
+                bg-white dark:bg-neutral-950
+                border ${errors.desiredMoveInDate ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"}
+                rounded-md text-sm
+                text-neutral-900 dark:text-neutral-100
+                placeholder:text-neutral-500
+                focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
+              `}
+              />
+              {errors.desiredMoveInDate && (
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                  {errors.desiredMoveInDate}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label
+                htmlFor="desiredLeaseTerm"
+                className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
+              >
+                Término de Contrato (meses) *
+              </label>
+              <input
+                type="number"
+                id="desiredLeaseTerm"
+                name="desiredLeaseTerm"
+                value={formData.desiredLeaseTerm}
+                onChange={handleChange}
+                className={`
+                w-full px-3 py-2
+                bg-white dark:bg-neutral-950
+                border ${errors.desiredLeaseTerm ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"}
+                rounded-md text-sm
+                text-neutral-900 dark:text-neutral-100
+                placeholder:text-neutral-500
+                focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
+              `}
+                placeholder="12"
+                min="1"
+              />
+              {errors.desiredLeaseTerm && (
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                  {errors.desiredLeaseTerm}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label
+                htmlFor="numberOfOccupants"
+                className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
+              >
+                Número de Ocupantes *
+              </label>
+              <input
+                type="number"
+                id="numberOfOccupants"
+                name="numberOfOccupants"
+                value={formData.numberOfOccupants}
+                onChange={handleChange}
+                className={`
+                w-full px-3 py-2
+                bg-white dark:bg-neutral-950
+                border ${errors.numberOfOccupants ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"}
+                rounded-md text-sm
+                text-neutral-900 dark:text-neutral-100
+                placeholder:text-neutral-500
+                focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
+              `}
+                placeholder="2"
+                min="1"
+              />
+              {errors.numberOfOccupants && (
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                  {errors.numberOfOccupants}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Offered rent */}
+          <div>
+            <label
+              htmlFor="offeredMonthlyRent"
+              className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
+            >
+              Renta mensual ofrecida (MXN)
+              {monthlyRent && (
+                <span className="ml-2 text-xs font-normal text-neutral-500 dark:text-neutral-400">
+                  Precio publicado: ${monthlyRent.toLocaleString("es-MX")}
+                </span>
+              )}
+            </label>
+            <input
+              type="number"
+              id="offeredMonthlyRent"
+              name="offeredMonthlyRent"
+              value={formData.offeredMonthlyRent}
+              onChange={handleChange}
+              className={`
               w-full sm:w-1/3 px-3 py-2
               bg-white dark:bg-neutral-950
-              border ${errors.offeredMonthlyRent ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'}
+              border ${errors.offeredMonthlyRent ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"}
               rounded-md text-sm
               text-neutral-900 dark:text-neutral-100
               placeholder:text-neutral-500
               focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
             `}
-            placeholder={monthlyRent ? String(monthlyRent) : '0'}
-            min="1"
-          />
-          {errors.offeredMonthlyRent && (
-            <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.offeredMonthlyRent}</p>
-          )}
-          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Opcional — déjalo vacío si aceptas el precio publicado.</p>
-        </div>
-      </div>
-
-      {/* References */}
-      <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800 space-y-4">
-        <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-          Referencias
-        </h3>
-
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="reference1Name" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                Referencia 1 - Nombre *
-              </label>
-              <input
-                type="text"
-                id="reference1Name"
-                name="reference1Name"
-                value={formData.reference1Name}
-                onChange={handleChange}
-                className={`
-                  w-full px-3 py-2
-                  bg-white dark:bg-neutral-950
-                  border ${errors.reference1Name ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'}
-                  rounded-md text-sm
-                  text-neutral-900 dark:text-neutral-100
-                  placeholder:text-neutral-500
-                  focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
-                `}
-                placeholder="María López"
-              />
-              {errors.reference1Name && (
-                <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.reference1Name}</p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="reference1Phone" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                Referencia 1 - Teléfono *
-              </label>
-              <input
-                type="tel"
-                id="reference1Phone"
-                name="reference1Phone"
-                value={formData.reference1Phone}
-                onChange={handleChange}
-                className={`
-                  w-full px-3 py-2
-                  bg-white dark:bg-neutral-950
-                  border ${errors.reference1Phone ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'}
-                  rounded-md text-sm
-                  text-neutral-900 dark:text-neutral-100
-                  placeholder:text-neutral-500
-                  focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
-                `}
-                placeholder="5598765432"
-              />
-              {errors.reference1Phone && (
-                <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.reference1Phone}</p>
-              )}
-            </div>
+              placeholder={monthlyRent ? String(monthlyRent) : "0"}
+              min="1"
+            />
+            {errors.offeredMonthlyRent && (
+              <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                {errors.offeredMonthlyRent}
+              </p>
+            )}
+            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+              Opcional — déjalo vacío si aceptas el precio publicado.
+            </p>
           </div>
+        </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="reference2Name" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                Referencia 2 - Nombre (Opcional)
-              </label>
-              <input
-                type="text"
-                id="reference2Name"
-                name="reference2Name"
-                value={formData.reference2Name}
-                onChange={handleChange}
-                className="
+        {/* References */}
+        <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800 space-y-4">
+          <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+            Referencias
+          </h3>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label
+                  htmlFor="reference1Name"
+                  className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
+                >
+                  Referencia 1 - Nombre *
+                </label>
+                <input
+                  type="text"
+                  id="reference1Name"
+                  name="reference1Name"
+                  value={formData.reference1Name}
+                  onChange={handleChange}
+                  className={`
+                  w-full px-3 py-2
+                  bg-white dark:bg-neutral-950
+                  border ${errors.reference1Name ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"}
+                  rounded-md text-sm
+                  text-neutral-900 dark:text-neutral-100
+                  placeholder:text-neutral-500
+                  focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
+                `}
+                  placeholder="María López"
+                />
+                {errors.reference1Name && (
+                  <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                    {errors.reference1Name}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label
+                  htmlFor="reference1Phone"
+                  className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
+                >
+                  Referencia 1 - Teléfono *
+                </label>
+                <input
+                  type="tel"
+                  id="reference1Phone"
+                  name="reference1Phone"
+                  value={formData.reference1Phone}
+                  onChange={handleChange}
+                  className={`
+                  w-full px-3 py-2
+                  bg-white dark:bg-neutral-950
+                  border ${errors.reference1Phone ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"}
+                  rounded-md text-sm
+                  text-neutral-900 dark:text-neutral-100
+                  placeholder:text-neutral-500
+                  focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
+                `}
+                  placeholder="5598765432"
+                />
+                {errors.reference1Phone && (
+                  <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                    {errors.reference1Phone}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label
+                  htmlFor="reference2Name"
+                  className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
+                >
+                  Referencia 2 - Nombre (Opcional)
+                </label>
+                <input
+                  type="text"
+                  id="reference2Name"
+                  name="reference2Name"
+                  value={formData.reference2Name}
+                  onChange={handleChange}
+                  className="
                   w-full px-3 py-2
                   bg-white dark:bg-neutral-950
                   border border-neutral-300 dark:border-neutral-700
@@ -626,21 +750,24 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
                   placeholder:text-neutral-500
                   focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
                 "
-                placeholder="Carlos Ramírez"
-              />
-            </div>
+                  placeholder="Carlos Ramírez"
+                />
+              </div>
 
-            <div>
-              <label htmlFor="reference2Phone" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                Referencia 2 - Teléfono (Opcional)
-              </label>
-              <input
-                type="tel"
-                id="reference2Phone"
-                name="reference2Phone"
-                value={formData.reference2Phone}
-                onChange={handleChange}
-                className="
+              <div>
+                <label
+                  htmlFor="reference2Phone"
+                  className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
+                >
+                  Referencia 2 - Teléfono (Opcional)
+                </label>
+                <input
+                  type="tel"
+                  id="reference2Phone"
+                  name="reference2Phone"
+                  value={formData.reference2Phone}
+                  onChange={handleChange}
+                  className="
                   w-full px-3 py-2
                   bg-white dark:bg-neutral-950
                   border border-neutral-300 dark:border-neutral-700
@@ -649,26 +776,29 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
                   placeholder:text-neutral-500
                   focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
                 "
-                placeholder="5587654321"
-              />
+                  placeholder="5587654321"
+                />
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Message to Landlord */}
-      <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800 space-y-4">
-        <div>
-          <label htmlFor="messageToLandlord" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Mensaje al Propietario (Opcional)
-          </label>
-          <textarea
-            id="messageToLandlord"
-            name="messageToLandlord"
-            value={formData.messageToLandlord}
-            onChange={handleChange}
-            rows={4}
-            className="
+        {/* Message to Landlord */}
+        <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800 space-y-4">
+          <div>
+            <label
+              htmlFor="messageToLandlord"
+              className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
+            >
+              Mensaje al Propietario (Opcional)
+            </label>
+            <textarea
+              id="messageToLandlord"
+              name="messageToLandlord"
+              value={formData.messageToLandlord}
+              onChange={handleChange}
+              rows={4}
+              className="
               w-full px-3 py-2
               bg-white dark:bg-neutral-950
               border border-neutral-300 dark:border-neutral-700
@@ -678,17 +808,17 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
               focus:outline-none focus:ring-2 focus:ring-clay-400 focus:border-transparent
               resize-none
             "
-            placeholder="Cuéntale al propietario por qué eres un buen candidato..."
-          />
+              placeholder="Cuéntale al propietario por qué eres un buen candidato..."
+            />
+          </div>
         </div>
-      </div>
 
-      {/* Submit Button */}
-      <div className="pt-4">
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className={`
+        {/* Submit Button */}
+        <div className="pt-4">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className={`
             w-full
             px-6 py-3
             bg-gradient-to-br from-clay-400 to-clay-600
@@ -699,26 +829,39 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
             rounded-lg
             transition-all
             focus:outline-none focus:ring-2 focus:ring-clay-400 focus:ring-offset-2
-            ${isSubmitting ? 'cursor-not-allowed opacity-50' : ''}
+            ${isSubmitting ? "cursor-not-allowed opacity-50" : ""}
           `}
-        >
-          {isSubmitting ? (
-            <span className="flex items-center justify-center gap-2">
-              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-              </svg>
-              Enviando...
-            </span>
-          ) : (
-            'Enviar Solicitud'
-          )}
-        </button>
-        <p className="mt-2 text-xs text-center text-neutral-600 dark:text-neutral-400">
-          Al enviar esta solicitud, aceptas compartir tu información con el propietario.
-        </p>
-      </div>
-    </form>
+          >
+            {isSubmitting ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                Enviando...
+              </span>
+            ) : (
+              "Enviar Solicitud"
+            )}
+          </button>
+          <p className="mt-2 text-xs text-center text-neutral-600 dark:text-neutral-400">
+            Al enviar esta solicitud, aceptas compartir tu información con el
+            propietario.
+          </p>
+        </div>
+      </form>
     </>
   );
 }

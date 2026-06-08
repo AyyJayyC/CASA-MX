@@ -4,17 +4,27 @@
  * Checkpoint 3: Frontend Action & Error Logging
  */
 
-'use client';
+"use client";
 
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 
 const DebugContext = createContext(null);
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
-const DEBUG_ENABLED = process.env.NODE_ENV !== 'production' || process.env.NEXT_PUBLIC_ENABLE_DEBUG_LOGGING === 'true';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
+const DEBUG_ENABLED =
+  process.env.NODE_ENV !== "production" ||
+  process.env.NEXT_PUBLIC_ENABLE_DEBUG_LOGGING === "true";
 
 export function DebugProvider({ children }) {
   const [sessionId, setSessionId] = useState(null);
-  const [isEnabled, setIsEnabled] = useState(DEBUG_ENABLED && Boolean(API_BASE));
+  const [isEnabled, setIsEnabled] = useState(
+    DEBUG_ENABLED && Boolean(API_BASE),
+  );
 
   // Initialize session on mount
   useEffect(() => {
@@ -23,36 +33,36 @@ export function DebugProvider({ children }) {
     const initSession = async () => {
       try {
         // Check localStorage for existing session
-        let existingSessionId = localStorage.getItem('debug_session_id');
+        let existingSessionId = localStorage.getItem("debug_session_id");
 
         if (!existingSessionId) {
           // Create new session
           try {
             const response = await fetch(`${API_BASE}/debug/session`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 userAgent: navigator.userAgent,
-                initialRoute: window.location.pathname
-              })
+                initialRoute: window.location.pathname,
+              }),
             });
 
             if (response.ok) {
               const data = await response.json();
               existingSessionId = data.id;
 
-              if (existingSessionId && existingSessionId !== 'error') {
-                localStorage.setItem('debug_session_id', existingSessionId);
+              if (existingSessionId && existingSessionId !== "error") {
+                localStorage.setItem("debug_session_id", existingSessionId);
               }
             }
           } catch (err) {
-            console.debug('Failed to create debug session:', err.message);
+            console.debug("Failed to create debug session:", err.message);
           }
         }
 
         setSessionId(existingSessionId);
       } catch (error) {
-        console.debug('Debug session init failed:', error.message);
+        console.debug("Debug session init failed:", error.message);
       }
     };
 
@@ -65,22 +75,22 @@ export function DebugProvider({ children }) {
 
       try {
         await fetch(`${API_BASE}/debug/action`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             sessionId,
             actionType,
             actionName,
             currentRoute: window.location.pathname,
-            metadata
-          })
+            metadata,
+          }),
         });
       } catch (err) {
         // Silently fail
-        console.debug('Failed to log action:', err.message);
+        console.debug("Failed to log action:", err.message);
       }
     },
-    [sessionId, isEnabled]
+    [sessionId, isEnabled],
   );
 
   const logError = useCallback(
@@ -89,25 +99,25 @@ export function DebugProvider({ children }) {
 
       try {
         await fetch(`${API_BASE}/debug/error`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             sessionId,
             errorMessage: error?.message || String(error),
             errorStackTrace: error?.stack,
-            errorType: 'frontend',
-            severity: 'medium',
+            errorType: "frontend",
+            severity: "medium",
             componentName,
             currentRoute: window.location.pathname,
-            contextData: context
-          })
+            contextData: context,
+          }),
         });
       } catch (err) {
         // Silently fail
-        console.debug('Failed to log error:', err.message);
+        console.debug("Failed to log error:", err.message);
       }
     },
-    [sessionId, isEnabled]
+    [sessionId, isEnabled],
   );
 
   const toggleLogging = useCallback((enabled) => {
@@ -119,13 +129,11 @@ export function DebugProvider({ children }) {
     isEnabled,
     logAction,
     logError,
-    toggleLogging
+    toggleLogging,
   };
 
   return (
-    <DebugContext.Provider value={value}>
-      {children}
-    </DebugContext.Provider>
+    <DebugContext.Provider value={value}>{children}</DebugContext.Provider>
   );
 }
 
@@ -138,7 +146,7 @@ export function useDebug() {
       isEnabled: false,
       logAction: () => {},
       logError: () => {},
-      toggleLogging: () => {}
+      toggleLogging: () => {},
     };
   }
   return context;

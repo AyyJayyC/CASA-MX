@@ -1,27 +1,28 @@
-'use client';
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { useSellerContactRequests } from '../lib/queries/requests';
-import { approveRequest } from '../lib/api/requests';
-import { useCredits } from '../lib/auth/CreditsContext';
+"use client";
+import React, { useState } from "react";
+import Link from "next/link";
+import { useSellerContactRequests } from "../lib/queries/requests";
+import { approveRequest } from "../lib/api/requests";
+import { useSpendCredit, useCreditsBalance } from "../lib/queries/credits";
 
 function redactPhone(phone) {
-  if (!phone) return '—';
-  const cleaned = phone.replace(/\s+/g, '');
-  if (cleaned.length <= 4) return '*'.repeat(cleaned.length);
-  return cleaned.slice(0, -4).replace(/\d/g, '*') + cleaned.slice(-4);
+  if (!phone) return "—";
+  const cleaned = phone.replace(/\s+/g, "");
+  if (cleaned.length <= 4) return "*".repeat(cleaned.length);
+  return cleaned.slice(0, -4).replace(/\d/g, "*") + cleaned.slice(-4);
 }
 
 function redactName(name) {
-  if (!name) return 'Desconocido';
-  const parts = name.trim().split(' ');
-  if (parts.length === 1) return parts[0][0] + '***';
-  return parts[0] + ' ' + parts[parts.length - 1][0] + '***';
+  if (!name) return "Desconocido";
+  const parts = name.trim().split(" ");
+  if (parts.length === 1) return parts[0][0] + "***";
+  return parts[0] + " " + parts[parts.length - 1][0] + "***";
 }
 
 export default function SellerContactRequests() {
   const { data = [], isLoading, refetch } = useSellerContactRequests();
-  const { spend, balance } = useCredits();
+  const { data: balance = 0 } = useCreditsBalance();
+  const { mutateAsync: spend } = useSpendCredit();
   const [unlocking, setUnlocking] = useState(null);
   const [unlockedContacts, setUnlockedContacts] = useState({});
   const [approving, setApproving] = useState(null);
@@ -30,15 +31,15 @@ export default function SellerContactRequests() {
   const handleUnlock = async (req) => {
     setUnlocking(req.id);
     try {
-      const result = await spend(req.id, 'request');
+      const result = await spend(req.id, "request");
       if (result.success && result.contact) {
         setUnlockedContacts((prev) => ({ ...prev, [req.id]: result.contact }));
       }
     } catch (err) {
       if (err.status === 402) {
-        alert('Saldo insuficiente. Ve a Créditos para comprar más.');
+        alert("Saldo insuficiente. Ve a Créditos para comprar más.");
       } else {
-        alert(err.message || 'Error al desbloquear contacto');
+        alert(err.message || "Error al desbloquear contacto");
       }
     } finally {
       setUnlocking(null);
@@ -52,7 +53,7 @@ export default function SellerContactRequests() {
       setApprovedIds((prev) => new Set([...prev, req.id]));
       refetch();
     } catch (err) {
-      alert(err.message || 'Error al revelar dirección');
+      alert(err.message || "Error al revelar dirección");
     } finally {
       setApproving(null);
     }
@@ -61,11 +62,28 @@ export default function SellerContactRequests() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
-        <svg className="animate-spin h-10 w-10 text-clay-500 mb-4" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+        <svg
+          className="animate-spin h-10 w-10 text-clay-500 mb-4"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          />
         </svg>
-        <p className="text-neutral-600 dark:text-neutral-400">Cargando solicitudes...</p>
+        <p className="text-neutral-600 dark:text-neutral-400">
+          Cargando solicitudes...
+        </p>
       </div>
     );
   }
@@ -74,15 +92,26 @@ export default function SellerContactRequests() {
     return (
       <div className="text-center py-20">
         <div className="inline-flex items-center justify-center w-16 h-16 bg-neutral-100 dark:bg-neutral-800 rounded-full mb-4">
-          <svg className="w-8 h-8 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          <svg
+            className="w-8 h-8 text-neutral-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+            />
           </svg>
         </div>
         <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-2">
           Sin solicitudes de contacto
         </h3>
         <p className="text-neutral-600 dark:text-neutral-400">
-          Aún no hay compradores que hayan solicitado la dirección de tus propiedades.
+          Aún no hay compradores que hayan solicitado la dirección de tus
+          propiedades.
         </p>
       </div>
     );
@@ -92,14 +121,15 @@ export default function SellerContactRequests() {
     <div>
       <div className="mb-4 flex items-center gap-2">
         <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-          Total: {data.length} {data.length === 1 ? 'solicitud' : 'solicitudes'}
+          Total: {data.length} {data.length === 1 ? "solicitud" : "solicitudes"}
         </span>
       </div>
 
       <div className="grid gap-4">
         {data.map((req) => {
           const contact = unlockedContacts[req.id];
-          const isApproved = approvedIds.has(req.id) || req.status === 'contacted';
+          const isApproved =
+            approvedIds.has(req.id) || req.status === "contacted";
 
           return (
             <div
@@ -110,13 +140,19 @@ export default function SellerContactRequests() {
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                   <div>
                     <h3 className="font-bold text-lg text-neutral-900 dark:text-neutral-100 mb-1">
-                      {req.property?.title || 'Propiedad desconocida'}
+                      {req.property?.title || "Propiedad desconocida"}
                     </h3>
                     <div className="flex items-center gap-3 text-sm text-neutral-500 dark:text-neutral-400">
-                      <span>{new Date(req.createdAt).toLocaleDateString('es-MX')}</span>
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${isApproved ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-clay-100 text-clay-800 dark:bg-clay-900/30 dark:text-clay-300'}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${isApproved ? 'bg-green-500' : 'bg-clay-500'}`} />
-                        {isApproved ? 'Dirección revelada' : 'Pendiente'}
+                      <span>
+                        {new Date(req.createdAt).toLocaleDateString("es-MX")}
+                      </span>
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${isApproved ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300" : "bg-clay-100 text-clay-800 dark:bg-clay-900/30 dark:text-clay-300"}`}
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${isApproved ? "bg-green-500" : "bg-clay-500"}`}
+                        />
+                        {isApproved ? "Dirección revelada" : "Pendiente"}
                       </span>
                     </div>
                   </div>
@@ -138,13 +174,18 @@ export default function SellerContactRequests() {
                       </p>
                       {contact ? (
                         <p className="text-neutral-500 mt-0.5">
-                          {contact.phone} {contact.email && `· ${contact.email}`}
+                          {contact.phone}{" "}
+                          {contact.email && `· ${contact.email}`}
                         </p>
                       ) : (
-                        <p className="text-neutral-500 mt-0.5">Tel: {redactPhone(req.phone)}</p>
+                        <p className="text-neutral-500 mt-0.5">
+                          Tel: {redactPhone(req.phone)}
+                        </p>
                       )}
                       {req.message && (
-                        <p className="text-neutral-500 mt-1 italic">&ldquo;{req.message}&rdquo;</p>
+                        <p className="text-neutral-500 mt-1 italic">
+                          &ldquo;{req.message}&rdquo;
+                        </p>
                       )}
                     </div>
 
@@ -155,7 +196,9 @@ export default function SellerContactRequests() {
                           disabled={unlocking === req.id}
                           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-sm font-medium rounded-lg transition-colors"
                         >
-                          {unlocking === req.id ? '...' : 'Ver datos (1 crédito)'}
+                          {unlocking === req.id
+                            ? "..."
+                            : "Ver datos (1 crédito)"}
                         </button>
                       )}
                       {!isApproved && (
@@ -164,7 +207,7 @@ export default function SellerContactRequests() {
                           disabled={approving === req.id}
                           className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white text-sm font-medium rounded-lg transition-colors"
                         >
-                          {approving === req.id ? '...' : 'Revelar dirección'}
+                          {approving === req.id ? "..." : "Revelar dirección"}
                         </button>
                       )}
                       {isApproved && (

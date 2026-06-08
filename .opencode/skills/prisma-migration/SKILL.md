@@ -1,4 +1,5 @@
 ---
+disable: true
 name: prisma-migration
 description: Create and run Prisma database migrations safely with Docker-managed PostgreSQL; verify schema changes don't break existing queries
 license: MIT

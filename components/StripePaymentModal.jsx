@@ -1,14 +1,22 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import * as creditsAPI from '@/lib/api/credits';
+import { useState, useEffect } from "react";
+import { loadStripe } from "@stripe/stripe-js";
+import {
+  Elements,
+  CardElement,
+  useStripe,
+  useElements,
+} from "@stripe/react-stripe-js";
+import * as creditsAPI from "@/lib/api/credits";
 
 let stripePromise = null;
 function getStripePromise() {
   const key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
-  if (!key) { console.error('Missing NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY'); return null; }
+  if (!key) {
+    console.error("Missing NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY");
+    return null;
+  }
   if (!stripePromise) {
     stripePromise = loadStripe(key);
   }
@@ -17,8 +25,13 @@ function getStripePromise() {
 
 const CARD_STYLE = {
   style: {
-    base: { fontSize: '16px', color: '#1a1a1a', fontFamily: 'system-ui, sans-serif', '::placeholder': { color: '#9ca3af' } },
-    invalid: { color: '#ef4444' },
+    base: {
+      fontSize: "16px",
+      color: "#1a1a1a",
+      fontFamily: "system-ui, sans-serif",
+      "::placeholder": { color: "#9ca3af" },
+    },
+    invalid: { color: "#ef4444" },
   },
 };
 
@@ -34,19 +47,24 @@ function CheckoutForm({ pkg, onSuccess, onClose, refresh, clientSecret }) {
     setProcessing(true);
     setErrorMsg(null);
     try {
-      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: { card: elements.getElement(CardElement) },
-      });
+      const { error, paymentIntent } = await stripe.confirmCardPayment(
+        clientSecret,
+        {
+          payment_method: { card: elements.getElement(CardElement) },
+        },
+      );
       if (error) {
         setErrorMsg(error.message);
-      } else if (paymentIntent?.status === 'succeeded') {
+      } else if (paymentIntent?.status === "succeeded") {
         // Webhook fulfills server-side; client call is a safety fallback
-        try { await creditsAPI.fulfillPayment(pkg.id, paymentIntent.id); } catch (_) {}
+        try {
+          await creditsAPI.fulfillPayment(pkg.id, paymentIntent.id);
+        } catch (_) {}
         await refresh();
         onSuccess();
       }
     } catch (err) {
-      setErrorMsg(err.message || 'Error al procesar el pago');
+      setErrorMsg(err.message || "Error al procesar el pago");
     } finally {
       setProcessing(false);
     }
@@ -73,14 +91,21 @@ function CheckoutForm({ pkg, onSuccess, onClose, refresh, clientSecret }) {
           disabled={!stripe || processing}
           className="flex-1 py-2 rounded-lg bg-clay-500 hover:bg-clay-600 disabled:opacity-50 text-white text-sm font-semibold transition-colors"
         >
-          {processing ? 'Procesando…' : `Pagar $${pkg?.priceMXN?.toLocaleString('es-MX')} MXN`}
+          {processing
+            ? "Procesando…"
+            : `Pagar $${pkg?.priceMXN?.toLocaleString("es-MX")} MXN`}
         </button>
       </div>
     </form>
   );
 }
 
-export default function StripePaymentModal({ pkg, onClose, onSuccess, refresh }) {
+export default function StripePaymentModal({
+  pkg,
+  onClose,
+  onSuccess,
+  refresh,
+}) {
   const [clientSecret, setClientSecret] = useState(null);
   const [loadError, setLoadError] = useState(null);
   const [succeeded, setSucceeded] = useState(false);
@@ -90,9 +115,10 @@ export default function StripePaymentModal({ pkg, onClose, onSuccess, refresh })
     setClientSecret(null);
     setLoadError(null);
     setSucceeded(false);
-    creditsAPI.createPaymentIntent(pkg.id)
+    creditsAPI
+      .createPaymentIntent(pkg.id)
       .then((data) => setClientSecret(data.clientSecret))
-      .catch((err) => setLoadError(err.message || 'Error al iniciar el pago'));
+      .catch((err) => setLoadError(err.message || "Error al iniciar el pago"));
   }, [pkg]);
 
   const handleSuccess = () => {
@@ -104,7 +130,7 @@ export default function StripePaymentModal({ pkg, onClose, onSuccess, refresh })
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-xl max-w-md w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-xl max-w-md w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
             Comprar {pkg.name}
@@ -113,14 +139,24 @@ export default function StripePaymentModal({ pkg, onClose, onSuccess, refresh })
             onClick={onClose}
             className="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
 
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          {pkg.credits} créditos · ${pkg.priceMXN?.toLocaleString('es-MX')} MXN
+          {pkg.credits} créditos · ${pkg.priceMXN?.toLocaleString("es-MX")} MXN
         </p>
 
         {succeeded && (
@@ -134,16 +170,26 @@ export default function StripePaymentModal({ pkg, onClose, onSuccess, refresh })
         )}
 
         {!clientSecret && !loadError && !succeeded && (
-          <p className="text-sm text-neutral-500 py-4 text-center">Preparando pago…</p>
+          <p className="text-sm text-neutral-500 py-4 text-center">
+            Preparando pago…
+          </p>
         )}
 
         {clientSecret && !succeeded && (
           <Elements stripe={getStripePromise()} options={{ clientSecret }}>
-            <CheckoutForm pkg={pkg} onClose={onClose} onSuccess={handleSuccess} refresh={refresh} clientSecret={clientSecret} />
+            <CheckoutForm
+              pkg={pkg}
+              onClose={onClose}
+              onSuccess={handleSuccess}
+              refresh={refresh}
+              clientSecret={clientSecret}
+            />
           </Elements>
         )}
         {!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY && (
-          <p className="text-xs text-red-500">Error: Stripe key not configured</p>
+          <p className="text-xs text-red-500">
+            Error: Stripe key not configured
+          </p>
         )}
       </div>
     </div>

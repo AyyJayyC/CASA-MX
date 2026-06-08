@@ -1,9 +1,13 @@
-'use client';
-import React, { useState } from 'react';
-import { useAuth } from '@/lib/auth/useAuth';
-import PromotePropertyModal from './PromotePropertyModal.jsx';
+"use client";
+import React, { useState } from "react";
+import { useAuth } from "@/lib/auth/useAuth";
+import PromotePropertyModal from "./PromotePropertyModal.jsx";
 
-export default function PromotePropertyButton({ propertyId, propertyTitle, sellerId }) {
+export default function PromotePropertyButton({
+  propertyId,
+  propertyTitle,
+  sellerId,
+}) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
 

@@ -13,7 +13,7 @@ import { addProperty as addPropertyAPI, updateProperty as updatePropertyAPI, pub
 import { getUnifiedCatalog } from '../lib/api/locations.js';
 import { useAuth } from '../lib/auth/useAuth';
 import { useInvalidateProperties } from '../lib/queries/properties';
-import { addAddressToCache } from '../lib/services/addressCache';
+import { useUserStore } from "../lib/stores/userStore";
 import { CONDITION_LABELS, FURNISHED_LABELS, PARKING_TYPE_LABELS, STATUS_LABELS, VISIBILITY_LABELS } from '../lib/constants/propertyOptions';
 import useNumericInput from '../lib/hooks/useNumericInput';
 import Link from 'next/link';
@@ -576,7 +576,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
         colonia: (values.colonia || "").trim().replace(/\s+/g, " ").replace(/\w/g, c => c.toUpperCase()),
         codigoPostal: values.codigoPostal,
       };
-      addAddressToCache(addressData);
+      try { useUserStore.getState().addAddress(addressData); } catch {}
 
       setSuccess(created);
       reset({ ...propertyFormDefaults, listingType, photos: [] });

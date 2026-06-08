@@ -1,21 +1,22 @@
-'use client';
+"use client";
 
-import { useContext, useEffect, useState } from 'react';
-import { AuthContext } from '@/lib/auth/AuthContext';
-import { useCredits } from '@/lib/auth/CreditsContext';
-import CreditPackages from '@/components/CreditPackages';
-import * as creditsAPI from '@/lib/api/credits';
+import { useContext, useEffect, useState } from "react";
+import { AuthContext } from "@/lib/auth/AuthContext";
+import { useCreditsBalance } from "@/lib/queries/credits";
+import CreditPackages from "@/components/CreditPackages";
+import * as creditsAPI from "@/lib/api/credits";
 
 export default function CreditsPage() {
   const { user } = useContext(AuthContext);
-  const { balance } = useCredits();
+  const { data: balance = 0 } = useCreditsBalance();
   const [transactions, setTransactions] = useState([]);
   const [txLoading, setTxLoading] = useState(false);
 
   useEffect(() => {
     if (!user) return;
     setTxLoading(true);
-    creditsAPI.getTransactions()
+    creditsAPI
+      .getTransactions()
       .then((d) => setTransactions(d.transactions ?? []))
       .catch(() => {})
       .finally(() => setTxLoading(false));
@@ -35,18 +36,24 @@ export default function CreditsPage() {
       <div className="rounded-2xl bg-gradient-to-br from-clay-400 to-clay-600 p-8 text-white text-center shadow-lg">
         <p className="text-lg font-medium opacity-90">Tu saldo de créditos</p>
         <p className="text-6xl font-black mt-2">{balance}</p>
-        <p className="mt-1 opacity-80 text-sm">{balance === 1 ? 'crédito disponible' : 'créditos disponibles'}</p>
+        <p className="mt-1 opacity-80 text-sm">
+          {balance === 1 ? "crédito disponible" : "créditos disponibles"}
+        </p>
       </div>
 
       {/* Buy packages */}
       <section>
-        <h2 className="text-xl font-bold text-neutral-800 dark:text-white mb-4">Comprar créditos</h2>
+        <h2 className="text-xl font-bold text-neutral-800 dark:text-white mb-4">
+          Comprar créditos
+        </h2>
         <CreditPackages />
       </section>
 
       {/* Transaction history */}
       <section>
-        <h2 className="text-xl font-bold text-neutral-800 dark:text-white mb-4">Historial</h2>
+        <h2 className="text-xl font-bold text-neutral-800 dark:text-white mb-4">
+          Historial
+        </h2>
         {txLoading ? (
           <p className="text-sm text-neutral-500">Cargando historial...</p>
         ) : transactions.length === 0 ? (
@@ -59,10 +66,16 @@ export default function CreditsPage() {
                 className="flex items-center justify-between rounded-lg border border-neutral-200 dark:border-neutral-700 px-4 py-3 text-sm bg-white dark:bg-neutral-900"
               >
                 <div>
-                  <p className="font-medium text-neutral-800 dark:text-white">{tx.description}</p>
-                  <p className="text-xs text-neutral-500 mt-0.5">{new Date(tx.createdAt).toLocaleString('es-MX')}</p>
+                  <p className="font-medium text-neutral-800 dark:text-white">
+                    {tx.description}
+                  </p>
+                  <p className="text-xs text-neutral-500 mt-0.5">
+                    {new Date(tx.createdAt).toLocaleString("es-MX")}
+                  </p>
                 </div>
-                <span className={`font-bold text-base ${tx.amount > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                <span
+                  className={`font-bold text-base ${tx.amount > 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+                >
                   {tx.amount > 0 ? `+${tx.amount}` : tx.amount}
                 </span>
               </li>

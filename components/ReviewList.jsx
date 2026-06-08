@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import RatingStars from './RatingStars.jsx';
-import VerificationBadges from '@/components/VerificationBadges';
+import RatingStars from "./RatingStars.jsx";
+import VerificationBadges from "@/components/VerificationBadges";
 
 export default function ReviewList({
   reviews = [],
   loading = false,
   error = null,
-  emptyMessage = 'Todavía no hay reseñas para mostrar.',
+  emptyMessage = "Todavía no hay reseñas para mostrar.",
 }) {
   if (loading) {
     return (
@@ -43,20 +43,27 @@ export default function ReviewList({
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
             <div>
               <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">
-                {review.reviewer?.name || 'Usuario verificado'}
+                {review.reviewer?.name || "Usuario verificado"}
               </h3>
-              {(review.reviewer?.officialIdVerified || review.reviewer?.officialIdUploaded || review.reviewer?.paidSubscriber) && (
+              {(review.reviewer?.officialIdVerified ||
+                review.reviewer?.officialIdUploaded ||
+                review.reviewer?.paidSubscriber) && (
                 <div className="mt-1">
                   <VerificationBadges
                     compact
-                    identityVerified={Boolean(review.reviewer?.officialIdVerified)}
-                    identityUploaded={Boolean(review.reviewer?.officialIdUploaded)}
+                    identityVerified={Boolean(
+                      review.reviewer?.officialIdVerified,
+                    )}
+                    identityUploaded={Boolean(
+                      review.reviewer?.officialIdUploaded,
+                    )}
                     paidSubscriber={Boolean(review.reviewer?.paidSubscriber)}
                   />
                 </div>
               )}
               <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
-                {review.property?.title || 'Propiedad verificada'} · {new Date(review.createdAt).toLocaleDateString('es-MX')}
+                {review.property?.title || "Propiedad verificada"} ·{" "}
+                {new Date(review.createdAt).toLocaleDateString("es-MX")}
               </p>
             </div>
             <RatingStars value={review.overallRating} readOnly showValue />

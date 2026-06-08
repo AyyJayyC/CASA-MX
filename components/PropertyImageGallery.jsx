@@ -1,12 +1,16 @@
-'use client';
+"use client";
 
-import React, { useEffect, useMemo, useState } from 'react';
-import Image from 'next/image';
-import { ChevronLeft, ChevronRight, ImageOff } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
+import { ChevronLeft, ChevronRight, ImageOff } from "lucide-react";
 
 const fallbackImage = `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900"><rect width="100%" height="100%" fill="#e5e5e5"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#737373" font-family="Arial" font-size="40">Casa-MX.com</text></svg>')}`;
 
-export default function PropertyImageGallery({ images = [], title = 'Propiedad', showThumbnails = true }) {
+export default function PropertyImageGallery({
+  images = [],
+  title = "Propiedad",
+  showThumbnails = true,
+}) {
   const safeImages = useMemo(() => {
     if (!Array.isArray(images)) {
       return [];
@@ -30,17 +34,17 @@ export default function PropertyImageGallery({ images = [], title = 'Propiedad',
     }
 
     const handleKeyDown = (event) => {
-      if (event.key === 'ArrowLeft') {
+      if (event.key === "ArrowLeft") {
         setCurrentIndex((index) => Math.max(0, index - 1));
       }
 
-      if (event.key === 'ArrowRight') {
+      if (event.key === "ArrowRight") {
         setCurrentIndex((index) => Math.min(safeImages.length - 1, index + 1));
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [hasMultipleImages, safeImages.length]);
 
   if (!hasImages) {
@@ -49,7 +53,9 @@ export default function PropertyImageGallery({ images = [], title = 'Propiedad',
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white/80 text-neutral-400 shadow-sm dark:bg-neutral-800 dark:text-neutral-500">
           <ImageOff className="h-7 w-7" aria-hidden="true" />
         </div>
-        <p className="mt-4 text-sm font-medium">Aún no hay imágenes para esta propiedad.</p>
+        <p className="mt-4 text-sm font-medium">
+          Aún no hay imágenes para esta propiedad.
+        </p>
       </div>
     );
   }
@@ -72,7 +78,9 @@ export default function PropertyImageGallery({ images = [], title = 'Propiedad',
             <>
               <button
                 type="button"
-                onClick={() => setCurrentIndex((index) => Math.max(0, index - 1))}
+                onClick={() =>
+                  setCurrentIndex((index) => Math.max(0, index - 1))
+                }
                 disabled={currentIndex === 0}
                 className="absolute left-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-neutral-950/75 text-white shadow-lg backdrop-blur-sm transition disabled:cursor-not-allowed disabled:opacity-35 group-hover:opacity-100 md:opacity-0"
                 aria-label="Imagen anterior"
@@ -81,7 +89,11 @@ export default function PropertyImageGallery({ images = [], title = 'Propiedad',
               </button>
               <button
                 type="button"
-                onClick={() => setCurrentIndex((index) => Math.min(safeImages.length - 1, index + 1))}
+                onClick={() =>
+                  setCurrentIndex((index) =>
+                    Math.min(safeImages.length - 1, index + 1),
+                  )
+                }
                 disabled={currentIndex === safeImages.length - 1}
                 className="absolute right-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-neutral-950/75 text-white shadow-lg backdrop-blur-sm transition disabled:cursor-not-allowed disabled:opacity-35 group-hover:opacity-100 md:opacity-0"
                 aria-label="Imagen siguiente"
@@ -103,7 +115,7 @@ export default function PropertyImageGallery({ images = [], title = 'Propiedad',
               key={`${String(image).slice(0, 48)}-${index}`}
               type="button"
               onClick={() => setCurrentIndex(index)}
-              className={`relative aspect-square overflow-hidden rounded-xl border transition ${index === currentIndex ? 'border-clay-500 ring-2 ring-clay-300/70' : 'border-neutral-200 dark:border-neutral-700'}`}
+              className={`relative aspect-square overflow-hidden rounded-xl border transition ${index === currentIndex ? "border-clay-500 ring-2 ring-clay-300/70" : "border-neutral-200 dark:border-neutral-700"}`}
               aria-label={`Ver imagen ${index + 1}`}
             >
               <Image
