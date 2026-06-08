@@ -1,8 +1,8 @@
-'use client';
-import React from 'react';
-import SellerContactRequests from '../../../components/SellerContactRequests.jsx';
-import { useAuth } from '@/lib/auth/useAuth';
-import Link from 'next/link';
+"use client";
+import React from "react";
+import SellerContactRequests from "../../../components/SellerContactRequests.jsx";
+import { useAuth } from "@/lib/auth/useAuth";
+import Link from "next/link";
 
 export default function SellerContactRequestsPage() {
   const { user, isAuthenticated } = useAuth();
@@ -25,7 +25,8 @@ export default function SellerContactRequestsPage() {
             Solicitudes de Contacto
           </h1>
           <p className="text-neutral-500 dark:text-neutral-400">
-            Compradores interesados en conocer la dirección de tus propiedades. Desbloquea sus datos de contacto o comparte la dirección.
+            Compradores interesados en conocer la dirección de tus propiedades.
+            Desbloquea sus datos de contacto o comparte la dirección.
           </p>
         </div>
         <SellerContactRequests />

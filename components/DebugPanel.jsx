@@ -4,25 +4,28 @@
  * Checkpoint 3: Frontend Action & Error Logging
  */
 
-'use client';
+"use client";
 
-import React from 'react';
-import { useState, useEffect } from 'react';
-import { logger } from '@/lib/logging/logger';
-import { useAuth } from '@/lib/auth/useAuth';
+import React from "react";
+import { useState, useEffect } from "react";
+import { logger } from "@/lib/logging/logger";
+import { useAuth } from "@/lib/auth/useAuth";
 
 export default function DebugPanel() {
   const { isAuthenticated, isHydrated, user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [logs, setLogs] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterLevel, setFilterLevel] = useState('ALL');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterLevel, setFilterLevel] = useState("ALL");
 
-  const isProduction = process.env.NODE_ENV === 'production';
+  const isProduction = process.env.NODE_ENV === "production";
   const isAdmin = Boolean(
-    user?.roles?.some((role) => role.type === 'admin' && role.status === 'approved')
+    user?.roles?.some(
+      (role) => role.type === "admin" && role.status === "approved",
+    ),
   );
-  const shouldHide = isProduction || !isHydrated || !isAuthenticated || !isAdmin;
+  const shouldHide =
+    isProduction || !isHydrated || !isAuthenticated || !isAdmin;
 
   // Refresh logs every second
   useEffect(() => {
@@ -40,14 +43,14 @@ export default function DebugPanel() {
   useEffect(() => {
     if (shouldHide) return;
     const handleKeyDown = (e) => {
-      if (e.altKey && e.key === 'd') {
+      if (e.altKey && e.key === "d") {
         e.preventDefault();
         setIsOpen(!isOpen);
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, shouldHide]);
 
   if (shouldHide) {
@@ -58,15 +61,18 @@ export default function DebugPanel() {
     let allLogs = logger.getLogs();
 
     // Filter by level
-    if (filterLevel !== 'ALL') {
-      allLogs = allLogs.filter(log => log.level === filterLevel);
+    if (filterLevel !== "ALL") {
+      allLogs = allLogs.filter((log) => log.level === filterLevel);
     }
 
     // Filter by search query
     if (searchQuery) {
-      allLogs = allLogs.filter(log =>
-        log.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        JSON.stringify(log.data).toLowerCase().includes(searchQuery.toLowerCase())
+      allLogs = allLogs.filter(
+        (log) =>
+          log.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          JSON.stringify(log.data)
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()),
       );
     }
 
@@ -79,14 +85,14 @@ export default function DebugPanel() {
 
   const getLevelColor = (level) => {
     const colors = {
-      ERROR: 'text-red-600',
-      WARN: 'text-clay-600',
-      API: 'text-blue-600',
-      ACTION: 'text-green-600',
-      INFO: 'text-gray-600',
-      DEBUG: 'text-purple-600'
+      ERROR: "text-red-600",
+      WARN: "text-clay-600",
+      API: "text-blue-600",
+      ACTION: "text-green-600",
+      INFO: "text-gray-600",
+      DEBUG: "text-purple-600",
     };
-    return colors[level] || 'text-gray-600';
+    return colors[level] || "text-gray-600";
   };
 
   const stats = logger.getStats();
@@ -163,7 +169,8 @@ export default function DebugPanel() {
 
       {/* Stats */}
       <div className="bg-gray-50 px-4 py-2 border-b border-gray-300 text-xs">
-        Total: {stats.totalLogs} | Errors: {stats.byLevel.ERROR || 0} | API: {stats.byLevel.API || 0} | Actions: {stats.byLevel.ACTION || 0}
+        Total: {stats.totalLogs} | Errors: {stats.byLevel.ERROR || 0} | API:{" "}
+        {stats.byLevel.API || 0} | Actions: {stats.byLevel.ACTION || 0}
       </div>
 
       {/* Logs */}
@@ -172,15 +179,24 @@ export default function DebugPanel() {
           <div className="p-4 text-gray-500">No logs to display</div>
         ) : (
           logs.map((log, idx) => (
-            <div key={idx} className="px-4 py-2 border-b border-gray-200 hover:bg-gray-50">
+            <div
+              key={idx}
+              className="px-4 py-2 border-b border-gray-200 hover:bg-gray-50"
+            >
               <div className="flex gap-2">
-                <span className="text-gray-500">{new Date(log.timestamp).toLocaleTimeString()}</span>
-                <span className={`font-bold ${getLevelColor(log.level)} w-12`}>[{log.level}]</span>
+                <span className="text-gray-500">
+                  {new Date(log.timestamp).toLocaleTimeString()}
+                </span>
+                <span className={`font-bold ${getLevelColor(log.level)} w-12`}>
+                  [{log.level}]
+                </span>
                 <span className="flex-1">{log.message}</span>
               </div>
               {log.data && (
                 <div className="text-gray-600 ml-32 mt-1 break-all">
-                  {typeof log.data === 'string' ? log.data : JSON.stringify(log.data).substring(0, 200)}
+                  {typeof log.data === "string"
+                    ? log.data
+                    : JSON.stringify(log.data).substring(0, 200)}
                 </div>
               )}
             </div>

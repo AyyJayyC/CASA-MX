@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { use } from 'react';
-import { useRouter } from 'next/navigation';
-import { useProperty } from '@/lib/queries/properties';
-import PropertyUploadForm from '@/components/PropertyUploadForm.jsx';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import { RequireAuth } from '@/components/guards/RequireAuth';
-import { RequireRole } from '@/components/guards/RequireRole';
+import { use } from "react";
+import { useRouter } from "next/navigation";
+import { useProperty } from "@/lib/queries/properties";
+import PropertyUploadForm from "@/components/PropertyUploadForm.jsx";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { RequireAuth } from "@/components/guards/RequireAuth";
+import { RequireRole } from "@/components/guards/RequireRole";
 
 export default function EditPropertyPage({ params }) {
   return (
     <RequireAuth>
-      <RequireRole roles={['seller', 'wholesaler', 'landlord', 'admin']}>
+      <RequireRole roles={["seller", "wholesaler", "landlord", "admin"]}>
         <EditProperty params={params} />
       </RequireRole>
     </RequireAuth>
@@ -42,7 +42,7 @@ function EditProperty({ params }) {
             Esta propiedad no existe o no tienes permiso para editarla.
           </p>
           <button
-            onClick={() => router.push('/dashboard/my-properties')}
+            onClick={() => router.push("/dashboard/my-properties")}
             className="px-6 py-3 bg-clay hover:bg-clay-500 text-white font-semibold rounded-lg transition-all"
           >
             Volver a Mis Propiedades
@@ -52,16 +52,16 @@ function EditProperty({ params }) {
     );
   }
 
-  const listingType = property.listingType || 'for_sale';
+  const listingType = property.listingType || "for_sale";
 
   const initialValues = {
     title: property.title,
-    description: property.description || '',
-    estado: property.estado || '',
-    ciudad: property.ciudad || '',
-    colonia: property.colonia || '',
-    codigoPostal: property.codigoPostal || '',
-    propertyType: property.propertyType || '',
+    description: property.description || "",
+    estado: property.estado || "",
+    ciudad: property.ciudad || "",
+    colonia: property.colonia || "",
+    codigoPostal: property.codigoPostal || "",
+    propertyType: property.propertyType || "",
     price: property.price || undefined,
     monthlyRent: property.monthlyRent || undefined,
     bedrooms: property.bedrooms || 0,
@@ -71,29 +71,29 @@ function EditProperty({ params }) {
     parkingSpaces: property.parkingSpaces || undefined,
     floors: property.floors || undefined,
     yearBuilt: property.yearBuilt || undefined,
-    condition: property.condition || '',
+    condition: property.condition || "",
     furnished: property.furnished || false,
     utilitiesIncluded: property.utilitiesIncluded || false,
     petFriendly: property.petFriendly || false,
     childrenWelcome: property.childrenWelcome || false,
     issuesInvoice: property.issuesInvoice || false,
-    status: property.status || '',
-    visibility: property.visibility || 'private',
-    address: property.address || '',
+    status: property.status || "",
+    visibility: property.visibility || "private",
+    address: property.address || "",
     halfBaths: property.halfBaths || undefined,
     maintenanceFee: property.maintenanceFee || undefined,
     securityDeposit: property.securityDeposit || undefined,
     leaseTermMonths: property.leaseTermMonths || undefined,
-    availableFrom: property.availableFrom || '',
+    availableFrom: property.availableFrom || "",
     includedServices: property.includedServices || [],
     amenities: property.amenities || [],
     financeOptions: property.financeOptions || [],
-    mapsUrl: property.mapsUrl || '',
+    mapsUrl: property.mapsUrl || "",
     imageUrls: property.imageUrls || [],
     photos: property.imageUrls || [],
-    parkingType: property.parkingType || '',
+    parkingType: property.parkingType || "",
     miniSplits: property.miniSplits || undefined,
-    inventoryNotes: property.inventoryNotes || '',
+    inventoryNotes: property.inventoryNotes || "",
   };
 
   return (
@@ -106,7 +106,7 @@ function EditProperty({ params }) {
           <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
             Editando: {property.title}
           </p>
-          {property.status === 'incompleto' && (
+          {property.status === "incompleto" && (
             <span className="inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
               ⚠️ Borrador — La propiedad es privada hasta que esté completa
             </span>
@@ -117,7 +117,7 @@ function EditProperty({ params }) {
           listingType={listingType}
           initialValues={initialValues}
           propertyId={id}
-          onSave={() => router.push('/dashboard/my-properties')}
+          onSave={() => router.push("/dashboard/my-properties")}
         />
       </div>
     </div>

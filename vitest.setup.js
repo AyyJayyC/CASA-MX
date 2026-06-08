@@ -27,6 +27,26 @@ if (!globalThis.ResizeObserver) {
 	globalThis.ResizeObserver = ResizeObserver;
 }
 
+if (!globalThis.IntersectionObserver) {
+  class IntersectionObserver {
+    constructor(callback, options) {
+      this.callback = callback;
+      this.options = options;
+      this.elements = new Set();
+    }
+    observe(element) {
+      this.elements.add(element);
+    }
+    unobserve(element) {
+      this.elements.delete(element);
+    }
+    disconnect() {
+      this.elements.clear();
+    }
+  }
+  globalThis.IntersectionObserver = IntersectionObserver;
+}
+
 if (typeof HTMLElement !== 'undefined') {
 	HTMLElement.prototype.getBoundingClientRect = function getBoundingClientRect() {
 		return {

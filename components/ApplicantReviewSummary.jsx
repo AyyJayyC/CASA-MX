@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { getReviewSummary } from '@/lib/api/reviews';
-import ReviewSummaryCard from './ReviewSummaryCard.jsx';
+import { useEffect, useState } from "react";
+import { getReviewSummary } from "@/lib/api/reviews";
+import ReviewSummaryCard from "./ReviewSummaryCard.jsx";
 
 export default function ApplicantReviewSummary({ applicantId }) {
   const [summary, setSummary] = useState(null);
@@ -16,14 +16,17 @@ export default function ApplicantReviewSummary({ applicantId }) {
       try {
         setLoading(true);
         setError(null);
-        const data = await getReviewSummary(applicantId, 'tenant');
+        const data = await getReviewSummary(applicantId, "tenant");
 
         if (!cancelled) {
           setSummary(data);
         }
       } catch (loadError) {
         if (!cancelled) {
-          setError(loadError.message || 'No se pudo cargar la reputación del inquilino');
+          setError(
+            loadError.message ||
+              "No se pudo cargar la reputación del inquilino",
+          );
         }
       } finally {
         if (!cancelled) {

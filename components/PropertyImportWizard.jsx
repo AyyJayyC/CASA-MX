@@ -1,40 +1,203 @@
-'use client';
-import React, { useState, useCallback, useMemo } from 'react';
-import * as XLSX from 'xlsx';
+"use client";
+import React, { useState, useCallback, useMemo } from "react";
+import * as XLSX from "xlsx";
 
 const FIELD_DEFINITIONS = [
-  { key: 'title', label: 'Título', required: true, aliases: ['title', 'titulo', 'título', 'nombre'] },
-  { key: 'description', label: 'Descripción', required: false, aliases: ['description', 'descripcion', 'descripción', 'desc'] },
-  { key: 'estado', label: 'Estado', required: true, aliases: ['estado', 'state'] },
-  { key: 'ciudad', label: 'Ciudad', required: true, aliases: ['ciudad', 'city', 'delegacion', 'delegación', 'municipio'] },
-  { key: 'colonia', label: 'Colonia', required: true, aliases: ['colonia', 'neighborhood', 'barrio', 'col'] },
-  { key: 'codigoPostal', label: 'Código Postal', required: false, aliases: ['codigopostal', 'codigo postal', 'código postal', 'cp', 'zip'] },
-  { key: 'propertyType', label: 'Tipo de propiedad', required: true, aliases: ['propertytype', 'tipo de propiedad', 'tipo', 'tipo_propiedad', 'type'] },
-  { key: 'listingType', label: 'Tipo de operación', required: true, aliases: ['listingtype', 'tipo de operacion', 'tipo de operación', 'operacion', 'operación', 'venta/renta', 'ventarent', 'tipo_listado'] },
-  { key: 'price', label: 'Precio (MXN)', required: false, aliases: ['price', 'precio', 'precio_mxn', 'costo'] },
-  { key: 'monthlyRent', label: 'Renta mensual (MXN)', required: false, aliases: ['monthlyrent', 'renta', 'renta mensual', 'rent'] },
-  { key: 'bedrooms', label: 'Recámaras', required: false, aliases: ['bedrooms', 'recamaras', 'recámaras', 'beds', 'cuartos'] },
-  { key: 'bathrooms', label: 'Baños', required: false, aliases: ['bathrooms', 'banos', 'baños', 'baths'] },
-  { key: 'squareMeters', label: 'M² construcción', required: false, aliases: ['squaremeters', 'metros', 'm2', 'm²', 'construccion', 'construcción', 'size', 'area', 'área'] },
-  { key: 'lotSize', label: 'M² terreno', required: false, aliases: ['lotsize', 'terreno', 'lote', 'lot', 'terrain'] },
-  { key: 'parkingSpaces', label: 'Estacionamiento', required: false, aliases: ['parkingspaces', 'estacionamiento', 'parking', 'cajones'] },
-  { key: 'condition', label: 'Condición', required: false, aliases: ['condition', 'condicion', 'condición', 'estado_propiedad'] },
-  { key: 'furnished', label: 'Amueblado', required: false, aliases: ['furnished', 'amueblado', 'amueblada'] },
-  { key: 'status', label: 'Estatus', required: false, aliases: ['status', 'estatus', 'estado_venta'] },
-  { key: 'address', label: 'Dirección', required: false, aliases: ['address', 'direccion', 'dirección', 'ubicacion', 'ubicación'] },
-  { key: 'halfBaths', label: 'Medios baños', required: false, aliases: ['halfbaths', 'medios banos', 'medios baños'] },
-  { key: 'floors', label: 'Pisos', required: false, aliases: ['floors', 'pisos', 'niveles', 'plantas'] },
-  { key: 'yearBuilt', label: 'Año construcción', required: false, aliases: ['yearbuilt', 'ano', 'año', 'ano_construccion', 'año_construcción', 'year'] },
-  { key: 'maintenanceFee', label: 'Mantenimiento (MXN)', required: false, aliases: ['maintenancefee', 'mantenimiento', 'cuota', 'hoa'] },
-  { key: 'petFriendly', label: 'Acepta mascotas', required: false, aliases: ['petfriendly', 'mascotas', 'pets'] },
-  { key: 'visibility', label: 'Visibilidad', required: false, aliases: ['visibility', 'visibilidad', 'publico', 'privado'] },
+  {
+    key: "title",
+    label: "Título",
+    required: true,
+    aliases: ["title", "titulo", "título", "nombre"],
+  },
+  {
+    key: "description",
+    label: "Descripción",
+    required: false,
+    aliases: ["description", "descripcion", "descripción", "desc"],
+  },
+  {
+    key: "estado",
+    label: "Estado",
+    required: true,
+    aliases: ["estado", "state"],
+  },
+  {
+    key: "ciudad",
+    label: "Ciudad",
+    required: true,
+    aliases: ["ciudad", "city", "delegacion", "delegación", "municipio"],
+  },
+  {
+    key: "colonia",
+    label: "Colonia",
+    required: true,
+    aliases: ["colonia", "neighborhood", "barrio", "col"],
+  },
+  {
+    key: "codigoPostal",
+    label: "Código Postal",
+    required: false,
+    aliases: ["codigopostal", "codigo postal", "código postal", "cp", "zip"],
+  },
+  {
+    key: "propertyType",
+    label: "Tipo de propiedad",
+    required: true,
+    aliases: [
+      "propertytype",
+      "tipo de propiedad",
+      "tipo",
+      "tipo_propiedad",
+      "type",
+    ],
+  },
+  {
+    key: "listingType",
+    label: "Tipo de operación",
+    required: true,
+    aliases: [
+      "listingtype",
+      "tipo de operacion",
+      "tipo de operación",
+      "operacion",
+      "operación",
+      "venta/renta",
+      "ventarent",
+      "tipo_listado",
+    ],
+  },
+  {
+    key: "price",
+    label: "Precio (MXN)",
+    required: false,
+    aliases: ["price", "precio", "precio_mxn", "costo"],
+  },
+  {
+    key: "monthlyRent",
+    label: "Renta mensual (MXN)",
+    required: false,
+    aliases: ["monthlyrent", "renta", "renta mensual", "rent"],
+  },
+  {
+    key: "bedrooms",
+    label: "Recámaras",
+    required: false,
+    aliases: ["bedrooms", "recamaras", "recámaras", "beds", "cuartos"],
+  },
+  {
+    key: "bathrooms",
+    label: "Baños",
+    required: false,
+    aliases: ["bathrooms", "banos", "baños", "baths"],
+  },
+  {
+    key: "squareMeters",
+    label: "M² construcción",
+    required: false,
+    aliases: [
+      "squaremeters",
+      "metros",
+      "m2",
+      "m²",
+      "construccion",
+      "construcción",
+      "size",
+      "area",
+      "área",
+    ],
+  },
+  {
+    key: "lotSize",
+    label: "M² terreno",
+    required: false,
+    aliases: ["lotsize", "terreno", "lote", "lot", "terrain"],
+  },
+  {
+    key: "parkingSpaces",
+    label: "Estacionamiento",
+    required: false,
+    aliases: ["parkingspaces", "estacionamiento", "parking", "cajones"],
+  },
+  {
+    key: "condition",
+    label: "Condición",
+    required: false,
+    aliases: ["condition", "condicion", "condición", "estado_propiedad"],
+  },
+  {
+    key: "furnished",
+    label: "Amueblado",
+    required: false,
+    aliases: ["furnished", "amueblado", "amueblada"],
+  },
+  {
+    key: "status",
+    label: "Estatus",
+    required: false,
+    aliases: ["status", "estatus", "estado_venta"],
+  },
+  {
+    key: "address",
+    label: "Dirección",
+    required: false,
+    aliases: ["address", "direccion", "dirección", "ubicacion", "ubicación"],
+  },
+  {
+    key: "halfBaths",
+    label: "Medios baños",
+    required: false,
+    aliases: ["halfbaths", "medios banos", "medios baños"],
+  },
+  {
+    key: "floors",
+    label: "Pisos",
+    required: false,
+    aliases: ["floors", "pisos", "niveles", "plantas"],
+  },
+  {
+    key: "yearBuilt",
+    label: "Año construcción",
+    required: false,
+    aliases: [
+      "yearbuilt",
+      "ano",
+      "año",
+      "ano_construccion",
+      "año_construcción",
+      "year",
+    ],
+  },
+  {
+    key: "maintenanceFee",
+    label: "Mantenimiento (MXN)",
+    required: false,
+    aliases: ["maintenancefee", "mantenimiento", "cuota", "hoa"],
+  },
+  {
+    key: "petFriendly",
+    label: "Acepta mascotas",
+    required: false,
+    aliases: ["petfriendly", "mascotas", "pets"],
+  },
+  {
+    key: "visibility",
+    label: "Visibilidad",
+    required: false,
+    aliases: ["visibility", "visibilidad", "publico", "privado"],
+  },
 ];
 
 function autoDetectMapping(headers) {
-  const normalized = headers.map(h => String(h || '').toLowerCase().replace(/[\s_\-\.]+/g, ''));
+  const normalized = headers.map((h) =>
+    String(h || "")
+      .toLowerCase()
+      .replace(/[\s_\-\.]+/g, ""),
+  );
   const mapping = {};
   for (const field of FIELD_DEFINITIONS) {
-    const idx = normalized.findIndex(h => field.aliases.some(a => h === a || h.includes(a)));
+    const idx = normalized.findIndex((h) =>
+      field.aliases.some((a) => h === a || h.includes(a)),
+    );
     if (idx >= 0) mapping[field.key] = idx;
   }
   return mapping;
@@ -45,16 +208,25 @@ function parseFile(file) {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const wb = XLSX.read(e.target.result, { type: 'array' });
+        const wb = XLSX.read(e.target.result, { type: "array" });
         const ws = wb.Sheets[wb.SheetNames[0]];
-        const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-        if (!data.length) { reject(new Error('El archivo está vacío')); return; }
-        const headers = data[0].map(h => String(h || '').trim());
-        const rows = data.slice(1).filter(r => r.some(c => c !== ''));
+        const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
+        if (!data.length) {
+          reject(new Error("El archivo está vacío"));
+          return;
+        }
+        const headers = data[0].map((h) => String(h || "").trim());
+        const rows = data.slice(1).filter((r) => r.some((c) => c !== ""));
         resolve({ headers, rows });
-      } catch (err) { reject(new Error('No se pudo leer el archivo. Asegúrate de que sea .xlsx, .xls o .csv')); }
+      } catch (err) {
+        reject(
+          new Error(
+            "No se pudo leer el archivo. Asegúrate de que sea .xlsx, .xls o .csv",
+          ),
+        );
+      }
     };
-    reader.onerror = () => reject(new Error('Error al leer el archivo'));
+    reader.onerror = () => reject(new Error("Error al leer el archivo"));
     reader.readAsArrayBuffer(file);
   });
 }
@@ -63,21 +235,55 @@ function applyMapping(headers, rows, mapping) {
   return rows.map((row, rowIdx) => {
     const obj = {};
     for (const [fieldKey, colIdx] of Object.entries(mapping)) {
-      const val = String(row[colIdx] || '').trim();
-      const field = FIELD_DEFINITIONS.find(f => f.key === fieldKey);
+      const val = String(row[colIdx] || "").trim();
+      const field = FIELD_DEFINITIONS.find((f) => f.key === fieldKey);
       if (field) {
-        if (['price', 'monthlyRent', 'bedrooms', 'bathrooms', 'squareMeters', 'lotSize', 'parkingSpaces', 'halfBaths', 'floors', 'yearBuilt', 'maintenanceFee'].includes(fieldKey)) {
+        if (
+          [
+            "price",
+            "monthlyRent",
+            "bedrooms",
+            "bathrooms",
+            "squareMeters",
+            "lotSize",
+            "parkingSpaces",
+            "halfBaths",
+            "floors",
+            "yearBuilt",
+            "maintenanceFee",
+          ].includes(fieldKey)
+        ) {
           if (!val) {
-            obj[fieldKey] = ['bedrooms', 'bathrooms'].includes(fieldKey) ? 0 : fieldKey === 'squareMeters' ? 1 : undefined;
+            obj[fieldKey] = ["bedrooms", "bathrooms"].includes(fieldKey)
+              ? 0
+              : fieldKey === "squareMeters"
+                ? 1
+                : undefined;
           } else {
             obj[fieldKey] = Number(val);
           }
-        } else if (fieldKey === 'petFriendly') {
-          obj[fieldKey] = ['si', 'sí', 'yes', 'true', '1', 'acepta'].includes(val.toLowerCase());
-        } else if (fieldKey === 'visibility') {
-          obj[fieldKey] = ['privado', 'private', 'privada'].includes(val.toLowerCase()) ? 'private' : 'public';
-        } else if (fieldKey === 'listingType') {
-          obj[fieldKey] = ['renta', 'for_rent', 'alquiler', 'arrendamiento', 'rentar', 'alquilar', 'arrendar'].includes(val.toLowerCase()) ? 'for_rent' : 'for_sale';
+        } else if (fieldKey === "petFriendly") {
+          obj[fieldKey] = ["si", "sí", "yes", "true", "1", "acepta"].includes(
+            val.toLowerCase(),
+          );
+        } else if (fieldKey === "visibility") {
+          obj[fieldKey] = ["privado", "private", "privada"].includes(
+            val.toLowerCase(),
+          )
+            ? "private"
+            : "public";
+        } else if (fieldKey === "listingType") {
+          obj[fieldKey] = [
+            "renta",
+            "for_rent",
+            "alquiler",
+            "arrendamiento",
+            "rentar",
+            "alquilar",
+            "arrendar",
+          ].includes(val.toLowerCase())
+            ? "for_rent"
+            : "for_sale";
         } else {
           obj[fieldKey] = val || undefined;
         }
@@ -89,11 +295,13 @@ function applyMapping(headers, rows, mapping) {
 }
 
 function getFriendlyError(status, row) {
-  const title = row.title || 'Sin título';
-  if (status === 401) return `Sesión expirada. Refresca la página y vuelve a intentarlo.`;
+  const title = row.title || "Sin título";
+  if (status === 401)
+    return `Sesión expirada. Refresca la página y vuelve a intentarlo.`;
   if (status === 429) return `Límite de importación alcanzado (100/15min).`;
   if (status === 500) return `Error del servidor al procesar "${title}".`;
-  if (status === 0) return `Error de conexión con el servidor. Verifica tu internet.`;
+  if (status === 0)
+    return `Error de conexión con el servidor. Verifica tu internet.`;
   return `Error inesperado (HTTP ${status}).`;
 }
 
@@ -136,7 +344,7 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
   // Initialize all rows as selected when mapping changes
 
   const toggleRow = (idx) => {
-    setSelectedRows(prev => {
+    setSelectedRows((prev) => {
       const next = { ...prev };
       next[idx] = prev[idx] === false;
       return next;
@@ -144,10 +352,12 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
   };
 
   const toggleAll = () => {
-    setSelectedRows(prev => {
+    setSelectedRows((prev) => {
       const allOn = mappedRows.every((_, i) => prev[i] !== false);
       const next = { ...prev };
-      mappedRows.forEach((_, i) => { next[i] = allOn; });
+      mappedRows.forEach((_, i) => {
+        next[i] = allOn;
+      });
       return next;
     });
   };
@@ -161,9 +371,9 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
   };
 
   const handleMappingChange = (fieldKey, headerIdx) => {
-    setMapping(prev => {
+    setMapping((prev) => {
       const next = { ...prev };
-      if (headerIdx === 'ignore') {
+      if (headerIdx === "ignore") {
         delete next[fieldKey];
       } else {
         next[fieldKey] = parseInt(headerIdx);
@@ -185,12 +395,14 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
         if (stopped) setRateLimited(true);
       });
       // Store failed rows for retry
-      const failedTitles = new Set(res.errors.filter(e => e.status === 'failed').map(e => e.title));
-      setFailedRows(mappedRows.filter(r => failedTitles.has(r.title)));
+      const failedTitles = new Set(
+        res.errors.filter((e) => e.status === "failed").map((e) => e.title),
+      );
+      setFailedRows(mappedRows.filter((r) => failedTitles.has(r.title)));
       setResults(res);
       setStep(4);
     } catch (err) {
-      setError(err.message || 'Error al procesar la importación');
+      setError(err.message || "Error al procesar la importación");
     } finally {
       setProcessing(false);
     }
@@ -215,34 +427,76 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
     return (
       <div className="space-y-6">
         <div className="text-center py-8">
-          <div className="text-5xl mb-4">{results.failed > 0 ? '📋' : '✅'}</div>
-          <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">Importación completada</h2>
-          <p className="text-sm text-neutral-500 mb-2">{total} propiedades procesadas</p>
+          <div className="text-5xl mb-4">
+            {results.failed > 0 ? "📋" : "✅"}
+          </div>
+          <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
+            Importación completada
+          </h2>
+          <p className="text-sm text-neutral-500 mb-2">
+            {total} propiedades procesadas
+          </p>
           <div className="flex justify-center gap-6 mt-4">
-            <div className="text-center"><p className="text-3xl font-bold text-green-600">{results.created}</p><p className="text-sm text-neutral-500">Completas</p></div>
-            {results.incomplete > 0 && <div className="text-center"><p className="text-3xl font-bold text-amber-600">{results.incomplete}</p><p className="text-sm text-neutral-500">Borrador</p></div>}
-            {results.failed > 0 && <div className="text-center"><p className="text-3xl font-bold text-red-600">{results.failed}</p><p className="text-sm text-neutral-500">Fallidas</p></div>}
+            <div className="text-center">
+              <p className="text-3xl font-bold text-green-600">
+                {results.created}
+              </p>
+              <p className="text-sm text-neutral-500">Completas</p>
+            </div>
+            {results.incomplete > 0 && (
+              <div className="text-center">
+                <p className="text-3xl font-bold text-amber-600">
+                  {results.incomplete}
+                </p>
+                <p className="text-sm text-neutral-500">Borrador</p>
+              </div>
+            )}
+            {results.failed > 0 && (
+              <div className="text-center">
+                <p className="text-3xl font-bold text-red-600">
+                  {results.failed}
+                </p>
+                <p className="text-sm text-neutral-500">Fallidas</p>
+              </div>
+            )}
           </div>
           {rateLimited && (
             <p className="text-xs text-amber-600 dark:text-amber-400 mt-3 bg-amber-50 dark:bg-amber-900/20 p-2 rounded-lg">
-              ⚠️ Límite de tasa alcanzado. Las propiedades restantes se pueden reintentar.
+              ⚠️ Límite de tasa alcanzado. Las propiedades restantes se pueden
+              reintentar.
             </p>
           )}
           {results.incomplete > 0 && (
-            <p className="text-xs text-neutral-400 mt-3">Las propiedades en borrador son privadas y no aparecen en búsquedas. Complétalas desde tu panel.</p>
+            <p className="text-xs text-neutral-400 mt-3">
+              Las propiedades en borrador son privadas y no aparecen en
+              búsquedas. Complétalas desde tu panel.
+            </p>
           )}
         </div>
         {results.errors.length > 0 && (
           <div className="p-4 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg">
-            <h3 className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">Detalles</h3>
+            <h3 className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
+              Detalles
+            </h3>
             <ul className="max-h-80 overflow-y-auto text-sm space-y-1">
               {results.errors.map((e, i) => (
-                <li key={i} className={`px-3 py-1.5 rounded ${
-                  e.status === 'reactivated' ? 'bg-blue-50 dark:bg-blue-900/10 text-blue-700 dark:text-blue-400' :
-                  e.status === 'incomplete' ? 'bg-amber-50 dark:bg-amber-900/10 text-amber-700 dark:text-amber-400' :
-                  'bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400'
-                }`}>
-                  <span className="mr-1">{e.status === 'reactivated' ? '♻️' : e.status === 'incomplete' ? '⚠️' : '❌'}</span>
+                <li
+                  key={i}
+                  className={`px-3 py-1.5 rounded ${
+                    e.status === "reactivated"
+                      ? "bg-blue-50 dark:bg-blue-900/10 text-blue-700 dark:text-blue-400"
+                      : e.status === "incomplete"
+                        ? "bg-amber-50 dark:bg-amber-900/10 text-amber-700 dark:text-amber-400"
+                        : "bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400"
+                  }`}
+                >
+                  <span className="mr-1">
+                    {e.status === "reactivated"
+                      ? "♻️"
+                      : e.status === "incomplete"
+                        ? "⚠️"
+                        : "❌"}
+                  </span>
                   <strong>{e.title}:</strong> {e.error}
                 </li>
               ))}
@@ -251,16 +505,24 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
         )}
         <div className="flex flex-col gap-2">
           {failedRows.length > 0 && (
-            <button onClick={handleRetryFailed} className="w-full px-4 py-3 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold transition-all">
+            <button
+              onClick={handleRetryFailed}
+              className="w-full px-4 py-3 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold transition-all"
+            >
               Reintentar {failedRows.length} fallidas
             </button>
           )}
           <div className="flex gap-2">
-            <button onClick={resetWizard}
-              className="flex-1 px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800">
+            <button
+              onClick={resetWizard}
+              className="flex-1 px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800"
+            >
               Importar otro archivo
             </button>
-            <button onClick={onCancel} className="px-4 py-2 rounded-lg bg-clay-500 hover:bg-clay-600 text-white text-sm font-medium">
+            <button
+              onClick={onCancel}
+              className="px-4 py-2 rounded-lg bg-clay-500 hover:bg-clay-600 text-white text-sm font-medium"
+            >
               Ir a propiedades
             </button>
           </div>
@@ -273,15 +535,29 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
     <div className="space-y-6">
       {/* Progress Steps */}
       <div className="flex items-center gap-2 text-sm">
-        {[1, 2, 3].map(s => (
+        {[1, 2, 3].map((s) => (
           <React.Fragment key={s}>
-            <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-              step >= s ? 'bg-clay-500 text-white' : 'bg-neutral-200 dark:bg-neutral-700 text-neutral-500'
-            }`}>{s}</span>
-            <span className={`hidden sm:inline ${step >= s ? 'text-neutral-800 dark:text-neutral-200' : 'text-neutral-400'}`}>
-              {s === 1 ? 'Subir archivo' : s === 2 ? 'Mapear columnas' : 'Revisar e importar'}
+            <span
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                step >= s
+                  ? "bg-clay-500 text-white"
+                  : "bg-neutral-200 dark:bg-neutral-700 text-neutral-500"
+              }`}
+            >
+              {s}
             </span>
-            {s < 3 && <span className="flex-1 h-px bg-neutral-300 dark:bg-neutral-700" />}
+            <span
+              className={`hidden sm:inline ${step >= s ? "text-neutral-800 dark:text-neutral-200" : "text-neutral-400"}`}
+            >
+              {s === 1
+                ? "Subir archivo"
+                : s === 2
+                  ? "Mapear columnas"
+                  : "Revisar e importar"}
+            </span>
+            {s < 3 && (
+              <span className="flex-1 h-px bg-neutral-300 dark:bg-neutral-700" />
+            )}
           </React.Fragment>
         ))}
       </div>
@@ -289,20 +565,36 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
       {error && (
         <div className="p-3 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">
           {error}
-          <button onClick={() => setError(null)} className="ml-2 underline">Cerrar</button>
+          <button onClick={() => setError(null)} className="ml-2 underline">
+            Cerrar
+          </button>
         </div>
       )}
 
       {/* Step 1: Upload */}
       {step === 1 && (
         <div>
-          <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-3">Sube tu archivo de propiedades</h2>
-          <p className="text-sm text-neutral-500 mb-4">Formatos aceptados: .xlsx, .xls, .csv. La primera fila debe contener los encabezados de las columnas.</p>
+          <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-3">
+            Sube tu archivo de propiedades
+          </h2>
+          <p className="text-sm text-neutral-500 mb-4">
+            Formatos aceptados: .xlsx, .xls, .csv. La primera fila debe contener
+            los encabezados de las columnas.
+          </p>
           <label className="flex flex-col items-center justify-center border-2 border-dashed border-neutral-300 dark:border-neutral-600 rounded-xl p-12 cursor-pointer hover:border-clay-400 transition-colors">
             <div className="text-4xl mb-3">📁</div>
-            <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">Arrastra tu archivo aquí o haz clic para seleccionar</p>
-            <p className="text-xs text-neutral-400">Máximo 500 propiedades por archivo</p>
-            <input type="file" accept=".xlsx,.xls,.csv" onChange={handleFileDrop} className="hidden" />
+            <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">
+              Arrastra tu archivo aquí o haz clic para seleccionar
+            </p>
+            <p className="text-xs text-neutral-400">
+              Máximo 500 propiedades por archivo
+            </p>
+            <input
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              onChange={handleFileDrop}
+              className="hidden"
+            />
           </label>
         </div>
       )}
@@ -310,45 +602,67 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
       {/* Step 2: Map Columns */}
       {step === 2 && (
         <div>
-          <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-1">Mapea tus columnas</h2>
+          <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-1">
+            Mapea tus columnas
+          </h2>
           <p className="text-sm text-neutral-500 mb-4">
-            Archivo: <strong>{file?.name}</strong> · {rows.length} propiedades detectadas.
-            Asocia cada columna de tu Excel con el campo correcto.
+            Archivo: <strong>{file?.name}</strong> · {rows.length} propiedades
+            detectadas. Asocia cada columna de tu Excel con el campo correcto.
           </p>
 
           <div className="space-y-2 max-h-96 overflow-y-auto">
-            {FIELD_DEFINITIONS.map(field => (
-              <div key={field.key} className="flex items-center gap-3 p-2 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
+            {FIELD_DEFINITIONS.map((field) => (
+              <div
+                key={field.key}
+                className="flex items-center gap-3 p-2 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"
+              >
                 <span className="w-40 shrink-0 text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                  {field.label} {field.required && <span className="text-red-400">*</span>}
+                  {field.label}{" "}
+                  {field.required && <span className="text-red-400">*</span>}
                 </span>
                 <select
-                  value={mapping[field.key] !== undefined ? mapping[field.key] : 'ignore'}
-                  onChange={(e) => handleMappingChange(field.key, e.target.value)}
+                  value={
+                    mapping[field.key] !== undefined
+                      ? mapping[field.key]
+                      : "ignore"
+                  }
+                  onChange={(e) =>
+                    handleMappingChange(field.key, e.target.value)
+                  }
                   className={`flex-1 px-2 py-1.5 rounded border text-sm ${
                     mapping[field.key] !== undefined
-                      ? 'border-clay-300 dark:border-clay-700 bg-clay-50 dark:bg-clay-900/10 text-clay-700'
-                      : 'border-neutral-300 dark:border-neutral-600 text-neutral-500'
+                      ? "border-clay-300 dark:border-clay-700 bg-clay-50 dark:bg-clay-900/10 text-clay-700"
+                      : "border-neutral-300 dark:border-neutral-600 text-neutral-500"
                   }`}
                 >
                   <option value="ignore">Ignorar</option>
                   {headers.map((h, idx) => (
-                    <option key={idx} value={idx}>{h || `Columna ${idx + 1}`}</option>
+                    <option key={idx} value={idx}>
+                      {h || `Columna ${idx + 1}`}
+                    </option>
                   ))}
                 </select>
                 {mapping[field.key] !== undefined && (
-                  <span className="text-xs text-green-600 dark:text-green-400 shrink-0">✓</span>
+                  <span className="text-xs text-green-600 dark:text-green-400 shrink-0">
+                    ✓
+                  </span>
                 )}
               </div>
             ))}
           </div>
 
           <div className="flex gap-2 mt-4">
-            <button onClick={() => setStep(1)} className="flex-1 px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800">
+            <button
+              onClick={() => setStep(1)}
+              className="flex-1 px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800"
+            >
               Volver
             </button>
-            <button onClick={() => setStep(3)} disabled={!Object.keys(mapping).length}
-              className="flex-1 px-4 py-2 rounded-lg bg-clay-500 hover:bg-clay-600 disabled:opacity-50 text-white text-sm font-medium">
+            <button
+              onClick={() => setStep(3)}
+              disabled={!Object.keys(mapping).length}
+              className="flex-1 px-4 py-2 rounded-lg bg-clay-500 hover:bg-clay-600 disabled:opacity-50 text-white text-sm font-medium"
+            >
               Continuar ({mappedRows.length} propiedades)
             </button>
           </div>
@@ -358,14 +672,22 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
       {/* Step 3: Review */}
       {step === 3 && (
         <div>
-          <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-1">Revisa los datos antes de importar</h2>
+          <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-1">
+            Revisa los datos antes de importar
+          </h2>
           <p className="text-sm text-neutral-500 mb-3">
-            Desmarca las propiedades que no quieras importar. Se importarán {selectedCount} de {mappedRows.length}.
+            Desmarca las propiedades que no quieras importar. Se importarán{" "}
+            {selectedCount} de {mappedRows.length}.
           </p>
 
           <div className="mb-2">
-            <button onClick={toggleAll} className="text-xs text-clay hover:text-clay-600 dark:text-clay-400 underline">
-              {mappedRows.every((_, i) => selectedRows[i] !== false) ? 'Deseleccionar todo' : 'Seleccionar todo'}
+            <button
+              onClick={toggleAll}
+              className="text-xs text-clay hover:text-clay-600 dark:text-clay-400 underline"
+            >
+              {mappedRows.every((_, i) => selectedRows[i] !== false)
+                ? "Deseleccionar todo"
+                : "Seleccionar todo"}
             </button>
           </div>
 
@@ -376,11 +698,21 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
                   <thead className="sticky top-0 z-10">
                     <tr className="bg-neutral-50 dark:bg-neutral-800">
                       <th className="px-2 py-1.5 w-8">
-                        <input type="checkbox" checked={mappedRows.every((_, i) => selectedRows[i] !== false)} onChange={toggleAll} />
+                        <input
+                          type="checkbox"
+                          checked={mappedRows.every(
+                            (_, i) => selectedRows[i] !== false,
+                          )}
+                          onChange={toggleAll}
+                        />
                       </th>
-                      {Object.keys(mapping).map(k => (
-                        <th key={k} className="px-2 py-1.5 text-left font-medium text-neutral-600 dark:text-neutral-400 whitespace-nowrap">
-                          {FIELD_DEFINITIONS.find(f => f.key === k)?.label || k}
+                      {Object.keys(mapping).map((k) => (
+                        <th
+                          key={k}
+                          className="px-2 py-1.5 text-left font-medium text-neutral-600 dark:text-neutral-400 whitespace-nowrap"
+                        >
+                          {FIELD_DEFINITIONS.find((f) => f.key === k)?.label ||
+                            k}
                         </th>
                       ))}
                     </tr>
@@ -389,13 +721,25 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
                     {mappedRows.map((row, i) => {
                       const checked = selectedRows[i] !== false;
                       return (
-                        <tr key={i} className={`border-t border-neutral-100 dark:border-neutral-800 ${!checked ? 'opacity-40' : ''}`}>
+                        <tr
+                          key={i}
+                          className={`border-t border-neutral-100 dark:border-neutral-800 ${!checked ? "opacity-40" : ""}`}
+                        >
                           <td className="px-2 py-1">
-                            <input type="checkbox" checked={checked} onChange={() => toggleRow(i)} />
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => toggleRow(i)}
+                            />
                           </td>
-                          {Object.keys(mapping).map(k => (
-                            <td key={k} className="px-2 py-1 text-neutral-700 dark:text-neutral-300 whitespace-nowrap max-w-[150px] truncate">
-                              {row[k] !== undefined && row[k] !== null ? String(row[k]) : '-'}
+                          {Object.keys(mapping).map((k) => (
+                            <td
+                              key={k}
+                              className="px-2 py-1 text-neutral-700 dark:text-neutral-300 whitespace-nowrap max-w-[150px] truncate"
+                            >
+                              {row[k] !== undefined && row[k] !== null
+                                ? String(row[k])
+                                : "-"}
                             </td>
                           ))}
                         </tr>
@@ -404,7 +748,9 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
                   </tbody>
                 </table>
               </div>
-              <p className="p-2 text-xs text-neutral-500 text-center">{selectedCount} propiedades seleccionadas de {mappedRows.length}</p>
+              <p className="p-2 text-xs text-neutral-500 text-center">
+                {selectedCount} propiedades seleccionadas de {mappedRows.length}
+              </p>
             </>
           )}
 
@@ -413,7 +759,9 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
               <div className="w-full h-3 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-clay rounded-full transition-all duration-300"
-                  style={{ width: `${progress.total > 0 ? (progress.current / progress.total) * 100 : 0}%` }}
+                  style={{
+                    width: `${progress.total > 0 ? (progress.current / progress.total) * 100 : 0}%`,
+                  }}
                 />
               </div>
               <p className="text-center text-sm text-neutral-600 dark:text-neutral-400">
@@ -422,11 +770,17 @@ export default function PropertyImportWizard({ onSubmit, onCancel }) {
             </div>
           ) : (
             <div className="flex gap-2 mt-4">
-              <button onClick={() => setStep(2)} className="flex-1 px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800">
+              <button
+                onClick={() => setStep(2)}
+                className="flex-1 px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800"
+              >
                 Volver
               </button>
-              <button onClick={() => handleSubmit()} disabled={!mappedRows.length || selectedCount === 0}
-                className="flex-1 px-4 py-2 rounded-lg bg-clay-500 hover:bg-clay-600 disabled:opacity-50 text-white text-sm font-medium">
+              <button
+                onClick={() => handleSubmit()}
+                disabled={!mappedRows.length || selectedCount === 0}
+                className="flex-1 px-4 py-2 rounded-lg bg-clay-500 hover:bg-clay-600 disabled:opacity-50 text-white text-sm font-medium"
+              >
                 Importar {selectedCount} propiedades
               </button>
             </div>

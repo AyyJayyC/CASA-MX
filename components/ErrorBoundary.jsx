@@ -4,9 +4,9 @@
  * Checkpoint 3: Frontend Action & Error Logging
  */
 
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 
 export default class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -15,7 +15,7 @@ export default class ErrorBoundary extends React.Component {
       hasError: false,
       error: null,
       errorInfo: null,
-      errorId: null
+      errorId: null,
     };
   }
 
@@ -26,15 +26,15 @@ export default class ErrorBoundary extends React.Component {
   componentDidCatch(error, errorInfo) {
     // Store error details
     const errorId = Math.random().toString(36).substring(2, 11);
-    
+
     this.setState({
       error,
       errorInfo,
-      errorId
+      errorId,
     });
 
     // Log to console
-    console.error('Error caught by boundary:', error, errorInfo);
+    console.error("Error caught by boundary:", error, errorInfo);
   }
 
   render() {
@@ -48,9 +48,9 @@ export default class ErrorBoundary extends React.Component {
                 Oops! Something went wrong
               </h2>
               <p className="text-red-700 mb-4">
-                {this.state.error?.message || 'An unexpected error occurred'}
+                {this.state.error?.message || "An unexpected error occurred"}
               </p>
-              {process.env.NODE_ENV === 'development' && (
+              {process.env.NODE_ENV === "development" && (
                 <>
                   <details className="mb-4 text-sm text-red-600">
                     <summary className="cursor-pointer font-semibold mb-2">

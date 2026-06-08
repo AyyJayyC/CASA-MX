@@ -1,14 +1,17 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { RequireRole } from '@/components/guards/RequireRole.jsx';
-import Link from 'next/link';
+import React, { useState, useEffect } from "react";
+import { RequireRole } from "@/components/guards/RequireRole.jsx";
+import Link from "next/link";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.NEXT_PUBLIC_BACKEND_URL ||
+  "http://localhost:3001";
 
 function buildRequestOptions(options = {}) {
   return {
-    credentials: 'include',
+    credentials: "include",
     ...options,
     headers: {
       ...(options.headers || {}),
@@ -21,10 +24,10 @@ export default function AdminDebugPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
-    hasErrors: '',
-    userId: '',
-    startDate: '',
-    endDate: ''
+    hasErrors: "",
+    userId: "",
+    startDate: "",
+    endDate: "",
   });
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -37,24 +40,26 @@ export default function AdminDebugPage() {
   const fetchSessions = async () => {
     try {
       setLoading(true);
-      
+
       const params = new URLSearchParams({
         limit: limit.toString(),
-        offset: ((page - 1) * limit).toString()
+        offset: ((page - 1) * limit).toString(),
       });
-      
-      if (filters.hasErrors) params.append('hasErrors', filters.hasErrors);
-      if (filters.userId) params.append('userId', filters.userId);
-      if (filters.startDate) params.append('startDate', new Date(filters.startDate).toISOString());
-      if (filters.endDate) params.append('endDate', new Date(filters.endDate).toISOString());
+
+      if (filters.hasErrors) params.append("hasErrors", filters.hasErrors);
+      if (filters.userId) params.append("userId", filters.userId);
+      if (filters.startDate)
+        params.append("startDate", new Date(filters.startDate).toISOString());
+      if (filters.endDate)
+        params.append("endDate", new Date(filters.endDate).toISOString());
 
       const response = await fetch(
         `${API_BASE}/admin/debug/sessions?${params}`,
-        buildRequestOptions()
+        buildRequestOptions(),
       );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch debug sessions');
+        throw new Error("Failed to fetch debug sessions");
       }
 
       const data = await response.json();
@@ -69,40 +74,40 @@ export default function AdminDebugPage() {
   };
 
   const handleFilterChange = (field, value) => {
-    setFilters(prev => ({ ...prev, [field]: value }));
+    setFilters((prev) => ({ ...prev, [field]: value }));
     setPage(1);
   };
 
   const clearFilters = () => {
     setFilters({
-      hasErrors: '',
-      userId: '',
-      startDate: '',
-      endDate: ''
+      hasErrors: "",
+      userId: "",
+      startDate: "",
+      endDate: "",
     });
     setPage(1);
   };
 
   const handleCleanup = async () => {
-    if (!confirm('Delete logs older than 30 days? This cannot be undone.')) {
+    if (!confirm("Delete logs older than 30 days? This cannot be undone.")) {
       return;
     }
 
     try {
       const response = await fetch(`${API_BASE}/admin/debug/cleanup`, {
-        method: 'DELETE',
+        method: "DELETE",
         ...buildRequestOptions(),
       });
 
       if (!response.ok) {
-        throw new Error('Cleanup failed');
+        throw new Error("Cleanup failed");
       }
 
       const data = await response.json();
       alert(`Cleanup complete: ${data.deleted} sessions deleted`);
       fetchSessions();
     } catch (err) {
-      alert('Cleanup failed: ' + err.message);
+      alert("Cleanup failed: " + err.message);
     }
   };
 
@@ -124,10 +129,14 @@ export default function AdminDebugPage() {
           <h2 className="text-lg font-semibold mb-4">Filters</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Has Errors</label>
+              <label className="block text-sm font-medium mb-1">
+                Has Errors
+              </label>
               <select
                 value={filters.hasErrors}
-                onChange={(e) => handleFilterChange('hasErrors', e.target.value)}
+                onChange={(e) =>
+                  handleFilterChange("hasErrors", e.target.value)
+                }
                 className="w-full border rounded px-3 py-2"
               >
                 <option value="">All</option>
@@ -141,18 +150,22 @@ export default function AdminDebugPage() {
               <input
                 type="text"
                 value={filters.userId}
-                onChange={(e) => handleFilterChange('userId', e.target.value)}
+                onChange={(e) => handleFilterChange("userId", e.target.value)}
                 placeholder="Enter user ID"
                 className="w-full border rounded px-3 py-2"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Start Date</label>
+              <label className="block text-sm font-medium mb-1">
+                Start Date
+              </label>
               <input
                 type="date"
                 value={filters.startDate}
-                onChange={(e) => handleFilterChange('startDate', e.target.value)}
+                onChange={(e) =>
+                  handleFilterChange("startDate", e.target.value)
+                }
                 className="w-full border rounded px-3 py-2"
               />
             </div>
@@ -162,7 +175,7 @@ export default function AdminDebugPage() {
               <input
                 type="date"
                 value={filters.endDate}
-                onChange={(e) => handleFilterChange('endDate', e.target.value)}
+                onChange={(e) => handleFilterChange("endDate", e.target.value)}
                 className="w-full border rounded px-3 py-2"
               />
             </div>
@@ -229,18 +242,21 @@ export default function AdminDebugPage() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {sessions.map((session) => (
-                    <tr key={session.id} className={session.hasErrors ? 'bg-red-50' : ''}>
+                    <tr
+                      key={session.id}
+                      className={session.hasErrors ? "bg-red-50" : ""}
+                    >
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
                         {session.id.substring(0, 8)}...
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {session.userEmail || 'Anonymous'}
+                        {session.userEmail || "Anonymous"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {new Date(session.sessionStartTime).toLocaleString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {session.initialRoute || 'N/A'}
+                        {session.initialRoute || "N/A"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {session.hasErrors ? (
@@ -254,7 +270,7 @@ export default function AdminDebugPage() {
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {session.exported ? 'Yes' : 'No'}
+                        {session.exported ? "Yes" : "No"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <Link
@@ -277,14 +293,14 @@ export default function AdminDebugPage() {
               </div>
               <div className="flex gap-2">
                 <button
-                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
                   className="px-4 py-2 border rounded bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Previous
                 </button>
                 <button
-                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
                   className="px-4 py-2 border rounded bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >

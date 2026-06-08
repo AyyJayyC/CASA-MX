@@ -1,9 +1,9 @@
-'use client';
-import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
-import FeaturedCarousel from './FeaturedCarousel.jsx';
-import { useProperties } from '@/lib/queries/properties';
-import { getCarouselSlides, getMostViewedProperties } from '@/lib/api/carousel';
+"use client";
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import FeaturedCarousel from "./FeaturedCarousel.jsx";
+import { useProperties } from "@/lib/queries/properties";
+import { getCarouselSlides, getMostViewedProperties } from "@/lib/api/carousel";
 
 function FallbackHero() {
   return (
@@ -21,10 +21,16 @@ function FallbackHero() {
           Ofertas reales. Decisiones informadas. Negocia con confianza.
         </p>
         <div className="flex flex-col sm:flex-row gap-2 pt-2">
-          <Link href="/publish-property" className="px-5 py-2.5 bg-clay hover:bg-clay-500 text-white font-semibold text-sm rounded-lg transition-all shadow-md hover:shadow-lg">
+          <Link
+            href="/publish-property"
+            className="px-5 py-2.5 bg-clay hover:bg-clay-500 text-white font-semibold text-sm rounded-lg transition-all shadow-md hover:shadow-lg"
+          >
             Publicar propiedad
           </Link>
-          <Link href="/properties" className="px-5 py-2.5 bg-white dark:bg-ink border-2 border-sand-200 dark:border-slate-700 text-ink dark:text-sand-50 hover:border-clay dark:hover:border-clay font-semibold text-sm rounded-lg transition-all">
+          <Link
+            href="/properties"
+            className="px-5 py-2.5 bg-white dark:bg-ink border-2 border-sand-200 dark:border-slate-700 text-ink dark:text-sand-50 hover:border-clay dark:hover:border-clay font-semibold text-sm rounded-lg transition-all"
+          >
             Explorar propiedades
           </Link>
         </div>
@@ -42,10 +48,16 @@ function LoadingSkeleton() {
           <p className="text-sm">Cargando...</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
-          <Link href="/publish-property" className="px-5 py-2.5 bg-clay hover:bg-clay-500 text-white font-semibold text-sm rounded-lg transition-all shadow-md hover:shadow-lg">
+          <Link
+            href="/publish-property"
+            className="px-5 py-2.5 bg-clay hover:bg-clay-500 text-white font-semibold text-sm rounded-lg transition-all shadow-md hover:shadow-lg"
+          >
             Publicar propiedad
           </Link>
-          <Link href="/properties" className="px-5 py-2.5 bg-white dark:bg-ink border-2 border-sand-200 dark:border-slate-700 text-ink dark:text-sand-50 hover:border-clay dark:hover:border-clay font-semibold text-sm rounded-lg transition-all">
+          <Link
+            href="/properties"
+            className="px-5 py-2.5 bg-white dark:bg-ink border-2 border-sand-200 dark:border-slate-700 text-ink dark:text-sand-50 hover:border-clay dark:hover:border-clay font-semibold text-sm rounded-lg transition-all"
+          >
             Explorar propiedades
           </Link>
         </div>
@@ -64,14 +76,30 @@ function CustomSlidesCarousel({ slides }) {
   return (
     <section className="relative w-full h-[450px] md:h-[550px] lg:h-[600px] overflow-hidden bg-ink">
       {slides.map((slide, i) => (
-        <div key={slide.id} className={`absolute inset-0 transition-opacity duration-700 first:opacity-100 first:z-10 ${i === current ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
-          <img src={slide.imageUrl} alt={slide.title} className="absolute inset-0 w-full h-full object-cover" />
+        <div
+          key={slide.id}
+          className={`absolute inset-0 transition-opacity duration-700 first:opacity-100 first:z-10 ${i === current ? "opacity-100 z-10" : "opacity-0 z-0"}`}
+        >
+          <img
+            src={slide.imageUrl}
+            alt={slide.title}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-8 sm:p-12 z-10">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2 max-w-2xl">{slide.title}</h2>
-            {slide.subtitle && <p className="text-sm md:text-base text-white/80 mb-4 max-w-lg">{slide.subtitle}</p>}
-            <Link href={slide.link} className="inline-block px-6 py-2.5 bg-clay hover:bg-clay-500 text-white text-sm font-semibold rounded-lg transition-all">
-              {slide.buttonText || 'Ver más'}
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2 max-w-2xl">
+              {slide.title}
+            </h2>
+            {slide.subtitle && (
+              <p className="text-sm md:text-base text-white/80 mb-4 max-w-lg">
+                {slide.subtitle}
+              </p>
+            )}
+            <Link
+              href={slide.link}
+              className="inline-block px-6 py-2.5 bg-clay hover:bg-clay-500 text-white text-sm font-semibold rounded-lg transition-all"
+            >
+              {slide.buttonText || "Ver más"}
             </Link>
           </div>
         </div>
@@ -79,15 +107,52 @@ function CustomSlidesCarousel({ slides }) {
 
       {total > 1 && (
         <>
-          <button onClick={prev} className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur text-white transition-all" aria-label="Anterior">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+          <button
+            onClick={prev}
+            className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur text-white transition-all"
+            aria-label="Anterior"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
           </button>
-          <button onClick={next} className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur text-white transition-all" aria-label="Siguiente">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          <button
+            onClick={next}
+            className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur text-white transition-all"
+            aria-label="Siguiente"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
           </button>
           <div className="absolute bottom-4 right-4 z-20 flex gap-2">
             {slides.map((_, i) => (
-              <button key={i} onClick={() => setCurrent(i)} className={`w-2 h-2 rounded-full transition-all ${i === current ? 'bg-clay scale-125' : 'bg-white/50 hover:bg-white/80'}`} aria-label={`Ir a slide ${i + 1}`} />
+              <button
+                key={i}
+                onClick={() => setCurrent(i)}
+                className={`w-2 h-2 rounded-full transition-all ${i === current ? "bg-clay scale-125" : "bg-white/50 hover:bg-white/80"}`}
+                aria-label={`Ir a slide ${i + 1}`}
+              />
             ))}
           </div>
         </>
@@ -119,7 +184,9 @@ export default function HomepageCarousel() {
       }
     }
     loadFallbacks();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Timeout bail: after 3 seconds, skip to fallback if nothing loaded yet
@@ -129,7 +196,8 @@ export default function HomepageCarousel() {
     return () => clearTimeout(timer);
   }, []);
 
-  const nothingLoaded = customSlides.length === 0 && mostViewed.length === 0 && data.length === 0;
+  const nothingLoaded =
+    customSlides.length === 0 && mostViewed.length === 0 && data.length === 0;
   const showLoading = !timedOut && isLoading && nothingLoaded;
 
   // Bail to fallback if timed out and nothing loaded
@@ -147,7 +215,7 @@ export default function HomepageCarousel() {
   }
 
   // Priority 2: Promoted properties
-  const promoted = data.filter(p => p.promotionTier === 'carousel');
+  const promoted = data.filter((p) => p.promotionTier === "carousel");
   if (promoted.length > 0) {
     return <FeaturedCarousel properties={promoted} />;
   }
@@ -174,10 +242,16 @@ export default function HomepageCarousel() {
             Ofertas reales. Decisiones informadas. Negocia con confianza.
           </p>
           <div className="flex flex-col sm:flex-row gap-2 justify-center">
-            <button onClick={() => refetch()} className="px-5 py-2.5 bg-clay hover:bg-clay-500 text-white font-semibold text-sm rounded-lg transition-all shadow-md hover:shadow-lg">
+            <button
+              onClick={() => refetch()}
+              className="px-5 py-2.5 bg-clay hover:bg-clay-500 text-white font-semibold text-sm rounded-lg transition-all shadow-md hover:shadow-lg"
+            >
               Reintentar
             </button>
-            <Link href="/properties" className="px-5 py-2.5 bg-white dark:bg-ink border-2 border-sand-200 dark:border-slate-700 text-ink dark:text-sand-50 hover:border-clay dark:hover:border-clay font-semibold text-sm rounded-lg transition-all">
+            <Link
+              href="/properties"
+              className="px-5 py-2.5 bg-white dark:bg-ink border-2 border-sand-200 dark:border-slate-700 text-ink dark:text-sand-50 hover:border-clay dark:hover:border-clay font-semibold text-sm rounded-lg transition-all"
+            >
               Explorar propiedades
             </Link>
           </div>

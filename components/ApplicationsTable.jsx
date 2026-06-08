@@ -4,26 +4,54 @@
  * Design: Responsive table with action modals and status updates
  * Checkpoint 6: Integrates with backend API for application management
  */
-'use client';
-import { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
-import LeaveReviewModal from './LeaveReviewModal.jsx';
-import ApplicationDetailsModal from './ApplicationDetailsModal.jsx';
-import { getPropertyApplications, updateApplicationStatus } from '@/lib/api/applications';
-import { getMyAuthoredReviews } from '@/lib/api/reviews';
-import { useCredits } from '@/lib/auth/CreditsContext';
+"use client";
+import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
+import LeaveReviewModal from "./LeaveReviewModal.jsx";
+import ApplicationDetailsModal from "./ApplicationDetailsModal.jsx";
+import {
+  getPropertyApplications,
+  updateApplicationStatus,
+} from "@/lib/api/applications";
+import { getMyAuthoredReviews } from "@/lib/api/reviews";
+import { useSpendCredit, useCreditsBalance } from "@/lib/queries/credits";
 
-const ApproveRejectModal = dynamic(() => import('./ApproveRejectModal.jsx'), { ssr: false });
+const ApproveRejectModal = dynamic(() => import("./ApproveRejectModal.jsx"), {
+  ssr: false,
+});
 
 const statusBadgeConfig = {
-  pending: { bg: 'bg-clay-100 dark:bg-clay-900/30', text: 'text-clay-800 dark:text-clay-300', label: 'Pendiente' },
-  under_review: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-800 dark:text-blue-300', label: 'En revisión' },
-  approved: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-800 dark:text-green-300', label: 'Aprobada' },
-  rejected: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-800 dark:text-red-300', label: 'Rechazada' },
+  pending: {
+    bg: "bg-clay-100 dark:bg-clay-900/30",
+    text: "text-clay-800 dark:text-clay-300",
+    label: "Pendiente",
+  },
+  under_review: {
+    bg: "bg-blue-100 dark:bg-blue-900/30",
+    text: "text-blue-800 dark:text-blue-300",
+    label: "En revisión",
+  },
+  approved: {
+    bg: "bg-green-100 dark:bg-green-900/30",
+    text: "text-green-800 dark:text-green-300",
+    label: "Aprobada",
+  },
+  rejected: {
+    bg: "bg-red-100 dark:bg-red-900/30",
+    text: "text-red-800 dark:text-red-300",
+    label: "Rechazada",
+  },
 };
 
-export default function ApplicationsTable({ propertyId, propertyTitle, propertyMonthlyRent, landlordId, statusFilter }) {
-  const { spend, balance } = useCredits();
+export default function ApplicationsTable({
+  propertyId,
+  propertyTitle,
+  propertyMonthlyRent,
+  landlordId,
+  statusFilter,
+}) {
+  const { data: balance = 0 } = useCreditsBalance();
+  const { mutateAsync: spend } = useSpendCredit();
   const [applications, setApplications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -40,7 +68,9 @@ export default function ApplicationsTable({ propertyId, propertyTitle, propertyM
   // Resolve the effective contact for an application (session unlock OR already-unlocked from API).
   const getContact = (app) =>
     unlockedContacts[app.id] ??
-    (app.email ? { email: app.email, phone: app.phone, fullName: app.fullName } : null);
+    (app.email
+      ? { email: app.email, phone: app.phone, fullName: app.fullName }
+      : null);
 
   useEffect(() => {
     const fetchApplications = async () => {
@@ -50,17 +80,17 @@ export default function ApplicationsTable({ propertyId, propertyTitle, propertyM
 
         const [applicationsData, reviewsData] = await Promise.all([
           getPropertyApplications(propertyId),
-          getMyAuthoredReviews('landlord'),
+          getMyAuthoredReviews("landlord"),
         ]);
 
         setApplications(applicationsData || []);
         setReviewedApplicationIds(
           (reviewsData || [])
             .map((review) => review.rentalApplicationId)
-            .filter(Boolean)
+            .filter(Boolean),
         );
       } catch (err) {
-        setError(err.message || 'Error al cargar solicitudes');
+        setError(err.message || "Error al cargar solicitudes");
       } finally {
         setIsLoading(false);
       }
@@ -71,9 +101,10 @@ export default function ApplicationsTable({ propertyId, propertyTitle, propertyM
     }
   }, [propertyId]);
 
-  const filteredApplications = statusFilter === 'all'
-    ? applications
-    : applications.filter(app => app.status === statusFilter);
+  const filteredApplications =
+    statusFilter === "all"
+      ? applications
+      : applications.filter((app) => app.status === statusFilter);
 
   const handleApproveReject = async (action, note) => {
     if (!selectedApp) return;
@@ -81,23 +112,21 @@ export default function ApplicationsTable({ propertyId, propertyTitle, propertyM
     setIsSubmitting(true);
     try {
       const updatedApp = await updateApplicationStatus(selectedApp.id, {
-        status: action === 'approve' ? 'approved' : 'rejected',
+        status: action === "approve" ? "approved" : "rejected",
         landlordNote: note,
       });
 
       // Update local state
-      setApplications(apps =>
-        apps.map(app =>
-          app.id === selectedApp.id
-            ? { ...app, ...updatedApp }
-            : app
-        )
+      setApplications((apps) =>
+        apps.map((app) =>
+          app.id === selectedApp.id ? { ...app, ...updatedApp } : app,
+        ),
       );
 
       setSelectedApp(null);
       setActionType(null);
     } catch (err) {
-      alert('Error: ' + (err.message || 'Error al actualizar solicitud'));
+      alert("Error: " + (err.message || "Error al actualizar solicitud"));
     } finally {
       setIsSubmitting(false);
     }
@@ -106,15 +135,15 @@ export default function ApplicationsTable({ propertyId, propertyTitle, propertyM
   const handleUnlock = async (app) => {
     setUnlocking(app.id);
     try {
-      const result = await spend(app.id, 'application');
+      const result = await spend(app.id, "application");
       if (result.success && result.contact) {
-        setUnlockedContacts(prev => ({ ...prev, [app.id]: result.contact }));
+        setUnlockedContacts((prev) => ({ ...prev, [app.id]: result.contact }));
       }
     } catch (err) {
       if (err.status === 402) {
-        alert('Saldo insuficiente. Ve a Créditos para comprar más.');
+        alert("Saldo insuficiente. Ve a Créditos para comprar más.");
       } else {
-        alert(err.message || 'Error al desbloquear contacto');
+        alert(err.message || "Error al desbloquear contacto");
       }
     } finally {
       setUnlocking(null);
@@ -125,8 +154,20 @@ export default function ApplicationsTable({ propertyId, propertyTitle, propertyM
     return (
       <div className="flex items-center justify-center py-12">
         <svg className="animate-spin h-8 w-8 text-clay-600" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+            fill="none"
+          />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          />
         </svg>
       </div>
     );
@@ -143,17 +184,26 @@ export default function ApplicationsTable({ propertyId, propertyTitle, propertyM
   if (filteredApplications.length === 0) {
     return (
       <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-12 text-center">
-        <svg className="w-16 h-16 text-neutral-400 dark:text-neutral-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
+        <svg
+          className="w-16 h-16 text-neutral-400 dark:text-neutral-600 mx-auto mb-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            d="M20 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"
+          />
         </svg>
         <h3 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 mb-2">
           No hay solicitudes
         </h3>
         <p className="text-neutral-600 dark:text-neutral-400">
-          {statusFilter === 'all' 
-            ? 'No hay solicitudes para esta propiedad'
-            : `No hay solicitudes con estado "${statusBadgeConfig[statusFilter]?.label}"`
-          }
+          {statusFilter === "all"
+            ? "No hay solicitudes para esta propiedad"
+            : `No hay solicitudes con estado "${statusBadgeConfig[statusFilter]?.label}"`}
         </p>
       </div>
     );
@@ -166,36 +216,57 @@ export default function ApplicationsTable({ propertyId, propertyTitle, propertyM
         <table className="w-full">
           <thead className="bg-neutral-50 dark:bg-neutral-800/50 border-b border-neutral-200 dark:border-neutral-700">
             <tr>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">Solicitante</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">Contacto</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">Ingreso</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">Estado</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">Acciones</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                Solicitante
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                Contacto
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                Ingreso
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                Estado
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                Acciones
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
             {filteredApplications.map((app) => {
               const statusConfig = statusBadgeConfig[app.status];
               return (
-                <tr key={app.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-800/30 transition-colors">
+                <tr
+                  key={app.id}
+                  className="hover:bg-neutral-50 dark:hover:bg-neutral-800/30 transition-colors"
+                >
                   <td className="px-6 py-4">
                     <div>
                       <div className="font-medium text-neutral-900 dark:text-neutral-100">
-                        {getContact(app) ? app.fullName : app.fullName.split(' ')[0]}
+                        {getContact(app)
+                          ? app.fullName
+                          : app.fullName.split(" ")[0]}
                       </div>
                       <div className="text-sm text-neutral-600 dark:text-neutral-400">
                         Inquilinos: {app.numberOfOccupants}
                       </div>
                       {!getContact(app) && (
-                        <div className="text-xs text-neutral-400 mt-0.5">Apellidos ocultos</div>
+                        <div className="text-xs text-neutral-400 mt-0.5">
+                          Apellidos ocultos
+                        </div>
                       )}
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     {getContact(app) ? (
                       <div className="text-sm">
-                        <div className="text-neutral-900 dark:text-neutral-100">{getContact(app).email}</div>
-                        <div className="text-neutral-600 dark:text-neutral-400">{getContact(app).phone}</div>
+                        <div className="text-neutral-900 dark:text-neutral-100">
+                          {getContact(app).email}
+                        </div>
+                        <div className="text-neutral-600 dark:text-neutral-400">
+                          {getContact(app).phone}
+                        </div>
                       </div>
                     ) : (
                       <button
@@ -203,38 +274,53 @@ export default function ApplicationsTable({ propertyId, propertyTitle, propertyM
                         disabled={unlocking === app.id}
                         className="text-xs font-medium text-clay-600 hover:text-clay-700 dark:text-clay-400 dark:hover:text-clay-300 flex items-center gap-1 disabled:opacity-50"
                       >
-                        🔓 {unlocking === app.id ? 'Desbloqueando...' : 'Ver contacto (1 crédito)'}
+                        🔓{" "}
+                        {unlocking === app.id
+                          ? "Desbloqueando..."
+                          : "Ver contacto (1 crédito)"}
                       </button>
                     )}
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                      ${app.monthlyIncome?.toLocaleString('es-MX')} MXN/mes
+                      ${app.monthlyIncome?.toLocaleString("es-MX")} MXN/mes
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${statusConfig.bg} ${statusConfig.text}`}>
+                    <span
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${statusConfig.bg} ${statusConfig.text}`}
+                    >
                       {statusConfig.label}
                     </span>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex gap-2">
-                      {(app.status === 'pending' || app.status === 'under_review') && (
+                      {(app.status === "pending" ||
+                        app.status === "under_review") && (
                         <>
                           <button
-                            onClick={() => { setSelectedApp(app); setActionType('approve'); }}
+                            onClick={() => {
+                              setSelectedApp(app);
+                              setActionType("approve");
+                            }}
                             className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors"
                           >
                             Aprobar
                           </button>
                           <button
-                            onClick={() => { setSelectedApp(app); setActionType('reject'); }}
+                            onClick={() => {
+                              setSelectedApp(app);
+                              setActionType("reject");
+                            }}
                             className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-medium rounded hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
                           >
                             Rechazar
                           </button>
                           <button
-                            onClick={() => { setSelectedApp(app); setActionType(null); }}
+                            onClick={() => {
+                              setSelectedApp(app);
+                              setActionType(null);
+                            }}
                             className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-medium rounded hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
                           >
                             Negociar
@@ -268,11 +354,17 @@ export default function ApplicationsTable({ propertyId, propertyTitle, propertyM
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <div className="font-medium text-neutral-900 dark:text-neutral-100">
-                    {getContact(app) ? app.fullName : app.fullName.split(' ')[0]}
-                    {!getContact(app) && <span className="ml-1 text-xs text-neutral-400">(apellidos ocultos)</span>}
+                    {getContact(app)
+                      ? app.fullName
+                      : app.fullName.split(" ")[0]}
+                    {!getContact(app) && (
+                      <span className="ml-1 text-xs text-neutral-400">
+                        (apellidos ocultos)
+                      </span>
+                    )}
                   </div>
                   <div className="text-sm text-neutral-500 dark:text-neutral-400">
-                    ${app.monthlyIncome?.toLocaleString('es-MX')} MXN/mes
+                    ${app.monthlyIncome?.toLocaleString("es-MX")} MXN/mes
                   </div>
                   {getContact(app) ? (
                     <div className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
@@ -284,24 +376,33 @@ export default function ApplicationsTable({ propertyId, propertyTitle, propertyM
                       disabled={unlocking === app.id}
                       className="mt-1 text-xs font-medium text-clay-600 hover:text-clay-700 dark:text-clay-400 flex items-center gap-1 disabled:opacity-50"
                     >
-                      🔓 {unlocking === app.id ? 'Desbloqueando...' : 'Ver contacto (1 crédito)'}
+                      🔓{" "}
+                      {unlocking === app.id
+                        ? "Desbloqueando..."
+                        : "Ver contacto (1 crédito)"}
                     </button>
                   )}
                 </div>
-                <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-semibold whitespace-nowrap ${statusConfig.bg} ${statusConfig.text}`}>
+                <span
+                  className={`inline-flex items-center px-2 py-1 rounded text-xs font-semibold whitespace-nowrap ${statusConfig.bg} ${statusConfig.text}`}
+                >
                   {statusConfig.label}
                 </span>
               </div>
 
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
-                  <div className="text-neutral-600 dark:text-neutral-400">Ingreso</div>
+                  <div className="text-neutral-600 dark:text-neutral-400">
+                    Ingreso
+                  </div>
                   <div className="font-medium text-neutral-900 dark:text-neutral-100">
-                    ${app.monthlyIncome?.toLocaleString('es-MX')}
+                    ${app.monthlyIncome?.toLocaleString("es-MX")}
                   </div>
                 </div>
                 <div>
-                  <div className="text-neutral-600 dark:text-neutral-400">Ocupantes</div>
+                  <div className="text-neutral-600 dark:text-neutral-400">
+                    Ocupantes
+                  </div>
                   <div className="font-medium text-neutral-900 dark:text-neutral-100">
                     {app.numberOfOccupants}
                   </div>
@@ -309,22 +410,32 @@ export default function ApplicationsTable({ propertyId, propertyTitle, propertyM
               </div>
 
               <div className="flex gap-2">
-                {(app.status === 'pending' || app.status === 'under_review') && (
+                {(app.status === "pending" ||
+                  app.status === "under_review") && (
                   <>
                     <button
-                      onClick={() => { setSelectedApp(app); setActionType('approve'); }}
+                      onClick={() => {
+                        setSelectedApp(app);
+                        setActionType("approve");
+                      }}
                       className="flex-1 px-3 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors"
                     >
                       Aprobar
                     </button>
                     <button
-                      onClick={() => { setSelectedApp(app); setActionType('reject'); }}
+                      onClick={() => {
+                        setSelectedApp(app);
+                        setActionType("reject");
+                      }}
                       className="flex-1 px-3 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-medium rounded hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
                     >
                       Rechazar
                     </button>
                     <button
-                      onClick={() => { setSelectedApp(app); setActionType(null); }}
+                      onClick={() => {
+                        setSelectedApp(app);
+                        setActionType(null);
+                      }}
                       className="flex-1 px-3 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-medium rounded hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
                     >
                       Negociar
@@ -350,7 +461,10 @@ export default function ApplicationsTable({ propertyId, propertyTitle, propertyM
           action={actionType}
           isSubmitting={isSubmitting}
           onSubmit={handleApproveReject}
-          onClose={() => { setSelectedApp(null); setActionType(null); }}
+          onClose={() => {
+            setSelectedApp(null);
+            setActionType(null);
+          }}
         />
       )}
 
@@ -361,8 +475,8 @@ export default function ApplicationsTable({ propertyId, propertyTitle, propertyM
           propertyMonthlyRent={propertyMonthlyRent}
           landlordId={landlordId}
           onClose={() => setSelectedApp(null)}
-          onApprove={() => setActionType('approve')}
-          onReject={() => setActionType('reject')}
+          onApprove={() => setActionType("approve")}
+          onReject={() => setActionType("reject")}
           onReview={() => setReviewModalApp(selectedApp)}
           hasSubmittedReview={reviewedApplicationIds.includes(selectedApp.id)}
           unlockedContact={getContact(selectedApp)}
@@ -380,7 +494,9 @@ export default function ApplicationsTable({ propertyId, propertyTitle, propertyM
         propertyTitle={reviewModalApp?.property?.title || propertyTitle}
         onSubmitted={() => {
           if (!reviewModalApp) return;
-          setReviewedApplicationIds((current) => [...new Set([...current, reviewModalApp.id])]);
+          setReviewedApplicationIds((current) => [
+            ...new Set([...current, reviewModalApp.id]),
+          ]);
         }}
       />
     </div>

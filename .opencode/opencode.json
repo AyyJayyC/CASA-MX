@@ -10,13 +10,17 @@
   "plugin": [
     "opencode-dynamic-context-pruning",
     "opencode-notify",
-    "opencode-wakatime",
-    "~/.config/opencode/node_modules/superpowers"
+    "opencode-wakatime"
   ],
   "mcp": {
     "auto-browser": {
       "type": "local",
       "command": ["python", "C:\\Users\\axelj\\auto-browser\\scripts\\mcp_stdio_bridge.py"],
+      "enabled": true
+    },
+    "code-review-mcp": {
+      "type": "local",
+      "command": ["ai-code-review-mcp"],
       "enabled": true
     }
   }

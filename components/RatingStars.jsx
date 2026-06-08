@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
 export default function RatingStars({
   value = 0,
   onChange,
-  size = 'md',
+  size = "md",
   readOnly = false,
   showValue = false,
-  className = '',
+  className = "",
 }) {
   const sizes = {
-    sm: 'w-4 h-4',
-    md: 'w-5 h-5',
-    lg: 'w-6 h-6',
+    sm: "w-4 h-4",
+    md: "w-5 h-5",
+    lg: "w-6 h-6",
   };
 
   const starSize = sizes[size] || sizes.md;
@@ -21,7 +21,9 @@ export default function RatingStars({
       <div className="flex items-center gap-1">
         {[1, 2, 3, 4, 5].map((star) => {
           const filled = star <= value;
-          const buttonClasses = readOnly ? 'cursor-default' : 'cursor-pointer hover:scale-105';
+          const buttonClasses = readOnly
+            ? "cursor-default"
+            : "cursor-pointer hover:scale-105";
 
           return (
             <button
@@ -33,7 +35,7 @@ export default function RatingStars({
               disabled={readOnly}
             >
               <svg
-                className={`${starSize} ${filled ? 'text-clay-400' : 'text-neutral-300 dark:text-neutral-700'}`}
+                className={`${starSize} ${filled ? "text-clay-400" : "text-neutral-300 dark:text-neutral-700"}`}
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -46,7 +48,7 @@ export default function RatingStars({
 
       {showValue && (
         <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-          {value ? `${value.toFixed?.(1) || value}/5` : 'Sin reseñas'}
+          {value ? `${value.toFixed?.(1) || value}/5` : "Sin reseñas"}
         </span>
       )}
     </div>

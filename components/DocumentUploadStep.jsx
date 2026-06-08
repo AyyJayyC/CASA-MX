@@ -1,53 +1,61 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { useState, useRef } from 'react';
+import React from "react";
+import { useState, useRef } from "react";
 import {
   uploadPropertyDocument,
   deletePropertyDocument,
-} from '../lib/api/propertyDocuments';
+} from "../lib/api/propertyDocuments";
 
 const DOC_CONFIG = {
   title_deed: {
-    label: 'Escritura o título de propiedad',
-    hint: 'Escritura pública, contrato de compraventa o título de propiedad.',
-    accept: '.pdf,.jpg,.jpeg,.png',
+    label: "Escritura o título de propiedad",
+    hint: "Escritura pública, contrato de compraventa o título de propiedad.",
+    accept: ".pdf,.jpg,.jpeg,.png",
   },
   official_id: {
-    label: 'Identificación oficial',
-    hint: 'INE/IFE, pasaporte o cédula profesional del propietario.',
-    accept: '.pdf,.jpg,.jpeg,.png',
+    label: "Identificación oficial",
+    hint: "INE/IFE, pasaporte o cédula profesional del propietario.",
+    accept: ".pdf,.jpg,.jpeg,.png",
   },
   agent_authorization: {
-    label: 'Carta de autorización del propietario',
-    hint: 'Firmada por el dueño autorizando tu gestión.',
-    accept: '.pdf,.jpg,.jpeg,.png',
-    templateUrl: '/templates/carta-autorizacion.pdf',
+    label: "Carta de autorización del propietario",
+    hint: "Firmada por el dueño autorizando tu gestión.",
+    accept: ".pdf,.jpg,.jpeg,.png",
+    templateUrl: "/templates/carta-autorizacion.pdf",
   },
 };
 
 const REQUIRED_DOCS = {
-  seller: ['title_deed'],
-  landlord: ['title_deed'],
-  wholesaler: ['agent_authorization'],
+  seller: ["title_deed"],
+  landlord: ["title_deed"],
+  wholesaler: ["agent_authorization"],
 };
 
 // Initial slot state factory
 function makeSlots(types) {
   return Object.fromEntries(
-    types.map((t) => [t, { status: 'idle', progress: 0, docId: null, error: null }])
+    types.map((t) => [
+      t,
+      { status: "idle", progress: 0, docId: null, error: null },
+    ]),
   );
 }
 
-export default function DocumentUploadStep({ propertyId, sellerRole = 'seller', onContinue, onUploadLater }) {
+export default function DocumentUploadStep({
+  propertyId,
+  sellerRole = "seller",
+  onContinue,
+  onUploadLater,
+}) {
   const requiredTypes = REQUIRED_DOCS[sellerRole] ?? REQUIRED_DOCS.seller;
   const [slots, setSlots] = useState(() => makeSlots(requiredTypes));
   const [autoVerified, setAutoVerified] = useState(false);
   const fileRefs = useRef({});
 
   const navigateDashboard = () => {
-    if (typeof window !== 'undefined') {
-      window.location.assign('/dashboard');
+    if (typeof window !== "undefined") {
+      window.location.assign("/dashboard");
     }
   };
 
@@ -59,45 +67,59 @@ export default function DocumentUploadStep({ propertyId, sellerRole = 'seller', 
     const file = e.target.files?.[0];
     if (!file) return;
 
-    updateSlot(type, { status: 'uploading', progress: 0, error: null });
+    updateSlot(type, { status: "uploading", progress: 0, error: null });
 
     try {
-      const result = await uploadPropertyDocument(propertyId, file, type, (pct) => {
-        updateSlot(type, { progress: pct });
-      });
+      const result = await uploadPropertyDocument(
+        propertyId,
+        file,
+        type,
+        (pct) => {
+          updateSlot(type, { progress: pct });
+        },
+      );
 
-      updateSlot(type, { status: 'done', progress: 100, docId: result.document?.id ?? null });
+      updateSlot(type, {
+        status: "done",
+        progress: 100,
+        docId: result.document?.id ?? null,
+      });
 
       if (result.autoVerified) {
         setAutoVerified(true);
       }
     } catch (err) {
-      updateSlot(type, { status: 'error', error: err.message });
+      updateSlot(type, { status: "error", error: err.message });
     }
 
     // Reset the input so the same file can be re-selected after a delete
-    if (fileRefs.current[type]) fileRefs.current[type].value = '';
+    if (fileRefs.current[type]) fileRefs.current[type].value = "";
   }
 
   async function handleDelete(type) {
     const { docId } = slots[type];
     if (!docId) {
-      updateSlot(type, { status: 'idle', progress: 0, error: null });
+      updateSlot(type, { status: "idle", progress: 0, error: null });
       return;
     }
     try {
       await deletePropertyDocument(propertyId, docId);
-      updateSlot(type, { status: 'idle', progress: 0, docId: null, error: null });
+      updateSlot(type, {
+        status: "idle",
+        progress: 0,
+        docId: null,
+        error: null,
+      });
       setAutoVerified(false);
     } catch (err) {
       updateSlot(type, { error: err.message });
     }
   }
 
-  const allDone = requiredTypes.every((t) => slots[t]?.status === 'done');
+  const allDone = requiredTypes.every((t) => slots[t]?.status === "done");
 
   const goDashboard = () => {
-    if (typeof onUploadLater === 'function') {
+    if (typeof onUploadLater === "function") {
       onUploadLater();
       return;
     }
@@ -105,7 +127,7 @@ export default function DocumentUploadStep({ propertyId, sellerRole = 'seller', 
   };
 
   const continueFlow = () => {
-    if (typeof onContinue === 'function') {
+    if (typeof onContinue === "function") {
       onContinue();
       return;
     }
@@ -115,13 +137,16 @@ export default function DocumentUploadStep({ propertyId, sellerRole = 'seller', 
   return (
     <div className="max-w-xl mx-auto p-6 bg-white rounded-2xl shadow space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-gray-900">Verificación de propiedad</h2>
+        <h2 className="text-xl font-bold text-gray-900">
+          Verificación de propiedad
+        </h2>
         <p className="text-sm text-gray-500 mt-1">
-          Sube los documentos requeridos para publicar tu propiedad. No compartiremos estos
-          documentos con terceros.
+          Sube los documentos requeridos para publicar tu propiedad. No
+          compartiremos estos documentos con terceros.
         </p>
         <p className="text-xs text-gray-500 mt-2">
-          La identificación oficial (INE/IFE) se valida a nivel de cuenta y no es necesario subirla en cada propiedad.
+          La identificación oficial (INE/IFE) se valida a nivel de cuenta y no
+          es necesario subirla en cada propiedad.
         </p>
       </div>
 
@@ -147,7 +172,7 @@ export default function DocumentUploadStep({ propertyId, sellerRole = 'seller', 
                 )}
               </div>
 
-              {slot.status === 'idle' && (
+              {slot.status === "idle" && (
                 <label className="cursor-pointer shrink-0">
                   <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition">
                     Subir
@@ -162,7 +187,7 @@ export default function DocumentUploadStep({ propertyId, sellerRole = 'seller', 
                 </label>
               )}
 
-              {slot.status === 'done' && (
+              {slot.status === "done" && (
                 <button
                   onClick={() => handleDelete(type)}
                   className="shrink-0 text-xs text-red-500 hover:text-red-700 transition"
@@ -173,7 +198,7 @@ export default function DocumentUploadStep({ propertyId, sellerRole = 'seller', 
               )}
             </div>
 
-            {slot.status === 'uploading' && (
+            {slot.status === "uploading" && (
               <div className="space-y-1">
                 <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
                   <div
@@ -181,21 +206,25 @@ export default function DocumentUploadStep({ propertyId, sellerRole = 'seller', 
                     style={{ width: `${slot.progress}%` }}
                   />
                 </div>
-                <p className="text-xs text-gray-400 text-right">{slot.progress}%</p>
+                <p className="text-xs text-gray-400 text-right">
+                  {slot.progress}%
+                </p>
               </div>
             )}
 
-            {slot.status === 'done' && (
+            {slot.status === "done" && (
               <p className="text-xs text-green-600 font-medium flex items-center gap-1">
                 ✅ Documento subido correctamente
               </p>
             )}
 
-            {slot.status === 'error' && (
+            {slot.status === "error" && (
               <div className="space-y-1">
                 <p className="text-xs text-red-600">{slot.error}</p>
                 <label className="cursor-pointer">
-                  <span className="text-xs text-blue-600 hover:underline">Intentar de nuevo</span>
+                  <span className="text-xs text-blue-600 hover:underline">
+                    Intentar de nuevo
+                  </span>
                   <input
                     ref={(el) => (fileRefs.current[type] = el)}
                     type="file"
@@ -216,7 +245,8 @@ export default function DocumentUploadStep({ propertyId, sellerRole = 'seller', 
             ✅ Tu propiedad ya está publicada
           </p>
           <p className="text-green-600 text-sm mt-1">
-            Verificamos tus documentos y tu anuncio ya es visible para compradores e inquilinos.
+            Verificamos tus documentos y tu anuncio ya es visible para
+            compradores e inquilinos.
           </p>
         </div>
       )}
@@ -227,14 +257,16 @@ export default function DocumentUploadStep({ propertyId, sellerRole = 'seller', 
             Documentos recibidos — en revisión
           </p>
           <p className="text-clay-700 text-xs mt-1">
-            Tu propiedad será publicada una vez que un administrador revise tus documentos (24–48 h).
+            Tu propiedad será publicada una vez que un administrador revise tus
+            documentos (24–48 h).
           </p>
         </div>
       )}
 
       {!allDone && (
         <p className="text-xs text-gray-400 text-center">
-          {requiredTypes.filter((t) => slots[t]?.status !== 'done').length} documento(s) pendiente(s)
+          {requiredTypes.filter((t) => slots[t]?.status !== "done").length}{" "}
+          documento(s) pendiente(s)
         </p>
       )}
 

@@ -1,4 +1,5 @@
 ---
+disable: true
 name: docker-management
 description: Manage Docker Compose services for local development (PostgreSQL 16, Redis 7, backend); debug health checks and connection issues
 license: MIT

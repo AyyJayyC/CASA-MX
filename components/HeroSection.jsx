@@ -1,12 +1,12 @@
-'use client';
-import React from 'react';
-import HeroCarousel from './HeroCarousel.jsx';
-import FeaturedCarousel from './FeaturedCarousel.jsx';
-import { useProperties } from '@/lib/queries/properties';
+"use client";
+import React from "react";
+import HeroCarousel from "./HeroCarousel.jsx";
+import FeaturedCarousel from "./FeaturedCarousel.jsx";
+import { useProperties } from "@/lib/queries/properties";
 
 export default function HeroSection() {
   const { data = [] } = useProperties();
-  const hero = data.filter(p => p.promotionTier === 'carousel');
+  const hero = data.filter((p) => p.promotionTier === "carousel");
 
   return (
     <>

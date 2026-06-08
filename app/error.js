@@ -4,15 +4,15 @@
  * Language: Spanish (Spanish UI - Casa-MX.com platform)
  */
 
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import Link from 'next/link';
+import { useEffect } from "react";
+import Link from "next/link";
 
 export default function Error({ error, reset }) {
   useEffect(() => {
     // Log error for monitoring
-    console.error('Error capturado:', error);
+    console.error("Error capturado:", error);
   }, [error]);
 
   return (
@@ -29,13 +29,14 @@ export default function Error({ error, reset }) {
         </h1>
 
         <p className="text-center text-neutral-600 dark:text-neutral-400 mb-6">
-          Lamentamos los inconvenientes. Se produjo un error inesperado mientras procesábamos tu solicitud.
+          Lamentamos los inconvenientes. Se produjo un error inesperado mientras
+          procesábamos tu solicitud.
         </p>
 
-        {process.env.NODE_ENV === 'development' && (
+        {process.env.NODE_ENV === "development" && (
           <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 rounded border border-red-200 dark:border-red-800">
             <p className="text-sm font-mono text-red-800 dark:text-red-300 break-words">
-              {error?.message || 'Error desconocido'}
+              {error?.message || "Error desconocido"}
             </p>
           </div>
         )}
@@ -65,11 +66,11 @@ export default function Error({ error, reset }) {
 
         <div className="mt-8 pt-6 border-t border-neutral-200 dark:border-neutral-700 text-center">
           <p className="text-sm text-neutral-500 dark:text-neutral-500">
-            Si el problema persiste, por favor contacta con nuestro equipo de soporte.
+            Si el problema persiste, por favor contacta con nuestro equipo de
+            soporte.
           </p>
         </div>
       </div>
     </div>
   );
 }
-

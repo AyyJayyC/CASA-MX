@@ -1,6 +1,6 @@
-'use client';
-import React from 'react';
-import Link from 'next/link';
+"use client";
+import React from "react";
+import Link from "next/link";
 
 export default function DesktopNavLinks({
   isAuthenticated,
@@ -18,9 +18,10 @@ export default function DesktopNavLinks({
       <Link
         href="/properties?type=for_sale"
         className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
-          ${isActivePath('/properties') && pathname?.includes('for_sale')
-            ? 'bg-clay/10 text-clay'
-            : 'text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800'
+          ${
+            isActivePath("/properties") && pathname?.includes("for_sale")
+              ? "bg-clay/10 text-clay"
+              : "text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800"
           }`}
       >
         Comprar
@@ -28,9 +29,10 @@ export default function DesktopNavLinks({
       <Link
         href="/properties?type=for_rent"
         className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
-          ${isActivePath('/properties') && pathname?.includes('for_rent')
-            ? 'bg-clay/10 text-clay'
-            : 'text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800'
+          ${
+            isActivePath("/properties") && pathname?.includes("for_rent")
+              ? "bg-clay/10 text-clay"
+              : "text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800"
           }`}
       >
         Rentar
@@ -39,9 +41,10 @@ export default function DesktopNavLinks({
         <Link
           href="/publish-property"
           className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
-            ${isActivePath('/publish-property')
-              ? 'bg-clay/10 text-clay'
-              : 'text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800'
+            ${
+              isActivePath("/publish-property")
+                ? "bg-clay/10 text-clay"
+                : "text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800"
             }`}
         >
           Vender

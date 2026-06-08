@@ -1,0 +1,20 @@
+name: Bundle Size
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+  pull-requests: write
+  actions: write
+
+jobs:
+  size-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: q1sh101/build-size-diff@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
 /**
  * RequireAuth Guard
  * Redirects unauthenticated users to /login
  */
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth/useAuth';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth/useAuth";
 
 export function RequireAuth({ children }) {
   const router = useRouter();
@@ -15,7 +15,7 @@ export function RequireAuth({ children }) {
 
   useEffect(() => {
     if (!loading && isHydrated && !isAuthenticated) {
-      router.replace('/login');
+      router.replace("/login");
     }
   }, [loading, isHydrated, isAuthenticated, router]);
 

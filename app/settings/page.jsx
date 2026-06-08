@@ -1,11 +1,15 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { RequireAuth } from '@/components/guards/RequireAuth';
-import VerificationBadges from '@/components/VerificationBadges';
-import { getUserProfile, updateUserProfile, uploadProfileAvatar } from '@/lib/api/users';
-import { getUserDocuments, uploadUserDocument } from '@/lib/api/userDocuments';
-import UserPreferences from '@/components/UserPreferences.jsx';
+import { useState, useEffect } from "react";
+import { RequireAuth } from "@/components/guards/RequireAuth";
+import VerificationBadges from "@/components/VerificationBadges";
+import {
+  getUserProfile,
+  updateUserProfile,
+  uploadProfileAvatar,
+} from "@/lib/api/users";
+import { getUserDocuments, uploadUserDocument } from "@/lib/api/userDocuments";
+import UserPreferences from "@/components/UserPreferences.jsx";
 export default function SettingsPage() {
   return (
     <RequireAuth>
@@ -30,20 +34,20 @@ function SettingsContent() {
     officialIdUploaded: false,
     officialIdVerified: false,
     paidSubscriber: false,
-    subscriptionStatus: 'inactive',
+    subscriptionStatus: "inactive",
   });
   const [verified, setVerified] = useState({ email: false, phone: false });
   const [changingEmail, setChangingEmail] = useState(false);
   const [changingPhone, setChangingPhone] = useState(false);
-  const [emailChangeMsg, setEmailChangeMsg] = useState('');
+  const [emailChangeMsg, setEmailChangeMsg] = useState("");
   const [phoneChangeStep, setPhoneChangeStep] = useState(null); // null = idle, 'form' = entering new phone
-  const [newPhone, setNewPhone] = useState('');
-  const [newEmail, setNewEmail] = useState('');
+  const [newPhone, setNewPhone] = useState("");
+  const [newEmail, setNewEmail] = useState("");
   const [form, setForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    whatsapp: '',
+    name: "",
+    email: "",
+    phone: "",
+    whatsapp: "",
   });
 
   useEffect(() => {
@@ -56,20 +60,20 @@ function SettingsContent() {
           officialIdUploaded: Boolean(user.officialIdUploaded),
           officialIdVerified: Boolean(user.officialIdVerified),
           paidSubscriber: Boolean(user.paidSubscriber),
-          subscriptionStatus: user.subscriptionStatus || 'inactive',
+          subscriptionStatus: user.subscriptionStatus || "inactive",
         });
         setForm({
-          name: user.name || '',
-          email: user.email || '',
-          phone: user.phone || '',
-          whatsapp: user.whatsapp || '',
+          name: user.name || "",
+          email: user.email || "",
+          phone: user.phone || "",
+          whatsapp: user.whatsapp || "",
         });
         setVerified({
           email: Boolean(user.emailVerified),
           phone: Boolean(user.phoneVerified),
         });
       } catch (err) {
-        setError('No se pudo cargar tu perfil. Inténtalo de nuevo.');
+        setError("No se pudo cargar tu perfil. Inténtalo de nuevo.");
       } finally {
         setLoading(false);
       }
@@ -96,16 +100,18 @@ function SettingsContent() {
       await updateUserProfile(payload);
       setSuccess(true);
     } catch (err) {
-      setError(err.message || 'Error al guardar');
+      setError(err.message || "Error al guardar");
     } finally {
       setSaving(false);
     }
   };
 
-  const officialIneDoc = documents.find((doc) => doc.documentType === 'official_id');
+  const officialIneDoc = documents.find(
+    (doc) => doc.documentType === "official_id",
+  );
   const verifiedIne = Boolean(officialIneDoc?.isVerified);
   const pendingIne = Boolean(officialIneDoc) && !verifiedIne;
-  const rejectedIne = officialIneDoc?.reviewStatus === 'rejected';
+  const rejectedIne = officialIneDoc?.reviewStatus === "rejected";
 
   const handleAvatarUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -116,13 +122,16 @@ function SettingsContent() {
     setAvatarSuccess(null);
     try {
       const result = await uploadProfileAvatar(file);
-      setForm((prev) => ({ ...prev, avatarUrl: result?.avatarUrl || prev.avatarUrl }));
-      setAvatarSuccess('Foto de perfil actualizada correctamente.');
+      setForm((prev) => ({
+        ...prev,
+        avatarUrl: result?.avatarUrl || prev.avatarUrl,
+      }));
+      setAvatarSuccess("Foto de perfil actualizada correctamente.");
     } catch (err) {
-      setAvatarError(err.message || 'No se pudo subir tu foto de perfil');
+      setAvatarError(err.message || "No se pudo subir tu foto de perfil");
     } finally {
       setUploadingAvatar(false);
-      e.target.value = '';
+      e.target.value = "";
     }
   };
 
@@ -134,7 +143,7 @@ function SettingsContent() {
     setIneError(null);
     setIneSuccess(null);
     try {
-      await uploadUserDocument(file, 'official_id');
+      await uploadUserDocument(file, "official_id");
       const docs = await getUserDocuments();
       setDocuments(docs);
       const user = await getUserProfile();
@@ -142,14 +151,16 @@ function SettingsContent() {
         officialIdUploaded: Boolean(user?.officialIdUploaded),
         officialIdVerified: Boolean(user?.officialIdVerified),
         paidSubscriber: Boolean(user?.paidSubscriber),
-        subscriptionStatus: user?.subscriptionStatus || 'inactive',
+        subscriptionStatus: user?.subscriptionStatus || "inactive",
       });
-      setIneSuccess('INE subida correctamente. Queda pendiente de verificacion.');
+      setIneSuccess(
+        "INE subida correctamente. Queda pendiente de verificacion.",
+      );
     } catch (err) {
-      setIneError(err.message || 'No se pudo subir tu INE');
+      setIneError(err.message || "No se pudo subir tu INE");
     } finally {
       setUploadingIne(false);
-      e.target.value = '';
+      e.target.value = "";
     }
   };
 
@@ -161,11 +172,15 @@ function SettingsContent() {
         </h1>
 
         {loading ? (
-          <div className="text-neutral-500 dark:text-neutral-400">Cargando…</div>
+          <div className="text-neutral-500 dark:text-neutral-400">
+            Cargando…
+          </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-4 space-y-3">
-              <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Foto de perfil</h2>
+              <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                Foto de perfil
+              </h2>
               <div className="flex items-center gap-3">
                 {form.avatarUrl ? (
                   <img
@@ -175,7 +190,7 @@ function SettingsContent() {
                   />
                 ) : (
                   <div className="w-14 h-14 rounded-full bg-gradient-to-br from-clay-400 to-clay-600 text-white font-semibold flex items-center justify-center">
-                    {form.name?.[0]?.toUpperCase() || 'U'}
+                    {form.name?.[0]?.toUpperCase() || "U"}
                   </div>
                 )}
                 <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-700 text-sm">
@@ -186,15 +201,25 @@ function SettingsContent() {
                     onChange={handleAvatarUpload}
                     disabled={uploadingAvatar}
                   />
-                  {uploadingAvatar ? 'Subiendo...' : 'Subir/actualizar foto'}
+                  {uploadingAvatar ? "Subiendo..." : "Subir/actualizar foto"}
                 </label>
               </div>
-              {avatarError && <p className="text-sm text-red-600 dark:text-red-400">{avatarError}</p>}
-              {avatarSuccess && <p className="text-sm text-green-600 dark:text-green-400">{avatarSuccess}</p>}
+              {avatarError && (
+                <p className="text-sm text-red-600 dark:text-red-400">
+                  {avatarError}
+                </p>
+              )}
+              {avatarSuccess && (
+                <p className="text-sm text-green-600 dark:text-green-400">
+                  {avatarSuccess}
+                </p>
+              )}
             </div>
 
             <div className="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-4 space-y-2">
-              <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Estado de cuenta</h2>
+              <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                Estado de cuenta
+              </h2>
               <VerificationBadges
                 identityUploaded={profileBadges.officialIdUploaded}
                 identityVerified={profileBadges.officialIdVerified}
@@ -202,18 +227,29 @@ function SettingsContent() {
               />
               {!profileBadges.paidSubscriber && (
                 <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                  Suscripcion: {profileBadges.subscriptionStatus || 'inactive'}
+                  Suscripcion: {profileBadges.subscriptionStatus || "inactive"}
                 </p>
               )}
             </div>
 
             <div className="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-4 space-y-2">
-              <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Verificación de identidad (INE)</h2>
+              <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                Verificación de identidad (INE)
+              </h2>
               <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                Necesitas correo verificado e INE verificada para publicar propiedades y enviar ofertas.
+                Necesitas correo verificado e INE verificada para publicar
+                propiedades y enviar ofertas.
               </p>
-              <p className={`text-sm font-medium ${verifiedIne ? 'text-green-600 dark:text-green-400' : pendingIne ? 'text-blue-700 dark:text-blue-300' : 'text-clay-700 dark:text-clay-300'}`}>
-                {verifiedIne ? 'INE verificada' : rejectedIne ? 'INE rechazada' : pendingIne ? 'INE subida (pendiente de verificacion)' : 'INE pendiente'}
+              <p
+                className={`text-sm font-medium ${verifiedIne ? "text-green-600 dark:text-green-400" : pendingIne ? "text-blue-700 dark:text-blue-300" : "text-clay-700 dark:text-clay-300"}`}
+              >
+                {verifiedIne
+                  ? "INE verificada"
+                  : rejectedIne
+                    ? "INE rechazada"
+                    : pendingIne
+                      ? "INE subida (pendiente de verificacion)"
+                      : "INE pendiente"}
               </p>
               {rejectedIne && officialIneDoc?.reviewNote && (
                 <p className="text-xs text-red-700 dark:text-red-300">
@@ -222,12 +258,26 @@ function SettingsContent() {
               )}
 
               <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-700 text-sm">
-                <input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" className="hidden" onChange={handleIneUpload} disabled={uploadingIne} />
-                {uploadingIne ? 'Subiendo...' : 'Subir/actualizar INE'}
+                <input
+                  type="file"
+                  accept="application/pdf,image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={handleIneUpload}
+                  disabled={uploadingIne}
+                />
+                {uploadingIne ? "Subiendo..." : "Subir/actualizar INE"}
               </label>
 
-              {ineError && <p className="text-sm text-red-600 dark:text-red-400">{ineError}</p>}
-              {ineSuccess && <p className="text-sm text-green-600 dark:text-green-400">{ineSuccess}</p>}
+              {ineError && (
+                <p className="text-sm text-red-600 dark:text-red-400">
+                  {ineError}
+                </p>
+              )}
+              {ineSuccess && (
+                <p className="text-sm text-green-600 dark:text-green-400">
+                  {ineSuccess}
+                </p>
+              )}
             </div>
 
             <div>
@@ -244,7 +294,12 @@ function SettingsContent() {
 
             <div>
               <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                Correo electrónico {verified.email && <span className="text-clay-400 text-xs ml-1">✓ Verificado</span>}
+                Correo electrónico{" "}
+                {verified.email && (
+                  <span className="text-clay-400 text-xs ml-1">
+                    ✓ Verificado
+                  </span>
+                )}
               </label>
               {verified.email ? (
                 <div className="space-y-2">
@@ -255,8 +310,14 @@ function SettingsContent() {
                       className="flex-1 px-3 py-2 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800/50 text-neutral-500 cursor-not-allowed"
                     />
                     {!changingEmail && (
-                      <button type="button" onClick={() => { setChangingEmail(true); setEmailChangeMsg(''); }}
-                        className="px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 text-sm text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setChangingEmail(true);
+                          setEmailChangeMsg("");
+                        }}
+                        className="px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 text-sm text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                      >
                         Cambiar
                       </button>
                     )}
@@ -264,7 +325,8 @@ function SettingsContent() {
                   {changingEmail && (
                     <div className="p-3 border border-clay-200 dark:border-clay-800 rounded-lg space-y-2 bg-clay-50 dark:bg-clay-900/10">
                       <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                        Te enviaremos un enlace de verificación a tu nuevo correo.
+                        Te enviaremos un enlace de verificación a tu nuevo
+                        correo.
                       </p>
                       <div className="flex gap-2">
                         <input
@@ -274,48 +336,88 @@ function SettingsContent() {
                           placeholder="nuevo@email.com"
                           className="flex-1 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-sm"
                         />
-                        <button type="button"
+                        <button
+                          type="button"
                           onClick={async () => {
                             if (!newEmail) return;
                             setSaving(true);
                             try {
-                              const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/users/me/change-email`, {
-                                method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
-                                body: JSON.stringify({ newEmail }),
-                              });
+                              const res = await fetch(
+                                `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/users/me/change-email`,
+                                {
+                                  method: "POST",
+                                  headers: {
+                                    "Content-Type": "application/json",
+                                  },
+                                  credentials: "include",
+                                  body: JSON.stringify({ newEmail }),
+                                },
+                              );
                               const data = await res.json();
-                              if (res.ok) setEmailChangeMsg('Revisa tu nuevo correo para verificar el cambio.');
-                              else setEmailChangeMsg(data.error || 'Error');
-                            } catch { setEmailChangeMsg('Error de conexión'); }
+                              if (res.ok)
+                                setEmailChangeMsg(
+                                  "Revisa tu nuevo correo para verificar el cambio.",
+                                );
+                              else setEmailChangeMsg(data.error || "Error");
+                            } catch {
+                              setEmailChangeMsg("Error de conexión");
+                            }
                             setSaving(false);
                           }}
                           disabled={saving || !newEmail}
                           className="px-3 py-2 rounded-lg bg-clay-400 hover:bg-clay-500 disabled:opacity-50 text-white text-sm font-medium"
                         >
-                          {saving ? 'Enviando...' : 'Enviar verificación'}
+                          {saving ? "Enviando..." : "Enviar verificación"}
                         </button>
                       </div>
-                      {emailChangeMsg && <p className="text-xs text-clay-600 dark:text-clay-400">{emailChangeMsg}</p>}
-                      <button type="button" onClick={() => { setChangingEmail(false); setNewEmail(''); setEmailChangeMsg(''); }}
-                        className="text-xs text-neutral-500 hover:underline">Cancelar</button>
+                      {emailChangeMsg && (
+                        <p className="text-xs text-clay-600 dark:text-clay-400">
+                          {emailChangeMsg}
+                        </p>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setChangingEmail(false);
+                          setNewEmail("");
+                          setEmailChangeMsg("");
+                        }}
+                        className="text-xs text-neutral-500 hover:underline"
+                      >
+                        Cancelar
+                      </button>
                     </div>
                   )}
                 </div>
               ) : (
                 <div className="space-y-1">
                   <input
-                    name="email" type="email" value={form.email}
+                    name="email"
+                    type="email"
+                    value={form.email}
                     onChange={handleChange}
                     className="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-clay-400"
                   />
-                  {!verified.email && <p className="text-xs text-clay-500">Sin verificar. <a href="/verify-email" className="underline">Verificar ahora</a></p>}
+                  {!verified.email && (
+                    <p className="text-xs text-clay-500">
+                      Sin verificar.{" "}
+                      <a href="/verify-email" className="underline">
+                        Verificar ahora
+                      </a>
+                    </p>
+                  )}
                 </div>
               )}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                Teléfono {verified.phone && <span className="text-clay-400 text-xs ml-1">✓ Verificado</span>}
+                Teléfono{" "}
+                {verified.phone && (
+                  <span className="text-clay-400 text-xs ml-1">
+                    ✓ Verificado
+                  </span>
+                )}
               </label>
               {verified.phone ? (
                 <div className="space-y-2">
@@ -326,16 +428,24 @@ function SettingsContent() {
                       className="flex-1 px-3 py-2 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800/50 text-neutral-500 cursor-not-allowed"
                     />
                     {!changingPhone && (
-                      <button type="button" onClick={() => { setChangingPhone(true); setPhoneChangeStep('form'); setNewPhone(''); }}
-                        className="px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 text-sm text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setChangingPhone(true);
+                          setPhoneChangeStep("form");
+                          setNewPhone("");
+                        }}
+                        className="px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 text-sm text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                      >
                         Cambiar
                       </button>
                     )}
                   </div>
-                  {changingPhone && phoneChangeStep === 'form' && (
+                  {changingPhone && phoneChangeStep === "form" && (
                     <div className="p-3 border border-clay-200 dark:border-clay-800 rounded-lg space-y-2 bg-clay-50 dark:bg-clay-900/10">
                       <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                        Ingresa tu nuevo número de teléfono. Se verificará automáticamente.
+                        Ingresa tu nuevo número de teléfono. Se verificará
+                        automáticamente.
                       </p>
                       <div className="flex gap-2">
                         <input
@@ -345,42 +455,62 @@ function SettingsContent() {
                           placeholder="+525512345678"
                           className="flex-1 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-sm"
                         />
-                        <button type="button"
+                        <button
+                          type="button"
                           onClick={async () => {
                             if (!newPhone) return;
                             setSaving(true);
                             try {
-                              const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/users/me/change-phone`, {
-                                method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
-                                body: JSON.stringify({ phone: newPhone }),
-                              });
+                              const res = await fetch(
+                                `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/users/me/change-phone`,
+                                {
+                                  method: "POST",
+                                  headers: {
+                                    "Content-Type": "application/json",
+                                  },
+                                  credentials: "include",
+                                  body: JSON.stringify({ phone: newPhone }),
+                                },
+                              );
                               const data = await res.json();
                               if (res.ok) {
-                                setForm(f => ({ ...f, phone: newPhone }));
-                                setVerified(v => ({ ...v, phone: true }));
+                                setForm((f) => ({ ...f, phone: newPhone }));
+                                setVerified((v) => ({ ...v, phone: true }));
                                 setChangingPhone(false);
                                 setPhoneChangeStep(null);
                                 setSuccess(true);
                               } else {
                                 setError(data.error);
                               }
-                            } catch { setError('Error de conexión'); }
+                            } catch {
+                              setError("Error de conexión");
+                            }
                             setSaving(false);
                           }}
                           disabled={saving || !newPhone}
                           className="px-3 py-2 rounded-lg bg-clay-400 hover:bg-clay-500 disabled:opacity-50 text-white text-sm font-medium"
                         >
-                          {saving ? 'Guardando...' : 'Guardar'}
+                          {saving ? "Guardando..." : "Guardar"}
                         </button>
                       </div>
-                      <button type="button" onClick={() => { setChangingPhone(false); setPhoneChangeStep(null); }}
-                        className="text-xs text-neutral-500 hover:underline">Cancelar</button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setChangingPhone(false);
+                          setPhoneChangeStep(null);
+                        }}
+                        className="text-xs text-neutral-500 hover:underline"
+                      >
+                        Cancelar
+                      </button>
                     </div>
                   )}
                 </div>
               ) : (
                 <input
-                  name="phone" type="tel" value={form.phone}
+                  name="phone"
+                  type="tel"
+                  value={form.phone}
                   onChange={handleChange}
                   placeholder="+525512345678"
                   className="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-clay-400"
@@ -409,7 +539,9 @@ function SettingsContent() {
               <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
             )}
             {success && (
-              <p className="text-sm text-green-600 dark:text-green-400">Perfil actualizado correctamente</p>
+              <p className="text-sm text-green-600 dark:text-green-400">
+                Perfil actualizado correctamente
+              </p>
             )}
 
             <button
@@ -417,7 +549,7 @@ function SettingsContent() {
               disabled={saving}
               className="w-full py-2.5 rounded-lg bg-clay-500 hover:bg-clay-600 disabled:opacity-50 text-white font-semibold transition-colors"
             >
-              {saving ? 'Guardando…' : 'Guardar cambios'}
+              {saving ? "Guardando…" : "Guardar cambios"}
             </button>
           </form>
         )}

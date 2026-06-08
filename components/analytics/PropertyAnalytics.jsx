@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import useAnalytics from '@/lib/analytics/useAnalytics';
+import { useEffect } from "react";
+import useAnalytics from "@/lib/analytics/useAnalytics";
 
 export default function PropertyAnalytics({ propertyId }) {
   const { track } = useAnalytics();
@@ -9,10 +9,13 @@ export default function PropertyAnalytics({ propertyId }) {
   useEffect(() => {
     if (!propertyId) return;
     try {
-      track('PropertyViewed', { entityId: propertyId, metadata: { via: 'detail.page' } });
+      track("PropertyViewed", {
+        entityId: propertyId,
+        metadata: { via: "detail.page" },
+      });
     } catch (err) {
       // Don't crash the page if analytics fails
-      console.error('PropertyAnalytics track error:', err);
+      console.error("PropertyAnalytics track error:", err);
     }
   }, [propertyId, track]);
 

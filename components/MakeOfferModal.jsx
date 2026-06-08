@@ -1,8 +1,8 @@
-'use client';
-import React, { useState, useMemo } from 'react';
-import { submitPropertyOffer } from '../lib/api/offers.js';
-import { FINANCING_OPTIONS } from '@/lib/constants/financing';
-import MoneyInput from './MoneyInput';
+"use client";
+import React, { useState, useMemo } from "react";
+import { submitPropertyOffer } from "../lib/api/offers.js";
+import { FINANCING_OPTIONS } from "@/lib/constants/financing";
+import MoneyInput from "./MoneyInput";
 
 export default function MakeOfferModal({ propertyId, askingPrice }) {
   const [open, setOpen] = useState(false);
@@ -11,16 +11,16 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
   const [error, setError] = useState(null);
 
   const [form, setForm] = useState({
-    offerAmount:  askingPrice || 0,
-    financing:    '',
-    closingDate:  '',
-    message:      '',
-    buyerName:    '',
-    buyerEmail:   '',
-    buyerPhone:   '',
+    offerAmount: askingPrice || 0,
+    financing: "",
+    closingDate: "",
+    message: "",
+    buyerName: "",
+    buyerEmail: "",
+    buyerPhone: "",
     // payment plan
-    enganche:     0,
-    plazoMeses:   '',
+    enganche: 0,
+    plazoMeses: "",
   });
 
   const handleChange = (e) => {
@@ -29,10 +29,10 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
 
   // Auto-calculate monthly payment (simple, no interest)
   const cuotaMensual = useMemo(() => {
-    if (form.financing !== 'paymentPlan') return null;
-    const offer    = form.offerAmount || 0;
+    if (form.financing !== "paymentPlan") return null;
+    const offer = form.offerAmount || 0;
     const enganche = form.enganche || 0;
-    const plazo    = parseInt(form.plazoMeses, 10);
+    const plazo = parseInt(form.plazoMeses, 10);
     if (!offer || !plazo || plazo <= 0) return null;
     const saldo = offer - enganche;
     if (saldo <= 0) return null;
@@ -42,9 +42,16 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-    if (!form.financing) { setError('Selecciona el tipo de financiamiento.'); return; }
-    if (form.financing === 'paymentPlan' && (!form.plazoMeses || parseInt(form.plazoMeses, 10) <= 0)) {
-      setError('Ingresa el plazo en meses.'); return;
+    if (!form.financing) {
+      setError("Selecciona el tipo de financiamiento.");
+      return;
+    }
+    if (
+      form.financing === "paymentPlan" &&
+      (!form.plazoMeses || parseInt(form.plazoMeses, 10) <= 0)
+    ) {
+      setError("Ingresa el plazo en meses.");
+      return;
     }
 
     setLoading(true);
@@ -58,18 +65,22 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
         buyerEmail: form.buyerEmail,
         buyerPhone: form.buyerPhone,
         // payment plan
-        enganche:     form.enganche > 0 ? form.enganche : undefined,
-        plazoMeses:   form.plazoMeses ? parseInt(form.plazoMeses, 10) : undefined,
-        cuotaMensual: cuotaMensual    ?? undefined,
+        enganche: form.enganche > 0 ? form.enganche : undefined,
+        plazoMeses: form.plazoMeses ? parseInt(form.plazoMeses, 10) : undefined,
+        cuotaMensual: cuotaMensual ?? undefined,
       });
       setSuccess(true);
     } catch (err) {
-      if (err?.code === 'EMAIL_NOT_VERIFIED') {
-        setError('Debes verificar tu correo electrónico antes de enviar una oferta. Revisa tu correo y vuelve a intentarlo.');
-      } else if (err?.code === 'INE_NOT_VERIFIED') {
-        setError('Debes subir y verificar tu INE antes de enviar ofertas. Hazlo en Ajustes de perfil.');
+      if (err?.code === "EMAIL_NOT_VERIFIED") {
+        setError(
+          "Debes verificar tu correo electrónico antes de enviar una oferta. Revisa tu correo y vuelve a intentarlo.",
+        );
+      } else if (err?.code === "INE_NOT_VERIFIED") {
+        setError(
+          "Debes subir y verificar tu INE antes de enviar ofertas. Hazlo en Ajustes de perfil.",
+        );
       } else {
-        setError(err.message || 'Error al enviar la oferta');
+        setError(err.message || "Error al enviar la oferta");
       }
     } finally {
       setLoading(false);
@@ -112,14 +123,18 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
       {open && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
-          onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) handleClose();
+          }}
         >
-          <div className="
+          <div
+            className="
             w-full max-w-md max-h-[90vh] overflow-y-auto
             bg-white dark:bg-neutral-900
             border border-neutral-200 dark:border-neutral-800
             rounded-xl shadow-2xl
-          ">
+          "
+          >
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-neutral-200 dark:border-neutral-800">
               <div>
@@ -128,7 +143,7 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
                 </h2>
                 {askingPrice && (
                   <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
-                    Precio de lista: ${askingPrice.toLocaleString('es-MX')} MXN
+                    Precio de lista: ${askingPrice.toLocaleString("es-MX")} MXN
                   </p>
                 )}
               </div>
@@ -150,7 +165,8 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
                     Oferta enviada
                   </h3>
                   <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                    El vendedor revisará tu oferta y se pondrá en contacto contigo pronto.
+                    El vendedor revisará tu oferta y se pondrá en contacto
+                    contigo pronto.
                   </p>
                   <button
                     onClick={handleClose}
@@ -174,7 +190,9 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
                     </label>
                     <MoneyInput
                       value={form.offerAmount}
-                      onChange={(num) => setForm((prev) => ({ ...prev, offerAmount: num ?? 0 }))}
+                      onChange={(num) =>
+                        setForm((prev) => ({ ...prev, offerAmount: num ?? 0 }))
+                      }
                       placeholder="Ej. 2500000"
                       className={inputClass}
                     />
@@ -183,7 +201,8 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
                   {/* Financing */}
                   <div>
                     <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                      Tipo de financiamiento <span className="text-red-500">*</span>
+                      Tipo de financiamiento{" "}
+                      <span className="text-red-500">*</span>
                     </label>
                     <select
                       name="financing"
@@ -194,13 +213,15 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
                     >
                       <option value="">Seleccionar...</option>
                       {FINANCING_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
                       ))}
                     </select>
                   </div>
 
                   {/* ── Payment plan extra fields ── */}
-                  {form.financing === 'paymentPlan' && (
+                  {form.financing === "paymentPlan" && (
                     <div className="space-y-3 p-4 rounded-lg bg-clay-50 dark:bg-clay-900/10 border border-clay-200 dark:border-clay-800">
                       <div className="text-xs font-semibold uppercase tracking-widest text-clay-700 dark:text-clay-400">
                         Detalles del plan de pagos
@@ -213,7 +234,9 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
                         </label>
                         <MoneyInput
                           value={form.enganche}
-                          onChange={(num) => setForm((prev) => ({ ...prev, enganche: num ?? 0 }))}
+                          onChange={(num) =>
+                            setForm((prev) => ({ ...prev, enganche: num ?? 0 }))
+                          }
                           placeholder="Ej. 500000"
                           className={inputClass}
                         />
@@ -225,8 +248,12 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
                           Plazo (meses) <span className="text-red-500">*</span>
                         </label>
                         <input
-                          type="number" name="plazoMeses" value={form.plazoMeses}
-                          onChange={handleChange} min={1} max={360}
+                          type="number"
+                          name="plazoMeses"
+                          value={form.plazoMeses}
+                          onChange={handleChange}
+                          min={1}
+                          max={360}
                           placeholder="Ej. 120"
                           className={inputClass}
                         />
@@ -239,13 +266,18 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
                             Pago mensual estimado
                           </span>
                           <span className="text-lg font-bold text-clay-600 dark:text-clay-400">
-                            ${cuotaMensual.toLocaleString('es-MX', { maximumFractionDigits: 0 })} MXN
+                            $
+                            {cuotaMensual.toLocaleString("es-MX", {
+                              maximumFractionDigits: 0,
+                            })}{" "}
+                            MXN
                           </span>
                         </div>
                       )}
 
                       <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                        * Sin intereses. Plazo y condiciones finales sujetos a acuerdo con el vendedor.
+                        * Sin intereses. Plazo y condiciones finales sujetos a
+                        acuerdo con el vendedor.
                       </p>
                     </div>
                   )}
@@ -260,7 +292,7 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
                       name="closingDate"
                       value={form.closingDate}
                       onChange={handleChange}
-                      min={new Date().toISOString().split('T')[0]}
+                      min={new Date().toISOString().split("T")[0]}
                       className={inputClass}
                     />
                   </div>
@@ -334,7 +366,9 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
                   </div>
 
                   {error && (
-                    <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                    <p className="text-sm text-red-600 dark:text-red-400">
+                      {error}
+                    </p>
                   )}
 
                   <button
@@ -348,7 +382,7 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
                       text-white shadow-sm transition-all
                     "
                   >
-                    {loading ? 'Enviando...' : 'Enviar oferta'}
+                    {loading ? "Enviando..." : "Enviar oferta"}
                   </button>
                 </form>
               )}

@@ -1,8 +1,8 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { vi } from 'vitest';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// Mock Next.js router
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: vi.fn()
@@ -13,6 +13,18 @@ vi.mock('next/navigation', () => ({
 
 import { AuthContext } from '../../lib/auth/AuthContext.jsx';
 import NavBar from '../../components/NavBar.jsx';
+
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: false } },
+});
+
+function Wrapper({ children }) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      {children}
+    </QueryClientProvider>
+  );
+}
 
 describe('NavBar role-aware links', () => {
   it('shows login/register buttons when not authenticated', () => {
@@ -27,7 +39,8 @@ describe('NavBar role-aware links', () => {
     render(
       <AuthContext.Provider value={mockAuthValue}>
         <NavBar />
-      </AuthContext.Provider>
+      </AuthContext.Provider>,
+      { wrapper: Wrapper }
     );
 
     expect(screen.getByText('Iniciar Sesión')).toBeInTheDocument();
@@ -55,7 +68,8 @@ describe('NavBar role-aware links', () => {
     render(
       <AuthContext.Provider value={mockAuthValue}>
         <NavBar />
-      </AuthContext.Provider>
+      </AuthContext.Provider>,
+      { wrapper: Wrapper }
     );
 
     expect(screen.getByText('John Doe')).toBeInTheDocument();

@@ -53,3 +53,7 @@ pnpm-debug.log*
 .cache/
 .turbo/
 .vercel
+# Benchmark results
+benchmark-result.json
+# Unentropy
+unentropy-report/
