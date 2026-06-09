@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth/useAuth";
+import { getRoleLabel } from "@/lib/reviews";
 
 const SECTIONS = [
   {
@@ -126,7 +127,7 @@ const SECTIONS = [
 ];
 
 export default function DashboardPage() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, switchRole } = useAuth();
 
   if (!isAuthenticated) {
     return (
@@ -168,6 +169,28 @@ export default function DashboardPage() {
             ¿Qué quieres hacer hoy?
           </p>
         </div>
+
+        {/* Role Switcher */}
+        {approvedRoles.length > 1 && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-neutral-500 dark:text-neutral-400">Ver como:</span>
+            <div className="flex gap-1 flex-wrap">
+              {approvedRoles.map((role) => (
+                <button
+                  key={role}
+                  onClick={() => switchRole(role)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    user?.activeRole === role
+                      ? "bg-clay text-white shadow-sm"
+                      : "bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:border-clay"
+                  }`}
+                >
+                  {getRoleLabel(role)}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Section cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
