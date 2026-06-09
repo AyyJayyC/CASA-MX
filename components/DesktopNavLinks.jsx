@@ -37,6 +37,17 @@ export default function DesktopNavLinks({
       >
         Rentar
       </Link>
+      <Link
+        href="/properties/map/draw"
+        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
+          ${
+            isActivePath("/properties/map")
+              ? "bg-clay/10 text-clay"
+              : "text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800"
+          }`}
+      >
+        Mapa
+      </Link>
       {canPublish && (
         <Link
           href="/publish-property"

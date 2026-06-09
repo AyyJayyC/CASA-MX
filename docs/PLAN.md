@@ -167,4 +167,36 @@ Status: **COMPLETE** (Week 1)
 
 ## TOTALS: 53/56 done (~95%) · 3 remaining
 
-> Phase 1.5 (form wizard) deferred. Phase 4 launch checks (E2E, Lighthouse, CSP, etc.) need running backend. Code complete. App is launch-ready — remaining items are integration verification + production config.
+> Phase 1.5 (form wizard) deferred. Code complete. v0.1.0 deployed to production 2026-06-08.
+
+---
+
+## BRANCHING STRATEGY
+
+```
+main        ← production (Vercel/Railway auto-deploy)
+  ↑ merge via PR
+staging     ← stable (this branch)
+  ↑ merge via PR  
+develop     ← ongoing development
+  ↑ branch
+feature/*   ← individual features/fixes
+```
+
+**How to keep improving without breaking production:**
+
+```bash
+git checkout develop
+git checkout -b feature/my-change
+# ... make changes, commit ...
+git push origin feature/my-change
+# Open PR to develop → CI runs tests automatically
+# Merge to develop → verify on staging
+# PR develop → staging → main → auto-deploy to production
+```
+
+**Deploy triggers:**
+- Frontend: Push to `main` → Vercel deploys
+- Backend: Push to `main` → Railway deploys
+
+**Version:** v0.1.0 · **GitHub:** https://github.com/AyyJayyC/CASA-MX

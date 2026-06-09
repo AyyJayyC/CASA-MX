@@ -162,7 +162,8 @@ function CustomSlidesCarousel({ slides }) {
 }
 
 export default function HomepageCarousel() {
-  const { data = [], isLoading, isError, error, refetch } = useProperties();
+  const { data: infiniteData, isLoading, isError, error, refetch } = useProperties();
+  const data = infiniteData?.pages?.flat() || [];
   const [customSlides, setCustomSlides] = useState([]);
   const [mostViewed, setMostViewed] = useState([]);
 
