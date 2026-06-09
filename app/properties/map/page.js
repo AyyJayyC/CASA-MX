@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { RequireRole } from "@/components/guards/RequireRole.jsx";
 import ErrorBoundary from "@/components/ErrorBoundary.jsx";
 import { getItem } from "@/lib/storage/storage";
@@ -39,7 +40,15 @@ export default function PropertiesMapPage() {
   return (
     <RequireRole roles={["buyer", "seller", "admin"]}>
       <div className="p-6">
-        <h1 className="text-2xl font-bold mb-4">Property Map</h1>
+        <div className="flex items-center justify-between mb-3">
+          <h1 className="text-2xl font-bold">Property Map</h1>
+          <Link
+            href="/properties/map/draw"
+            className="px-4 py-2 text-sm font-medium bg-clay hover:bg-clay-500 text-white rounded-lg transition-all"
+          >
+            Mapa Interactivo →
+          </Link>
+        </div>
         {count === 0 ? (
           <div className="mb-4 p-4 border rounded bg-clay-50">
             No properties with coordinates found. You can add coordinates in the

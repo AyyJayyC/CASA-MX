@@ -18,6 +18,7 @@
     "metrics": "npx unentropy init"
   },
   "dependencies": {
+    "@geoman-io/leaflet-geoman-free": "^2.19.3",
     "@hookform/resolvers": "^3.1.0",
     "@stripe/react-stripe-js": "^6.2.0",
     "@stripe/stripe-js": "^9.2.0",

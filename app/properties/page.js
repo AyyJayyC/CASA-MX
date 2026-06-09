@@ -99,6 +99,13 @@ function PropertiesContent() {
     maxConstructionMeters: maxM2 || undefined,
     minLotSize: minLot || undefined,
     maxLotSize: maxLot || undefined,
+    swLat: searchParams.get("swLat") ? parseFloat(searchParams.get("swLat")) : undefined,
+    swLng: searchParams.get("swLng") ? parseFloat(searchParams.get("swLng")) : undefined,
+    neLat: searchParams.get("neLat") ? parseFloat(searchParams.get("neLat")) : undefined,
+    neLng: searchParams.get("neLng") ? parseFloat(searchParams.get("neLng")) : undefined,
+    centerLat: searchParams.get("centerLat") ? parseFloat(searchParams.get("centerLat")) : undefined,
+    centerLng: searchParams.get("centerLng") ? parseFloat(searchParams.get("centerLng")) : undefined,
+    radiusKm: searchParams.get("radiusKm") ? parseFloat(searchParams.get("radiusKm")) : undefined,
   };
 
   const { data: pages, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useProperties(filters);
@@ -370,6 +377,19 @@ function PropertiesContent() {
           </aside>
 
           <main className="flex-1 min-w-0">
+            {filters.swLat && (
+              <div className="mb-4 p-3 bg-clay/10 dark:bg-clay-900/20 border border-clay-200 dark:border-clay-800 rounded-lg flex items-center justify-between">
+                <span className="text-sm text-clay dark:text-clay">
+                  Zona de busqueda aplicada desde el mapa
+                </span>
+                <Link
+                  href="/properties/map/draw"
+                  className="text-xs text-clay hover:underline font-medium"
+                >
+                  Ajustar en el mapa →
+                </Link>
+              </div>
+            )}
             <PropertyList
               properties={allProperties}
               isLoading={isLoading}

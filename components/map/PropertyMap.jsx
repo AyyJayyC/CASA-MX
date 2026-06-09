@@ -23,7 +23,7 @@ export default function PropertyMap({
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
-    const map = L.map(mapRef.current).setView(center, zoom);
+    const map = L.map(mapRef.current, { maxZoom: 19 }).setView(center, zoom);
     mapInstanceRef.current = map;
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
