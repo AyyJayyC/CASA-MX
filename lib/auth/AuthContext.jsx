@@ -147,7 +147,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const switchRole = useCallback(
-    async (roleType) => {
+    (roleType) => {
       if (!user) {
         setError("No user logged in");
         return;
@@ -161,14 +161,9 @@ export function AuthProvider({ children }) {
         setError(`Role ${roleType} is not approved`);
         return;
       }
-      try {
-        setError(null);
-        setSession((prev) => (prev ? { ...prev, activeRole: roleType } : prev));
-        setUser((prev) => (prev ? { ...prev, activeRole: roleType } : prev));
-      } catch (err) {
-        setError(err.message);
-        throw err;
-      }
+      setError(null);
+      setSession((prev) => (prev ? { ...prev, activeRole: roleType } : prev));
+      setUser((prev) => (prev ? { ...prev, activeRole: roleType } : prev));
     },
     [user]
   );

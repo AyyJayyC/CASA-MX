@@ -138,16 +138,9 @@ function LoginPage() {
     }
   };
 
-  const handleRoleSelect = async (roleType) => {
-    setSelectingRole(true);
-    try {
-      await switchRole(roleType);
-      router.push("/dashboard");
-    } catch {
-      router.push("/properties");
-    } finally {
-      setSelectingRole(false);
-    }
+  const handleRoleSelect = (roleType) => {
+    switchRole(roleType);
+    router.push("/dashboard");
   };
 
   if (pendingRoles) {
