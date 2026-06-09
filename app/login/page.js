@@ -64,9 +64,10 @@ function LoginPage() {
 
   useEffect(() => {
     if (isAuthenticated && !pendingRoles && !loggingIn) {
-      router.replace("/");
+      const redirect = searchParams.get("redirect");
+      router.replace(redirect || "/dashboard");
     }
-  }, [isAuthenticated, pendingRoles, router, loggingIn]);
+  }, [isAuthenticated, pendingRoles, router, loggingIn, searchParams]);
 
   const onSubmit = async (data) => {
     setLoginError(null);
@@ -140,10 +141,12 @@ function LoginPage() {
   const handleRoleSelect = async (roleType) => {
     setSelectingRole(true);
     try {
-      switchRole(roleType);
+      await switchRole(roleType);
       router.push("/dashboard");
     } catch {
       router.push("/properties");
+    } finally {
+      setSelectingRole(false);
     }
   };
 
