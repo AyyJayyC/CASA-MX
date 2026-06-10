@@ -140,7 +140,7 @@ function LoginPage() {
 
   const handleRoleSelect = (roleType) => {
     switchRole(roleType);
-    router.push("/dashboard");
+    setPendingRoles(null);
   };
 
   if (pendingRoles) {
