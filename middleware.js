@@ -38,11 +38,7 @@ export function middleware(request) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  // Generate per-request nonce for CSP strict-dynamic support
-  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-nonce", nonce);
-
+  // Generate per-request nonce available to responses
   const apiOrigin =
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
   let apiUrl;
@@ -56,12 +52,12 @@ export function middleware(request) {
     process.env.VERCEL_ENV === "production" ||
     (!process.env.VERCEL_ENV && process.env.NODE_ENV === "production");
 
-  const response = NextResponse.next({ request: { headers: requestHeaders } });
+  const response = NextResponse.next();
 
   if (isProd) {
     const csp = [
       "default-src 'self'",
-      `script-src 'self' 'unsafe-inline' 'strict-dynamic' 'nonce-${nonce}' https://js.stripe.com https://maps.googleapis.com`,
+      `script-src 'self' 'unsafe-inline' https://js.stripe.com https://maps.googleapis.com`,
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       `img-src 'self' data: blob: https://*.unsplash.com https://*.tile.openstreetmap.org https://maps.googleapis.com https://*.s3.amazonaws.com https://*.s3.*.amazonaws.com ${apiUrl}`,
       "font-src 'self' https://fonts.gstatic.com",
