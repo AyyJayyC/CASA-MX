@@ -37,17 +37,19 @@ export default function DesktopNavLinks({
       >
         Rentar
       </Link>
-      <Link
-        href="/properties/map/draw"
-        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
-          ${
-            isActivePath("/properties/map")
-              ? "bg-clay/10 text-clay"
-              : "text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800"
-          }`}
-      >
-        Mapa
-      </Link>
+      {isAuthenticated && (
+        <Link
+          href="/properties/map"
+          className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
+            ${
+              isActivePath("/properties/map")
+                ? "bg-clay/10 text-clay"
+                : "text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800"
+            }`}
+        >
+          Mapa
+        </Link>
+      )}
       {canPublish && (
         <Link
           href="/publish-property"
@@ -61,7 +63,7 @@ export default function DesktopNavLinks({
           Vender
         </Link>
       )}
-      {(!isAuthenticated || !canPublish) && (
+      {!isAuthenticated && (
         <Link
           href="/publish-property"
           className="ml-2 px-4 py-2 rounded-lg text-sm font-semibold bg-clay hover:bg-clay-500 text-white transition-all shadow-sm"

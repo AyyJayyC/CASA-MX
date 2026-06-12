@@ -9,7 +9,6 @@ import {
   getMarketSummary,
   getMarketByCity,
   getMarketByColonia,
-  getOfferTrends,
   getOpportunities,
 } from "@/lib/api/analytics";
 

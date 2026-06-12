@@ -27,7 +27,7 @@ export default function createMarker({ L, property, track, router }) {
         });
     } catch (err) {
       // swallow analytics errors to avoid breaking UX
-      // eslint-disable-next-line no-console
+       
       console.error("createMarker track error:", err);
     }
   });

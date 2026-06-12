@@ -20,7 +20,6 @@ import {
   PARKING_TYPE_LABELS,
   STATUS_LABELS,
   STATUS_COLORS,
-  VISIBILITY_LABELS,
 } from "../lib/constants/propertyOptions";
 import VerificationBadges from "@/components/VerificationBadges";
 

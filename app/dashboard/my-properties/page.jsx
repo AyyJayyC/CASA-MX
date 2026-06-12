@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth/useAuth";
 import { getMyProperties, updateProperty } from "@/lib/api/properties";
 import { formatCurrency, formatNumber } from "@/lib/utils/format";
+import { RequireRole } from "@/components/guards/RequireRole.jsx";
 
 const SALE_RENT_LABELS = { for_sale: "Venta", for_rent: "Renta" };
 
@@ -324,8 +325,9 @@ export default function MyPropertiesPage() {
     return (
       <div className="p-10 text-center text-neutral-500">
         Inicia sesión para ver tus propiedades.
-      </div>
-    );
+    </div>
+    </RequireRole>
+  );
   }
 
   // Sort by status priority, then by most recently created.
@@ -348,6 +350,7 @@ export default function MyPropertiesPage() {
   const published = filtered.filter((p) => p.status !== "incompleto");
 
   return (
+    <RequireRole roles={["seller", "wholesaler", "admin", "landlord"]}>
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 p-4 sm:p-6 space-y-5">
       <div>
         <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">

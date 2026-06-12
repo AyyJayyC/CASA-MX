@@ -3,10 +3,20 @@ import { vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import AgencyPage from '../../app/dashboard/agency/page.jsx';
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+  usePathname: () => '/dashboard/agency',
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 const mockGetAgency = vi.fn();
 const mockGetAgents = vi.fn();
 const mockGetAgencyMembership = vi.fn();
 const mockGetAgencyPricing = vi.fn();
+
+vi.mock('next/link', () => ({
+  default: ({ children, href, ...props }) => React.createElement('a', { 'data-href': href, ...props }, children),
+}));
 
 vi.mock('../../lib/api/agencies', () => ({
   getMyAgency: (...args) => mockGetAgency(...args),
@@ -16,8 +26,8 @@ vi.mock('../../lib/api/agencies', () => ({
 }));
 
 vi.mock('../../lib/auth/useAuth', () => ({
-  useAuth: () => ({ user: { id: 'u-1' }, isAuthenticated: true }),
-  default: () => ({ user: { id: 'u-1' }, isAuthenticated: true }),
+  useAuth: () => ({ user: { id: 'u-1', roles: [{ type: 'seller', status: 'approved' }, { type: 'admin', status: 'approved' }], activeRole: 'seller' }, isAuthenticated: true, isHydrated: true, loading: false }),
+  default: () => ({ user: { id: 'u-1', roles: [{ type: 'seller', status: 'approved' }], activeRole: 'seller' }, isAuthenticated: true, isHydrated: true, loading: false }),
 }));
 
 const mockAgency = {

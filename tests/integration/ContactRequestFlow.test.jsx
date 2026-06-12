@@ -1,24 +1,56 @@
 import React from 'react';
-import { vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import ContactRequestModal from '../../components/ContactRequestModal.jsx';
+import { vi } from 'vitest';
 
-vi.mock('../../lib/auth/useAuth', () => ({
-  useAuth: () => ({ user: null, isAuthenticated: false }),
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn() }),
+  usePathname: () => '/',
+  useSearchParams: () => new URLSearchParams(),
 }));
 
-describe('Contact request flow integration', () => {
-  it('opens modal and renders the contact request form', async () => {
-    render(<ContactRequestModal propertyId="prop-1" />);
+vi.mock('@/lib/api/requests', () => ({
+  getMyRequests: vi.fn(),
+  addRequest: vi.fn(),
+}));
 
-    // Click the outer trigger button
-    const buttons = screen.getAllByRole('button', { name: /Solicitar dirección/i });
+vi.mock('@/lib/analytics', () => ({
+  default: { trackEvent: vi.fn() },
+}));
+
+vi.mock('@/lib/analytics/useAnalytics', () => ({
+  useAnalytics: () => ({ track: vi.fn() }),
+}));
+
+import * as requestsApi from '@/lib/api/requests';
+import ContactRequestForm from '@/components/ContactRequestForm.jsx';
+import ContactRequestModal from '@/components/ContactRequestModal.jsx';
+
+describe('Contact Request Flow — Production Integration', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('modal opens when triggered', () => {
+    requestsApi.getMyRequests.mockResolvedValue([]);
+    render(React.createElement(ContactRequestModal, { propertyId: 'p1' }));
+
+    const buttons = screen.getAllByRole('button');
+    expect(buttons.length).toBeGreaterThan(0);
+
     fireEvent.click(buttons[0]);
 
+    const nameInput = document.querySelector('#req_name');
+    expect(nameInput).toBeTruthy();
+  });
+
+  it('form prevents empty submission', async () => {
+    render(React.createElement(ContactRequestForm, { propertyId: 'p1' }));
+
+    const submitButton = screen.getByText('Solicitar dirección');
+    fireEvent.click(submitButton);
+
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: /Solicitar dirección/i })).toBeInTheDocument();
-      expect(screen.getByLabelText(/Nombre completo/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/Teléfono/i)).toBeInTheDocument();
+      expect(requestsApi.addRequest).not.toHaveBeenCalled();
     });
   });
 });

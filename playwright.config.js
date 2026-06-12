@@ -2,7 +2,7 @@
 const { devices } = require('@playwright/test');
 
 /** @type {import('@playwright/test').PlaywrightTestConfig} */
-module.exports = {
+const config = {
   timeout: 30 * 1000,
   retries: process.env.CI ? 1 : 0,
   testDir: './tests/e2e',
@@ -17,3 +17,5 @@ module.exports = {
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } }
   ]
 };
+
+module.exports = config;

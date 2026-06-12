@@ -16,6 +16,8 @@ export default function MobileMenu({
   isActivePath,
   pathname,
   canPublish,
+  isBuyer,
+  isTenant,
 }) {
   if (!isOpen) return null;
 
@@ -31,12 +33,61 @@ export default function MobileMenu({
 
       {isAuthenticated && (
         <MobileLink
+          href="/properties/map"
+          onClick={onClose}
+          isActive={isActivePath("/properties/map")}
+        >
+          Mapa
+        </MobileLink>
+      )}
+
+      {isAuthenticated && (
+        <MobileLink
           href="/dashboard"
           onClick={onClose}
           isActive={pathname?.startsWith("/dashboard")}
         >
           Inicio
         </MobileLink>
+      )}
+
+      {isBuyer && (
+        <MobileLink
+          href="/dashboard/my-offers"
+          onClick={onClose}
+          isActive={isActivePath("/dashboard/my-offers")}
+        >
+          Mis ofertas
+        </MobileLink>
+      )}
+
+      {isTenant && (
+        <MobileLink
+          href="/dashboard/rental-applications"
+          onClick={onClose}
+          isActive={isActivePath("/dashboard/rental-applications")}
+        >
+          Mis solicitudes
+        </MobileLink>
+      )}
+
+      {canPublish && (
+        <>
+          <MobileLink
+            href="/publish-property"
+            onClick={onClose}
+            isActive={isActivePath("/publish-property")}
+          >
+            Vender
+          </MobileLink>
+          <MobileLink
+            href="/credits"
+            onClick={onClose}
+            isActive={isActivePath("/credits")}
+          >
+            💲 Créditos
+          </MobileLink>
+        </>
       )}
 
       {isAuthenticated && isAdminUser && (
@@ -46,7 +97,14 @@ export default function MobileMenu({
             onClick={onClose}
             isActive={isActivePath("/admin/approvals")}
           >
-            Admin
+            Admin: Aprobaciones
+          </MobileLink>
+          <MobileLink
+            href="/admin/analytics"
+            onClick={onClose}
+            isActive={isActivePath("/admin/analytics")}
+          >
+            Admin: Analítica
           </MobileLink>
           <MobileLink
             href="/admin/properties"
@@ -54,6 +112,13 @@ export default function MobileMenu({
             isActive={isActivePath("/admin/properties")}
           >
             Admin: Propiedades
+          </MobileLink>
+          <MobileLink
+            href="/admin/carousel"
+            onClick={onClose}
+            isActive={isActivePath("/admin/carousel")}
+          >
+            Admin: Carrusel
           </MobileLink>
           {showDebugUI && (
             <MobileLink

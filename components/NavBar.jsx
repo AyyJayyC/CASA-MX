@@ -30,15 +30,20 @@ export default function NavBar() {
   const isAdminUser = Boolean(
     user?.roles?.some((r) => r.type === "admin" && r.status === "approved"),
   );
-  const isBuyerOrTenant = Boolean(
+  const isBuyer = Boolean(
     user?.roles?.some(
-      (r) => ["buyer", "tenant"].includes(r.type) && r.status === "approved",
+      (r) => r.type === "buyer" && r.status === "approved",
+    ),
+  );
+  const isTenant = Boolean(
+    user?.roles?.some(
+      (r) => r.type === "tenant" && r.status === "approved",
     ),
   );
   const canPublish = Boolean(
     user?.roles?.some(
       (r) =>
-        ["seller", "wholesaler", "admin"].includes(r.type) &&
+        ["seller", "wholesaler", "admin", "landlord"].includes(r.type) &&
         r.status === "approved",
     ),
   );
@@ -298,22 +303,38 @@ export default function NavBar() {
                   >
                     Inicio
                   </Link>
-                  {isBuyerOrTenant && (
+                  {isAdminUser && (
+                    <Link
+                      href="/admin/approvals"
+                      className="px-3 py-1.5 rounded-lg text-sm font-medium text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
+                    >
+                      Admin
+                    </Link>
+                  )}
+                  {isBuyer ? (
                     <Link
                       href="/dashboard/my-offers"
                       className="px-3 py-1.5 rounded-lg text-sm font-medium text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800 transition-colors"
                     >
                       Mis ofertas
                     </Link>
-                  )}
-                  {!isBuyerOrTenant && canPublish && (
+                  ) : null}
+                  {isTenant ? (
+                    <Link
+                      href="/dashboard/rental-applications"
+                      className="px-3 py-1.5 rounded-lg text-sm font-medium text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800 transition-colors"
+                    >
+                      Mis solicitudes
+                    </Link>
+                  ) : null}
+                  {!isBuyer && !isTenant && canPublish ? (
                     <Link
                       href="/dashboard/contact-requests"
                       className="px-3 py-1.5 rounded-lg text-sm font-medium text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800 transition-colors"
                     >
                       Solicitudes
                     </Link>
-                  )}
+                  ) : null}
                   <Link
                     href="/settings"
                     onClick={() => {
@@ -344,7 +365,7 @@ export default function NavBar() {
                     Ajustes
                   </Link>
 
-                  {!isBuyerOrTenant && (
+                  {!isBuyer && !isTenant && (
                     <Link
                       href="/credits"
                       className="px-3 py-1.5 rounded-lg text-sm font-medium bg-clay/10 dark:bg-clay-900/20 text-clay dark:text-clay hover:bg-clay/100 dark:hover:bg-clay/900/40 transition-colors"
@@ -430,6 +451,8 @@ export default function NavBar() {
           isActivePath={isActivePath}
           pathname={pathname}
           canPublish={canPublish}
+          isBuyer={isBuyer}
+          isTenant={isTenant}
         />
       </div>
     </header>

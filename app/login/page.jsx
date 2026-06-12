@@ -131,16 +131,21 @@ function LoginPage() {
       if (allRoles.length > 1) {
         setPendingRoles(allRoles);
       } else {
-        router.push("/properties");
+        const redirect = searchParams.get("redirect");
+        router.replace(redirect || "/dashboard");
       }
     } catch (err) {
       setLoginError(err.message || "Error al iniciar sesión");
+    } finally {
+      setLoggingIn(false);
     }
   };
 
   const handleRoleSelect = (roleType) => {
     switchRole(roleType);
     setPendingRoles(null);
+    const redirect = searchParams.get("redirect");
+    router.replace(redirect || "/dashboard");
   };
 
   if (pendingRoles) {

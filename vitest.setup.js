@@ -106,3 +106,13 @@ vi.mock('recharts', async () => {
 		Area: Mock,
 	};
 });
+
+vi.mock('nuqs', () => ({
+  useQueryState: (key, defaultValue) => [defaultValue, vi.fn()],
+  useQueryStates: (keys, options) => [keys, vi.fn()],
+  NuqsAdapter: ({ children }) => React.createElement(React.Fragment, null, children),
+  parseAsString: {},
+  parseAsInteger: {},
+  parseAsBoolean: {},
+  parseAsArrayOf: () => ({}),
+}));
