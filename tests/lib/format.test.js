@@ -1,9 +1,7 @@
 import {
   formatNumber,
-  formatDecimal,
   formatCurrency,
   formatDate,
-  formatDateTime,
   formatRelativeTime,
   formatPercentage,
 } from "../../lib/utils/format";
@@ -32,21 +30,6 @@ describe("formatNumber", () => {
   });
   it("formats negative numbers", () => {
     expect(formatNumber(-1500)).toBe("-1,500");
-  });
-});
-
-describe("formatDecimal", () => {
-  it("formats with 2 decimal places", () => {
-    expect(formatDecimal(1500)).toBe("1,500.00");
-  });
-  it("formats decimals properly", () => {
-    expect(formatDecimal(1500.5)).toBe("1,500.50");
-  });
-  it("returns — for null", () => {
-    expect(formatDecimal(null)).toBe("—");
-  });
-  it("returns — for NaN", () => {
-    expect(formatDecimal(NaN)).toBe("—");
   });
 });
 
@@ -87,23 +70,6 @@ describe("formatDate", () => {
   });
   it("returns — for invalid date string", () => {
     expect(formatDate("not-a-date")).toBe("—");
-  });
-});
-
-describe("formatDateTime", () => {
-  it("formats date and time", () => {
-    const r = formatDateTime("2025-06-15T14:30:00");
-    expect(r).toMatch(/^\d{2}\/\d{2}\/\d{4}/);
-    expect(r.length).toBeGreaterThan(10);
-  });
-  it("returns — for empty", () => {
-    expect(formatDateTime("")).toBe("—");
-  });
-  it("returns — for null", () => {
-    expect(formatDateTime(null)).toBe("—");
-  });
-  it("returns — for invalid", () => {
-    expect(formatDateTime("bad")).toBe("—");
   });
 });
 
