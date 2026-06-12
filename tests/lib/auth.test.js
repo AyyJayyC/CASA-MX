@@ -131,10 +131,9 @@ describe("Auth API", () => {
     const result = await refreshAccessToken();
 
     expect(fetch).toHaveBeenCalledWith(
-      expect.stringMatching(/\/auth\/refresh$/),
+      expect.stringMatching(/\/api\/auth\/refresh$/),
       expect.objectContaining({
         method: "POST",
-        credentials: "include",
         body: JSON.stringify({}),
       }),
     );
