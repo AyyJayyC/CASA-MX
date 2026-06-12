@@ -326,9 +326,8 @@ export default function MyPropertiesPage() {
       <div className="p-10 text-center text-neutral-500">
         Inicia sesión para ver tus propiedades.
     </div>
-    </RequireRole>
   );
-  }
+}
 
   // Sort by status priority, then by most recently created.
   // Unknown statuses (e.g., legacy English values) go to the end.
@@ -451,5 +450,6 @@ export default function MyPropertiesPage() {
         />
       )}
     </div>
+    </RequireRole>
   );
 }
