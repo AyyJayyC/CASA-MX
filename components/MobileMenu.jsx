@@ -120,6 +120,20 @@ export default function MobileMenu({
           >
             Admin: Carrusel
           </MobileLink>
+          <MobileLink
+            href="/admin/maps"
+            onClick={onClose}
+            isActive={isActivePath("/admin/maps")}
+          >
+            Admin: Mapas
+          </MobileLink>
+          <MobileLink
+            href="/admin/agencies"
+            onClick={onClose}
+            isActive={isActivePath("/admin/agencies")}
+          >
+            Admin: Agencias
+          </MobileLink>
           {showDebugUI && (
             <MobileLink
               href="/admin/debug"
