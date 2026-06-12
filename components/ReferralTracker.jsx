@@ -1,6 +1,6 @@
 "use client";
 import { useEffect } from "react";
-import { setItem, removeItem } from "@/lib/storage/storage";
+import { setItem } from "@/lib/storage/storage";
 import { trackReferralClick } from "@/lib/api/referrals";
 import analytics from "@/lib/analytics";
 import { EVENT_NAMES } from "@/lib/analytics/events";

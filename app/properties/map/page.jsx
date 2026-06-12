@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { RequireRole } from "@/components/guards/RequireRole.jsx";
 import ErrorBoundary from "@/components/ErrorBoundary.jsx";
 import { getItem } from "@/lib/storage/storage";
 
@@ -28,18 +27,15 @@ export default function PropertiesMapPage() {
 
   if (isLoading) {
     return (
-      <RequireRole roles={["buyer", "seller", "admin"]}>
-        <div className="p-6">
-          <h1 className="text-2xl font-bold mb-4">Property Map</h1>
-          <div className="p-4 text-center">Loading properties...</div>
-        </div>
-      </RequireRole>
+      <div className="p-6">
+        <h1 className="text-2xl font-bold mb-4">Property Map</h1>
+        <div className="p-4 text-center">Loading properties...</div>
+      </div>
     );
   }
 
   return (
-    <RequireRole roles={["buyer", "seller", "admin"]}>
-      <div className="p-6">
+    <div className="p-6">
         <div className="flex items-center justify-between mb-3">
           <h1 className="text-2xl font-bold">Property Map</h1>
           <Link
@@ -65,6 +61,5 @@ export default function PropertiesMapPage() {
           <PropertyMap />
         </ErrorBoundary>
       </div>
-    </RequireRole>
   );
 }

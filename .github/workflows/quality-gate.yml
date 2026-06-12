@@ -21,6 +21,8 @@ jobs:
 
       - run: npm ci
 
+      - run: npm run lint
+
       - run: npm test -- --coverage
 
       - uses: unentropy/quality-gate@v1

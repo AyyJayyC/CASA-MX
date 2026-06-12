@@ -3,6 +3,7 @@ import React from "react";
 import SellerContactRequests from "../../../components/SellerContactRequests.jsx";
 import { useAuth } from "@/lib/auth/useAuth";
 import Link from "next/link";
+import { RequireRole } from "@/components/guards/RequireRole.jsx";
 
 export default function SellerContactRequestsPage() {
   const { user, isAuthenticated } = useAuth();
@@ -18,6 +19,7 @@ export default function SellerContactRequestsPage() {
   }
 
   return (
+    <RequireRole roles={["seller", "wholesaler", "admin", "landlord"]}>
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
       <div className="max-w-4xl mx-auto px-4 py-10 space-y-8">
         <div>
@@ -32,5 +34,6 @@ export default function SellerContactRequestsPage() {
         <SellerContactRequests />
       </div>
     </div>
+    </RequireRole>
   );
 }

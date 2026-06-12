@@ -5,7 +5,6 @@ import { useUserStore } from "@/lib/stores/userStore";
 import {
   PROPERTY_TYPE_OPTIONS,
   CONDITION_LABELS,
-  FURNISHED_LABELS,
 } from "@/lib/constants/propertyOptions";
 import TagSubscriptions from "./TagSubscriptions";
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { describe, it, vi, beforeEach } from 'vitest';
 
 let PropertyMap;
@@ -83,37 +83,37 @@ describe('PropertyMap', () => {
       // Diagnostic: require leaflets and css separately to pin down failure
       try {
         require('leaflet');
-        // eslint-disable-next-line no-console
+         
         console.log('diagnostic: leaflet required OK');
       } catch (e) {
-        // eslint-disable-next-line no-console
+         
         console.error('diagnostic: leafet require failed', e);
       }
 
       try {
         require('leaflet/dist/leaflet.css');
-        // eslint-disable-next-line no-console
+         
         console.log('diagnostic: leaflet CSS required OK');
       } catch (e) {
-        // eslint-disable-next-line no-console
+         
         console.error('diagnostic: leaflet CSS require failed', e);
       }
 
       try {
         require('leaflet.markercluster');
-        // eslint-disable-next-line no-console
+         
         console.log('diagnostic: markercluster required OK');
       } catch (e) {
-        // eslint-disable-next-line no-console
+         
         console.error('diagnostic: markercluster require failed', e);
       }
 
       try {
         require('leaflet.markercluster/dist/MarkerCluster.css');
-        // eslint-disable-next-line no-console
+         
         console.log('diagnostic: markercluster CSS required OK');
       } catch (e) {
-        // eslint-disable-next-line no-console
+         
         console.error('diagnostic: markercluster CSS require failed', e);
       }
 
@@ -121,7 +121,7 @@ describe('PropertyMap', () => {
       PropertyMap = (await import('../../components/map/PropertyMap.jsx')).default;
     } catch (err) {
       // Log for diagnostics during test runs
-      // eslint-disable-next-line no-console
+       
       console.error('Error importing PropertyMap:', err);
       throw err;
     }

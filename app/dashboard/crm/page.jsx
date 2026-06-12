@@ -1,9 +1,10 @@
 "use client";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth/useAuth";
 import { getMyProperties } from "@/lib/api/properties";
-import { formatCurrency, formatNumber, formatDate } from "@/lib/utils/format";
+import { formatCurrency, formatNumber } from "@/lib/utils/format";
+import { RequireRole } from "@/components/guards/RequireRole.jsx";
 import {
   getBuyers,
   createBuyer,
@@ -352,6 +353,7 @@ export default function CRMPage() {
   ];
 
   return (
+    <RequireRole roles={["seller", "wholesaler", "admin"]}>
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 p-4 sm:p-6 space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -411,6 +413,7 @@ export default function CRMPage() {
 
       {tab === "buyers" && <BuyersList isAuthenticated={isAuthenticated} />}
     </div>
+    </RequireRole>
   );
 }
 
