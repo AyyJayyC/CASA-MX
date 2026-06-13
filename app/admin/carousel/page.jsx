@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { BACKEND_URL } from "@/lib/api/client";
-import { RequireAuth } from "@/components/guards/RequireAuth";
 import { RequireRole } from "@/components/guards/RequireRole";
 
 const slideSchema = z.object({
@@ -34,11 +33,9 @@ async function apiFetch(path, options = {}) {
 
 export default function AdminCarouselPage() {
   return (
-    <RequireAuth>
-      <RequireRole role="admin">
-        <CarouselManager />
-      </RequireRole>
-    </RequireAuth>
+    <RequireRole role="admin">
+      <CarouselManager />
+    </RequireRole>
   );
 }
 

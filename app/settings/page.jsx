@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { RequireAuth } from "@/components/guards/RequireAuth";
 import VerificationBadges from "@/components/VerificationBadges";
 import {
   getUserProfile,
@@ -11,11 +10,7 @@ import {
 import { getUserDocuments, uploadUserDocument } from "@/lib/api/userDocuments";
 import UserPreferences from "@/components/UserPreferences.jsx";
 export default function SettingsPage() {
-  return (
-    <RequireAuth>
-      <SettingsContent />
-    </RequireAuth>
-  );
+  return <SettingsContent />;
 }
 
 function SettingsContent() {

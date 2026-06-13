@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { RequireAuth } from "@/components/guards/RequireAuth.jsx";
 import ReviewList from "@/components/ReviewList.jsx";
 import ReviewSummaryCard from "@/components/ReviewSummaryCard.jsx";
 import { useAuth } from "@/lib/auth/useAuth";
@@ -9,11 +8,7 @@ import { getReviewSummary, getUserReviews } from "@/lib/api/reviews";
 import { getRoleLabel, hasApprovedRole } from "@/lib/reviews";
 
 export default function ReviewsPage() {
-  return (
-    <RequireAuth>
-      <ReviewsPageContent />
-    </RequireAuth>
-  );
+  return <ReviewsPageContent />;
 }
 
 function ReviewsPageContent() {
