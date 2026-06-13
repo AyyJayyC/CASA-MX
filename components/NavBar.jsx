@@ -28,19 +28,23 @@ export default function NavBar() {
   const [notifOpen, setNotifOpen] = useState(false);
 
   const isAdminUser = Boolean(
+    user?.activeRole === "admin" &&
     user?.roles?.some((r) => r.type === "admin" && r.status === "approved"),
   );
   const isBuyer = Boolean(
+    user?.activeRole === "buyer" &&
     user?.roles?.some(
       (r) => r.type === "buyer" && r.status === "approved",
     ),
   );
   const isTenant = Boolean(
+    user?.activeRole === "tenant" &&
     user?.roles?.some(
       (r) => r.type === "tenant" && r.status === "approved",
     ),
   );
   const canPublish = Boolean(
+    ["seller", "wholesaler", "admin", "landlord"].includes(user?.activeRole) &&
     user?.roles?.some(
       (r) =>
         ["seller", "wholesaler", "admin", "landlord"].includes(r.type) &&
