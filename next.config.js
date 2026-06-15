@@ -30,7 +30,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "img-src 'self' data: https: blob:",
               "font-src 'self' https://fonts.gstatic.com",
-              "connect-src 'self' https://*.openstreetmap.org https://*.railway.app https://*.up.railway.app http://localhost:3001 http://127.0.0.1:3001",
+              "connect-src 'self' https://*.openstreetmap.org https://api.casa-mx.com https://*.railway.app https://*.up.railway.app http://localhost:3001 http://127.0.0.1:3001",
               "frame-src 'self' https://*.stripe.com",
             ].join("; "),
           },
