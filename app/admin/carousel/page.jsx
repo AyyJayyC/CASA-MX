@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -235,14 +236,18 @@ function CarouselManager() {
 
           {/* Image preview */}
           <div className="relative w-full h-48 rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-800">
-            <img
-              src={editing?.imageUrl || ""}
-              alt="Preview"
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.target.style.display = "none";
-              }}
-            />
+            {editing?.imageUrl ? (
+              <Image
+                src={editing.imageUrl}
+                alt="Preview"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 672px"
+                onError={() => {
+                  // Fallback handled by parent
+                }}
+              />
+            ) : null}
             {!editing?.imageUrl && (
               <div className="absolute inset-0 flex items-center justify-center text-neutral-400">
                 Previsualización
@@ -288,14 +293,13 @@ function CarouselManager() {
           <div className="divide-y divide-neutral-200 dark:divide-neutral-800">
             {slides.map((slide) => (
               <div key={slide.id} className="p-4 flex items-center gap-4">
-                <div className="w-20 h-14 shrink-0 rounded overflow-hidden bg-neutral-100 dark:bg-neutral-800">
-                  <img
+                <div className="relative w-20 h-14 shrink-0 rounded overflow-hidden bg-neutral-100 dark:bg-neutral-800">
+                  <Image
                     src={slide.imageUrl}
                     alt=""
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.style.display = "none";
-                    }}
+                    fill
+                    className="object-cover"
+                    sizes="80px"
                   />
                 </div>
                 <div className="flex-1 min-w-0">

@@ -2,6 +2,8 @@
 
 import React from "react";
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -106,10 +108,14 @@ export default function RegisterPage() {
         <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-lg border border-neutral-200 dark:border-neutral-800 p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <img
+            <Image
               src="/brand/logo-light.png"
               alt="Casa-MX.com"
+              width={1000}
+              height={300}
               className="mx-auto block h-12 w-auto mb-4"
+              sizes="200px"
+              priority
             />
             <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
               Crear Cuenta
@@ -173,6 +179,7 @@ export default function RegisterPage() {
               <input
                 id="email"
                 type="email"
+                autoComplete="email"
                 {...register("email")}
                 className="
                   w-full px-4 py-3 
@@ -346,19 +353,19 @@ export default function RegisterPage() {
                 />
                 <span>
                   Acepto los{" "}
-                  <a
+                  <Link
                     href="/terminos"
                     className="text-clay dark:text-clay-400 hover:underline"
                   >
                     Términos y Condiciones
-                  </a>{" "}
+                  </Link>{" "}
                   y el{" "}
-                  <a
+                  <Link
                     href="/aviso-legal"
                     className="text-clay dark:text-clay-400 hover:underline"
                   >
                     Aviso de Privacidad
-                  </a>
+                  </Link>
                   .
                 </span>
               </label>
@@ -388,8 +395,8 @@ export default function RegisterPage() {
                 w-full py-3 mt-2
                 bg-clay
                 hover:bg-clay-500
-                disabled:from-neutral-300 disabled:to-neutral-400
-                dark:disabled:from-neutral-700 dark:disabled:to-neutral-800
+                disabled:bg-neutral-300
+                dark:disabled:bg-neutral-800
                 text-white font-semibold
                 rounded-lg
                 transition-all duration-200
@@ -449,12 +456,12 @@ export default function RegisterPage() {
         {/* Login Link */}
         <p className="mt-6 text-center text-sm text-neutral-600 dark:text-neutral-400">
           ¿Ya tienes cuenta?{" "}
-          <a
+          <Link
             href="/login"
             className="font-semibold text-clay dark:text-clay-400 hover:text-clay-600 dark:hover:text-amber-300 transition-colors"
           >
             Inicia sesión aquí
-          </a>
+          </Link>
         </p>
       </div>
     </div>

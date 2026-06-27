@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import FeaturedCarousel from "./FeaturedCarousel.jsx";
 import { useProperties } from "@/lib/queries/properties";
 import { getCarouselSlides, getMostViewedProperties } from "@/lib/api/carousel";
@@ -9,10 +10,12 @@ function FallbackHero() {
   return (
     <section className="relative w-full h-[450px] md:h-[550px] lg:h-[600px] overflow-hidden bg-gradient-to-br from-sand-50 via-white to-sand-100 dark:from-ink dark:via-ink/95 dark:to-ink/90 flex items-center justify-center">
       <div className="flex flex-col items-center gap-4 px-4">
-        <img
+        <Image
           src="/brand/logo-primary.png"
           alt="Casa-MX.com"
-          className="h-10 w-auto opacity-80 dark:opacity-60"
+          width={160}
+          height={40}
+          className="opacity-80 dark:opacity-60"
         />
         <h1 className="text-2xl md:text-3xl font-bold text-ink dark:text-sand-50 leading-tight text-center">
           Encuentra tu camino en el mercado inmobiliario.
@@ -80,10 +83,12 @@ function CustomSlidesCarousel({ slides }) {
           key={slide.id}
           className={`absolute inset-0 transition-opacity duration-700 first:opacity-100 first:z-10 ${i === current ? "opacity-100 z-10" : "opacity-0 z-0"}`}
         >
-          <img
+          <Image
             src={slide.imageUrl}
             alt={slide.title}
-            className="absolute inset-0 w-full h-full object-cover"
+            fill
+            className="object-cover"
+            sizes="100vw"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-8 sm:p-12 z-10">

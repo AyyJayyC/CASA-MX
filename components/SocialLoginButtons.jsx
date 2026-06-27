@@ -14,7 +14,7 @@ const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 const FACEBOOK_APP_ID = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
 const APPLE_CLIENT_ID = process.env.NEXT_PUBLIC_APPLE_CLIENT_ID;
 
-export default function SocialLoginButtons({
+const SocialLoginButtons = React.memo(function SocialLoginButtons({
   redirectTo = "/properties",
   onError,
 }) {
@@ -221,4 +221,7 @@ export default function SocialLoginButtons({
       )}
     </div>
   );
-}
+});
+
+SocialLoginButtons.displayName = 'SocialLoginButtons';
+export default SocialLoginButtons;

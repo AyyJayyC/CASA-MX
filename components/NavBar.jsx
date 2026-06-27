@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
 import { useCreditsBalance } from "@/lib/queries/credits";
@@ -119,15 +120,19 @@ export default function NavBar() {
             className="inline-flex items-center"
             aria-label="Inicio Casa-MX.com"
           >
-            <img
+            <Image
               src="/brand/logo-light.png"
               alt="CASA MX"
-              className="block dark:hidden h-11 w-auto md:h-12"
+              width={176}
+              height={44}
+              className="block dark:hidden"
             />
-            <img
+            <Image
               src="/brand/logo-dark.png"
               alt="CASA MX"
-              className="hidden dark:block h-11 w-auto md:h-12"
+              width={176}
+              height={44}
+              className="hidden dark:block"
             />
           </Link>
 
@@ -188,10 +193,12 @@ export default function NavBar() {
                 <>
                   <div className="flex items-center gap-3 px-3 py-1.5 bg-neutral-50 dark:bg-neutral-800 rounded-lg">
                     {user.avatarUrl ? (
-                      <img
+                      <Image
                         src={user.avatarUrl}
                         alt={`Avatar de ${user.name}`}
-                        className="w-8 h-8 rounded-full object-cover border border-neutral-200 dark:border-neutral-700"
+                        width={32}
+                        height={32}
+                        className="rounded-full object-cover border border-neutral-200 dark:border-neutral-700"
                       />
                     ) : (
                       <div className="w-8 h-8 bg-clay rounded-full flex items-center justify-center text-white font-semibold text-sm">
@@ -276,7 +283,7 @@ export default function NavBar() {
                             notifData.notifications.slice(0, 5).map((n) => (
                               <div
                                 key={n.id}
-                                className={`px-4 py-3 border-b border-neutral-100 dark:border-neutral-700 last:border-0 ${!n.read ? "bg-clay/50 dark:bg-clay/900/10" : ""}`}
+                                className={`px-4 py-3 border-b border-neutral-100 dark:border-neutral-700 last:border-0 ${!n.read ? "bg-clay/50 dark:bg-clay-900/10" : ""}`}
                               >
                                 <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
                                   {n.title}

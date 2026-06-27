@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import VerificationBadges from "@/components/VerificationBadges";
 import {
   getUserProfile,
@@ -178,10 +180,13 @@ function SettingsContent() {
               </h2>
               <div className="flex items-center gap-3">
                 {form.avatarUrl ? (
-                  <img
+                  <Image
                     src={form.avatarUrl}
                     alt="Foto de perfil"
-                    className="w-14 h-14 rounded-full object-cover border border-neutral-200 dark:border-neutral-700"
+                    width={56}
+                    height={56}
+                    className="rounded-full object-cover border border-neutral-200 dark:border-neutral-700"
+                    sizes="56px"
                   />
                 ) : (
                   <div className="w-14 h-14 rounded-full bg-gradient-to-br from-clay-400 to-clay-600 text-white font-semibold flex items-center justify-center">
@@ -393,12 +398,12 @@ function SettingsContent() {
                     onChange={handleChange}
                     className="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-clay-400"
                   />
-                  {!verified.email && (
+                    {!verified.email && (
                     <p className="text-xs text-clay-500">
                       Sin verificar.{" "}
-                      <a href="/verify-email" className="underline">
+                      <Link href="/verify-email" className="underline">
                         Verificar ahora
-                      </a>
+                      </Link>
                     </p>
                   )}
                 </div>

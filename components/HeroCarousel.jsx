@@ -103,12 +103,12 @@ export default function HeroCarousel({ properties }) {
             Promociona tu propiedad en este espacio frente a miles de
             visitantes.
           </p>
-          <a
+          <Link
             href="/credits"
             className="px-5 py-2.5 bg-clay-400 hover:bg-clay-500 text-white text-sm font-semibold rounded-lg transition-all"
           >
             Promocionar ahora
-          </a>
+          </Link>
         </div>
       )}
 
@@ -128,7 +128,7 @@ export default function HeroCarousel({ properties }) {
             </span>
           </div>
           <Link
-            href={`${FRONTEND_URL}/propiedades/${p.id}`}
+            href={`/properties/${p.id}`}
             className="inline-block mt-4 px-6 py-2.5 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white text-sm font-medium rounded-lg transition-all"
           >
             Ver detalles

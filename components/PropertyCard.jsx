@@ -22,45 +22,7 @@ import {
   STATUS_COLORS,
 } from "../lib/constants/propertyOptions";
 import VerificationBadges from "@/components/VerificationBadges";
-
-const TAG_LABELS = {
-  perfil: {
-    flipper: "Flipper",
-    buy_hold: "Buy & Hold",
-    wholesaler: "Wholesaler",
-    developer: "Desarrollador",
-    realtor: "Realtor",
-    owner: "Propietario",
-  },
-  enfoque: {
-    residencial: "Residencial",
-    comercial: "Comercial",
-    terrenos: "Terrenos",
-    industrial: "Industrial",
-    mixto: "Mixto",
-  },
-  operacion: {
-    cash: "Contado",
-    credit: "Crédito",
-    infonavit: "INFONAVIT",
-    subject_to: "Sujeto a",
-    assume_loan: "Asume hipoteca",
-  },
-  zona: {
-    norte: "Norte",
-    bajio: "Bajío",
-    centro: "Centro",
-    occidente: "Occidente",
-    sureste: "Sureste",
-    todo_mexico: "Todo México",
-  },
-  actividad: {
-    principiante: "Principiante",
-    intermedio: "Intermedio",
-    profesional: "Profesional",
-    alto_volumen: "Alto volumen",
-  },
-};
+import { getTagLabel } from "../lib/constants/tagLabels";
 
 function getOwnerTags(tags) {
   if (!tags) return null;
@@ -71,19 +33,12 @@ function getOwnerTags(tags) {
   return all.slice(0, 3);
 }
 
-function getTagLabel(value) {
-  for (const cat of Object.values(TAG_LABELS)) {
-    if (cat[value]) return cat[value];
-  }
-  return value;
-}
-
 /**
  * @param {{property: Object}} props
  * Property object expected to have: id, title, colonia, propertyType, price, description, imageUrl, owner
  * Rental properties also have: listingType, monthlyRent, furnished, utilitiesIncluded
  */
-export default function PropertyCard({ property }) {
+const PropertyCard = React.memo(function PropertyCard({ property }) {
   // Fallback image if none provided
   const fallbackImage = `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675"><rect width="100%" height="100%" fill="#e5e5e5"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#737373" font-family="Arial" font-size="32">Casa-MX.com</text></svg>')}`;
   const imageUrl =
@@ -422,4 +377,7 @@ export default function PropertyCard({ property }) {
       </article>
     </Link>
   );
-}
+});
+
+PropertyCard.displayName = 'PropertyCard';
+export default PropertyCard;

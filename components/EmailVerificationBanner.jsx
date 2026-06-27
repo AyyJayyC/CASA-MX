@@ -1,8 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth/useAuth";
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+import { apiPost } from "@/lib/api/client";
 
 export default function EmailVerificationBanner() {
   const { isAuthenticated, user, session, refreshUser } = useAuth();
@@ -18,10 +17,7 @@ export default function EmailVerificationBanner() {
   const handleResend = async () => {
     setSending(true);
     try {
-      await fetch(`${BACKEND_URL}/auth/resend-verification`, {
-        method: "POST",
-        credentials: "include",
-      });
+      await apiPost("/auth/resend-verification", {});
       setSent(true);
     } catch {
       // silent

@@ -22,7 +22,7 @@ const PROPERTY_TYPE_META = {
   },
 };
 
-export default function PropertyTypeSelector({
+const PropertyTypeSelector = React.memo(function PropertyTypeSelector({
   value = "",
   onChange,
   name = "propertyType",
@@ -73,4 +73,7 @@ export default function PropertyTypeSelector({
       })}
     </div>
   );
-}
+});
+
+PropertyTypeSelector.displayName = 'PropertyTypeSelector';
+export default PropertyTypeSelector;

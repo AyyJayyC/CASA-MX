@@ -1,6 +1,8 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -59,10 +61,14 @@ function LoginPage() {
       <div className="w-full max-w-md">
         <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-lg border border-neutral-200 dark:border-neutral-800 p-8">
           <div className="text-center mb-8">
-            <img
+            <Image
               src="/brand/logo-light.png"
               alt="Casa-MX.com"
+              width={1000}
+              height={300}
               className="mx-auto block h-11 w-auto mb-4"
+              sizes="200px"
+              priority
             />
             <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
               Bienvenido
@@ -91,7 +97,7 @@ function LoginPage() {
               <input
                 id="email"
                 type="email"
-                autoComplete="off"
+                autoComplete="email"
                 {...register("email")}
                 className="w-full px-4 py-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-clay focus:border-transparent transition-all"
                 placeholder="tu@email.com"
@@ -116,7 +122,7 @@ function LoginPage() {
               <input
                 id="password"
                 type="password"
-                autoComplete="off"
+                autoComplete="current-password"
                 {...register("password")}
                 className="w-full px-4 py-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-clay focus:border-transparent transition-all"
                 placeholder="Tu contraseña"
@@ -132,12 +138,12 @@ function LoginPage() {
             </div>
 
             <div className="text-right mt-1">
-              <a
+              <Link
                 href="/forgot-password"
                 className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-clay dark:hover:text-clay-400 transition-colors"
               >
                 ¿Olvidaste tu contraseña?
-              </a>
+              </Link>
             </div>
 
             {loginError && (
@@ -149,7 +155,7 @@ function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 mt-2 bg-clay hover:bg-clay-500 disabled:from-neutral-300 disabled:to-neutral-400 dark:disabled:from-neutral-700 dark:disabled:to-neutral-800 text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:cursor-not-allowed"
+              className="w-full py-3 mt-2 bg-clay hover:bg-clay-500 disabled:bg-neutral-300 dark:disabled:bg-neutral-800 text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <span className="flex items-center justify-center gap-2">
@@ -189,12 +195,12 @@ function LoginPage() {
 
         <p className="mt-6 text-center text-sm text-neutral-600 dark:text-neutral-400">
           ¿No tienes cuenta?{" "}
-          <a
+          <Link
             href="/register"
             className="font-semibold text-clay dark:text-clay-400 hover:text-clay-600 dark:hover:text-amber-300 transition-colors"
           >
             Regístrate aquí
-          </a>
+          </Link>
         </p>
       </div>
     </div>

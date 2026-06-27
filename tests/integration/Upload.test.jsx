@@ -44,7 +44,7 @@ describe('Upload integration', () => {
     fireEvent.change(screen.getByLabelText(/Código Postal/i), { target: { value: '02000' } });
     fireEvent.click(screen.getByLabelText('Departamento'));
     fireEvent.change(screen.getByLabelText(/Recámaras/i), { target: { value: '2' } });
-    fireEvent.change(screen.getByLabelText(/Baños/i), { target: { value: '2' } });
+    fireEvent.change(screen.getByLabelText('Baños'), { target: { value: '2' } });
     fireEvent.change(screen.getByLabelText(/Metros de construcci/i), { target: { value: '80' } });
 
     const latInput = document.querySelector('input[name="latitude"]');

@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useState, Suspense } from "react";
+import React, { useCallback, useEffect, useState, Suspense, useMemo } from "react";
+import Link from "next/link";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useQueryState } from "nuqs";
 import PropertyList from "../../components/PropertyList.jsx";
@@ -56,32 +57,32 @@ function PropertiesContent() {
   const router = useRouter();
   const pathname = usePathname();
 
-  function setAmenities(arr) {
+  const setAmenities = useCallback((arr) => {
     const params = new URLSearchParams(searchParams);
     if (arr.length) params.set("amenities", arr.join(","));
     else params.delete("amenities");
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  }
+  }, [searchParams, pathname, router]);
 
-  function setServices(arr) {
+  const setServices = useCallback((arr) => {
     const params = new URLSearchParams(searchParams);
     if (arr.length) params.set("services", arr.join(","));
     else params.delete("services");
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  }
+  }, [searchParams, pathname, router]);
 
-  function setFinancing(arr) {
+  const setFinancing = useCallback((arr) => {
     const params = new URLSearchParams(searchParams);
     if (arr.length) params.set("financing", arr.join(","));
     else params.delete("financing");
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  }
+  }, [searchParams, pathname, router]);
 
-  const toggleFilter = (setter, current, value) => {
+  const toggleFilter = useCallback((setter, current, value) => {
     setter(current.includes(value) ? current.filter((v) => v !== value) : [...current, value]);
-  };
+  }, []);
 
-  const filters = {
+  const filters = useMemo(() => ({
     listingType,
     searchQuery: searchQuery || undefined,
     estado: estado || undefined,
@@ -106,7 +107,15 @@ function PropertiesContent() {
     centerLat: searchParams.get("centerLat") ? parseFloat(searchParams.get("centerLat")) : undefined,
     centerLng: searchParams.get("centerLng") ? parseFloat(searchParams.get("centerLng")) : undefined,
     radiusKm: searchParams.get("radiusKm") ? parseFloat(searchParams.get("radiusKm")) : undefined,
-  };
+  }), [
+    listingType, searchQuery, estado, ciudad, colonia, codigoPostal,
+    minPrice, maxPrice, minRent, maxRent, furnished, condition, statusFilter,
+    minM2, maxM2, minLot, maxLot,
+    searchParams.get("swLat"), searchParams.get("swLng"),
+    searchParams.get("neLat"), searchParams.get("neLng"),
+    searchParams.get("centerLat"), searchParams.get("centerLng"),
+    searchParams.get("radiusKm"),
+  ]);
 
   const { data: pages, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useProperties(filters);
 
@@ -407,7 +416,7 @@ function PropertiesContent() {
   );
 }
 
-function FilterPanel({ children }) {
+const FilterPanel = React.memo(function FilterPanel({ children }) {
   const [showFilters, setShowFilters] = useState(false);
   return (
     <>
@@ -423,22 +432,22 @@ function FilterPanel({ children }) {
       <div className={`lg:block space-y-4 ${showFilters ? "block" : "hidden"}`}>{children}</div>
     </>
   );
-}
+});
 
-function FilterGroup({ label, children }) {
+FilterPanel.displayName = 'FilterPanel';
+
+const FilterGroup = React.memo(function FilterGroup({ label, children }) {
   return (
     <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
       <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">{label}</label>
       <div className="space-y-3">{children}</div>
     </div>
   );
-}
+});
 
-function FilterSeparator() {
-  return null;
-}
+FilterGroup.displayName = 'FilterGroup';
 
-function FilterInput({ id, value, onChange, placeholder, label }) {
+const FilterInput = React.memo(function FilterInput({ id, value, onChange, placeholder, label }) {
   return (
     <div>
       <label htmlFor={id} className="block text-xs text-neutral-600 dark:text-neutral-400 mb-1">{label}</label>
@@ -447,9 +456,11 @@ function FilterInput({ id, value, onChange, placeholder, label }) {
         className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-clay focus:border-transparent" />
     </div>
   );
-}
+});
 
-function RadioOption({ name, value, label, current, onChange }) {
+FilterInput.displayName = 'FilterInput';
+
+const RadioOption = React.memo(function RadioOption({ name, value, label, current, onChange }) {
   return (
     <label className="flex items-center gap-2 cursor-pointer">
       <input type="radio" name={name} value={value} checked={current === value || (!current && value === "")}
@@ -458,11 +469,9 @@ function RadioOption({ name, value, label, current, onChange }) {
       <span className="text-sm text-neutral-700 dark:text-neutral-300">{label}</span>
     </label>
   );
-}
+});
 
-function MobileFilterToggle() {
-  return null;
-}
+RadioOption.displayName = 'RadioOption';
 
 export default function PropertiesPage() {
   return (

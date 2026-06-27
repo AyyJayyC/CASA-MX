@@ -6,6 +6,7 @@ import "leaflet/dist/leaflet.css";
 import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
 import "@geoman-io/leaflet-geoman-free";
 import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import useAnalytics from "@/lib/analytics/useAnalytics";
 import { getProperties } from "@/lib/api/properties";
@@ -273,9 +274,9 @@ export default function InteractivePropertyMap({
             {matchCount} {matchCount === 1 ? "propiedad encontrada" : "propiedades encontradas"} en esta zona
           </span>
           <div className="flex gap-2">
-            <a href={searchUrl} className="px-4 py-1.5 bg-clay hover:bg-clay-500 text-white text-xs font-semibold rounded-lg transition-all">
+            <Link href={searchUrl} className="px-4 py-1.5 bg-clay hover:bg-clay-500 text-white text-xs font-semibold rounded-lg transition-all">
               Ver todas →
-            </a>
+            </Link>
             <button onClick={clearShape} className="px-3 py-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors">
               Limpiar
             </button>
@@ -340,9 +341,9 @@ export default function InteractivePropertyMap({
                   </span>
                 ))}
               </div>
-              <a href={coloniaSearchUrl} className="block w-full text-center px-3 py-2 bg-clay hover:bg-clay-500 text-white text-xs font-semibold rounded-lg transition-all">
+              <Link href={coloniaSearchUrl} className="block w-full text-center px-3 py-2 bg-clay hover:bg-clay-500 text-white text-xs font-semibold rounded-lg transition-all">
                 Buscar propiedades →
-              </a>
+              </Link>
             </div>
           )}
         </div>

@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import VerificationBadges from "@/components/VerificationBadges";
 import { getRoleLabel } from "@/lib/reviews";
 
@@ -155,13 +156,15 @@ export default function MobileMenu({
             <div className="px-4 py-3 bg-neutral-50 dark:bg-neutral-800 rounded-lg">
               <div className="flex items-center gap-2 mb-1">
                 {user.avatarUrl ? (
-                  <img
+                  <Image
                     src={user.avatarUrl}
                     alt={`Avatar de ${user.name}`}
-                    className="w-8 h-8 rounded-full object-cover border border-neutral-200 dark:border-neutral-700"
+                    width={32}
+                    height={32}
+                    className="rounded-full object-cover border border-neutral-200 dark:border-neutral-700"
                   />
                 ) : (
-                  <div className="w-8 h-8 bg-gradient-to-br bg-clay rounded-full flex items-center justify-center text-white font-semibold text-xs">
+                  <div className="w-8 h-8 bg-clay rounded-full flex items-center justify-center text-white font-semibold text-xs">
                     {user.name[0].toUpperCase()}
                   </div>
                 )}
@@ -205,7 +208,7 @@ export default function MobileMenu({
             <Link
               href="/register"
               onClick={onClose}
-              className="block px-4 py-2 text-sm font-semibold text-center bg-gradient-to-br bg-clay text-white rounded-lg transition-all"
+              className="block px-4 py-2 text-sm font-semibold text-center bg-clay text-white rounded-lg transition-all"
             >
               Registrarse
             </Link>

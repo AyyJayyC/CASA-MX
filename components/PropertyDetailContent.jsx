@@ -13,6 +13,7 @@ import {
   FINANCING_ICONS,
 } from "@/lib/constants/financing";
 import { STATUS_LABELS, STATUS_COLORS } from "@/lib/constants/propertyOptions";
+import { getTagLabel } from "@/lib/constants/tagLabels";
 
 const ContactRequestModal = dynamic(() => import("@/components/ContactRequestModal.jsx"));
 const MakeOfferModal = dynamic(() => import("@/components/MakeOfferModal.jsx"));
@@ -20,21 +21,6 @@ const PropertyAnalytics = dynamic(() => import("@/components/analytics/PropertyA
 const RentalApplicationForm = dynamic(() => import("@/components/RentalApplicationForm.jsx"));
 const SharePropertyButton = dynamic(() => import("@/components/SharePropertyButton.jsx"));
 const PromotePropertyButton = dynamic(() => import("@/components/PromotePropertyButton.jsx"));
-
-const TAG_LABELS = {
-  perfil: { flipper: "Flipper", buy_hold: "Buy & Hold", wholesaler: "Wholesaler", developer: "Desarrollador", realtor: "Realtor", owner: "Propietario" },
-  enfoque: { residencial: "Residencial", comercial: "Comercial", terrenos: "Terrenos", industrial: "Industrial", mixto: "Mixto" },
-  operacion: { cash: "Contado", credit: "Crédito", infonavit: "INFONAVIT", subject_to: "Sujeto a", assume_loan: "Asume hipoteca" },
-  zona: { norte: "Norte", bajio: "Bajío", centro: "Centro", occidente: "Occidente", sureste: "Sureste", todo_mexico: "Todo México" },
-  actividad: { principiante: "Principiante", intermedio: "Intermedio", profesional: "Profesional", alto_volumen: "Alto volumen" },
-};
-
-function getTagLabel(value) {
-  for (const cat of Object.values(TAG_LABELS)) {
-    if (cat[value]) return cat[value];
-  }
-  return value;
-}
 
 function getOwnerTagsList(tags) {
   if (!tags) return [];

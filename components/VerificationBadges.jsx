@@ -2,7 +2,7 @@
 
 import React from "react";
 
-export default function VerificationBadges({
+const VerificationBadges = React.memo(function VerificationBadges({
   identityVerified = false,
   paidSubscriber = false,
   identityUploaded = false,
@@ -40,4 +40,7 @@ export default function VerificationBadges({
       )}
     </div>
   );
-}
+});
+
+VerificationBadges.displayName = 'VerificationBadges';
+export default VerificationBadges;

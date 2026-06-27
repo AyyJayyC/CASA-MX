@@ -14,6 +14,18 @@ const nextConfig = {
         protocol: 'https',
         hostname: '*.s3.*.amazonaws.com',
       },
+      {
+        protocol: 'https',
+        hostname: '*.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.fbcdn.net',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.githubusercontent.com',
+      },
     ],
   },
   compiler: {

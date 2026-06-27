@@ -5,7 +5,7 @@ import Image from "next/image";
 
 const FALLBACK_SVG = `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600"><rect width="100%" height="100%" fill="#1a1a2e"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#737373" font-family="Arial" font-size="40">Casa-MX.com</text></svg>')}`;
 
-function CarouselSlide({ property, isActive }) {
+const CarouselSlide = React.memo(function CarouselSlide({ property, isActive }) {
   const imgSrc =
     property.imageUrls?.[0] ||
     property.photos?.[0] ||
@@ -72,7 +72,9 @@ function CarouselSlide({ property, isActive }) {
       </div>
     </div>
   );
-}
+});
+
+CarouselSlide.displayName = 'CarouselSlide';
 
 export default function FeaturedCarousel({ properties }) {
   const [current, setCurrent] = useState(0);
@@ -120,8 +122,8 @@ export default function FeaturedCarousel({ properties }) {
       <section className="relative w-full h-[450px] md:h-[550px] lg:h-[600px] overflow-hidden bg-ink flex items-center justify-center">
         <p className="text-white/40 text-sm">Sin propiedades destacadas</p>
       </section>
-    );
-  }
+  );
+}
 
   return (
     <>

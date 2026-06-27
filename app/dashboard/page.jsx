@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth/useAuth";
+import { RequireAuth } from "@/components/guards/RequireAuth";
 import { getRoleLabel } from "@/lib/reviews";
 
 const SECTIONS = [
@@ -126,26 +127,8 @@ const SECTIONS = [
   },
 ];
 
-export default function DashboardPage() {
-  const { user, isAuthenticated, switchRole } = useAuth();
-
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <p className="text-neutral-600 dark:text-neutral-400">
-            Debes iniciar sesión para ver el inicio.
-          </p>
-          <Link
-            href="/login"
-            className="text-clay dark:text-clay hover:underline font-medium"
-          >
-            Iniciar sesión
-          </Link>
-        </div>
-      </div>
-    );
-  }
+function DashboardContent() {
+  const { user, switchRole } = useAuth();
 
   const approvedRoles = (user?.roles ?? [])
     .filter((r) => r.status === "approved")
@@ -235,5 +218,13 @@ export default function DashboardPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <RequireAuth>
+      <DashboardContent />
+    </RequireAuth>
   );
 }

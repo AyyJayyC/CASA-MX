@@ -1,6 +1,8 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -67,12 +69,12 @@ function ResetPasswordPage() {
               Este enlace de restablecimiento no es válido o ha expirado.
               Solicita uno nuevo.
             </p>
-            <a
+            <Link
               href="/forgot-password"
               className="inline-block w-full py-3 bg-clay hover:bg-clay-500 text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
             >
               Solicitar nuevo enlace
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -84,10 +86,14 @@ function ResetPasswordPage() {
       <div className="w-full max-w-md">
         <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-lg border border-neutral-200 dark:border-neutral-800 p-8">
           <div className="text-center mb-8">
-            <img
+            <Image
               src="/brand/logo-light.png"
               alt="Casa-MX.com"
+              width={1000}
+              height={300}
               className="mx-auto block h-11 w-auto mb-4"
+              sizes="200px"
+              priority
             />
             <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
               Nueva contraseña
@@ -105,12 +111,12 @@ function ResetPasswordPage() {
                   de sesión...
                 </p>
               </div>
-              <a
+              <Link
                 href="/login"
                 className="text-sm font-semibold text-clay dark:text-clay-400 hover:text-clay-600 dark:hover:text-amber-300 transition-colors"
               >
                 Ir al inicio de sesión ahora
-              </a>
+              </Link>
             </div>
           ) : (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -252,12 +258,12 @@ function ResetPasswordPage() {
         </div>
 
         <p className="mt-6 text-center text-sm text-neutral-600 dark:text-neutral-400">
-          <a
+          <Link
             href="/login"
             className="font-semibold text-clay dark:text-clay-400 hover:text-clay-600 dark:hover:text-amber-300 transition-colors"
           >
             Volver al inicio de sesión
-          </a>
+          </Link>
         </p>
       </div>
     </div>

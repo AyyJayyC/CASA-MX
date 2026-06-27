@@ -50,7 +50,7 @@ async function authFetch(url) {
   }
 }
 
-function Trend({ value, positive = true }) {
+const Trend = React.memo(function Trend({ value, positive = true }) {
   if (value == null) return null;
   const isPositive = positive ? value >= 0 : value <= 0;
   return (
@@ -61,9 +61,11 @@ function Trend({ value, positive = true }) {
       {formatNumber(value)}
     </span>
   );
-}
+});
 
-function KpiCard({ title, value, trend, trendLabel, positive = true }) {
+Trend.displayName = 'Trend';
+
+const KpiCard = React.memo(function KpiCard({ title, value, trend, trendLabel, positive = true }) {
   return (
     <div className="p-5 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl space-y-2">
       <p className="text-sm text-neutral-500 dark:text-neutral-400">{title}</p>
@@ -80,7 +82,9 @@ function KpiCard({ title, value, trend, trendLabel, positive = true }) {
       )}
     </div>
   );
-}
+});
+
+KpiCard.displayName = 'KpiCard';
 
 function ErrorState({ message }) {
   return (
@@ -93,7 +97,7 @@ function ErrorState({ message }) {
   );
 }
 
-function Section({ title, children }) {
+const Section = React.memo(function Section({ title, children }) {
   return (
     <div className="p-6 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl space-y-4">
       <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
@@ -102,7 +106,9 @@ function Section({ title, children }) {
       {children}
     </div>
   );
-}
+});
+
+Section.displayName = 'Section';
 
 function CustomTooltip({ active, payload, label }) {
   if (!active || !payload) return null;

@@ -14,11 +14,24 @@ const PROTECTED_PATHS = [
 
 const PUBLIC_ONLY = ["/login", "/register", "/forgot-password"];
 
+function isJwtExpired(token) {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload.exp * 1000 <= Date.now();
+  } catch (e) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("Failed to parse JWT:", e.message);
+    }
+    return true;
+  }
+}
+
 export function middleware(request) {
   const { pathname } = request.nextUrl;
-  const hasAccessToken = request.cookies.has("accessToken");
-  const hasRefreshToken = request.cookies.has("refreshToken");
-  const isAuthenticated = hasAccessToken || hasRefreshToken;
+  const accessToken = request.cookies.get("accessToken")?.value;
+  const refreshToken = request.cookies.get("refreshToken")?.value;
+  const hasValidAccessToken = accessToken && !isJwtExpired(accessToken);
+  const isAuthenticated = hasValidAccessToken || !!refreshToken;
 
   const isProtected = PROTECTED_PATHS.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`),
@@ -57,6 +70,7 @@ export function middleware(request) {
   if (isProd) {
     const csp = [
       "default-src 'self'",
+      // TODO: Remove 'unsafe-inline' — use nonce-based CSP via middleware
       `script-src 'self' 'unsafe-inline' https://js.stripe.com https://maps.googleapis.com`,
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       `img-src 'self' data: blob: https://*.unsplash.com https://*.tile.openstreetmap.org https://maps.googleapis.com https://*.s3.amazonaws.com https://*.s3.*.amazonaws.com ${apiUrl}`,

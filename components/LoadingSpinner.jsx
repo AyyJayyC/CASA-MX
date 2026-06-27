@@ -1,4 +1,6 @@
-export default function LoadingSpinner({
+import React from "react";
+
+const LoadingSpinner = React.memo(function LoadingSpinner({
   message = "Cargando...",
   size = "md",
   className = "",
@@ -39,4 +41,7 @@ export default function LoadingSpinner({
       )}
     </div>
   );
-}
+});
+
+LoadingSpinner.displayName = 'LoadingSpinner';
+export default LoadingSpinner;

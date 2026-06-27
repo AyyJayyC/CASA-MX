@@ -1,6 +1,8 @@
 "use client";
 
-export default function RatingStars({
+import React from "react";
+
+const RatingStars = React.memo(function RatingStars({
   value = 0,
   onChange,
   size = "md",
@@ -53,4 +55,7 @@ export default function RatingStars({
       )}
     </div>
   );
-}
+});
+
+RatingStars.displayName = 'RatingStars';
+export default RatingStars;

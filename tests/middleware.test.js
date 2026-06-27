@@ -24,6 +24,19 @@ const MockHeaders = class {
   forEach(_callback) {}
 };
 
+function makeToken(expiresInSeconds = 3600) {
+  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+  const payload = btoa(JSON.stringify({
+    sub: '123',
+    exp: Math.floor(Date.now() / 1000) + expiresInSeconds,
+  }));
+  return `${header}.${payload}.signature`;
+}
+
+function expiredToken() {
+  return makeToken(-3600);
+}
+
 describe('Middleware', () => {
   let middleware;
 
@@ -77,7 +90,7 @@ describe('Middleware', () => {
 
   describe('Authenticated users pass through protected routes', () => {
     it('allows authenticated user to /dashboard', () => {
-      const req = makeRequest('/dashboard', { accessToken: 'test-token' });
+      const req = makeRequest('/dashboard', { accessToken: makeToken() });
       const res = middleware(req);
       expect(res.type).toBe('next');
     });
@@ -94,12 +107,42 @@ describe('Middleware', () => {
 
     for (const path of publicPaths) {
       it(`redirects authenticated user from ${path} to /dashboard`, () => {
-        const req = makeRequest(path, { accessToken: 'test-token' });
+        const req = makeRequest(path, { accessToken: makeToken() });
         const res = middleware(req);
         expect(res.type).toBe('redirect');
         expect(res.url).toContain('/dashboard');
       });
     }
+  });
+
+  describe('Expired token handling', () => {
+    it('treats expired accessToken as unauthenticated on protected route', () => {
+      const req = makeRequest('/dashboard', { accessToken: expiredToken() });
+      const res = middleware(req);
+      expect(res.type).toBe('redirect');
+      expect(res.url).toContain('/login');
+    });
+
+    it('treats expired accessToken as unauthenticated on public-only route', () => {
+      const req = makeRequest('/login', { accessToken: expiredToken() });
+      const res = middleware(req);
+      expect(res.type).toBe('next');
+    });
+
+    it('still allows through if refreshToken exists even with expired accessToken', () => {
+      const req = makeRequest('/dashboard', {
+        accessToken: expiredToken(),
+        refreshToken: 'valid-refresh',
+      });
+      const res = middleware(req);
+      expect(res.type).toBe('next');
+    });
+
+    it('redirects expired + no refresh from public-only route', () => {
+      const req = makeRequest('/login', { accessToken: expiredToken() });
+      const res = middleware(req);
+      expect(res.type).toBe('next');
+    });
   });
 
   describe('Public pages are accessible without auth', () => {

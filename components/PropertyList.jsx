@@ -2,7 +2,7 @@
 import React, { useRef, useEffect, useCallback } from "react";
 import PropertyCard from "./PropertyCard.jsx";
 
-function PropertyCardSkeleton() {
+const PropertyCardSkeleton = React.memo(function PropertyCardSkeleton() {
   return (
     <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-hidden shadow-sm h-full flex flex-col animate-pulse">
       <div className="aspect-video bg-neutral-200 dark:bg-neutral-800" />
@@ -20,7 +20,9 @@ function PropertyCardSkeleton() {
       </div>
     </div>
   );
-}
+});
+
+PropertyCardSkeleton.displayName = 'PropertyCardSkeleton';
 
 function EmptyState({ hasQuery }) {
   return (
