@@ -116,17 +116,17 @@ describe('Middleware', () => {
   });
 
   describe('Expired token handling', () => {
-    it('treats expired accessToken as unauthenticated on protected route', () => {
+    it('lets expired token pass on protected route (AuthProvider handles 401)', () => {
       const req = makeRequest('/dashboard', { accessToken: expiredToken() });
       const res = middleware(req);
-      expect(res.type).toBe('redirect');
-      expect(res.url).toContain('/login');
+      expect(res.type).toBe('next');
     });
 
-    it('treats expired accessToken as unauthenticated on public-only route', () => {
+    it('redirects user with any token from public-only route', () => {
       const req = makeRequest('/login', { accessToken: expiredToken() });
       const res = middleware(req);
-      expect(res.type).toBe('next');
+      expect(res.type).toBe('redirect');
+      expect(res.url).toContain('/dashboard');
     });
 
     it('still allows through if refreshToken exists even with expired accessToken', () => {
@@ -138,10 +138,11 @@ describe('Middleware', () => {
       expect(res.type).toBe('next');
     });
 
-    it('redirects expired + no refresh from public-only route', () => {
+    it('redirects from public-only when any token cookie present', () => {
       const req = makeRequest('/login', { accessToken: expiredToken() });
       const res = middleware(req);
-      expect(res.type).toBe('next');
+      expect(res.type).toBe('redirect');
+      expect(res.url).toContain('/dashboard');
     });
   });
 

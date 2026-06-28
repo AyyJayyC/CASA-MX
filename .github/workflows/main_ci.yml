@@ -42,7 +42,7 @@ jobs:
 
       - name: Run unit tests
         env:
-          NEXT_PUBLIC_BACKEND_URL: http://localhost:3001
+          NEXT_PUBLIC_API_URL: http://localhost:3001
         run: npm test -- --run
 
   build:
@@ -62,7 +62,7 @@ jobs:
 
       - name: Build
         env:
-          NEXT_PUBLIC_BACKEND_URL: http://localhost:3001
+          NEXT_PUBLIC_API_URL: http://localhost:3001
         run: npm run build
 
       - name: Upload build artifact

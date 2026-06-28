@@ -1,5 +1,7 @@
 "use client";
 
+import { logger } from "@/lib/logging/logger";
+
 /**
  * createMarker - small helper to create a Leaflet marker for a property
  * - keeps marker creation logic isolated so we can test it deterministically
@@ -28,7 +30,7 @@ export default function createMarker({ L, property, track, router }) {
     } catch (err) {
       // swallow analytics errors to avoid breaking UX
        
-      console.error("createMarker track error:", err);
+      logger.logError(err, "createMarker track error");
     }
   });
 
