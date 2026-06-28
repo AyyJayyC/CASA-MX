@@ -8,6 +8,7 @@ import {
   buildGeocodeQueryFromSuggestion,
   normalizeSuggestionText,
 } from '../../lib/address-utils';
+import { logger } from '../../lib/logging/logger';
 
 export default function AddressSection({
   register, errors, watch, setValue, getValues,
@@ -288,7 +289,7 @@ export default function AddressSection({
         setAddressSearch(composedAddress);
       }
     } catch (e) {
-      console.error('Geocode fill error:', e);
+      logger.logError(e, 'Geocode fill error');
       setAddressSearchError(e instanceof Error ? e.message : 'No se pudo buscar la direccion.');
     }
   }, [BACKEND_URL, setValue]);

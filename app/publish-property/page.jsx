@@ -74,8 +74,7 @@ export default function PublishPropertyPage() {
         {/* Options Grid */}
         <div className="grid md:grid-cols-2 gap-6">
           {/* Sale Option */}
-          <Link href="/upload/sale">
-            <button className="w-full h-full">
+          <Link href="/upload/sale" className="w-full h-full block">
               <div
                 className="
                 h-full p-8 rounded-lg border-2 border-neutral-200 dark:border-neutral-800
@@ -194,13 +193,11 @@ export default function PublishPropertyPage() {
                   </span>
                 </div>
               </div>
-            </button>
           </Link>
 
           {/* Rental Option */}
-          <Link href="/upload/rental">
-            <button className="w-full h-full">
-              <div
+          <Link href="/upload/rental" className="w-full h-full block">
+            <div
                 className="
                 h-full p-8 rounded-lg border-2 border-neutral-200 dark:border-neutral-800
                 bg-white dark:bg-neutral-900
@@ -318,7 +315,6 @@ export default function PublishPropertyPage() {
                   </span>
                 </div>
               </div>
-            </button>
           </Link>
         </div>
 

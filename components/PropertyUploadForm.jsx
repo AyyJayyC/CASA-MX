@@ -14,6 +14,7 @@ import { getUnifiedCatalog } from '../lib/api/locations.js';
 import { useAuth } from '../lib/auth/useAuth';
 import { useInvalidateProperties } from '../lib/queries/properties';
 import { useUserStore } from "../lib/stores/userStore";
+import { logger } from "../lib/logging/logger";
 import useNumericInput from '../lib/hooks/useNumericInput';
 import Link from 'next/link';
 import AddressSection from './property-form/AddressSection.jsx';
@@ -208,7 +209,9 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
         colonia: (values.colonia || "").trim().replace(/\s+/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
         codigoPostal: values.codigoPostal,
       };
-      try { useUserStore.getState().addAddress(addressData); } catch {}
+      try { useUserStore.getState().addAddress(addressData); } catch (err) {
+        logger.logError(err, "Failed to save address to user store");
+      }
 
       setSuccess(created);
       reset({ ...propertyFormDefaults, listingType, photos: [] });
@@ -222,7 +225,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } catch (error) {
-      console.error('Error publishing property:', error);
+      logger.logError(error, 'Error publishing property');
       if (error?.code === 'EMAIL_NOT_VERIFIED') {
         alert('Debes verificar tu correo electrónico antes de publicar propiedades. Revisa tu correo y vuelve a intentarlo.');
       } else if (error?.code === 'INE_NOT_VERIFIED') {

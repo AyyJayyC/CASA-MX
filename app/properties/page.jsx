@@ -247,7 +247,6 @@ function PropertiesContent() {
       <div className="container max-w-7xl py-8 lg:py-12">
         <div className="flex flex-col lg:flex-row gap-8">
           <aside className="lg:w-64 flex-shrink-0">
-            <MobileFilterToggle />
             <FilterPanel>
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Filtros</h2>
@@ -273,7 +272,7 @@ function PropertiesContent() {
                 </FilterGroup>
               )}
 
-              <FilterSeparator />
+              <div className="border-t border-neutral-200 dark:border-neutral-800 my-3" />
               <FilterGroup label="Tamaño">
                 <div className="text-xs text-neutral-500">Construcción (m²)</div>
                 <div className="grid grid-cols-2 gap-2 mt-1">
@@ -293,7 +292,7 @@ function PropertiesContent() {
 
               {listingType === "for_rent" && (
                 <>
-                  <FilterSeparator />
+                  <div className="border-t border-neutral-200 dark:border-neutral-800 my-3" />
                   <FilterGroup label="Amueblado">
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input type="checkbox" checked={furnished === "true"} onChange={(e) => setFurnished(e.target.checked ? "true" : null)}
@@ -304,7 +303,7 @@ function PropertiesContent() {
                 </>
               )}
 
-              <FilterSeparator />
+              <div className="border-t border-neutral-200 dark:border-neutral-800 my-3" />
               <FilterGroup label="Condición">
                 <RadioOption name="condition" value="" label="Todas" current={condition} onChange={setCondition} />
                 {Object.entries(CONDITION_LABELS).map(([v, lbl]) => (
@@ -312,7 +311,7 @@ function PropertiesContent() {
                 ))}
               </FilterGroup>
 
-              <FilterSeparator />
+              <div className="border-t border-neutral-200 dark:border-neutral-800 my-3" />
               <FilterGroup label="Estatus">
                 <RadioOption name="status" value="" label="Todos" current={statusFilter} onChange={setStatusFilter} />
                 {Object.entries(STATUS_LABELS).map(([v, lbl]) => (
@@ -320,7 +319,7 @@ function PropertiesContent() {
                 ))}
               </FilterGroup>
 
-              <FilterSeparator />
+              <div className="border-t border-neutral-200 dark:border-neutral-800 my-3" />
               <FilterGroup label="Servicios incluidos">
                 {(listingType === "for_rent" ? SERVICE_OPTIONS_RENT : SERVICE_OPTIONS_SALE).map((svc) => (
                   <label key={svc} className="flex items-center gap-2 cursor-pointer">
@@ -332,7 +331,7 @@ function PropertiesContent() {
                 ))}
               </FilterGroup>
 
-              <FilterSeparator />
+              <div className="border-t border-neutral-200 dark:border-neutral-800 my-3" />
               <FilterGroup label="Amenidades">
                 {AMENITY_OPTIONS.map((am) => (
                   <label key={am} className="flex items-center gap-2 cursor-pointer">
@@ -346,7 +345,7 @@ function PropertiesContent() {
 
               {listingType === "for_sale" && (
                 <>
-                  <FilterSeparator />
+                  <div className="border-t border-neutral-200 dark:border-neutral-800 my-3" />
                   <FilterGroup label="Formas de pago">
                     {FINANCING_OPTIONS.map((fin) => (
                       <label key={fin} className="flex items-center gap-2 cursor-pointer">
@@ -360,7 +359,7 @@ function PropertiesContent() {
                 </>
               )}
 
-              <FilterSeparator />
+              <div className="border-t border-neutral-200 dark:border-neutral-800 my-3" />
               <FilterGroup label="Zona">
                 <select value={estado || ""} onChange={(e) => { setEstado(e.target.value || null); setCiudad(null); setColonia(null); }}
                   className="w-full px-3 py-2 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-clay">

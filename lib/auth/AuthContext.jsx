@@ -4,6 +4,7 @@ import React, { createContext, useCallback, useEffect, useState } from "react";
 import * as authAPI from "@/lib/api/auth";
 import analytics from "@/lib/analytics";
 import { EVENT_NAMES } from "@/lib/analytics/events";
+import { logger } from "@/lib/logging/logger";
 
 export const AuthContext = createContext();
 
@@ -44,7 +45,7 @@ export function AuthProvider({ children }) {
       setUser(nextUser);
       return nextUser;
     } catch (err) {
-      console.error("Failed to refresh user:", err);
+        logger.logError(err, "Failed to refresh user");
       return null;
     }
   }, []);
@@ -63,7 +64,7 @@ export function AuthProvider({ children }) {
           setUser(initialUser);
         }
       } catch (err) {
-        console.error("Failed to hydrate session:", err);
+        logger.logError(err, "Failed to hydrate session");
         setError("Failed to load session");
       } finally {
         setIsHydrated(true);
@@ -93,14 +94,17 @@ export function AuthProvider({ children }) {
       setError(null);
       setLoading(true);
       const result = await authAPI.login(payload);
-      analytics.trackEvent(
-        EVENT_NAMES.USER_LOGIN,
-        {},
-        { userId: result.user.id, activeRole: result.user.activeRole }
-      );
+      if (!result?.user) throw new Error("Invalid login response");
       setSession(buildSession(result.user));
       setUser(result.user);
       setLoading(false);
+      try {
+        analytics.trackEvent(
+          EVENT_NAMES.USER_LOGIN,
+          {},
+          { userId: result.user.id, activeRole: result.user.activeRole }
+        );
+      } catch {}
       return { user: result.user };
     } catch (err) {
       setError(err.message);
@@ -122,6 +126,7 @@ export function AuthProvider({ children }) {
 
       if (!apiCall) throw new Error(`Unknown provider: ${provider}`);
       const result = await apiCall();
+      if (!result?.user) throw new Error("Invalid login response");
 
       setSession(buildSession(result.user));
       setUser(result.user);
