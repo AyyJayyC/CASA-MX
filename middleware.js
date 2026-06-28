@@ -14,24 +14,11 @@ const PROTECTED_PATHS = [
 
 const PUBLIC_ONLY = ["/login", "/register", "/forgot-password"];
 
-function isJwtExpired(token) {
-  try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    return payload.exp * 1000 <= Date.now();
-  } catch (e) {
-    if (process.env.NODE_ENV !== "production") {
-      console.warn("Failed to parse JWT:", e.message);
-    }
-    return true;
-  }
-}
-
 export function middleware(request) {
   const { pathname } = request.nextUrl;
   const accessToken = request.cookies.get("accessToken")?.value;
   const refreshToken = request.cookies.get("refreshToken")?.value;
-  const hasValidAccessToken = accessToken && !isJwtExpired(accessToken);
-  const isAuthenticated = hasValidAccessToken || !!refreshToken;
+  const isAuthenticated = !!accessToken || !!refreshToken;
 
   const isProtected = PROTECTED_PATHS.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`),

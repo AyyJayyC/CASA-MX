@@ -15,6 +15,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
       - uses: q1sh101/build-size-diff@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}

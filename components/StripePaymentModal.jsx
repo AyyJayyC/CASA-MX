@@ -9,12 +9,13 @@ import {
   useElements,
 } from "@stripe/react-stripe-js";
 import * as creditsAPI from "@/lib/api/credits";
+import { logger } from "@/lib/logging/logger";
 
 let stripePromise = null;
 function getStripePromise() {
   const key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
   if (!key) {
-    console.error("Missing NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY");
+    logger.logError(new Error("Missing NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY"));
     return null;
   }
   if (!stripePromise) {

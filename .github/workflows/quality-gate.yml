@@ -23,10 +23,33 @@ jobs:
 
       - run: npm run lint
 
-      - run: npm test -- --coverage
+      - run: npm run test:coverage
 
-      - uses: unentropy/quality-gate@v1
+      - name: Check coverage threshold
+        run: |
+          SUMMARY=$(node -e "const r=require('./coverage/coverage-summary.json');console.log(JSON.stringify(r.total.lines))")
+          PCT=$(echo "$SUMMARY" | node -e "const s=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));process.stdout.write(String(s.pct))")
+          if [ "$(echo "$PCT < 80" | bc -l)" -eq 1 ]; then
+            echo "Coverage ${PCT}% is below 80% threshold"
+            exit 1
+          fi
+          echo "Coverage ${PCT}% meets 80% threshold"
+
+      - name: Comment PR with coverage
+        if: always()
+        uses: actions/github-script@v7
         with:
-          storage-type: sqlite-artifact
-          quality-gate-mode: soft
-          enable-pr-comment: true
+          script: |
+            const fs = require('fs');
+            const summary = JSON.parse(fs.readFileSync('./coverage/coverage-summary.json', 'utf8'));
+            const lines = summary.total.lines.pct;
+            const branches = summary.total.branches.pct;
+            const functions = summary.total.functions.pct;
+            const status = lines >= 80 ? '✅' : '❌';
+            const body = `${status} **Coverage**: Lines ${lines}%, Branches ${branches}%, Functions ${functions}% (threshold: 80%)`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body
+            });
