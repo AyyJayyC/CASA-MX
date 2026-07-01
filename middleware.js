@@ -34,9 +34,11 @@ export function middleware(request) {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (isPublicOnly && isAuthenticated) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
+  // Never redirect away from login/register — let the client-side
+  // AuthContext decide. If the access token is expired, the user
+  // must be able to reach the login page to re-authenticate.
+  // Redirecting from login based on cookie presence causes an
+  // infinite loop when the token is expired but cookies still exist.
 
   // Generate per-request nonce available to responses
   const apiOrigin =

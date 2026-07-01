@@ -102,15 +102,14 @@ describe('Middleware', () => {
     });
   });
 
-  describe('Public-only routes redirect authenticated users', () => {
+  describe('Public-only routes always accessible (AuthContext handles redirect)', () => {
     const publicPaths = ['/login', '/register', '/forgot-password'];
 
     for (const path of publicPaths) {
-      it(`redirects authenticated user from ${path} to /dashboard`, () => {
+      it(`allows access to ${path} even with auth cookies`, () => {
         const req = makeRequest(path, { accessToken: makeToken() });
         const res = middleware(req);
-        expect(res.type).toBe('redirect');
-        expect(res.url).toContain('/dashboard');
+        expect(res.type).toBe('next');
       });
     }
   });
@@ -122,11 +121,10 @@ describe('Middleware', () => {
       expect(res.type).toBe('next');
     });
 
-    it('redirects user with any token from public-only route', () => {
+    it('allows public-only route access with any token (client handles redirect)', () => {
       const req = makeRequest('/login', { accessToken: expiredToken() });
       const res = middleware(req);
-      expect(res.type).toBe('redirect');
-      expect(res.url).toContain('/dashboard');
+      expect(res.type).toBe('next');
     });
 
     it('still allows through if refreshToken exists even with expired accessToken', () => {
@@ -138,11 +136,10 @@ describe('Middleware', () => {
       expect(res.type).toBe('next');
     });
 
-    it('redirects from public-only when any token cookie present', () => {
+    it('allows access to public-only route with any cookie present', () => {
       const req = makeRequest('/login', { accessToken: expiredToken() });
       const res = middleware(req);
-      expect(res.type).toBe('redirect');
-      expect(res.url).toContain('/dashboard');
+      expect(res.type).toBe('next');
     });
   });
 
