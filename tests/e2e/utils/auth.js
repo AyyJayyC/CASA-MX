@@ -17,8 +17,8 @@ async function loginViaUI(page, { email, password }) {
 
   await page.getByRole("button", { name: /Iniciar Sesión/i }).click();
 
-  // Wait for redirect away from login
-  await page.waitForTimeout(5000);
+  // Wait for redirect and auth hydration
+  await page.waitForTimeout(6000);
 
   // Verify we're authenticated
   const url = page.url();
