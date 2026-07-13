@@ -14,6 +14,7 @@ import {
 } from "@/lib/constants/financing";
 import { STATUS_LABELS, STATUS_COLORS } from "@/lib/constants/propertyOptions";
 import { getTagLabel } from "@/lib/constants/tagLabels";
+import PropertyImageGallery from "@/components/PropertyImageGallery.jsx";
 
 const ContactRequestModal = dynamic(() => import("@/components/ContactRequestModal.jsx"));
 const MakeOfferModal = dynamic(() => import("@/components/MakeOfferModal.jsx"));
