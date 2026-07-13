@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { loginViaUI } from "./utils/auth.js";
+import { navigateProtected } from "./utils/navigation.js";
 
 const FRONTEND_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
 const LOGIN_EMAIL = process.env.PLAYWRIGHT_LOGIN_EMAIL || "seller@casamx.local";
@@ -25,6 +26,8 @@ test.describe("Live Upload Flow", () => {
       email: LOGIN_EMAIL,
       password: LOGIN_PASSWORD,
     });
+
+    await navigateProtected(page, "/dashboard");
 
     const titleInput = page.locator('input#title, input[name="title"]').first();
     const publishButton = page.locator(
