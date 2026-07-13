@@ -66,6 +66,17 @@ test.describe("Live Upload Flow", () => {
         "No se pudo iniciar sesi�n por UI ni por API. Proporciona credenciales v�lidas o ejecuta: cd ../casa-mx-backend && npm run prisma:seed",
       ).toBe(200);
 
+      const cookies = apiLoginResp.headers()["set-cookie"];
+      if (cookies) {
+        const parsed = cookies.split(";").map((c) => c.trim().split("="));
+        const tokenCookie = parsed.find(([k]) => k === "token");
+        if (tokenCookie) {
+          await page.context().addCookies([
+            { name: "token", value: tokenCookie[1], domain: "localhost", path: "/" },
+          ]);
+        }
+      }
+
       loggedIn = true;
       await page.reload({ waitUntil: "domcontentloaded" });
     }

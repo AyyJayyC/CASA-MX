@@ -39,27 +39,24 @@ async function loginAsLandlord(page) {
     return;
   }
 
-  let loginStatus = 0;
-  for (let attempt = 0; attempt < 8; attempt += 1) {
-    loginStatus = await page.evaluate(async (creds) => {
-      try {
-        const response = await fetch("http://localhost:3001/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(creds),
-        });
-        return response.status;
-      } catch {
-        return 0;
-      }
-    }, sellerCreds);
+  const apiLoginResp = await page.request.post("http://localhost:3001/auth/login", {
+    data: sellerCreds,
+    headers: { "Content-Type": "application/json" },
+  });
 
-    if (loginStatus !== 429) break;
-    await page.waitForTimeout(1200 + attempt * 400);
+  expect(apiLoginResp.status()).toBe(200);
+
+  const cookies = apiLoginResp.headers()["set-cookie"];
+  if (cookies) {
+    const parsed = cookies.split(";").map((c) => c.trim().split("="));
+    const tokenCookie = parsed.find(([k]) => k === "token");
+    if (tokenCookie) {
+      await page.context().addCookies([
+        { name: "token", value: tokenCookie[1], domain: "localhost", path: "/" },
+      ]);
+    }
   }
 
-  expect(loginStatus).toBe(200);
   await page.goto("/properties", { waitUntil: "domcontentloaded" });
 }
 

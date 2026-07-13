@@ -27,6 +27,16 @@ async function loginAsCreditUser(page) {
   });
   loginStatus = response.status();
   expect(loginStatus).toBe(200);
+  const cookies = response.headers()["set-cookie"];
+  if (cookies) {
+    const parsed = cookies.split(";").map((c) => c.trim().split("="));
+    const tokenCookie = parsed.find(([k]) => k === "token");
+    if (tokenCookie) {
+      await page.context().addCookies([
+        { name: "token", value: tokenCookie[1], domain: "localhost", path: "/" },
+      ]);
+    }
+  }
   await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
 }
 

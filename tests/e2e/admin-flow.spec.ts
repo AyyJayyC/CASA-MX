@@ -8,6 +8,16 @@ async function loginViaAPI(page, creds) {
     headers: { "Content-Type": "application/json" },
   });
   expect(response.status()).toBe(200);
+  const cookies = response.headers()["set-cookie"];
+  if (cookies) {
+    const parsed = cookies.split(";").map((c) => c.trim().split("="));
+    const tokenCookie = parsed.find(([k]) => k === "token");
+    if (tokenCookie) {
+      await page.context().addCookies([
+        { name: "token", value: tokenCookie[1], domain: "localhost", path: "/" },
+      ]);
+    }
+  }
 }
 
 test.describe("Admin Flow — Production Grade", () => {
