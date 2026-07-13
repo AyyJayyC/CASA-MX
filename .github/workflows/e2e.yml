@@ -57,7 +57,7 @@ jobs:
             backend/package-lock.json
 
       - name: Install backend deps
-        run: cd backend && npm ci --omit=optional
+        run: cd backend && npm install --no-audit
 
       - name: Generate Prisma + migrate backend
         env:
@@ -92,7 +92,7 @@ jobs:
           done
 
       - name: Install frontend deps
-        run: npm ci --omit=optional
+        run: npm install --no-audit
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
