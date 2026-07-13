@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { loginViaUI } from "./utils/auth.js";
+import { navigateProtected } from "./utils/navigation.js";
 
 const FRONTEND_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
 const LOGIN_EMAIL = process.env.PLAYWRIGHT_LOGIN_EMAIL || "seller@casamx.local";
@@ -26,44 +27,19 @@ test.describe("Live Upload Flow", () => {
       password: LOGIN_PASSWORD,
     });
 
+    await navigateProtected(page, "/upload/sale");
+
     const titleInput = page.locator('input#title, input[name="title"]').first();
     const publishButton = page.locator(
       'button[type="submit"]:has-text("Publicar propiedad")',
     );
 
-    const ensureUploadSalePage = async () => {
-      for (let attempt = 0; attempt < 6; attempt += 1) {
-        await page.goto("/upload/sale", { waitUntil: "networkidle" });
-        const ready = await Promise.race([
-          titleInput
-            .waitFor({ state: "visible", timeout: 8000 })
-            .then(() => true)
-            .catch(() => false),
-          publishButton
-            .waitFor({ state: "visible", timeout: 8000 })
-            .then(() => true)
-            .catch(() => false),
-        ]);
-        if (ready) return true;
-        await page.waitForTimeout(1500 + attempt * 800);
-      }
-      return false;
-    };
-
-    const isReady = await ensureUploadSalePage();
-    expect(
-      isReady,
-      "No se pudo abrir /upload/sale con sesion activa",
-    ).toBeTruthy();
-
     await expect(titleInput).toBeVisible({ timeout: 15000 });
     await page.waitForTimeout(1500);
 
-    // Fill in the form
     await titleInput.fill(uniqueTitle);
     await page.waitForTimeout(500);
 
-    // Address section
     const addressInput = page.locator(
       'input[placeholder*="direcci"], input[name="address"], input[placeholder*="Direcci"]',
     ).first();
@@ -72,7 +48,6 @@ test.describe("Live Upload Flow", () => {
       await page.waitForTimeout(2000);
     }
 
-    // Price
     const priceInput = page.locator(
       'input[name="price"], input[placeholder*="recio"], input[placeholder*="recio"]',
     ).first();
@@ -81,7 +56,6 @@ test.describe("Live Upload Flow", () => {
       await page.waitForTimeout(500);
     }
 
-    // Bedrooms
     const bedsInput = page.locator(
       'input[name="bedrooms"], input[placeholder*="ecámaras"]',
     ).first();
@@ -90,7 +64,6 @@ test.describe("Live Upload Flow", () => {
       await page.waitForTimeout(300);
     }
 
-    // Bathrooms
     const bathsInput = page.locator(
       'input[name="bathrooms"], input[placeholder*="años"]',
     ).first();
@@ -99,7 +72,6 @@ test.describe("Live Upload Flow", () => {
       await page.waitForTimeout(300);
     }
 
-    // Submit
     if (await publishButton.isVisible().catch(() => false)) {
       await publishButton.scrollIntoViewIfNeeded();
       await page.waitForTimeout(500);
