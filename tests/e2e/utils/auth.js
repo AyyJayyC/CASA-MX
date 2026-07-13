@@ -16,10 +16,14 @@ async function loginViaUI(page, { email, password }) {
 
   await page.click('button[type="submit"]');
 
-  // Wait for redirect away from login
-  await page.waitForURL((url) => !url.pathname.startsWith("/login"), {
-    timeout: 10000,
-  });
+  // Wait for redirect away from login (Next.js uses client-side routing so waitForURL may not fire)
+  await page.waitForTimeout(5000);
+
+  // Verify we're authenticated by checking the URL is no longer /login
+  const url = page.url();
+  if (url.includes("/login")) {
+    throw new Error(`Login failed — still on /login after submit. URL: ${url}`);
+  }
 }
 
 module.exports = { loginViaUI };

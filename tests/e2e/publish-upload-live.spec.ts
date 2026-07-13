@@ -1,13 +1,7 @@
 import { test, expect } from "@playwright/test";
-import path from "path";
 import { loginViaUI } from "./utils/auth.js";
 
 const FRONTEND_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
-const API_URL = (
-  process.env.PLAYWRIGHT_API_URL ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:3001"
-).replace(/\/$/, "");
 const LOGIN_EMAIL = process.env.PLAYWRIGHT_LOGIN_EMAIL || "seller@casamx.local";
 const LOGIN_PASSWORD = process.env.PLAYWRIGHT_LOGIN_PASSWORD || "seller123";
 
