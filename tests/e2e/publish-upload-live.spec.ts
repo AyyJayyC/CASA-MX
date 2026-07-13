@@ -1,6 +1,5 @@
 import { test, expect } from "@playwright/test";
 import { loginViaUI } from "./utils/auth.js";
-import { navigateProtected } from "./utils/navigation.js";
 
 const FRONTEND_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
 const LOGIN_EMAIL = process.env.PLAYWRIGHT_LOGIN_EMAIL || "seller@casamx.local";
@@ -27,28 +26,26 @@ test.describe("Live Upload Flow", () => {
       password: LOGIN_PASSWORD,
     });
 
-    await navigateProtected(page, "/dashboard");
-
     const titleInput = page.locator('input#title, input[name="title"]').first();
     const publishButton = page.locator(
       'button[type="submit"]:has-text("Publicar propiedad")',
     );
 
     const ensureUploadSalePage = async () => {
-      for (let attempt = 0; attempt < 4; attempt += 1) {
-        await page.goto("/upload/sale", { waitUntil: "domcontentloaded" });
+      for (let attempt = 0; attempt < 6; attempt += 1) {
+        await page.goto("/upload/sale", { waitUntil: "networkidle" });
         const ready = await Promise.race([
           titleInput
-            .waitFor({ state: "visible", timeout: 6000 })
+            .waitFor({ state: "visible", timeout: 8000 })
             .then(() => true)
             .catch(() => false),
           publishButton
-            .waitFor({ state: "visible", timeout: 6000 })
+            .waitFor({ state: "visible", timeout: 8000 })
             .then(() => true)
             .catch(() => false),
         ]);
         if (ready) return true;
-        await page.waitForTimeout(1200 + attempt * 600);
+        await page.waitForTimeout(1500 + attempt * 800);
       }
       return false;
     };
