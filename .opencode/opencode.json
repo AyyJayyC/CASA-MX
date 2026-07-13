@@ -4,7 +4,7 @@
   "command": {
     "deploy": {
       "description": "Merge staging branch into main (production) for both frontend and backend repos.",
-      "prompt": "Merge the staging branch into main for both C:\\Users\\axelj\\casa-mx and C:\\Users\\axelj\\casa-mx-backend and push to GitHub. Then switch back to staging branches."
+      "template": "Merge the staging branch into main for both C:\\Users\\axelj\\casa-mx and C:\\Users\\axelj\\casa-mx-backend and push to GitHub. Then switch back to staging branches."
     }
   },
   "plugin": [
