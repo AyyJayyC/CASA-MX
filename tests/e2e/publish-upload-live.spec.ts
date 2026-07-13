@@ -77,7 +77,7 @@ test.describe("Live Upload Flow", () => {
           const name = first.slice(0, eqIdx);
           const value = first.slice(eqIdx + 1);
           await page.context().addCookies([
-            { name, value, domain: "localhost", path: "/" },
+            { name, value, domain: "localhost", path: "/", httpOnly: true, secure: false, sameSite: "Lax" },
           ]);
         }
       }
