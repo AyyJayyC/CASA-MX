@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import path from "path";
-import { loginViaUI } from "../utils/auth.js";
+import { loginViaUI } from "./utils/auth.js";
 
 const FRONTEND_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
 const API_URL = (
