@@ -27,13 +27,18 @@ async function loginAsCreditUser(page) {
   });
   loginStatus = response.status();
   expect(loginStatus).toBe(200);
-  const cookies = response.headers()["set-cookie"];
-  if (cookies) {
-    const parsed = cookies.split(";").map((c) => c.trim().split("="));
-    const tokenCookie = parsed.find(([k]) => k === "token");
-    if (tokenCookie) {
+  const setCookie = response.headers()["set-cookie"];
+  if (setCookie) {
+    const cookieList = Array.isArray(setCookie) ? setCookie : [setCookie];
+    for (const cookieStr of cookieList) {
+      const parts = cookieStr.split(";").map((s) => s.trim());
+      const [first] = parts;
+      const eqIdx = first.indexOf("=");
+      if (eqIdx === -1) continue;
+      const name = first.slice(0, eqIdx);
+      const value = first.slice(eqIdx + 1);
       await page.context().addCookies([
-        { name: "token", value: tokenCookie[1], domain: "localhost", path: "/" },
+        { name, value, domain: "localhost", path: "/" },
       ]);
     }
   }
