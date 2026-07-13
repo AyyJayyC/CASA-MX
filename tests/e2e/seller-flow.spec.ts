@@ -3,26 +3,35 @@ const { test, expect } = require("@playwright/test");
 const sellerCreds = { email: "seller@casamx.local", password: "seller123" };
 
 async function loginViaAPI(page, creds) {
-  const response = await page.request.post("http://localhost:3001/auth/login", {
-    data: creds,
-    headers: { "Content-Type": "application/json" },
-  });
-  expect(response.status()).toBe(200);
-  const setCookie = response.headers()["set-cookie"];
-  if (setCookie) {
-    const cookieList = Array.isArray(setCookie) ? setCookie : [setCookie];
-    for (const cookieStr of cookieList) {
-      const parts = cookieStr.split(";").map((s) => s.trim());
-      const [first] = parts;
-      const eqIdx = first.indexOf("=");
-      if (eqIdx === -1) continue;
-      const name = first.slice(0, eqIdx);
-      const value = first.slice(eqIdx + 1);
-      await page.context().addCookies([
-        { name, value, domain: "localhost", path: "/", httpOnly: true, secure: false, sameSite: "Lax" },
-      ]);
+  let lastStatus = 0;
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const response = await page.request.post("http://localhost:3001/auth/login", {
+      data: creds,
+      headers: { "Content-Type": "application/json" },
+    });
+    lastStatus = response.status();
+    if (lastStatus !== 429) {
+      expect(lastStatus).toBe(200);
+      const setCookie = response.headers()["set-cookie"];
+      if (setCookie) {
+        const cookieList = Array.isArray(setCookie) ? setCookie : [setCookie];
+        for (const cookieStr of cookieList) {
+          const parts = cookieStr.split(";").map((s) => s.trim());
+          const [first] = parts;
+          const eqIdx = first.indexOf("=");
+          if (eqIdx === -1) continue;
+          const name = first.slice(0, eqIdx);
+          const value = first.slice(eqIdx + 1);
+          await page.context().addCookies([
+            { name, value, domain: "localhost", path: "/", httpOnly: true, secure: false, sameSite: "Lax" },
+          ]);
+        }
+      }
+      return;
     }
+    await page.waitForTimeout(1000 * (attempt + 1));
   }
+  throw new Error(`Login failed with status ${lastStatus} after 5 attempts`);
 }
 
 test.describe("Seller Flow — Production Grade", () => {

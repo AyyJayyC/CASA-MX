@@ -18,51 +18,37 @@ const { test, expect } = require("@playwright/test");
 const sellerCreds = { email: "seller@casamx.local", password: "seller123" };
 
 async function loginAsLandlord(page) {
-  await page.goto("/login", { waitUntil: "domcontentloaded" });
-  await page.fill('input[type="email"]', sellerCreds.email);
-  await page.fill('input[type="password"]', sellerCreds.password);
-
-  page.once("dialog", async (dialog) => {
-    try {
-      await dialog.dismiss();
-    } catch {}
-  });
-
-  await page.click('button[type="submit"]');
-  await page.waitForTimeout(3000);
-
-  const logoutVisible = await page
-    .locator('button:has-text("Salir")')
-    .isVisible()
-    .catch(() => false);
-  if (logoutVisible) {
-    return;
-  }
-
-  const apiLoginResp = await page.request.post("http://localhost:3001/auth/login", {
-    data: sellerCreds,
-    headers: { "Content-Type": "application/json" },
-  });
-
-  expect(apiLoginResp.status()).toBe(200);
-
-  const setCookie = apiLoginResp.headers()["set-cookie"];
-  if (setCookie) {
-    const cookieList = Array.isArray(setCookie) ? setCookie : [setCookie];
-    for (const cookieStr of cookieList) {
-      const parts = cookieStr.split(";").map((s) => s.trim());
-      const [first] = parts;
-      const eqIdx = first.indexOf("=");
-      if (eqIdx === -1) continue;
-      const name = first.slice(0, eqIdx);
-      const value = first.slice(eqIdx + 1);
-      await page.context().addCookies([
-        { name, value, domain: "localhost", path: "/", httpOnly: true, secure: false, sameSite: "Lax" },
-      ]);
+  let lastStatus = 0;
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const response = await page.request.post("http://localhost:3001/auth/login", {
+      data: sellerCreds,
+      headers: { "Content-Type": "application/json" },
+    });
+    lastStatus = response.status();
+    if (lastStatus !== 429) {
+      expect(lastStatus).toBe(200);
+      const setCookie = response.headers()["set-cookie"];
+      if (setCookie) {
+        const cookieList = Array.isArray(setCookie) ? setCookie : [setCookie];
+        for (const cookieStr of cookieList) {
+          const parts = cookieStr.split(";").map((s) => s.trim());
+          const [first] = parts;
+          const eqIdx = first.indexOf("=");
+          if (eqIdx === -1) continue;
+          const name = first.slice(0, eqIdx);
+          const value = first.slice(eqIdx + 1);
+          await page.context().addCookies([
+            { name, value, domain: "localhost", path: "/", httpOnly: true, secure: false, sameSite: "Lax" },
+          ]);
+        }
+      }
+      await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(1000);
+      return;
     }
+    await page.waitForTimeout(1000 * (attempt + 1));
   }
-
-  await page.goto("/properties", { waitUntil: "domcontentloaded" });
+  throw new Error(`Login failed with status ${lastStatus} after 5 attempts`);
 }
 
 test.describe("Rental Flow E2E Tests", () => {

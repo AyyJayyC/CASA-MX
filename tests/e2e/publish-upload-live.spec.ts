@@ -15,7 +15,7 @@ test.use({ baseURL: FRONTEND_URL });
 test.describe("Live Upload Flow", () => {
   test.setTimeout(120000);
 
-  test("logs in via UI, selects Mexico address, and submits property", async ({
+  test("logs in via API, selects Mexico address, and submits property", async ({
     page,
   }) => {
     const uniqueTitle = `E2E Casa ${Date.now()}`;
@@ -29,61 +29,41 @@ test.describe("Live Upload Flow", () => {
       } catch {}
     });
 
-    await page.goto("/login", { waitUntil: "domcontentloaded" });
-    await page.fill('input[type="email"]', fallbackCred.email);
-    await page.fill('input[type="password"]', fallbackCred.password);
-
-    page.once("dialog", async (dialog) => {
-      try {
-        await dialog.dismiss();
-      } catch {}
-    });
-
-    await page.click('button[type="submit"]');
-    await page.waitForTimeout(3000);
-
-    let loggedIn = await page.evaluate(async (apiUrl) => {
-      try {
-        const response = await fetch(`${apiUrl}/auth/me`, {
-          method: "GET",
-          credentials: "include",
-        });
-        return response.ok;
-      } catch {
-        return false;
-      }
-    }, API_URL);
-
-    if (!loggedIn) {
-      const apiLoginResp = await page.request.post(`${API_URL}/auth/login`, {
+    // Direct API login with retry on 429 rate limiting
+    let lastStatus = 0;
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const loginResp = await page.request.post(`${API_URL}/auth/login`, {
         data: fallbackCred,
         headers: { "Content-Type": "application/json" },
       });
-      const loginStatus = apiLoginResp.status();
+      lastStatus = loginResp.status();
+      if (lastStatus !== 429) {
+        expect(
+          lastStatus,
+          "No se pudo iniciar sesion por API. Proporciona credenciales validas o ejecuta: cd ../casa-mx-backend && npm run prisma:seed",
+        ).toBe(200);
 
-      expect(
-        loginStatus,
-        "No se pudo iniciar sesi�n por UI ni por API. Proporciona credenciales v�lidas o ejecuta: cd ../casa-mx-backend && npm run prisma:seed",
-      ).toBe(200);
-
-      const setCookie = apiLoginResp.headers()["set-cookie"];
-      if (setCookie) {
-        const cookieList = Array.isArray(setCookie) ? setCookie : [setCookie];
-        for (const cookieStr of cookieList) {
-          const parts = cookieStr.split(";").map((s) => s.trim());
-          const [first] = parts;
-          const eqIdx = first.indexOf("=");
-          if (eqIdx === -1) continue;
-          const name = first.slice(0, eqIdx);
-          const value = first.slice(eqIdx + 1);
-          await page.context().addCookies([
-            { name, value, domain: "localhost", path: "/", httpOnly: true, secure: false, sameSite: "Lax" },
-          ]);
+        const setCookie = loginResp.headers()["set-cookie"];
+        if (setCookie) {
+          const cookieList = Array.isArray(setCookie) ? setCookie : [setCookie];
+          for (const cookieStr of cookieList) {
+            const parts = cookieStr.split(";").map((s) => s.trim());
+            const [first] = parts;
+            const eqIdx = first.indexOf("=");
+            if (eqIdx === -1) continue;
+            const name = first.slice(0, eqIdx);
+            const value = first.slice(eqIdx + 1);
+            await page.context().addCookies([
+              { name, value, domain: "localhost", path: "/", httpOnly: true, secure: false, sameSite: "Lax" },
+            ]);
+          }
         }
+        break;
       }
-
-      loggedIn = true;
-      await page.reload({ waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(1000 * (attempt + 1));
+    }
+    if (lastStatus === 429) {
+      throw new Error("Login blocked by rate limiting after 5 attempts");
     }
 
     const titleInput = page.locator('input#title, input[name="title"]').first();
@@ -113,7 +93,7 @@ test.describe("Live Upload Flow", () => {
     const isReady = await ensureUploadSalePage();
     expect(
       isReady,
-      "No se pudo abrir /upload/sale con sesi�n activa",
+      "No se pudo abrir /upload/sale con sesion activa",
     ).toBeTruthy();
 
     await expect(titleInput).toBeVisible({ timeout: 15000 });
@@ -155,7 +135,7 @@ test.describe("Live Upload Flow", () => {
     await fillWithRetry("#title", uniqueTitle);
     await fillWithRetry(
       "#description",
-      "Propiedad de prueba E2E con flujo completo de publicaci�n.",
+      "Propiedad de prueba E2E con flujo completo de publicacion.",
     );
     await fillWithRetry("#price", "2500000");
     await fillWithRetry("#squareMeters", "120");
@@ -287,7 +267,7 @@ test.describe("Live Upload Flow", () => {
     } else {
       await page
         .getByText(
-          "Certifico que soy el propietario o tengo autorización legal para publicar esta propiedad",
+          "Certifico que soy el propietario o tengo autorizacion legal para publicar esta propiedad",
         )
         .click();
     }
@@ -309,18 +289,18 @@ test.describe("Live Upload Flow", () => {
     const publishResponse = await publishResponsePromise;
     if (!publishResponse) {
       throw new Error(
-        `Publicación no disparó request POST /properties (no se capturó respuesta de API)`,
+        "Publicacion no disparo request POST /properties (no se capturo respuesta de API)",
       );
     }
 
     const status = publishResponse.status();
     if (status >= 400) {
       const body = await publishResponse.text().catch(() => "");
-      throw new Error(`Publicación falló en API: ${status} ${body}`);
+      throw new Error(`Publicacion fallo en API: ${status} ${body}`);
     }
 
     if (submitAlertMessage) {
-      throw new Error(`Publicación rechazada: ${submitAlertMessage}`);
+      throw new Error(`Publicacion rechazada: ${submitAlertMessage}`);
     }
 
     await expect(
@@ -330,7 +310,7 @@ test.describe("Live Upload Flow", () => {
       timeout: 30000,
     });
     await expect(
-      page.getByText(/sube los documentos de verificación/i),
+      page.getByText(/sube los documentos de verificacion/i),
     ).toBeVisible({ timeout: 30000 });
   });
 });
