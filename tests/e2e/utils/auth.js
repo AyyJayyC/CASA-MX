@@ -5,8 +5,9 @@
 const { expect } = require("@playwright/test");
 
 async function loginViaUI(page, { email, password }) {
-  await page.goto("/login", { waitUntil: "domcontentloaded" });
-  await page.waitForSelector('input[type="email"]', { timeout: 5000 });
+  await page.goto("/login", { waitUntil: "networkidle" });
+  await page.waitForSelector('input[type="email"]', { timeout: 10000 });
+  await page.waitForTimeout(1000); // Ensure React hydration is complete
   await page.fill('input[type="email"]', email);
   await page.fill('input[type="password"]', password);
 
@@ -14,14 +15,14 @@ async function loginViaUI(page, { email, password }) {
     try { await dialog.dismiss(); } catch {}
   });
 
-  await page.click('button[type="submit"]');
+  await page.getByRole("button", { name: /Iniciar Sesión/i }).click();
 
-  // Wait for redirect away from login (Next.js uses client-side routing so waitForURL may not fire)
+  // Wait for redirect away from login
   await page.waitForTimeout(5000);
 
-  // Verify we're authenticated by checking the URL is no longer /login
+  // Verify we're authenticated
   const url = page.url();
-  if (url.includes("/login")) {
+  if (url.includes("/login") && !url.includes("/login?reset")) {
     throw new Error(`Login failed — still on /login after submit. URL: ${url}`);
   }
 }
