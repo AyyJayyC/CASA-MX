@@ -57,7 +57,7 @@ suite
   .on('cycle', (event) => {
     results.push({
       name: event.target.name,
-      hz: event.target.hz,
+      ops: event.target.hz,
       rme: event.target.stats.rme,
       samples: event.target.stats.sample.length,
     });
