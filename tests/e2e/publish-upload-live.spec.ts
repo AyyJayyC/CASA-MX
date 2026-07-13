@@ -52,31 +52,14 @@ test.describe("Live Upload Flow", () => {
       } catch {
         return false;
       }
-    });
+    }, API_URL);
 
     if (!loggedIn) {
-      let loginStatus = 0;
-      for (let attempt = 0; attempt < 8; attempt += 1) {
-        loginStatus = await page.evaluate(
-          async ({ creds, apiUrl }) => {
-            try {
-              const response = await fetch(`${apiUrl}/auth/login`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify(creds),
-              });
-              return response.status;
-            } catch {
-              return 0;
-            }
-          },
-          { creds: fallbackCred, apiUrl: API_URL },
-        );
-
-        if (loginStatus !== 429) break;
-        await page.waitForTimeout(1200 + attempt * 400);
-      }
+      const apiLoginResp = await page.request.post(`${API_URL}/auth/login`, {
+        data: fallbackCred,
+        headers: { "Content-Type": "application/json" },
+      });
+      const loginStatus = apiLoginResp.status();
 
       expect(
         loginStatus,

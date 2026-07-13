@@ -21,23 +21,11 @@ async function loginAsCreditUser(page) {
   if (logoutVisible) return;
 
   let loginStatus = 0;
-  for (let attempt = 0; attempt < 8; attempt += 1) {
-    loginStatus = await page.evaluate(async (creds) => {
-      try {
-        const response = await fetch("http://localhost:3001/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(creds),
-        });
-        return response.status;
-      } catch {
-        return 0;
-      }
-    }, creditFlowCreds);
-    if (loginStatus !== 429) break;
-    await page.waitForTimeout(1200 + attempt * 400);
-  }
+  const response = await page.request.post("http://localhost:3001/auth/login", {
+    data: creditFlowCreds,
+    headers: { "Content-Type": "application/json" },
+  });
+  loginStatus = response.status();
   expect(loginStatus).toBe(200);
   await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
 }

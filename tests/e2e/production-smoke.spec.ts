@@ -58,7 +58,7 @@ test.describe("Public Smoke Checks", () => {
 
     await page.goto("/login", { waitUntil: "load" });
     await expect(
-      page.getByRole("heading", { name: /Iniciar sesión|Inicia sesión/i }),
+      page.getByRole("button", { name: /Iniciar Sesión/i }),
     ).toBeVisible();
     await expect(page.locator('input[type="email"]')).toBeVisible();
     await expect(page.locator('input[type="password"]')).toBeVisible();

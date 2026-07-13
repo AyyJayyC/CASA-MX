@@ -3,22 +3,11 @@ const { test, expect } = require("@playwright/test");
 const buyerCreds = { email: "buyer@casamx.local", password: "buyer123" };
 
 async function loginViaAPI(page, creds) {
-  for (let attempt = 0; attempt < 8; attempt += 1) {
-    const status = await page.evaluate(async (c) => {
-      const res = await fetch("http://localhost:3001/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(c),
-      });
-      return res.status;
-    }, creds);
-    if (status !== 429) {
-      expect(status).toBe(200);
-      return;
-    }
-    await page.waitForTimeout(1200 + attempt * 400);
-  }
+  const response = await page.request.post("http://localhost:3001/auth/login", {
+    data: creds,
+    headers: { "Content-Type": "application/json" },
+  });
+  expect(response.status()).toBe(200);
 }
 
 test.describe("Buyer Flow — Production Grade", () => {

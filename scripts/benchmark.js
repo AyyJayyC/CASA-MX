@@ -63,16 +63,7 @@ suite
     });
   })
   .on('complete', () => {
-    const output = {
-      date: new Date().toISOString(),
-      results: results.map((r) => ({
-        name: r.name,
-        opsPerSec: Math.round(r.hz),
-        marginOfError: `\u00B1${r.rme.toFixed(2)}%`,
-        samples: r.samples,
-      })),
-    };
-    writeFileSync('benchmark-result.json', JSON.stringify(output, null, 2));
+    writeFileSync('benchmark-result.json', JSON.stringify(results, null, 2));
     console.log('Benchmark complete. Results written to benchmark-result.json');
   })
   .run({ async: true });
