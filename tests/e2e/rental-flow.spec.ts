@@ -1,5 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { loginViaUI } = require("./utils/auth");
+const { navigateProtected } = require("./utils/navigation");
 
 const sellerCreds = { email: "seller@casamx.local", password: "seller123" };
 
@@ -8,10 +9,9 @@ test.describe("Rental Flow E2E Tests", () => {
   test("Scenario 1: Tenant browses rental properties with filters", async ({
     page,
   }) => {
-    await page.goto("/properties", { waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.goto("/properties", { waitUntil: "networkidle" });
     await expect(page.locator("text=Propiedades"))
-      .toBeVisible({ timeout: 5000 })
+      .toBeVisible({ timeout: 10000 })
       .catch(() => {});
     const rentTab = page.locator('button:has-text("Renta")');
     if (await rentTab.isVisible().catch(() => false)) {
@@ -26,7 +26,7 @@ test.describe("Rental Flow E2E Tests", () => {
   test("Scenario 2: Tenant applies to rental property with complete form", async ({
     page,
   }) => {
-    await page.goto("/properties");
+    await page.goto("/properties", { waitUntil: "networkidle" });
     const rentTab = page.locator('button:has-text("Renta")');
     if (await rentTab.isVisible().catch(() => false)) {
       await rentTab.click();
@@ -51,9 +51,7 @@ test.describe("Rental Flow E2E Tests", () => {
     page,
   }) => {
     await loginViaUI(page, sellerCreds);
-    await page.goto("/dashboard/applications");
-    await page.waitForTimeout(1500);
-    await expect(page).not.toHaveURL(/\/login/);
+    await navigateProtected(page, "/dashboard/applications");
     const page_content = await page.content();
     expect(
       page_content.includes("Pendientes") ||
@@ -68,8 +66,7 @@ test.describe("Rental Flow E2E Tests", () => {
     page,
   }) => {
     await loginViaUI(page, sellerCreds);
-    await page.goto("/dashboard/applications");
-    await page.waitForTimeout(1000);
+    await navigateProtected(page, "/dashboard/applications");
     const content = await page.content();
     expect(content.length).toBeGreaterThan(100);
   });
@@ -78,14 +75,13 @@ test.describe("Rental Flow E2E Tests", () => {
     page,
   }) => {
     await loginViaUI(page, sellerCreds);
-    await page.goto("/dashboard/applications");
-    await page.waitForTimeout(1000);
+    await navigateProtected(page, "/dashboard/applications");
     const content = await page.content();
     expect(content.length).toBeGreaterThan(50);
   });
 
   test("Scenario 6: Rental property shows correct badges", async ({ page }) => {
-    await page.goto("/properties");
+    await page.goto("/properties", { waitUntil: "networkidle" });
     const rentTab = page.locator('button:has-text("Renta")');
     if (await rentTab.isVisible().catch(() => false)) {
       await rentTab.click();
@@ -101,8 +97,7 @@ test.describe("Rental Flow E2E Tests", () => {
 
   test("Scenario 7: Responsive design on mobile viewport", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
-    await page.goto("/properties");
-    await page.waitForTimeout(500);
+    await page.goto("/properties", { waitUntil: "networkidle" });
     const rentTab = page.locator('button:has-text("Renta")');
     if (await rentTab.isVisible().catch(() => false)) {
       await rentTab.click();
@@ -115,17 +110,14 @@ test.describe("Rental Flow E2E Tests", () => {
   test("Scenario 8: Dashboard responsive on mobile", async ({ page }) => {
     await loginViaUI(page, sellerCreds);
     await page.setViewportSize({ width: 375, height: 812 });
-    await page.goto("/dashboard/applications");
-    await page.waitForTimeout(1000);
-    await expect(page).not.toHaveURL(/\/login/);
+    await navigateProtected(page, "/dashboard/applications");
     const content = await page.content();
     expect(content.length).toBeGreaterThan(50);
   });
 
   test("Scenario 9: Dark mode support on properties page", async ({ page }) => {
     await page.emulateMedia({ colorScheme: "dark" });
-    await page.goto("/properties");
-    await page.waitForTimeout(500);
+    await page.goto("/properties", { waitUntil: "networkidle" });
     const content = await page.content();
     expect(content.length).toBeGreaterThan(0);
   });
@@ -133,9 +125,7 @@ test.describe("Rental Flow E2E Tests", () => {
   test("Scenario 10: Dark mode support on dashboard", async ({ page }) => {
     await loginViaUI(page, sellerCreds);
     await page.emulateMedia({ colorScheme: "dark" });
-    await page.goto("/dashboard/applications");
-    await page.waitForTimeout(1000);
-    await expect(page).not.toHaveURL(/\/login/);
+    await navigateProtected(page, "/dashboard/applications");
     const content = await page.content();
     expect(content.length).toBeGreaterThan(50);
   });
