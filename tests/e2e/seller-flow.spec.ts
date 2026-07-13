@@ -5,6 +5,7 @@ const { navigateProtected } = require("./utils/navigation");
 const sellerCreds = { email: "seller@casamx.local", password: "seller123" };
 
 test.describe("Seller Flow — Production Grade", () => {
+  test.describe.configure({ mode: "serial" });
 
   test("seller dashboard shows role-specific content", async ({ page }) => {
     await loginViaUI(page, sellerCreds);

@@ -5,6 +5,7 @@ const { navigateProtected } = require("./utils/navigation");
 const creditFlowCreds = { email: "seller@casamx.local", password: "seller123" };
 
 test.describe("Credit Flow E2E", () => {
+  test.describe.configure({ mode: "serial" });
 
   test("credits page loads for authenticated user", async ({ page }) => {
     await loginViaUI(page, creditFlowCreds);
