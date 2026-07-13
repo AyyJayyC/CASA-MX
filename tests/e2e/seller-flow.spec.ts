@@ -27,6 +27,8 @@ async function loginViaAPI(page, creds) {
           ]);
         }
       }
+      await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(1000);
       return;
     }
     await page.waitForTimeout(1000 * (attempt + 1));

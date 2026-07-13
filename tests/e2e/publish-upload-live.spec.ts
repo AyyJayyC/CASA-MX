@@ -66,6 +66,10 @@ test.describe("Live Upload Flow", () => {
       throw new Error("Login blocked by rate limiting after 5 attempts");
     }
 
+    // Establish session by navigating to dashboard first (like credit-flow pattern)
+    await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
+    await page.waitForTimeout(1000);
+
     const titleInput = page.locator('input#title, input[name="title"]').first();
     const publishButton = page.locator(
       'button[type="submit"]:has-text("Publicar propiedad")',
