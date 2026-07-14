@@ -11,7 +11,7 @@ import TagSubscriptions from "./TagSubscriptions";
 const PERFIL_OPTIONS = [
   { value: "flipper", label: "Flipper" },
   { value: "buy_hold", label: "Buy & Hold" },
-  { value: "wholesaler", label: "Wholesaler" },
+  { value: "agent", label: "Agente" },
   { value: "developer", label: "Desarrollador" },
   { value: "owner", label: "Propietario" },
 ];
