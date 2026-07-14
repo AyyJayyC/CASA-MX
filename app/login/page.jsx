@@ -50,7 +50,7 @@ function LoginPage() {
     try {
       await login({ email: data.email, password: data.password });
       const redirect = searchParams.get("redirect");
-      router.replace(redirect || "/dashboard");
+      router.replace(redirect || "/properties");
     } catch (err) {
       setLoginError(err.message || "Error al iniciar sesión");
     }
