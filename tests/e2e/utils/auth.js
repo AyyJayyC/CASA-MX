@@ -15,7 +15,7 @@ async function loginViaUI(page, { email, password }) {
     try { await dialog.dismiss(); } catch {}
   });
 
-  await page.getByRole("button", { name: /Iniciar Sesión/i }).click();
+  await page.getByRole("button", { name: /Iniciar Sesión/i }).click({ timeout: 15000 });
 
   // Wait for navigation away from /login or for auth state to update
   try {
