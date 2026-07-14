@@ -6,6 +6,7 @@ const config = {
   timeout: 30 * 1000,
   retries: process.env.CI ? 1 : 0,
   testDir: './tests/e2e',
+  workers: process.env.CI ? 1 : 4,
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000',
     headless: true,
