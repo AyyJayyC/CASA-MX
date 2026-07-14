@@ -14,19 +14,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
 
-      - run: npm ci
+      - run: npm install
       - run: npm run benchmark
-
-      - name: Store benchmark result
-        uses: benchmark-action/github-action-benchmark@v1
-        with:
-          tool: 'benchmarkjs'
-          output-file-path: benchmark-result.json
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          auto-push: true
-          alert-threshold: '200%'
-          comment-on-alert: true
-          fail-on-alert: false

@@ -57,3 +57,5 @@ pnpm-debug.log*
 benchmark-result.json
 # Unentropy
 unentropy-report/
+# Backend submodule
+backend/

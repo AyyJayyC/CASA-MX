@@ -6,12 +6,61 @@ import {
   removeTagSubscription,
 } from "@/lib/api/tags";
 
+function TagSection({ type, items, onRemove, placeholder, onAdd }) {
+  const [value, setValue] = useState("");
+  const label = type === "ciudad" ? "Ciudades" : "Colonias";
+
+  return (
+    <div>
+      <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+        {label} ({items.length})
+      </label>
+      <div className="flex flex-wrap gap-2 mb-2">
+        {items.map((s) => (
+          <span
+            key={s.id}
+            className="inline-flex items-center gap-1 px-3 py-1.5 bg-clay-50 dark:bg-clay-900/20 text-clay-700 dark:text-clay-300 rounded-full text-xs font-medium"
+          >
+            {s.tagName}
+            <button
+              onClick={() => onRemove(s.id)}
+              className="ml-1 hover:text-red-500 transition-colors"
+            >
+              &times;
+            </button>
+          </span>
+        ))}
+      </div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          onAdd(value);
+          setValue("");
+        }}
+        className="flex gap-2"
+      >
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder={placeholder}
+          className="flex-1 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-clay-400"
+        />
+        <button
+          type="submit"
+          disabled={!value.trim()}
+          className="px-4 py-2 rounded-lg bg-clay-500 hover:bg-clay-600 disabled:opacity-50 text-white text-sm font-medium transition-colors"
+        >
+          Agregar
+        </button>
+      </form>
+    </div>
+  );
+}
+
 export default function TagSubscriptions() {
   const [subs, setSubs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [adding, setAdding] = useState(false);
-  const [newCiudad, setNewCiudad] = useState("");
-  const [newColonia, setNewColonia] = useState("");
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
@@ -40,8 +89,6 @@ export default function TagSubscriptions() {
       setError(null);
       setSuccess(null);
       await addTagSubscription(type, name.trim());
-      if (type === "ciudad") setNewCiudad("");
-      else setNewColonia("");
       await loadSubscriptions();
       setSuccess(`Suscrito a "${name.trim()}"`);
       setTimeout(() => setSuccess(null), 3000);
@@ -82,95 +129,20 @@ export default function TagSubscriptions() {
         <p className="text-sm text-neutral-400">Cargando suscripciones...</p>
       ) : (
         <>
-          {/* Ciudad subscriptions */}
-          <div>
-            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              Ciudades ({ciudadSubs.length})
-            </label>
-            <div className="flex flex-wrap gap-2 mb-2">
-              {ciudadSubs.map((s) => (
-                <span
-                  key={s.id}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-clay-50 dark:bg-clay-900/20 text-clay-700 dark:text-clay-300 rounded-full text-xs font-medium"
-                >
-                  {s.tagName}
-                  <button
-                    onClick={() => handleRemove(s.id)}
-                    className="ml-1 hover:text-red-500 transition-colors"
-                  >
-                    &times;
-                  </button>
-                </span>
-              ))}
-            </div>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleAdd("ciudad", newCiudad);
-              }}
-              className="flex gap-2"
-            >
-              <input
-                type="text"
-                value={newCiudad}
-                onChange={(e) => setNewCiudad(e.target.value)}
-                placeholder="Ej: Hermosillo"
-                className="flex-1 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-clay-400"
-              />
-              <button
-                type="submit"
-                disabled={!newCiudad.trim() || adding}
-                className="px-4 py-2 rounded-lg bg-clay-500 hover:bg-clay-600 disabled:opacity-50 text-white text-sm font-medium transition-colors"
-              >
-                Agregar
-              </button>
-            </form>
-          </div>
-
-          {/* Colonia subscriptions */}
-          <div>
-            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              Colonias ({coloniaSubs.length})
-            </label>
-            <div className="flex flex-wrap gap-2 mb-2">
-              {coloniaSubs.map((s) => (
-                <span
-                  key={s.id}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-clay-50 dark:bg-clay-900/20 text-clay-700 dark:text-clay-300 rounded-full text-xs font-medium"
-                >
-                  {s.tagName}
-                  <button
-                    onClick={() => handleRemove(s.id)}
-                    className="ml-1 hover:text-red-500 transition-colors"
-                  >
-                    &times;
-                  </button>
-                </span>
-              ))}
-            </div>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleAdd("colonia", newColonia);
-              }}
-              className="flex gap-2"
-            >
-              <input
-                type="text"
-                value={newColonia}
-                onChange={(e) => setNewColonia(e.target.value)}
-                placeholder="Ej: Colonia Centro"
-                className="flex-1 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-clay-400"
-              />
-              <button
-                type="submit"
-                disabled={!newColonia.trim() || adding}
-                className="px-4 py-2 rounded-lg bg-clay-500 hover:bg-clay-600 disabled:opacity-50 text-white text-sm font-medium transition-colors"
-              >
-                Agregar
-              </button>
-            </form>
-          </div>
+          <TagSection
+            type="ciudad"
+            items={ciudadSubs}
+            onRemove={handleRemove}
+            placeholder="Ej: Hermosillo"
+            onAdd={(name) => handleAdd("ciudad", name)}
+          />
+          <TagSection
+            type="colonia"
+            items={coloniaSubs}
+            onRemove={handleRemove}
+            placeholder="Ej: Colonia Centro"
+            onAdd={(name) => handleAdd("colonia", name)}
+          />
         </>
       )}
     </div>

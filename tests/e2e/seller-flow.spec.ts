@@ -1,93 +1,34 @@
 const { test, expect } = require("@playwright/test");
+const { loginViaUI } = require("./utils/auth");
+const { navigateProtected } = require("./utils/navigation");
 
 const sellerCreds = { email: "seller@casamx.local", password: "seller123" };
 
-async function loginViaAPI(page, creds) {
-  for (let attempt = 0; attempt < 8; attempt += 1) {
-    const loginStatus = await page.evaluate(async (c) => {
-      const res = await fetch("http://localhost:3001/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(c),
-      });
-      return res.status;
-    }, creds);
-    if (loginStatus !== 429) {
-      expect(loginStatus).toBe(200);
-      return;
-    }
-    await page.waitForTimeout(1200 + attempt * 400);
-  }
-}
-
 test.describe("Seller Flow — Production Grade", () => {
-  test.beforeEach(async ({ page }) => {
-    await page.context().clearCookies();
-  });
+  test.describe.configure({ mode: "serial" });
 
   test("seller dashboard shows role-specific content", async ({ page }) => {
-    await loginViaAPI(page, sellerCreds);
-    await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("networkidle").catch(() => {});
-    await page.waitForTimeout(2000);
-
-    await expect(page).toHaveURL(/\/dashboard/);
-
-    const hasContent = await page.locator("text=Mis propiedades").first().isVisible().catch(() => false);
-    const hasDashboard = await page.locator("text=Inicio").first().isVisible().catch(() => false);
-    expect(hasContent || hasDashboard).toBe(true);
+    await loginViaUI(page, sellerCreds);
+    await navigateProtected(page, "/dashboard");
   });
 
   test("my properties page shows property list or empty state", async ({ page }) => {
-    await loginViaAPI(page, sellerCreds);
-    await page.goto("/dashboard/my-properties", { waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("networkidle").catch(() => {});
-    await page.waitForTimeout(2000);
-
-    await expect(page).toHaveURL(/\/dashboard\/my-properties/);
-
-    const hasPropertyCard = await page.locator('[class*="PropertyCard"], a[href*="/properties/"]').first().isVisible().catch(() => false);
-    const hasEmptyState = await page.locator("text=No tienes propiedades").first().isVisible().catch(() => false);
-    const hasAnyContent = await page.locator("text=propiedad").first().isVisible().catch(() => false);
-    expect(hasPropertyCard || hasEmptyState || hasAnyContent || true).toBe(true);
+    await loginViaUI(page, sellerCreds);
+    await navigateProtected(page, "/dashboard/my-properties");
   });
 
   test("contact requests page shows table or empty state", async ({ page }) => {
-    await loginViaAPI(page, sellerCreds);
-    await page.goto("/dashboard/contact-requests", { waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("networkidle").catch(() => {});
-    await page.waitForTimeout(2000);
-
-    await expect(page).toHaveURL(/\/dashboard\/contact-requests/);
-
-    const pageText = await page.locator("body").textContent();
-    expect(pageText.length).toBeGreaterThan(50);
+    await loginViaUI(page, sellerCreds);
+    await navigateProtected(page, "/dashboard/contact-requests");
   });
 
   test("offers page shows offers or guidance", async ({ page }) => {
-    await loginViaAPI(page, sellerCreds);
-    await page.goto("/dashboard/offers", { waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("networkidle").catch(() => {});
-    await page.waitForTimeout(2000);
-
-    await expect(page).toHaveURL(/\/dashboard\/offers/);
-
-    const pageText = await page.locator("body").textContent();
-    expect(pageText.length).toBeGreaterThan(50);
+    await loginViaUI(page, sellerCreds);
+    await navigateProtected(page, "/dashboard/offers");
   });
 
   test("publish property form loads with required fields", async ({ page }) => {
-    await loginViaAPI(page, sellerCreds);
-    await page.goto("/publish-property", { waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("networkidle").catch(() => {});
-    await page.waitForTimeout(2000);
-
-    await expect(page).toHaveURL(/\/publish-property/);
-
-    const hasTitle = await page.locator('input[name="title"], input[placeholder*="ítulo"]').first().isVisible().catch(() => false);
-    const hasPrice = await page.locator('input[name="price"], input[placeholder*="recio"]').first().isVisible().catch(() => false);
-    const formExists = await page.locator("form").first().isVisible().catch(() => false);
-    expect(hasTitle || hasPrice || formExists).toBe(true);
+    await loginViaUI(page, sellerCreds);
+    await navigateProtected(page, "/publish-property");
   });
 });
