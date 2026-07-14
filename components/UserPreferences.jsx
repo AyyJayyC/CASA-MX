@@ -13,7 +13,6 @@ const PERFIL_OPTIONS = [
   { value: "buy_hold", label: "Buy & Hold" },
   { value: "wholesaler", label: "Wholesaler" },
   { value: "developer", label: "Desarrollador" },
-  { value: "realtor", label: "Realtor" },
   { value: "owner", label: "Propietario" },
 ];
 const ENFOQUE_OPTIONS = [
@@ -68,16 +67,16 @@ const CHIP_CATEGORY_LABELS = {
 
 export default function UserPreferences() {
   const { user } = useAuth();
-  const activeRole = user?.activeRole || "buyer";
-  const isBuyer = ["buyer", "tenant"].includes(activeRole);
-  const isSeller = ["seller", "landlord", "wholesaler"].includes(activeRole);
+  const activeRole = user?.activeRole || "client";
+  const isClient = activeRole === "client";
+  const isSeller = ["owner", "agent"].includes(activeRole);
 
   const [prefs, setPrefs] = useState(null);
   const [notifs, setNotifs] = useState(null);
   const [tags, setTagsState] = useState(null);
   const [saved, setSaved] = useState(false);
   const [activeTab, setActiveTab] = useState(
-    isBuyer ? "intereses" : "operacion",
+    isClient ? "intereses" : "operacion",
   );
 
   useEffect(() => {
@@ -126,16 +125,16 @@ export default function UserPreferences() {
 
       {/* Tabs */}
       <div className="flex gap-1 bg-neutral-100 dark:bg-neutral-800 rounded-lg p-1">
-        {(isBuyer || (isSeller && !isBuyer)) && (
+        {(isClient || (isSeller && !isClient)) && (
           <button
-            onClick={() => setActiveTab(isBuyer ? "intereses" : "operacion")}
+            onClick={() => setActiveTab(isClient ? "intereses" : "operacion")}
             className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               activeTab === "intereses" || activeTab === "operacion"
                 ? "bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-sm"
                 : "text-neutral-500 hover:text-neutral-700"
             }`}
           >
-            {isBuyer ? "Mis intereses" : "Donde opero"}
+            {isClient ? "Mis intereses" : "Donde opero"}
           </button>
         )}
         <button
@@ -178,7 +177,7 @@ export default function UserPreferences() {
         )}
 
         {/* Tab: Intereses (Buy Box for buyers) */}
-        {activeTab === "intereses" && isBuyer && (
+        {activeTab === "intereses" && isClient && (
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">

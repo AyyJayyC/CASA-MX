@@ -27,9 +27,8 @@ const DOC_CONFIG = {
 };
 
 const REQUIRED_DOCS = {
-  seller: ["title_deed"],
-  landlord: ["title_deed"],
-  wholesaler: ["agent_authorization"],
+  owner: ["title_deed"],
+  agent: ["agent_authorization"],
 };
 
 // Initial slot state factory
@@ -44,11 +43,11 @@ function makeSlots(types) {
 
 export default function DocumentUploadStep({
   propertyId,
-  sellerRole = "seller",
+  sellerRole = "owner",
   onContinue,
   onUploadLater,
 }) {
-  const requiredTypes = REQUIRED_DOCS[sellerRole] ?? REQUIRED_DOCS.seller;
+  const requiredTypes = REQUIRED_DOCS[sellerRole] ?? REQUIRED_DOCS.owner;
   const [slots, setSlots] = useState(() => makeSlots(requiredTypes));
   const [autoVerified, setAutoVerified] = useState(false);
   const fileRefs = useRef({});

@@ -54,10 +54,10 @@ describe('NavBar role-aware links', () => {
       user: {
         name: 'John Doe',
         email: 'john@example.com',
-        activeRole: 'seller',
+        activeRole: 'owner',
         roles: [
-          { type: 'seller', status: 'approved' },
-          { type: 'buyer', status: 'pending' }
+          { type: 'owner', status: 'approved' },
+          { type: 'client', status: 'pending' }
         ]
       },
       loading: false,

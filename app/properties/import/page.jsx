@@ -12,7 +12,7 @@ const PropertyImportWizard = dynamic(
 
 export default function ImportPage() {
   return (
-    <RequireRole roles={["wholesaler", "seller", "landlord", "admin"]}>
+    <RequireRole roles={["agent", "owner", "admin"]}>
       <ImportContent />
     </RequireRole>
   );

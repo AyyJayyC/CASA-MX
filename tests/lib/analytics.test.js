@@ -19,7 +19,7 @@ describe("Analytics layer", () => {
     const payload = await analytics.trackEvent(
       "PropertyViewed",
       { entityId: "prop-1", metadata: { foo: "bar" } },
-      { userId: "user-1", activeRole: "seller" },
+      { userId: "user-1", activeRole: "owner" },
     );
 
     expect(payload).toBeDefined();

@@ -55,20 +55,20 @@ describe('userStore — Production Gate', () => {
   });
 
   describe('Preference isolation', () => {
-    it('buyer prefs do not leak into seller prefs', () => {
+    it('client prefs do not leak into owner prefs', () => {
       act(() => {
-        useUserStore.getState().savePreferences('buyer', { propertyTypes: ['Casa'] });
-        useUserStore.getState().savePreferences('seller', { propertyTypes: ['Terreno'] });
+        useUserStore.getState().savePreferences('client', { propertyTypes: ['Casa'] });
+        useUserStore.getState().savePreferences('owner', { propertyTypes: ['Terreno'] });
       });
-      expect(useUserStore.getState().getPreferences('buyer').propertyTypes).toEqual(['Casa']);
-      expect(useUserStore.getState().getPreferences('seller').propertyTypes).toEqual(['Terreno']);
+      expect(useUserStore.getState().getPreferences('client').propertyTypes).toEqual(['Casa']);
+      expect(useUserStore.getState().getPreferences('owner').propertyTypes).toEqual(['Terreno']);
     });
 
     it('saving prefs preserves defaults for unspecified fields', () => {
       act(() => {
-        useUserStore.getState().savePreferences('buyer', { propertyTypes: ['Casa'] });
+        useUserStore.getState().savePreferences('client', { propertyTypes: ['Casa'] });
       });
-      const prefs = useUserStore.getState().getPreferences('buyer');
+      const prefs = useUserStore.getState().getPreferences('client');
       expect(prefs.minPrice).toBe('');
       expect(prefs.furnished).toBe('unfurnished');
     });
@@ -113,23 +113,23 @@ describe('userStore — Production Gate', () => {
   describe('Clear and reset', () => {
     it('clearAddresses removes all addresses but keeps prefs', () => {
       act(() => {
-        useUserStore.getState().savePreferences('buyer', { propertyTypes: ['Casa'] });
+        useUserStore.getState().savePreferences('client', { propertyTypes: ['Casa'] });
         useUserStore.getState().addAddress({ ciudad: 'A', estado: 'B', colonia: 'C' });
         useUserStore.getState().clearAddresses();
       });
       expect(useUserStore.getState().addresses).toHaveLength(0);
-      expect(useUserStore.getState().getPreferences('buyer').propertyTypes).toEqual(['Casa']);
+      expect(useUserStore.getState().getPreferences('client').propertyTypes).toEqual(['Casa']);
     });
 
     it('clearAll wipes everything', () => {
       act(() => {
-        useUserStore.getState().savePreferences('buyer', { propertyTypes: ['Casa'] });
+        useUserStore.getState().savePreferences('client', { propertyTypes: ['Casa'] });
         useUserStore.getState().saveTags({ perfil: ['test'] });
         useUserStore.getState().addAddress({ ciudad: 'A', estado: 'B', colonia: 'C' });
         useUserStore.getState().clearAll();
       });
       expect(useUserStore.getState().addresses).toHaveLength(0);
-      expect(useUserStore.getState().getPreferences('buyer').propertyTypes).toEqual([]);
+      expect(useUserStore.getState().getPreferences('client').propertyTypes).toEqual([]);
       expect(useUserStore.getState().getTags().perfil).toEqual([]);
     });
   });

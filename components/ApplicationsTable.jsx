@@ -7,13 +7,11 @@
 "use client";
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import LeaveReviewModal from "./LeaveReviewModal.jsx";
 import ApplicationDetailsModal from "./ApplicationDetailsModal.jsx";
 import {
   getPropertyApplications,
   updateApplicationStatus,
 } from "@/lib/api/applications";
-import { getMyAuthoredReviews } from "@/lib/api/reviews";
 import { useSpendCredit, useCreditsBalance } from "@/lib/queries/credits";
 
 const ApproveRejectModal = dynamic(() => import("./ApproveRejectModal.jsx"), {
@@ -58,8 +56,6 @@ export default function ApplicationsTable({
   const [selectedApp, setSelectedApp] = useState(null);
   const [actionType, setActionType] = useState(null); // 'approve' or 'reject'
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [reviewModalApp, setReviewModalApp] = useState(null);
-  const [reviewedApplicationIds, setReviewedApplicationIds] = useState([]);
   // Contacts revealed during this session (after spending a credit).
   // API also returns non-null email/phone for leads unlocked in previous sessions.
   const [unlockedContacts, setUnlockedContacts] = useState({});
@@ -78,17 +74,9 @@ export default function ApplicationsTable({
         setIsLoading(true);
         setError(null);
 
-        const [applicationsData, reviewsData] = await Promise.all([
-          getPropertyApplications(propertyId),
-          getMyAuthoredReviews("landlord"),
-        ]);
+        const applicationsData = await getPropertyApplications(propertyId);
 
         setApplications(applicationsData || []);
-        setReviewedApplicationIds(
-          (reviewsData || [])
-            .map((review) => review.rentalApplicationId)
-            .filter(Boolean),
-        );
       } catch (err) {
         setError(err.message || "Error al cargar solicitudes");
       } finally {
@@ -477,28 +465,12 @@ export default function ApplicationsTable({
           onClose={() => setSelectedApp(null)}
           onApprove={() => setActionType("approve")}
           onReject={() => setActionType("reject")}
-          onReview={() => setReviewModalApp(selectedApp)}
-          hasSubmittedReview={reviewedApplicationIds.includes(selectedApp.id)}
           unlockedContact={getContact(selectedApp)}
           onUnlock={() => handleUnlock(selectedApp)}
           isUnlocking={unlocking === selectedApp.id}
         />
       )}
 
-      <LeaveReviewModal
-        isOpen={Boolean(reviewModalApp)}
-        onClose={() => setReviewModalApp(null)}
-        rentalApplicationId={reviewModalApp?.id}
-        reviewerRole="landlord"
-        revieweeName={reviewModalApp?.fullName}
-        propertyTitle={reviewModalApp?.property?.title || propertyTitle}
-        onSubmitted={() => {
-          if (!reviewModalApp) return;
-          setReviewedApplicationIds((current) => [
-            ...new Set([...current, reviewModalApp.id]),
-          ]);
-        }}
-      />
     </div>
   );
 }

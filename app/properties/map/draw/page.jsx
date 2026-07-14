@@ -33,7 +33,7 @@ export default function DrawMapPage() {
 
   if (isLoading) {
     return (
-      <RequireRole roles={["buyer", "seller", "tenant", "landlord", "wholesaler", "admin"]}>
+      <RequireRole roles={["client", "owner", "agent", "admin"]}>
         <div className="p-6">
           <h1 className="text-2xl font-bold mb-4">Mapa Interactivo</h1>
           <div className="p-4 text-center">Cargando...</div>
@@ -43,7 +43,7 @@ export default function DrawMapPage() {
   }
 
   return (
-    <RequireRole roles={["buyer", "seller", "admin"]}>
+    <RequireRole roles={["client", "owner", "admin"]}>
       <div className="p-6 max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-3 flex-wrap gap-3">
           <div>

@@ -4,7 +4,7 @@ import ContactRequestsList from '../../components/ContactRequestsList.jsx';
 import * as queries from '../../lib/queries/requests';
 
 describe('ContactRequestsList', () => {
-  it('displays contact requests for a buyer', async () => {
+  it('displays contact requests for a client', async () => {
     const mockData = [
       { id: 'req-1', propertyId: 'prop-1', status: 'pending', createdAt: new Date().toISOString(), property: { id: 'prop-1', title: 'Casa Roma' } }
     ];

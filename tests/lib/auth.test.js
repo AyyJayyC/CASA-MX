@@ -40,8 +40,8 @@ describe("Auth API", () => {
         name: "John Doe",
         email: "john@example.com",
         roles: [
-          { roleName: "buyer", status: "pending" },
-          { roleName: "seller", status: "pending" },
+          { roleName: "client", status: "pending" },
+          { roleName: "owner", status: "pending" },
         ],
       },
     });
@@ -50,7 +50,7 @@ describe("Auth API", () => {
       name: "John Doe",
       email: "john@example.com",
       password: "TestPassword123",
-      roles: ["buyer", "seller"],
+      roles: ["client", "owner"],
     });
 
     expect(fetch).toHaveBeenCalledTimes(1);
@@ -58,8 +58,8 @@ describe("Auth API", () => {
     expect(result.user.name).toBe("John Doe");
     expect(result.user.email).toBe("john@example.com");
     expect(result.user.roles).toEqual([
-      { type: "buyer", status: "pending" },
-      { type: "seller", status: "pending" },
+      { type: "client", status: "pending" },
+      { type: "owner", status: "pending" },
     ]);
   });
 
@@ -70,8 +70,8 @@ describe("Auth API", () => {
         name: "Login Test",
         email: "login@example.com",
         roles: [
-          { roleName: "buyer", status: "approved" },
-          { roleName: "seller", status: "pending" },
+          { roleName: "client", status: "approved" },
+          { roleName: "owner", status: "pending" },
         ],
       },
     });
@@ -82,10 +82,10 @@ describe("Auth API", () => {
     });
 
     expect(fetch).toHaveBeenCalledTimes(1);
-    expect(result.user.activeRole).toBe("buyer");
+    expect(result.user.activeRole).toBe("client");
     expect(result.user.roles).toEqual([
-      { type: "buyer", status: "approved" },
-      { type: "seller", status: "pending" },
+      { type: "client", status: "approved" },
+      { type: "owner", status: "pending" },
     ]);
   });
 

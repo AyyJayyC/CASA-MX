@@ -4,7 +4,7 @@ const { navigateProtected } = require("./utils/navigation");
 
 const buyerCreds = { email: "buyer@casamx.local", password: "buyer123" };
 
-test.describe("Buyer Flow — Production Grade", () => {
+test.describe("Client Flow — Production Grade", () => {
 
   test("properties page shows search results or empty state", async ({ page }) => {
     await page.goto("/properties", { waitUntil: "networkidle" });
@@ -33,7 +33,7 @@ test.describe("Buyer Flow — Production Grade", () => {
     }
   });
 
-  test("my offers page loads for authenticated buyer", async ({ page }) => {
+  test("my offers page loads for authenticated client", async ({ page }) => {
     await loginViaUI(page, buyerCreds);
     await navigateProtected(page, "/dashboard/my-offers");
   });

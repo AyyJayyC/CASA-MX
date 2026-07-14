@@ -39,11 +39,11 @@ describe('Auth Lifecycle — Production Gate', () => {
 
       const { result } = renderHook(() => React.useContext(AuthContext), { wrapper });
       await act(async () => {
-        await result.current.register({ name: 'New User', email: 'new@test.com', password: 'P@ssw0rd!', roles: ['buyer'] });
+        await result.current.register({ name: 'New User', email: 'new@test.com', password: 'P@ssw0rd!', roles: ['client'] });
       });
 
       expect(authAPI.register).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'New User', email: 'new@test.com', roles: ['buyer'] }),
+        expect.objectContaining({ name: 'New User', email: 'new@test.com', roles: ['client'] }),
       );
     });
 
@@ -53,7 +53,7 @@ describe('Auth Lifecycle — Production Gate', () => {
       const { result } = renderHook(() => React.useContext(AuthContext), { wrapper });
       await act(async () => {
         try {
-          await result.current.register({ name: 'X', email: 'exists@test.com', password: 'pw', roles: ['buyer'] });
+          await result.current.register({ name: 'X', email: 'exists@test.com', password: 'pw', roles: ['client'] });
         } catch {}
       });
 
@@ -64,7 +64,7 @@ describe('Auth Lifecycle — Production Gate', () => {
   describe('Login', () => {
     it('logs in successfully', async () => {
       authAPI.login.mockResolvedValue({
-        user: { id: 'u1', name: 'Test', email: 'test@test.com', activeRole: 'buyer', roles: [{ type: 'buyer', status: 'approved' }] },
+        user: { id: 'u1', name: 'Test', email: 'test@test.com', activeRole: 'client', roles: [{ type: 'client', status: 'approved' }] },
       });
 
       const { result } = renderHook(() => React.useContext(AuthContext), { wrapper });
@@ -101,7 +101,7 @@ describe('Auth Lifecycle — Production Gate', () => {
       expect(result.current.loading).toBe(true);
 
       await act(async () => {
-        resolveLogin({ user: { id: 'u1', name: 'T', email: 't@t.com', activeRole: 'buyer', roles: [] } });
+        resolveLogin({ user: { id: 'u1', name: 'T', email: 't@t.com', activeRole: 'client', roles: [] } });
         await loginPromise;
       });
 
@@ -112,9 +112,9 @@ describe('Auth Lifecycle — Production Gate', () => {
   describe('Role Switching', () => {
     it('switches to an approved role', async () => {
       authAPI.login.mockResolvedValue({
-        user: { id: 'u1', name: 'Multi', email: 'm@t.com', activeRole: 'buyer', roles: [
-          { type: 'buyer', status: 'approved' },
-          { type: 'seller', status: 'approved' },
+        user: { id: 'u1', name: 'Multi', email: 'm@t.com', activeRole: 'client', roles: [
+          { type: 'client', status: 'approved' },
+          { type: 'owner', status: 'approved' },
         ]},
       });
 
@@ -124,18 +124,18 @@ describe('Auth Lifecycle — Production Gate', () => {
       });
 
       await act(async () => {
-        result.current.switchRole('seller');
+        result.current.switchRole('owner');
       });
 
-      expect(result.current.user.activeRole).toBe('seller');
+      expect(result.current.user.activeRole).toBe('owner');
       expect(result.current.error).toBeNull();
     });
 
     it('rejects switching to pending role', async () => {
       authAPI.login.mockResolvedValue({
-        user: { id: 'u1', name: 'Pending', email: 'p@t.com', activeRole: 'buyer', roles: [
-          { type: 'buyer', status: 'approved' },
-          { type: 'seller', status: 'pending' },
+        user: { id: 'u1', name: 'Pending', email: 'p@t.com', activeRole: 'client', roles: [
+          { type: 'client', status: 'approved' },
+          { type: 'owner', status: 'pending' },
         ]},
       });
 
@@ -145,17 +145,17 @@ describe('Auth Lifecycle — Production Gate', () => {
       });
 
       act(() => {
-        result.current.switchRole('seller');
+        result.current.switchRole('owner');
       });
 
-      expect(result.current.user.activeRole).toBe('buyer');
+      expect(result.current.user.activeRole).toBe('client');
       expect(result.current.error).toContain('not approved');
     });
 
     it('rejects switching to non-existent role', async () => {
       authAPI.login.mockResolvedValue({
-        user: { id: 'u1', name: 'NoRole', email: 'n@t.com', activeRole: 'buyer', roles: [
-          { type: 'buyer', status: 'approved' },
+        user: { id: 'u1', name: 'NoRole', email: 'n@t.com', activeRole: 'client', roles: [
+          { type: 'client', status: 'approved' },
         ]},
       });
 
@@ -165,7 +165,7 @@ describe('Auth Lifecycle — Production Gate', () => {
       });
 
       act(() => {
-        result.current.switchRole('wholesaler');
+        result.current.switchRole('agent');
       });
 
       expect(result.current.error).toBe('Role not found');
@@ -175,7 +175,7 @@ describe('Auth Lifecycle — Production Gate', () => {
   describe('Logout', () => {
     it('clears session and user on logout', async () => {
       authAPI.login.mockResolvedValue({
-        user: { id: 'u1', name: 'Logout', email: 'lo@t.com', activeRole: 'buyer', roles: [{ type: 'buyer', status: 'approved' }] },
+        user: { id: 'u1', name: 'Logout', email: 'lo@t.com', activeRole: 'client', roles: [{ type: 'client', status: 'approved' }] },
       });
       authAPI.logout.mockResolvedValue({ success: true });
 
@@ -195,7 +195,7 @@ describe('Auth Lifecycle — Production Gate', () => {
 
     it('sets error on logout failure', async () => {
       authAPI.login.mockResolvedValue({
-        user: { id: 'u1', name: 'FL', email: 'fl@t.com', activeRole: 'buyer', roles: [{ type: 'buyer', status: 'approved' }] },
+        user: { id: 'u1', name: 'FL', email: 'fl@t.com', activeRole: 'client', roles: [{ type: 'client', status: 'approved' }] },
       });
       authAPI.logout.mockRejectedValue(new Error('Network error'));
 

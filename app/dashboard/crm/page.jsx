@@ -353,7 +353,7 @@ export default function CRMPage() {
   ];
 
   return (
-    <RequireRole roles={["seller", "wholesaler", "admin"]}>
+    <RequireRole roles={["owner", "agent", "admin"]}>
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 p-4 sm:p-6 space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

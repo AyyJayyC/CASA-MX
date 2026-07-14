@@ -25,7 +25,7 @@ describe('DebugPanel', () => {
       isAuthenticated: true,
       isHydrated: true,
       user: {
-        roles: [{ type: 'buyer', status: 'approved' }],
+        roles: [{ type: 'client', status: 'approved' }],
       },
     });
 

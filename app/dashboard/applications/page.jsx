@@ -18,7 +18,7 @@ const ApplicationsTable = dynamic(
 
 export default function LandlordDashboard() {
   return (
-    <RequireRole roles={["landlord"]}>
+    <RequireRole roles={["owner"]}>
       <LandlordDashboardContent />
     </RequireRole>
   );

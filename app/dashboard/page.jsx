@@ -11,7 +11,7 @@ const SECTIONS = [
     description:
       "Revisa y gestiona las solicitudes de inquilinos para tus propiedades en renta.",
     icon: "📋",
-    roles: ["landlord"],
+    roles: ["owner"],
   },
   {
     href: "/dashboard/offers",
@@ -19,7 +19,7 @@ const SECTIONS = [
     description:
       "Revisa y responde las ofertas que has recibido en tus propiedades en venta.",
     icon: "🤝",
-    roles: ["seller", "wholesaler", "admin"],
+    roles: ["owner", "agent", "admin"],
   },
   {
     href: "/dashboard/my-offers",
@@ -27,28 +27,28 @@ const SECTIONS = [
     description:
       "Sigue el árbol de negociación y responde contraofertas de vendedores.",
     icon: "🧭",
-    roles: ["buyer", "admin"],
+    roles: ["client", "admin"],
   },
   {
     href: "/dashboard/rental-applications",
     title: "Mis solicitudes de renta",
     description: "Consulta el estado de tus solicitudes como inquilino.",
     icon: "🏠",
-    roles: ["tenant"],
+    roles: ["client"],
   },
   {
     href: "/publish-property",
     title: "Publicar propiedad",
     description: "Crea un nuevo listado de propiedad en venta o en renta.",
     icon: "➕",
-    roles: ["seller", "wholesaler", "landlord", "admin"],
+    roles: ["owner", "agent", "admin"],
   },
   {
     href: "/properties",
     title: "Buscar propiedades",
     description: "Explora propiedades disponibles para comprar o rentar.",
     icon: "🔍",
-    roles: ["buyer", "tenant", "seller", "wholesaler", "landlord", "admin"],
+    roles: ["client", "owner", "agent", "admin"],
   },
   {
     href: "/dashboard/contact-requests",
@@ -56,7 +56,7 @@ const SECTIONS = [
     description:
       "Compradores que han solicitado la dirección de tus propiedades. Revela datos de contacto.",
     icon: "📩",
-    roles: ["seller", "landlord", "wholesaler", "admin"],
+    roles: ["owner", "agent", "admin"],
   },
   {
     href: "/requested",
@@ -64,14 +64,14 @@ const SECTIONS = [
     description:
       "Propiedades de las que has solicitado la dirección. Consulta las respuestas.",
     icon: "📍",
-    roles: ["buyer"],
+    roles: ["client"],
   },
   {
     href: "/reviews",
     title: "Reseñas",
     description: "Consulta y gestiona tus reseñas de propiedades.",
     icon: "⭐",
-    roles: ["tenant", "landlord"],
+    roles: ["client", "owner"],
   },
   {
     href: "/dashboard/account",
@@ -79,7 +79,7 @@ const SECTIONS = [
     description:
       "Gestiona tus documentos de identidad (INE/IFE) y datos personales.",
     icon: "🪪",
-    roles: ["buyer", "tenant", "seller", "wholesaler", "landlord", "admin"],
+    roles: ["client", "owner", "agent", "admin"],
   },
   {
     href: "/dashboard/shared",
@@ -87,35 +87,35 @@ const SECTIONS = [
     description:
       "Tus propiedades compartidas, clics y personas registradas a través de tus enlaces.",
     icon: "🔗",
-    roles: ["buyer", "tenant", "seller", "wholesaler", "landlord", "admin"],
+    roles: ["client", "owner", "agent", "admin"],
   },
   {
     href: "/dashboard/agency",
     title: "Mi agencia",
     description: "Gestiona tu agencia, invita agentes, revisa estadísticas.",
     icon: "🏢",
-    roles: ["seller", "landlord", "wholesaler", "admin"],
+    roles: ["owner", "agent", "admin"],
   },
   {
     href: "/dashboard/my-properties",
     title: "Mis propiedades",
     description: "Administra tus propiedades, completa borradores y publica.",
     icon: "🏘️",
-    roles: ["seller", "wholesaler", "landlord", "admin"],
+    roles: ["owner", "agent", "admin"],
   },
   {
     href: "/dashboard/crm",
     title: "CRM",
     description: "Pipeline de ventas, calendario y lista de compradores.",
     icon: "📊",
-    roles: ["seller", "wholesaler", "landlord", "admin"],
+    roles: ["owner", "agent", "admin"],
   },
   {
     href: "/properties/import",
     title: "Importar propiedades",
     description: "Importa propiedades desde Excel en lote.",
     icon: "📥",
-    roles: ["seller", "wholesaler", "admin"],
+    roles: ["owner", "agent", "admin"],
   },
   {
     href: "/admin/analytics/market",

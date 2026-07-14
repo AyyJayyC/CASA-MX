@@ -31,7 +31,7 @@ describe('offers API', () => {
   it('getMySellerOffers returns data', async () => {
     client.apiGet.mockResolvedValue({ data: [{ id: 'o1' }] });
     const result = await offers.getMySellerOffers();
-    expect(client.apiGet).toHaveBeenCalledWith('/offers/seller');
+    expect(client.apiGet).toHaveBeenCalledWith('/offers/owner');
     expect(result).toHaveLength(1);
   });
 

@@ -6,7 +6,7 @@ const sellerCreds = { email: "seller@casamx.local", password: "seller123" };
 
 test.describe("Rental Flow E2E Tests", () => {
 
-  test("Scenario 1: Tenant browses rental properties with filters", async ({
+  test("Scenario 1: Client browses rental properties with filters", async ({
     page,
   }) => {
     await page.goto("/properties", { waitUntil: "networkidle" });
@@ -23,7 +23,7 @@ test.describe("Rental Flow E2E Tests", () => {
     }
   });
 
-  test("Scenario 2: Tenant applies to rental property with complete form", async ({
+  test("Scenario 2: Client applies to rental property with complete form", async ({
     page,
   }) => {
     await page.goto("/properties", { waitUntil: "networkidle" });
@@ -47,7 +47,7 @@ test.describe("Rental Flow E2E Tests", () => {
     }
   });
 
-  test("Scenario 3: Landlord dashboard loads successfully", async ({
+  test("Scenario 3: Owner dashboard loads successfully", async ({
     page,
   }) => {
     await loginViaUI(page, sellerCreds);

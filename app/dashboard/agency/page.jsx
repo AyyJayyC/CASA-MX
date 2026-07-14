@@ -220,7 +220,7 @@ export default function AgencyPage() {
   const planPrice = agency.pricing?.planPrice || 0;
 
   return (
-    <RequireRole roles={["seller", "wholesaler", "admin"]}>
+    <RequireRole roles={["owner", "agent", "admin"]}>
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
       <div className="max-w-4xl mx-auto px-4 py-10 space-y-6">
         <div>

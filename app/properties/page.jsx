@@ -123,7 +123,7 @@ function PropertiesContent() {
 
   useEffect(() => {
     if (!user) return;
-    const role = user.activeRole || "buyer";
+    const role = user.activeRole || "client";
     const prefs = useUserStore.getState().getPreferences(role);
     const params = new URLSearchParams(searchParams);
     let changed = false;

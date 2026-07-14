@@ -126,20 +126,20 @@ describe('NavBar link integrity', () => {
     }
   });
 
-  it('all NavBar links point to known routes (authenticated seller)', () => {
+  it('all NavBar links point to known routes (authenticated owner)', () => {
     const authValue = makeAuthValue({
       isAuthenticated: true,
       user: {
         id: 'u1',
-        name: 'Test Seller',
-        email: 'seller@test.com',
-        activeRole: 'seller',
+        name: 'Test Owner',
+        email: 'owner@test.com',
+        activeRole: 'owner',
         officialIdVerified: true,
         officialIdUploaded: true,
         paidSubscriber: false,
         roles: [
-          { type: 'seller', status: 'approved' },
-          { type: 'buyer', status: 'approved' },
+          { type: 'owner', status: 'approved' },
+          { type: 'client', status: 'approved' },
         ],
       },
     });
@@ -172,7 +172,7 @@ describe('NavBar link integrity', () => {
         paidSubscriber: false,
         roles: [
           { type: 'admin', status: 'approved' },
-          { type: 'buyer', status: 'approved' },
+          { type: 'client', status: 'approved' },
         ],
       },
     });
@@ -200,7 +200,7 @@ describe('DesktopNavLinks link integrity', () => {
         isAuthenticated,
         isAdminUser: false,
         showDebugUI: false,
-        activeRole: 'buyer',
+        activeRole: 'client',
         canPublish,
         propertiesDropdownOpen: false,
         setPropertiesDropdownOpen: vi.fn(),
@@ -237,12 +237,12 @@ describe('MobileMenu link integrity', () => {
               id: 'u1',
               name: 'Test',
               email: 'test@test.com',
-              activeRole: isAdmin ? 'admin' : 'buyer',
+              activeRole: isAdmin ? 'admin' : 'client',
               officialIdVerified: false,
               officialIdUploaded: false,
               paidSubscriber: false,
               roles: [
-                { type: isAdmin ? 'admin' : 'buyer', status: 'approved' },
+                { type: isAdmin ? 'admin' : 'client', status: 'approved' },
               ],
             }
           : null,

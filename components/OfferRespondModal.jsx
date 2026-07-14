@@ -11,7 +11,7 @@ export default function OfferRespondModal({
   isOpen,
   onClose,
   offer,
-  perspective = "seller", // 'seller' | 'buyer'
+  perspective = "owner", // 'owner' | 'client'
   onResponded,
 }) {
   const [respondForm, setRespondForm] = useState({
@@ -25,7 +25,7 @@ export default function OfferRespondModal({
 
   if (!isOpen || !offer) return null;
 
-  const isSeller = perspective === "seller";
+  const isSeller = perspective === "owner";
   const title = isSeller ? "Responder oferta" : "Responder negociación";
   const noteLabel = isSeller ? "Nota para el comprador" : "Mensaje";
   const noteFieldKey = isSeller ? "sellerNote" : "message";

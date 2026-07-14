@@ -34,7 +34,7 @@ describe('RegisterPage', () => {
     expect(submit).toBeDisabled();
 
     // select role
-    const buyerButton = screen.getByRole('button', { name: /Comprar propiedad/i });
+    const buyerButton = screen.getByRole('button', { name: /Buscar propiedad \(comprar o rentar\)/i });
     fireEvent.click(buyerButton);
 
     expect(submit).toBeEnabled();

@@ -245,7 +245,7 @@ export default function DetailsSection({
         </div>
         <p className="text-xs text-neutral-500 mt-1">
           {watch('visibility') === 'private'
-            ? '🔒 Solo visible para mayoristas, realtors y administradores. No aparecerá en búsquedas públicas.'
+            ? '🔒 Solo visible para agentes y administradores. No aparecerá en búsquedas públicas.'
             : '🌐 Visible para todos los usuarios en búsquedas públicas.'}
         </p>
       </div>
