@@ -40,6 +40,8 @@ const nextConfig = {
       { source: '/terms', destination: '/terminos', permanent: true },
       { source: '/privacy', destination: '/aviso-legal', permanent: true },
       { source: '/upload', destination: '/upload/sale', permanent: true },
+      { source: '/propiedades', destination: '/properties', permanent: true },
+      { source: '/propiedades/:id', destination: '/properties/:id', permanent: true },
     ];
   },
 };

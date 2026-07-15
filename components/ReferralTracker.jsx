@@ -16,8 +16,8 @@ export default function ReferralTracker() {
     if (compartio) {
       setItem("referralCode", compartio);
 
-      // Extract propertyId from path: /propiedades/ID
-      const match = window.location.pathname.match(/\/propiedades\/([^/]+)/);
+      // Extract propertyId from path: /properties/ID or /propiedades/ID
+      const match = window.location.pathname.match(/\/(?:propiedades|properties)\/([^/]+)/);
       const propertyId = match ? match[1] : null;
 
       trackReferralClick({ referralCode: compartio, propertyId });

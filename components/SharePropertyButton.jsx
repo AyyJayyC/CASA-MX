@@ -19,8 +19,8 @@ export default function SharePropertyButton({ propertyId, propertyTitle }) {
     if (!code && user) {
       code = await getMyReferralCode();
     }
-    if (!code) return `${FRONTEND_URL}/propiedades/${propertyId}`;
-    return `${FRONTEND_URL}/propiedades/${propertyId}?compartio=${code}`;
+    if (!code) return `${FRONTEND_URL}/properties/${propertyId}`;
+    return `${FRONTEND_URL}/properties/${propertyId}?compartio=${code}`;
   }, [user, propertyId]);
 
   const handleWhatsApp = async () => {
