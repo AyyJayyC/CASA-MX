@@ -207,7 +207,7 @@ function transformProperties(raw, agentMappings = {}) {
       childrenWelcome: false,
       issuesInvoice: false,
       amenities: [],
-      imageUrls: (p.images || []).slice().sort((a, b) => a.order - b.order).map((i) => i.url).slice(0, 10),
+      imageUrls: (p.images || []).slice().sort((a, b) => a.order - b.order).map((i) => i.url).slice(0, 25),
     };
 
     if (listingType === "for_sale") {
@@ -459,6 +459,67 @@ async function migrate() {
   }
 }
 
+// ─── Publisher ────────────────────────────────────────────────────────
+// Reads the latest migration report and publishes each draft.
+// Requires: casamxId present in report, property owned by the authenticated user, ≥1 image.
+async function publishDrafts() {
+  log("PUBLISH", "Finding latest migration report...");
+  const { readdir } = await import("node:fs/promises");
+  const files = (await readdir(DATA_DIR)).filter((f) => f.startsWith("migration-report-") && f.endsWith(".json"));
+  if (!files.length) {
+    log("FATAL", "No migration report found. Run migrate first.");
+    process.exit(1);
+  }
+  const latest = files.sort().pop();
+  const report = JSON.parse(await readFile(resolve(DATA_DIR, latest), "utf-8"));
+  log("PUBLISH", `Using report: ${latest}`);
+
+  const drafts = (report.results || []).filter((r) => r.casamxId && r.status === "draft");
+  if (!drafts.length) {
+    log("PUBLISH", "No drafts to publish.");
+    return;
+  }
+
+  const token = await casaMxAuth();
+  const pubReport = { total: drafts.length, published: 0, failed: 0, results: [] };
+
+  for (let i = 0; i < drafts.length; i++) {
+    const d = drafts[i];
+    const num = `[${i + 1}/${drafts.length}]`;
+    log("PUBLISH", `${num} ${d.title?.slice(0, 50)}`);
+    try {
+      await apiRequest(`${CFG.casamx.apiUrl}/properties/${d.casamxId}/publish`, { method: "POST" }, token);
+      pubReport.published++;
+      log("PUBLISH", `  ✓ published`);
+      pubReport.results.push({ casamxId: d.casamxId, title: d.title, status: "published" });
+    } catch (err) {
+      pubReport.failed++;
+      log("PUBLISH", `  ✗ ${err.message}`);
+      pubReport.results.push({ casamxId: d.casamxId, title: d.title, error: err.message, status: "failed" });
+      if (err.status === 429) {
+        const wait = 60_000;
+        log("RATE", `  Rate limited — waiting ${wait / 1000}s...`);
+        await new Promise((r) => setTimeout(r, wait));
+      }
+    }
+    if (i < drafts.length - 1) {
+      await new Promise((r) => setTimeout(r, 2000));
+    }
+  }
+
+  await writeFile(resolve(DATA_DIR, `publish-report-${Date.now()}.json`), JSON.stringify(pubReport, null, 2), "utf-8");
+
+  console.log("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  console.log("  PUBLISH COMPLETE");
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  console.log(`  Published: ${pubReport.published}`);
+  console.log(`  Failed:    ${pubReport.failed}`);
+  console.log(`  Total:     ${pubReport.total}`);
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+
+  if (pubReport.failed > 0) process.exit(1);
+}
+
 // ─── Entry ────────────────────────────────────────────────────────────
 const args = process.argv.slice(2);
 if (args.includes("--dry")) {
@@ -468,8 +529,15 @@ if (args.includes("--skip-fetch")) {
   CFG.skipFetch = true;
 }
 
-migrate().catch((err) => {
-  console.error("\nFATAL:", err.message);
-  if (err.stack && !err.message.includes("FATAL")) console.error(err.stack);
-  process.exit(1);
-});
+if (args.includes("--publish")) {
+  publishDrafts().catch((err) => {
+    console.error("\nFATAL:", err.message);
+    process.exit(1);
+  });
+} else {
+  migrate().catch((err) => {
+    console.error("\nFATAL:", err.message);
+    if (err.stack && !err.message.includes("FATAL")) console.error(err.stack);
+    process.exit(1);
+  });
+}
