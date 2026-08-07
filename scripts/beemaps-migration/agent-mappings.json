@@ -1,0 +1,5 @@
+// Agent mapping for Beemaps → CASA MX migration
+// Format: { "beemaps-email-or-name": "casa-mx-user-id" }
+// Properties without matching agents are created under the admin account.
+// Leave empty {} to assign all properties to your admin account.
+{}
