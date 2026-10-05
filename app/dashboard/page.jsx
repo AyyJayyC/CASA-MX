@@ -67,13 +67,6 @@ const SECTIONS = [
     roles: ["client"],
   },
   {
-    href: "/reviews",
-    title: "Reseñas",
-    description: "Consulta y gestiona tus reseñas de propiedades.",
-    icon: "⭐",
-    roles: ["client", "owner"],
-  },
-  {
     href: "/dashboard/account",
     title: "Mi cuenta",
     description:

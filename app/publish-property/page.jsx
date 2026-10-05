@@ -219,7 +219,7 @@ export default function PublishPropertyPage() {
                         clipRule="evenodd"
                       />
                     </svg>
-                    Inquilinos verificados
+                    Solicitudes de renta con documentos
                   </li>
                   <li className="flex items-center gap-2">
                     <svg

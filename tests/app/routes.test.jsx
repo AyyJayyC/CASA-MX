@@ -19,7 +19,6 @@ const PAGES = [
   { name: 'Cookie', file: 'app/cookie/page.jsx' },
   { name: 'Settings', file: 'app/settings/page.jsx' },
   { name: 'Credits', file: 'app/credits/page.jsx' },
-  { name: 'Reviews', file: 'app/reviews/page.jsx' },
   { name: 'Requested', file: 'app/requested/page.jsx' },
   { name: 'PublishProperty', file: 'app/publish-property/page.jsx' },
   { name: 'Dashboard', file: 'app/dashboard/page.jsx' },

@@ -70,7 +70,6 @@ describe('Middleware', () => {
       '/settings',
       '/settings/account',
       '/credits',
-      '/reviews',
       '/upload',
       '/upload/sale',
       '/requested',
@@ -152,6 +151,8 @@ describe('Middleware', () => {
       '/terminos',
       '/cookie',
       '/properties/map',
+      // /reviews was removed from PROTECTED_PATHS (A4) — it must no longer redirect.
+      '/reviews',
     ];
 
     for (const path of publicPages) {

@@ -6,7 +6,6 @@ const PROTECTED_PATHS = [
   "/publish-property",
   "/settings",
   "/credits",
-  "/reviews",
   "/upload",
   "/requested",
   "/notifications",

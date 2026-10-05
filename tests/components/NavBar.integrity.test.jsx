@@ -91,7 +91,6 @@ const KNOWN_ROUTES = new Set([
   '/admin/maps',
   '/settings',
   '/credits',
-  '/reviews',
   '/requested',
   '/publish-property',
   '/upload',
