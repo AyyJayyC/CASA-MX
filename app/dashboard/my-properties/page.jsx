@@ -349,7 +349,7 @@ export default function MyPropertiesPage() {
   const published = filtered.filter((p) => p.status !== "incompleto");
 
   return (
-    <RequireRole roles={["seller", "wholesaler", "admin", "landlord"]}>
+    <RequireRole roles={["owner", "agent", "admin"]}>
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 p-4 sm:p-6 space-y-5">
       <div>
         <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">

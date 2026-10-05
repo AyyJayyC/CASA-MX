@@ -32,23 +32,17 @@ export default function NavBar() {
     user?.activeRole === "admin" &&
     user?.roles?.some((r) => r.type === "admin" && r.status === "approved"),
   );
-  const isBuyer = Boolean(
-    user?.activeRole === "buyer" &&
+  const isClient = Boolean(
+    user?.activeRole === "client" &&
     user?.roles?.some(
-      (r) => r.type === "buyer" && r.status === "approved",
-    ),
-  );
-  const isTenant = Boolean(
-    user?.activeRole === "tenant" &&
-    user?.roles?.some(
-      (r) => r.type === "tenant" && r.status === "approved",
+      (r) => r.type === "client" && r.status === "approved",
     ),
   );
   const canPublish = Boolean(
-    ["seller", "wholesaler", "admin", "landlord"].includes(user?.activeRole) &&
+    ["owner", "agent", "admin"].includes(user?.activeRole) &&
     user?.roles?.some(
       (r) =>
-        ["seller", "wholesaler", "admin", "landlord"].includes(r.type) &&
+        ["owner", "agent", "admin"].includes(r.type) &&
         r.status === "approved",
     ),
   );
@@ -322,7 +316,7 @@ export default function NavBar() {
                       Admin
                     </Link>
                   )}
-                  {isBuyer ? (
+                  {isClient ? (
                     <Link
                       href="/dashboard/my-offers"
                       className="px-3 py-1.5 rounded-lg text-sm font-medium text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800 transition-colors"
@@ -330,7 +324,7 @@ export default function NavBar() {
                       Mis ofertas
                     </Link>
                   ) : null}
-                  {isTenant ? (
+                  {isClient ? (
                     <Link
                       href="/dashboard/rental-applications"
                       className="px-3 py-1.5 rounded-lg text-sm font-medium text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800 transition-colors"
@@ -338,7 +332,7 @@ export default function NavBar() {
                       Mis solicitudes
                     </Link>
                   ) : null}
-                  {!isBuyer && !isTenant && canPublish ? (
+                  {!isClient && canPublish ? (
                     <Link
                       href="/dashboard/contact-requests"
                       className="px-3 py-1.5 rounded-lg text-sm font-medium text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800 transition-colors"
@@ -376,7 +370,7 @@ export default function NavBar() {
                     Ajustes
                   </Link>
 
-                  {!isBuyer && !isTenant && (
+                  {!isClient && (
                     <Link
                       href="/credits"
                       className="px-3 py-1.5 rounded-lg text-sm font-medium bg-clay/10 dark:bg-clay-900/20 text-clay dark:text-clay hover:bg-clay/100 dark:hover:bg-clay/900/40 transition-colors"
@@ -462,8 +456,7 @@ export default function NavBar() {
           isActivePath={isActivePath}
           pathname={pathname}
           canPublish={canPublish}
-          isBuyer={isBuyer}
-          isTenant={isTenant}
+          isClient={isClient}
         />
       </div>
     </header>

@@ -24,10 +24,9 @@ const registerSchema = z.object({
 });
 
 const AVAILABLE_ROLES = [
-  { value: "buyer", label: "Comprar propiedad" },
-  { value: "tenant", label: "Rentar propiedad" },
-  { value: "seller", label: "Publicar propiedad (vender o rentar)" },
-  { value: "wholesaler", label: "Intermediar oportunidades" },
+  { value: "client", label: "Buscar propiedad (comprar o rentar)" },
+  { value: "owner", label: "Publicar propiedad" },
+  { value: "agent", label: "Intermediar oportunidades" },
 ];
 
 export default function RegisterPage() {
@@ -74,9 +73,6 @@ export default function RegisterPage() {
     }
 
     const roles = [...selectedRoles];
-    if (roles.includes("seller") && !roles.includes("landlord")) {
-      roles.push("landlord");
-    }
 
     try {
       setRegisterError(null);

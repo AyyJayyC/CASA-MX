@@ -25,7 +25,7 @@ const STATUS_COLORS = {
 
 export default function SellerOffersPage() {
   return (
-    <RequireRole roles={["seller", "wholesaler", "admin"]}>
+    <RequireRole roles={["owner", "agent", "admin"]}>
       <SellerOffersContent />
     </RequireRole>
   );
@@ -372,7 +372,7 @@ function SellerOffersContent() {
       <OfferRespondModal
         isOpen={!!selectedOffer}
         offer={selectedOffer}
-        perspective="seller"
+        perspective="owner"
         onClose={() => setSelectedOffer(null)}
         onResponded={() => {
           setSelectedOffer(null);

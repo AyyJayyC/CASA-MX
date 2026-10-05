@@ -29,7 +29,6 @@ const AUTH_PAGES = [
   { url: '/dashboard/rental-applications', email: 'buyer@casamx.local', password: 'buyer123' },
   { url: '/settings', email: 'seller@casamx.local', password: 'seller123' },
   { url: '/credits', email: 'seller@casamx.local', password: 'seller123' },
-  { url: '/reviews', email: 'seller@casamx.local', password: 'seller123' },
   { url: '/publish-property', email: 'seller@casamx.local', password: 'seller123' },
   { url: '/requested', email: 'seller@casamx.local', password: 'seller123' },
   { url: '/admin/approvals', email: 'admin@casamx.local', password: 'admin123' },

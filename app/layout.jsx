@@ -16,6 +16,7 @@ import DebugPanel from "../components/DebugPanel.jsx";
 import ErrorBoundary from "../components/ErrorBoundary.jsx";
 import ReferralTracker from "../components/ReferralTracker.jsx";
 import FooterYear from "../components/FooterYear.jsx";
+import CookieConsentBanner from "../components/CookieConsentBanner.jsx";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -115,9 +116,16 @@ export default function RootLayout({ children }) {
                         >
                           Cookies
                         </Link>
+                        <Link
+                          href="/reembolsos"
+                          className="hover:text-clay dark:hover:text-clay-400 transition-colors"
+                        >
+                          Reembolsos
+                        </Link>
                       </div>
                     </div>
                   </footer>
+                  <CookieConsentBanner />
                   <DebugPanel />
                 </NuqsAdapter>
                 </QueryProvider>

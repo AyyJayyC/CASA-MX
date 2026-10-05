@@ -12,7 +12,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: '*.s3.*.amazonaws.com',
+        hostname: 'i.beemaps.com.mx',
       },
       {
         protocol: 'https',
@@ -40,6 +40,8 @@ const nextConfig = {
       { source: '/terms', destination: '/terminos', permanent: true },
       { source: '/privacy', destination: '/aviso-legal', permanent: true },
       { source: '/upload', destination: '/upload/sale', permanent: true },
+      { source: '/propiedades', destination: '/properties', permanent: true },
+      { source: '/propiedades/:id', destination: '/properties/:id', permanent: true },
     ];
   },
 };

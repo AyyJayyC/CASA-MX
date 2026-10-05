@@ -14,8 +14,8 @@ test.describe("E2E Integrity - Adversarial Tests", () => {
   const BACKEND_URL = "http://localhost:3001";
   const FRONTEND_URL =
     process.env.PLAYWRIGHT_BASE_URL || "http://127.0.0.1:3000";
-  const BUYER_EMAIL = "buyer@casamx.local";
-  const BUYER_PASSWORD = "buyer123";
+const CLIENT_EMAIL = "buyer@casamx.local";
+const CLIENT_PASSWORD = "buyer123";
 
   // ========================================
   // TEST A: Authorization Integrity
@@ -25,12 +25,12 @@ test.describe("E2E Integrity - Adversarial Tests", () => {
     test("ADVERSARIAL: Regular user cannot see admin approval dashboard", async ({
       page,
     }) => {
-      // Login as seeded non-admin buyer account
+      // Login as seeded non-admin client account
       await page.goto(`${FRONTEND_URL}/login`, {
         waitUntil: "domcontentloaded",
       });
-      await page.fill('input[type="email"]', BUYER_EMAIL);
-      await page.fill('input[type="password"]', BUYER_PASSWORD);
+      await page.fill('input[type="email"]', CLIENT_EMAIL);
+      await page.fill('input[type="password"]', CLIENT_PASSWORD);
       await page.click('button[type="submit"]');
       await page.waitForLoadState("networkidle").catch(() => {});
 
@@ -221,7 +221,7 @@ test.describe("E2E Integrity - Adversarial Tests", () => {
       page,
     }) => {
       // This would require a complex setup:
-      // 1. Login as tenant
+      // 1. Login as client
       // 2. Submit application
       // 3. Try to submit again for same property
       // 4. Verify 409 error is shown
@@ -246,11 +246,11 @@ test.describe("E2E Integrity - Adversarial Tests", () => {
   // ========================================
 
   test.describe("D - Admin Operations: Only Admins Can Approve Applications", () => {
-    test("ADVERSARIAL: Landlord cannot access other landlord's applications", async ({
+    test("ADVERSARIAL: Owner cannot access other owner's applications", async ({
       page,
     }) => {
       // This verifies permission boundaries
-      // A landlord should only see their own properties' applications
+      // An owner should only see their own properties' applications
 
       await page.goto(`${FRONTEND_URL}/dashboard/applications`);
 

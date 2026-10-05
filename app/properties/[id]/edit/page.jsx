@@ -11,7 +11,7 @@ import { RequireRole } from "@/components/guards/RequireRole";
 export default function EditPropertyPage({ params }) {
   return (
     <RequireAuth>
-      <RequireRole roles={["seller", "wholesaler", "landlord", "admin"]}>
+        <RequireRole roles={["owner", "agent", "admin"]}>
         <EditProperty params={params} />
       </RequireRole>
     </RequireAuth>

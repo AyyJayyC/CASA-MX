@@ -19,7 +19,7 @@ describe('ReferralTracker', () => {
 
   it('stores referralCode in localStorage when ?compartio= is in URL', () => {
     delete window.location;
-    window.location = new URL('https://casamx.com/propiedades/prop-1?compartio=USR001');
+    window.location = new URL('https://casamx.com/properties/prop-1?compartio=USR001');
 
     render(<ReferralTracker />);
     expect(localStorage.getItem(STORAGE_KEY_REF)).toBe('"USR001"');
@@ -27,7 +27,7 @@ describe('ReferralTracker', () => {
 
   it('calls trackReferralClick with the correct code and propertyId', () => {
     delete window.location;
-    window.location = new URL('https://casamx.com/propiedades/prop-1?compartio=USR001');
+    window.location = new URL('https://casamx.com/properties/prop-1?compartio=USR001');
 
     render(<ReferralTracker />);
     expect(mockTrackClick).toHaveBeenCalledWith({ referralCode: 'USR001', propertyId: 'prop-1' });
@@ -41,9 +41,9 @@ describe('ReferralTracker', () => {
     expect(localStorage.getItem(STORAGE_KEY_AGENCY)).toBe('"AG001"');
   });
 
-  it('extracts propertyId from /propiedades/:id path', () => {
+  it('extracts propertyId from /properties/:id path', () => {
     delete window.location;
-    window.location = new URL('https://casamx.com/propiedades/prop-123?compartio=USR001');
+    window.location = new URL('https://casamx.com/properties/prop-123?compartio=USR001');
 
     render(<ReferralTracker />);
     expect(mockTrackClick).toHaveBeenCalledWith({ referralCode: 'USR001', propertyId: 'prop-123' });
@@ -61,7 +61,7 @@ describe('ReferralTracker', () => {
 
   it('handles compartio and agencia simultaneously', () => {
     delete window.location;
-    window.location = new URL('https://casamx.com/propiedades/prop-1?compartio=USR001&agencia=AG001');
+    window.location = new URL('https://casamx.com/properties/prop-1?compartio=USR001&agencia=AG001');
 
     render(<ReferralTracker />);
     expect(localStorage.getItem(STORAGE_KEY_REF)).toBe('"USR001"');

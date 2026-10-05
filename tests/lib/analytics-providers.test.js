@@ -24,7 +24,7 @@ describe('API analytics provider', () => {
     const result = await apiProvider.track({
       eventName: 'page_view',
       timestamp: '2024-01-01',
-      activeRole: 'buyer',
+      activeRole: 'client',
     });
     expect(result.ok).toBe(true);
   });

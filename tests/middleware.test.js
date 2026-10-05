@@ -70,7 +70,6 @@ describe('Middleware', () => {
       '/settings',
       '/settings/account',
       '/credits',
-      '/reviews',
       '/upload',
       '/upload/sale',
       '/requested',
@@ -152,6 +151,8 @@ describe('Middleware', () => {
       '/terminos',
       '/cookie',
       '/properties/map',
+      // /reviews was removed from PROTECTED_PATHS (A4) — it must no longer redirect.
+      '/reviews',
     ];
 
     for (const path of publicPages) {
@@ -161,5 +162,64 @@ describe('Middleware', () => {
         expect(res.type).toBe('next');
       });
     }
+  });
+
+  describe('Production CSP allows OAuth providers (social login)', () => {
+    // These domains are required for Google/Facebook/Apple OAuth to load in
+    // production. Regression guard: prod social login is CSP-blocked without them.
+    const OAUTH_SCRIPT = [
+      'https://accounts.google.com',
+      'https://connect.facebook.net',
+      'https://appleid.cdn-apple.com',
+    ];
+    const OAUTH_IMG = ['https://*.googleusercontent.com'];
+    const OAUTH_FRAME = ['https://accounts.google.com', 'https://appleid.apple.com'];
+
+    beforeEach(() => {
+      process.env.VERCEL_ENV = 'production';
+    });
+
+    afterEach(() => {
+      delete process.env.VERCEL_ENV;
+    });
+
+    it('includes OAuth domains in the Content-Security-Policy header', () => {
+      const res = middleware(makeRequest('/'));
+      const csp = res.headers.get('Content-Security-Policy');
+
+      expect(csp).toBeTruthy();
+      for (const domain of [...OAUTH_SCRIPT, ...OAUTH_IMG, ...OAUTH_FRAME]) {
+        expect(csp).toContain(domain);
+      }
+    });
+
+    it('does not emit a CSP outside production', () => {
+      delete process.env.VERCEL_ENV;
+      const res = middleware(makeRequest('/'));
+      expect(res.headers.get('Content-Security-Policy')).toBeUndefined();
+    });
+  });
+
+  describe('Production CSP image sources', () => {
+    beforeEach(() => {
+      process.env.VERCEL_ENV = 'production';
+    });
+
+    afterEach(() => {
+      delete process.env.VERCEL_ENV;
+    });
+
+    it('allows property photos served from i.beemaps.com.mx', () => {
+      const res = middleware(makeRequest('/'));
+      const csp = res.headers.get('Content-Security-Policy');
+      expect(csp).toContain('https://i.beemaps.com.mx');
+    });
+
+    it('does not include the invalid mid-host S3 wildcard', () => {
+      const res = middleware(makeRequest('/'));
+      const csp = res.headers.get('Content-Security-Policy');
+      expect(csp).not.toContain('*.s3.*.amazonaws.com');
+      expect(csp).toContain('https://*.s3.amazonaws.com');
+    });
   });
 });

@@ -25,6 +25,13 @@ describe('properties API', () => {
     expect(result).toEqual([{ id: 'p1' }]);
   });
 
+  it('getProperties forwards the search box as q', async () => {
+    client.apiGet.mockResolvedValue({ data: [] });
+    await properties.getProperties({ searchQuery: 'Polanco CDMX' });
+    const callUrl = client.apiGet.mock.calls[0][0];
+    expect(callUrl).toContain('q=Polanco+CDMX');
+  });
+
   it('getProperties with empty filters returns data', async () => {
     client.apiGet.mockResolvedValue({ data: [{ id: 'p1' }] });
     const result = await properties.getProperties();
@@ -41,7 +48,9 @@ describe('properties API', () => {
   it('getPropertyById calls GET', async () => {
     client.apiGet.mockResolvedValue({ data: { id: 'p1', title: 'Casa' } });
     const result = await properties.getPropertyById('p1');
-    expect(client.apiGet).toHaveBeenCalledWith('/properties/p1');
+    expect(client.apiGet).toHaveBeenCalledWith('/properties/p1', {
+      next: { revalidate: 60 },
+    });
     expect(result.id).toBe('p1');
   });
 

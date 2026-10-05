@@ -45,8 +45,8 @@ describe('AuthContext — Production Grade', () => {
     });
 
     it('hydrates from existing session', async () => {
-      authAPI.getSession.mockResolvedValue({ userId: 'u1', activeRole: 'buyer' });
-      authAPI.getUserById.mockResolvedValue({ id: 'u1', name: 'Hydrated', email: 'h@t.com', activeRole: 'buyer', roles: [] });
+      authAPI.getSession.mockResolvedValue({ userId: 'u1', activeRole: 'client' });
+      authAPI.getUserById.mockResolvedValue({ id: 'u1', name: 'Hydrated', email: 'h@t.com', activeRole: 'client', roles: [] });
       const { result } = renderHook(() => React.useContext(AuthContext), { wrapper });
       await vi.waitFor(() => expect(result.current.isHydrated).toBe(true));
       expect(result.current.isAuthenticated).toBe(true);
@@ -65,7 +65,7 @@ describe('AuthContext — Production Grade', () => {
   describe('Login', () => {
     it('login sets session and user', async () => {
       authAPI.login.mockResolvedValue({
-        user: { id: 'u1', name: 'Test', email: 't@t.com', activeRole: 'buyer', roles: [{ type: 'buyer', status: 'approved' }] },
+        user: { id: 'u1', name: 'Test', email: 't@t.com', activeRole: 'client', roles: [{ type: 'client', status: 'approved' }] },
       });
       const { result } = renderHook(() => React.useContext(AuthContext), { wrapper });
       await act(async () => { await result.current.login({ email: 't@t.com', password: 'pw' }); });
@@ -81,7 +81,7 @@ describe('AuthContext — Production Grade', () => {
       const { result } = renderHook(() => React.useContext(AuthContext), { wrapper });
       act(() => { result.current.login({ email: 't@t.com', password: 'pw' }).catch(() => {}); });
       expect(result.current.loading).toBe(true);
-      await act(async () => { resolve({ user: { id: 'u1', name: 'T', email: 't@t.com', activeRole: 'buyer', roles: [] } }); });
+      await act(async () => { resolve({ user: { id: 'u1', name: 'T', email: 't@t.com', activeRole: 'client', roles: [] } }); });
       expect(result.current.loading).toBe(false);
     });
 
@@ -96,7 +96,7 @@ describe('AuthContext — Production Grade', () => {
 
     it('login clears previous error on retry', async () => {
       authAPI.login.mockRejectedValueOnce(new Error('Bad'));
-      authAPI.login.mockResolvedValueOnce({ user: { id: 'u1', name: 'OK', email: 'ok@t.com', activeRole: 'buyer', roles: [{ type: 'buyer', status: 'approved' }] } });
+      authAPI.login.mockResolvedValueOnce({ user: { id: 'u1', name: 'OK', email: 'ok@t.com', activeRole: 'client', roles: [{ type: 'client', status: 'approved' }] } });
       const { result } = renderHook(() => React.useContext(AuthContext), { wrapper });
       await act(async () => { try { await result.current.login({ email: 'bad', password: 'pw' }); } catch {} });
       expect(result.current.error).toBe('Bad');
@@ -110,21 +110,21 @@ describe('AuthContext — Production Grade', () => {
     it('register calls API with correct payload', async () => {
       authAPI.register.mockResolvedValue({ user: { id: 'u1', name: 'New', email: 'n@t.com', roles: [] } });
       const { result } = renderHook(() => React.useContext(AuthContext), { wrapper });
-      await act(async () => { await result.current.register({ name: 'New', email: 'n@t.com', password: 'pw', roles: ['buyer'] }); });
-      expect(authAPI.register).toHaveBeenCalledWith({ name: 'New', email: 'n@t.com', password: 'pw', roles: ['buyer'] });
+      await act(async () => { await result.current.register({ name: 'New', email: 'n@t.com', password: 'pw', roles: ['client'] }); });
+      expect(authAPI.register).toHaveBeenCalledWith({ name: 'New', email: 'n@t.com', password: 'pw', roles: ['client'] });
     });
 
     it('register failure sets error', async () => {
       authAPI.register.mockRejectedValue(new Error('Email already exists'));
       const { result } = renderHook(() => React.useContext(AuthContext), { wrapper });
-      await act(async () => { try { await result.current.register({ name: 'X', email: 'exists@t.com', password: 'pw', roles: ['buyer'] }); } catch {} });
+      await act(async () => { try { await result.current.register({ name: 'X', email: 'exists@t.com', password: 'pw', roles: ['client'] }); } catch {} });
       expect(result.current.error).toBe('Email already exists');
     });
   });
 
   describe('Logout', () => {
     it('logout clears user and session', async () => {
-      authAPI.login.mockResolvedValue({ user: { id: 'u1', name: 'L', email: 'l@t.com', activeRole: 'buyer', roles: [{ type: 'buyer', status: 'approved' }] } });
+      authAPI.login.mockResolvedValue({ user: { id: 'u1', name: 'L', email: 'l@t.com', activeRole: 'client', roles: [{ type: 'client', status: 'approved' }] } });
       authAPI.logout.mockResolvedValue({ success: true });
       const { result } = renderHook(() => React.useContext(AuthContext), { wrapper });
       await act(async () => { await result.current.login({ email: 'l@t.com', password: 'pw' }); });
@@ -135,7 +135,7 @@ describe('AuthContext — Production Grade', () => {
     });
 
     it('logout failure sets error', async () => {
-      authAPI.login.mockResolvedValue({ user: { id: 'u1', name: 'FL', email: 'fl@t.com', activeRole: 'buyer', roles: [{ type: 'buyer', status: 'approved' }] } });
+      authAPI.login.mockResolvedValue({ user: { id: 'u1', name: 'FL', email: 'fl@t.com', activeRole: 'client', roles: [{ type: 'client', status: 'approved' }] } });
       authAPI.logout.mockRejectedValue(new Error('Server error'));
       const { result } = renderHook(() => React.useContext(AuthContext), { wrapper });
       await act(async () => { await result.current.login({ email: 'fl@t.com', password: 'pw' }); });
@@ -146,26 +146,26 @@ describe('AuthContext — Production Grade', () => {
 
   describe('Role Switching', () => {
     it('switches to approved role', async () => {
-      authAPI.login.mockResolvedValue({ user: { id: 'u1', name: 'Multi', email: 'm@t.com', activeRole: 'buyer', roles: [{ type: 'buyer', status: 'approved' }, { type: 'seller', status: 'approved' }] } });
+      authAPI.login.mockResolvedValue({ user: { id: 'u1', name: 'Multi', email: 'm@t.com', activeRole: 'client', roles: [{ type: 'client', status: 'approved' }, { type: 'owner', status: 'approved' }] } });
       const { result } = renderHook(() => React.useContext(AuthContext), { wrapper });
       await act(async () => { await result.current.login({ email: 'm@t.com', password: 'pw' }); });
-      act(() => { result.current.switchRole('seller'); });
-      expect(result.current.user.activeRole).toBe('seller');
-      expect(result.current.session.activeRole).toBe('seller');
+      act(() => { result.current.switchRole('owner'); });
+      expect(result.current.user.activeRole).toBe('owner');
+      expect(result.current.session.activeRole).toBe('owner');
       expect(result.current.error).toBeNull();
     });
 
     it('rejects pending role with exact message', () => {
       const { result } = renderHook(() => React.useContext(AuthContext), { wrapper });
-      act(() => { result.current.switchRole('seller'); });
+      act(() => { result.current.switchRole('owner'); });
       expect(result.current.error).toBe('No user logged in');
     });
 
     it('rejects non-existent role', async () => {
-      authAPI.login.mockResolvedValue({ user: { id: 'u1', name: 'One', email: 'one@t.com', activeRole: 'buyer', roles: [{ type: 'buyer', status: 'approved' }] } });
+      authAPI.login.mockResolvedValue({ user: { id: 'u1', name: 'One', email: 'one@t.com', activeRole: 'client', roles: [{ type: 'client', status: 'approved' }] } });
       const { result } = renderHook(() => React.useContext(AuthContext), { wrapper });
       await act(async () => { await result.current.login({ email: 'one@t.com', password: 'pw' }); });
-      act(() => { result.current.switchRole('wholesaler'); });
+      act(() => { result.current.switchRole('agent'); });
       expect(result.current.error).toBe('Role not found');
     });
   });
@@ -173,7 +173,7 @@ describe('AuthContext — Production Grade', () => {
   describe('refreshUser', () => {
     it('refreshUser updates session and user', async () => {
       authAPI.getSession.mockResolvedValue({ userId: 'u1-active' });
-      authAPI.getUserById.mockResolvedValue({ id: 'u1', name: 'Refreshed', email: 'r@t.com', activeRole: 'seller' });
+      authAPI.getUserById.mockResolvedValue({ id: 'u1', name: 'Refreshed', email: 'r@t.com', activeRole: 'owner' });
       const { result } = renderHook(() => React.useContext(AuthContext), { wrapper });
       await vi.waitFor(() => expect(result.current.isHydrated).toBe(true));
       await act(async () => { await result.current.refreshUser(); });
@@ -201,7 +201,7 @@ describe('AuthContext — Production Grade', () => {
 
   describe('Social Login', () => {
     it('loginWithGoogle delegates correctly', async () => {
-      authAPI.loginWithGoogle.mockResolvedValue({ user: { id: 'u1', name: 'G', email: 'g@t.com', activeRole: 'buyer', roles: [] } });
+      authAPI.loginWithGoogle.mockResolvedValue({ user: { id: 'u1', name: 'G', email: 'g@t.com', activeRole: 'client', roles: [] } });
       const { result } = renderHook(() => React.useContext(AuthContext), { wrapper });
       await act(async () => { await result.current.loginWithGoogle('google-token'); });
       expect(authAPI.loginWithGoogle).toHaveBeenCalledWith('google-token');
@@ -209,7 +209,7 @@ describe('AuthContext — Production Grade', () => {
     });
 
     it('loginWithFacebook delegates correctly', async () => {
-      authAPI.loginWithFacebook.mockResolvedValue({ user: { id: 'u1', name: 'F', email: 'f@t.com', activeRole: 'buyer', roles: [] } });
+      authAPI.loginWithFacebook.mockResolvedValue({ user: { id: 'u1', name: 'F', email: 'f@t.com', activeRole: 'client', roles: [] } });
       const { result } = renderHook(() => React.useContext(AuthContext), { wrapper });
       await act(async () => { await result.current.loginWithFacebook('fb-token'); });
       expect(result.current.isAuthenticated).toBe(true);

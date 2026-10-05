@@ -26,8 +26,8 @@ vi.mock('../../lib/api/agencies', () => ({
 }));
 
 vi.mock('../../lib/auth/useAuth', () => ({
-  useAuth: () => ({ user: { id: 'u-1', roles: [{ type: 'seller', status: 'approved' }, { type: 'admin', status: 'approved' }], activeRole: 'seller' }, isAuthenticated: true, isHydrated: true, loading: false }),
-  default: () => ({ user: { id: 'u-1', roles: [{ type: 'seller', status: 'approved' }], activeRole: 'seller' }, isAuthenticated: true, isHydrated: true, loading: false }),
+  useAuth: () => ({ user: { id: 'u-1', roles: [{ type: 'owner', status: 'approved' }, { type: 'admin', status: 'approved' }], activeRole: 'owner' }, isAuthenticated: true, isHydrated: true, loading: false }),
+  default: () => ({ user: { id: 'u-1', roles: [{ type: 'owner', status: 'approved' }], activeRole: 'owner' }, isAuthenticated: true, isHydrated: true, loading: false }),
 }));
 
 const mockAgency = {
@@ -44,8 +44,8 @@ const mockAgency = {
 
 const mockAgentsData = {
   agents: [
-    { id: 'u-2', name: 'Juan Pérez', email: 'juan@agencia.com', createdAt: '2026-04-01T00:00:00.000Z', roles: ['seller'] },
-    { id: 'u-3', name: 'María López', email: 'maria@agencia.com', createdAt: '2026-04-15T00:00:00.000Z', roles: ['landlord'] },
+    { id: 'u-2', name: 'Juan Pérez', email: 'juan@agencia.com', createdAt: '2026-04-01T00:00:00.000Z', roles: ['owner'] },
+    { id: 'u-3', name: 'María López', email: 'maria@agencia.com', createdAt: '2026-04-15T00:00:00.000Z', roles: ['owner'] },
   ],
   total: 2,
   agentLimit: 5,

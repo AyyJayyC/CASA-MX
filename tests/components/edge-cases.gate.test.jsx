@@ -20,7 +20,6 @@ function Wrapper({ children }) {
 }
 
 import PropertyList from '@/components/PropertyList.jsx';
-import ReviewList from '@/components/ReviewList.jsx';
 import LoadingSpinner from '@/components/LoadingSpinner.jsx';
 
 describe('Component Edge Cases — Production Gate', () => {
@@ -43,28 +42,6 @@ describe('Component Edge Cases — Production Gate', () => {
     it('handles undefined properties array', () => {
       render(React.createElement(PropertyList, { isLoading: false }), { wrapper: Wrapper });
       expect(screen.getByText('No hay propiedades disponibles')).toBeInTheDocument();
-    });
-  });
-
-  describe('ReviewList', () => {
-    it('shows loading state', () => {
-      render(React.createElement(ReviewList, { loading: true }));
-      expect(screen.getByText('Cargando reseñas...')).toBeInTheDocument();
-    });
-
-    it('shows error state', () => {
-      render(React.createElement(ReviewList, { error: 'Error de conexión.' }));
-      expect(screen.getByText('Error de conexión.')).toBeInTheDocument();
-    });
-
-    it('shows empty state with default message', () => {
-      render(React.createElement(ReviewList, { reviews: [] }));
-      expect(screen.getByText('Todavía no hay reseñas para mostrar.')).toBeInTheDocument();
-    });
-
-    it('shows custom empty message', () => {
-      render(React.createElement(ReviewList, { reviews: [], emptyMessage: 'Este vendedor aún no tiene reseñas.' }));
-      expect(screen.getByText('Este vendedor aún no tiene reseñas.')).toBeInTheDocument();
     });
   });
 

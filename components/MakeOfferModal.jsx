@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useMemo } from "react";
+import Link from "next/link";
 import { submitPropertyOffer } from "../lib/api/offers.js";
 import { FINANCING_OPTIONS } from "@/lib/constants/financing";
 import MoneyInput from "./MoneyInput";
@@ -384,6 +385,17 @@ export default function MakeOfferModal({ propertyId, askingPrice }) {
                   >
                     {loading ? "Enviando..." : "Enviar oferta"}
                   </button>
+
+                  <p className="mt-2 text-xs text-center text-neutral-500 dark:text-neutral-400">
+                    Al enviar aceptas el{" "}
+                    <Link
+                      href="/aviso-legal"
+                      className="underline hover:text-clay dark:hover:text-clay-400"
+                    >
+                      Aviso de Privacidad
+                    </Link>
+                    .
+                  </p>
                 </form>
               )}
             </div>

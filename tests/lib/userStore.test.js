@@ -13,32 +13,32 @@ describe('userStore', () => {
   });
 
   describe('preferences', () => {
-    it('getPreferences returns defaults for buyer role', () => {
-      const prefs = useUserStore.getState().getPreferences('buyer');
+    it('getPreferences returns defaults for client role', () => {
+      const prefs = useUserStore.getState().getPreferences('client');
       expect(prefs.propertyTypes).toEqual([]);
       expect(prefs.petFriendly).toBe(false);
       expect(prefs.furnished).toBe('unfurnished');
     });
 
-    it('getPreferences returns defaults for seller role', () => {
-      const prefs = useUserStore.getState().getPreferences('seller');
+    it('getPreferences returns defaults for owner role', () => {
+      const prefs = useUserStore.getState().getPreferences('owner');
       expect(prefs.estados).toEqual([]);
       expect(prefs.ciudades).toEqual([]);
     });
 
     it('savePreferences stores and retrieves prefs', () => {
       act(() => {
-        useUserStore.getState().savePreferences('buyer', { propertyTypes: ['Casa'] });
+        useUserStore.getState().savePreferences('client', { propertyTypes: ['Casa'] });
       });
-      const prefs = useUserStore.getState().getPreferences('buyer');
+      const prefs = useUserStore.getState().getPreferences('client');
       expect(prefs.propertyTypes).toEqual(['Casa']);
     });
 
     it('savePreferences merges with defaults', () => {
       act(() => {
-        useUserStore.getState().savePreferences('buyer', { propertyTypes: ['Casa'] });
+        useUserStore.getState().savePreferences('client', { propertyTypes: ['Casa'] });
       });
-      const prefs = useUserStore.getState().getPreferences('buyer');
+      const prefs = useUserStore.getState().getPreferences('client');
       expect(prefs.petFriendly).toBe(false);
     });
   });
@@ -137,7 +137,7 @@ describe('userStore', () => {
 
     it('clearAll resets everything', () => {
       act(() => {
-        useUserStore.getState().savePreferences('buyer', { propertyTypes: ['Casa'] });
+        useUserStore.getState().savePreferences('client', { propertyTypes: ['Casa'] });
         useUserStore.getState().addAddress({ ciudad: 'A', estado: 'B', colonia: 'C' });
         useUserStore.getState().clearAll();
       });

@@ -22,7 +22,13 @@ const AMENITY_OPTIONS = [
 
 const SERVICE_OPTIONS_RENT = ["Agua", "Gas", "Internet", "Luz", "Estacionamiento", "TV por Cable", "Vigilancia"];
 const SERVICE_OPTIONS_SALE = ["Estacionamiento", "Vigilancia", "Agua"];
-const FINANCING_OPTIONS = ["Efectivo", "Crédito bancario", "INFONAVIT", "FOVISSSTE", "Plan de pagos"];
+const FINANCING_OPTIONS = [
+  { value: "cash", label: "Efectivo" },
+  { value: "bankLoan", label: "Crédito bancario" },
+  { value: "INFONAVIT", label: "INFONAVIT" },
+  { value: "FOVISSSTE", label: "FOVISSSTE" },
+  { value: "paymentPlan", label: "Plan de pagos" },
+];
 
 function PropertiesContent() {
   const searchParams = useSearchParams();
@@ -100,6 +106,9 @@ function PropertiesContent() {
     maxConstructionMeters: maxM2 || undefined,
     minLotSize: minLot || undefined,
     maxLotSize: maxLot || undefined,
+    amenities: amenityParam || undefined,
+    services: serviceParam || undefined,
+    financing: financeParam || undefined,
     swLat: searchParams.get("swLat") ? parseFloat(searchParams.get("swLat")) : undefined,
     swLng: searchParams.get("swLng") ? parseFloat(searchParams.get("swLng")) : undefined,
     neLat: searchParams.get("neLat") ? parseFloat(searchParams.get("neLat")) : undefined,
@@ -111,6 +120,7 @@ function PropertiesContent() {
     listingType, searchQuery, estado, ciudad, colonia, codigoPostal,
     minPrice, maxPrice, minRent, maxRent, furnished, condition, statusFilter,
     minM2, maxM2, minLot, maxLot,
+    amenityParam, serviceParam, financeParam,
     searchParams.get("swLat"), searchParams.get("swLng"),
     searchParams.get("neLat"), searchParams.get("neLng"),
     searchParams.get("centerLat"), searchParams.get("centerLng"),
@@ -123,7 +133,7 @@ function PropertiesContent() {
 
   useEffect(() => {
     if (!user) return;
-    const role = user.activeRole || "buyer";
+    const role = user.activeRole || "client";
     const prefs = useUserStore.getState().getPreferences(role);
     const params = new URLSearchParams(searchParams);
     let changed = false;
@@ -348,11 +358,11 @@ function PropertiesContent() {
                   <div className="border-t border-neutral-200 dark:border-neutral-800 my-3" />
                   <FilterGroup label="Formas de pago">
                     {FINANCING_OPTIONS.map((fin) => (
-                      <label key={fin} className="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" checked={selectedFinancing.includes(fin)}
-                          onChange={() => toggleFilter(setFinancing, selectedFinancing, fin)}
+                      <label key={fin.value} className="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" checked={selectedFinancing.includes(fin.value)}
+                          onChange={() => toggleFilter(setFinancing, selectedFinancing, fin.value)}
                           className="w-4 h-4 text-clay rounded focus:ring-2 focus:ring-clay" />
-                        <span className="text-sm text-neutral-700 dark:text-neutral-300">{fin}</span>
+                        <span className="text-sm text-neutral-700 dark:text-neutral-300">{fin.label}</span>
                       </label>
                     ))}
                   </FilterGroup>

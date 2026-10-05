@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import Link from "next/link";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { contactRequestSchema } from "../lib/validation/contactRequestSchema";
@@ -112,6 +113,17 @@ export default function ContactRequestForm({
       <p className="text-xs text-neutral-500 dark:text-neutral-400 text-center">
         Al enviar, el vendedor recibirá tus datos y podrá compartir la dirección
         del inmueble.
+      </p>
+
+      <p className="text-xs text-neutral-500 dark:text-neutral-400 text-center">
+        Al enviar aceptas el{" "}
+        <Link
+          href="/aviso-legal"
+          className="underline hover:text-clay dark:hover:text-clay-400"
+        >
+          Aviso de Privacidad
+        </Link>
+        .
       </p>
     </form>
   );

@@ -20,12 +20,12 @@ describe('users API', () => {
 
   it('getPendingApprovals returns mapped data', async () => {
     client.apiGet.mockResolvedValue({
-      data: [{ id: 'a1', user: { id: 'u1', name: 'John', email: 'j@test.com' }, role: { name: 'seller' }, createdAt: '2024-01-01', status: 'pending' }]
+      data: [{ id: 'a1', user: { id: 'u1', name: 'John', email: 'j@test.com' }, role: { name: 'owner' }, createdAt: '2024-01-01', status: 'pending' }]
     });
     const result = await users.getPendingApprovals();
     expect(result).toHaveLength(1);
     expect(result[0].userName).toBe('John');
-    expect(result[0].roleType).toBe('seller');
+    expect(result[0].roleType).toBe('owner');
   });
 
   it('getPendingApprovals handles empty data', async () => {

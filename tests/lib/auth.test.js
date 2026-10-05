@@ -40,8 +40,8 @@ describe("Auth API", () => {
         name: "John Doe",
         email: "john@example.com",
         roles: [
-          { roleName: "buyer", status: "pending" },
-          { roleName: "seller", status: "pending" },
+          { roleName: "client", status: "pending" },
+          { roleName: "owner", status: "pending" },
         ],
       },
     });
@@ -50,7 +50,7 @@ describe("Auth API", () => {
       name: "John Doe",
       email: "john@example.com",
       password: "TestPassword123",
-      roles: ["buyer", "seller"],
+      roles: ["client", "owner"],
     });
 
     expect(fetch).toHaveBeenCalledTimes(1);
@@ -58,8 +58,8 @@ describe("Auth API", () => {
     expect(result.user.name).toBe("John Doe");
     expect(result.user.email).toBe("john@example.com");
     expect(result.user.roles).toEqual([
-      { type: "buyer", status: "pending" },
-      { type: "seller", status: "pending" },
+      { type: "client", status: "pending" },
+      { type: "owner", status: "pending" },
     ]);
   });
 
@@ -70,8 +70,8 @@ describe("Auth API", () => {
         name: "Login Test",
         email: "login@example.com",
         roles: [
-          { roleName: "buyer", status: "approved" },
-          { roleName: "seller", status: "pending" },
+          { roleName: "client", status: "approved" },
+          { roleName: "owner", status: "pending" },
         ],
       },
     });
@@ -82,10 +82,10 @@ describe("Auth API", () => {
     });
 
     expect(fetch).toHaveBeenCalledTimes(1);
-    expect(result.user.activeRole).toBe("buyer");
+    expect(result.user.activeRole).toBe("client");
     expect(result.user.roles).toEqual([
-      { type: "buyer", status: "approved" },
-      { type: "seller", status: "pending" },
+      { type: "client", status: "approved" },
+      { type: "owner", status: "pending" },
     ]);
   });
 
@@ -100,13 +100,19 @@ describe("Auth API", () => {
     ).rejects.toThrow("Invalid email or password");
   });
 
-  it("returns null session when auth cookie is missing", async () => {
-    mockFetchError({ status: 401, error: "Unauthorized" });
+  it("returns null session on hydration 401 without attempting refresh", async () => {
     mockFetchError({ status: 401, error: "Unauthorized" });
 
     const session = await getSession();
+
     expect(session).toBeNull();
-    expect(fetch).toHaveBeenCalledTimes(2);
+    // Only the initial /auth/me call — anonymous visitors must not trigger
+    // a doomed /auth/refresh request on every page load.
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(fetch.mock.calls[0][0]).toMatch(/\/auth\/me$/);
+    expect(
+      fetch.mock.calls.some(([url]) => /\/auth\/refresh/.test(url)),
+    ).toBe(false);
   });
 
   it("clears session on logout", async () => {

@@ -17,8 +17,7 @@ export default function MobileMenu({
   isActivePath,
   pathname,
   canPublish,
-  isBuyer,
-  isTenant,
+  isClient,
 }) {
   if (!isOpen) return null;
 
@@ -52,7 +51,7 @@ export default function MobileMenu({
         </MobileLink>
       )}
 
-      {isBuyer && (
+      {isClient && (
         <MobileLink
           href="/dashboard/my-offers"
           onClick={onClose}
@@ -62,7 +61,7 @@ export default function MobileMenu({
         </MobileLink>
       )}
 
-      {isTenant && (
+      {isClient && (
         <MobileLink
           href="/dashboard/rental-applications"
           onClick={onClose}

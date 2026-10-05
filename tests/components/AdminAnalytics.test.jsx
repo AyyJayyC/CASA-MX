@@ -10,7 +10,7 @@ vi.mock('../../components/guards/RequireRole.jsx', () => ({
 const fakeDashboard = {
   users: { total: 100, newThisWeek: 10 },
   properties: { total: 50, newThisWeek: 5 },
-  usersByRole: { seller: 40, buyer: 30, agency: 20, agent: 10 },
+  usersByRole: { owner: 40, client: 30, agency: 20, agent: 10 },
   propertiesByStatus: { active: 30, pending: 10, sold: 5, rented: 5 },
 };
 

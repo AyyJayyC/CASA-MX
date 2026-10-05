@@ -348,7 +348,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
             success={success}
             isEditing={isEditing}
             propertyId={propertyId}
-            sellerRole={session?.activeRole ?? 'seller'}
+            sellerRole={session?.activeRole ?? 'owner'}
           />
         </div>
       )}

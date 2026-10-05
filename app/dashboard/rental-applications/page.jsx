@@ -2,10 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { RequireRole } from "@/components/guards/RequireRole.jsx";
-import LeaveReviewModal from "@/components/LeaveReviewModal.jsx";
 import NegotiationPanel from "@/components/NegotiationPanel.jsx";
 import { getMyApplications } from "@/lib/api/applications";
-import { getMyAuthoredReviews } from "@/lib/api/reviews";
 
 const statusConfig = {
   pending: {
@@ -29,7 +27,7 @@ const statusConfig = {
 
 export default function RentalApplicationsPage() {
   return (
-    <RequireRole roles={["tenant"]}>
+    <RequireRole roles={["client"]}>
       <RentalApplicationsContent />
     </RequireRole>
   );
@@ -38,8 +36,6 @@ export default function RentalApplicationsPage() {
 function RentalApplicationsContent() {
   const [applications, setApplications] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState("all");
-  const [selectedApplication, setSelectedApplication] = useState(null);
-  const [reviewedApplicationIds, setReviewedApplicationIds] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -48,17 +44,9 @@ function RentalApplicationsContent() {
       try {
         setIsLoading(true);
         setError(null);
-        const [applicationsData, reviewsData] = await Promise.all([
-          getMyApplications(),
-          getMyAuthoredReviews("tenant"),
-        ]);
+        const applicationsData = await getMyApplications();
 
         setApplications(applicationsData || []);
-        setReviewedApplicationIds(
-          (reviewsData || [])
-            .map((review) => review.rentalApplicationId)
-            .filter(Boolean),
-        );
       } catch (loadError) {
         setError(
           loadError.message || "No se pudieron cargar tus solicitudes de renta",
@@ -96,8 +84,7 @@ function RentalApplicationsContent() {
           Mis solicitudes de renta
         </h1>
         <p className="text-neutral-600 dark:text-neutral-400 max-w-3xl">
-          Sigue el estado de tus rentas y deja una reseña verificada cuando una
-          solicitud haya sido aprobada.
+          Sigue el estado de tus rentas.
         </p>
       </div>
 
@@ -137,9 +124,6 @@ function RentalApplicationsContent() {
           {filteredApplications.map((application) => {
             const badge =
               statusConfig[application.status] || statusConfig.pending;
-            const alreadyReviewed = reviewedApplicationIds.includes(
-              application.id,
-            );
 
             return (
               <article
@@ -244,23 +228,6 @@ function RentalApplicationsContent() {
                         Descargar Contrato
                       </a>
                     )}
-                    {application.status === "approved" && (
-                      <button
-                        type="button"
-                        onClick={() => setSelectedApplication(application)}
-                        disabled={alreadyReviewed}
-                        className="w-full px-4 py-2 rounded-lg text-sm font-semibold text-white bg-gradient-to-br from-clay-400 to-clay-600 hover:from-clay-500 hover:to-clay-700 disabled:opacity-60 transition-all"
-                      >
-                        {alreadyReviewed
-                          ? "Reseña enviada"
-                          : "Calificar arrendador"}
-                      </button>
-                    )}
-
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-5">
-                      Las reseñas solo están disponibles cuando la solicitud fue
-                      aprobada dentro de Casa-MX.com.
-                    </p>
                   </div>
                 </div>
               </article>
@@ -269,20 +236,6 @@ function RentalApplicationsContent() {
         </div>
       )}
 
-      <LeaveReviewModal
-        isOpen={Boolean(selectedApplication)}
-        onClose={() => setSelectedApplication(null)}
-        rentalApplicationId={selectedApplication?.id}
-        reviewerRole="tenant"
-        revieweeName="tu arrendador"
-        propertyTitle={selectedApplication?.property?.title}
-        onSubmitted={() => {
-          if (!selectedApplication) return;
-          setReviewedApplicationIds((current) => [
-            ...new Set([...current, selectedApplication.id]),
-          ]);
-        }}
-      />
     </div>
   );
 }
