@@ -17,6 +17,7 @@ const PAGES = [
   { name: 'AvisoLegal', file: 'app/aviso-legal/page.jsx' },
   { name: 'Terminos', file: 'app/terminos/page.jsx' },
   { name: 'Cookie', file: 'app/cookie/page.jsx' },
+  { name: 'Reembolsos', file: 'app/reembolsos/page.jsx' },
   { name: 'Settings', file: 'app/settings/page.jsx' },
   { name: 'Credits', file: 'app/credits/page.jsx' },
   { name: 'Requested', file: 'app/requested/page.jsx' },

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
@@ -157,7 +158,19 @@ export default function StripePaymentModal({
         </div>
 
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          {pkg.credits} créditos · ${pkg.priceMXN?.toLocaleString("es-MX")} MXN
+          {pkg.credits} créditos · ${pkg.priceMXN?.toLocaleString("es-MX")} MXN ·
+          IVA incluido
+        </p>
+
+        <p className="text-xs text-neutral-500 dark:text-neutral-400">
+          Consulta la{" "}
+          <Link
+            href="/reembolsos"
+            className="underline hover:text-clay dark:hover:text-clay-400"
+          >
+            política de reembolsos
+          </Link>
+          . Los créditos ya utilizados no son reembolsables.
         </p>
 
         {succeeded && (

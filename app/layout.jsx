@@ -116,6 +116,12 @@ export default function RootLayout({ children }) {
                         >
                           Cookies
                         </Link>
+                        <Link
+                          href="/reembolsos"
+                          className="hover:text-clay dark:hover:text-clay-400 transition-colors"
+                        >
+                          Reembolsos
+                        </Link>
                       </div>
                     </div>
                   </footer>
