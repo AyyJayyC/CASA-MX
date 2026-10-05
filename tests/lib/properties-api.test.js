@@ -48,7 +48,9 @@ describe('properties API', () => {
   it('getPropertyById calls GET', async () => {
     client.apiGet.mockResolvedValue({ data: { id: 'p1', title: 'Casa' } });
     const result = await properties.getPropertyById('p1');
-    expect(client.apiGet).toHaveBeenCalledWith('/properties/p1');
+    expect(client.apiGet).toHaveBeenCalledWith('/properties/p1', {
+      next: { revalidate: 60 },
+    });
     expect(result.id).toBe('p1');
   });
 
