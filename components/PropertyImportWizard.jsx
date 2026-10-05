@@ -1,5 +1,9 @@
 "use client";
 import React, { useState, useCallback, useMemo } from "react";
+// ponytail: xlsx 0.18.5 has unpatched prototype-pollution/ReDoS advisories
+// (GHSA-4r6h-8v6p-xvw6, GHSA-5pgg-2g8v-p4x9) and no npm fix. It only runs
+// admin-side on files the admin picks; migrate to the SheetJS CDN build or
+// exceljs before parsing untrusted uploads in the browser.
 import * as XLSX from "xlsx";
 
 const FIELD_DEFINITIONS = [
