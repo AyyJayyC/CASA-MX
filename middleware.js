@@ -61,7 +61,7 @@ export function middleware(request) {
       // TODO: Remove 'unsafe-inline' — use nonce-based CSP via middleware
       `script-src 'self' 'unsafe-inline' https://js.stripe.com https://maps.googleapis.com https://accounts.google.com https://connect.facebook.net https://appleid.cdn-apple.com`,
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      `img-src 'self' data: blob: https://*.unsplash.com https://*.tile.openstreetmap.org https://maps.googleapis.com https://*.s3.amazonaws.com https://*.s3.*.amazonaws.com https://*.googleusercontent.com ${apiUrl}`,
+      `img-src 'self' data: blob: https://*.unsplash.com https://*.tile.openstreetmap.org https://maps.googleapis.com https://*.s3.amazonaws.com https://i.beemaps.com.mx https://*.googleusercontent.com ${apiUrl}`,
       "font-src 'self' https://fonts.gstatic.com",
       `connect-src 'self' https://api.stripe.com https://*.tile.openstreetmap.org ${apiUrl}`,
       "frame-src https://js.stripe.com https://hooks.stripe.com https://accounts.google.com https://appleid.apple.com",

@@ -199,4 +199,27 @@ describe('Middleware', () => {
       expect(res.headers.get('Content-Security-Policy')).toBeUndefined();
     });
   });
+
+  describe('Production CSP image sources', () => {
+    beforeEach(() => {
+      process.env.VERCEL_ENV = 'production';
+    });
+
+    afterEach(() => {
+      delete process.env.VERCEL_ENV;
+    });
+
+    it('allows property photos served from i.beemaps.com.mx', () => {
+      const res = middleware(makeRequest('/'));
+      const csp = res.headers.get('Content-Security-Policy');
+      expect(csp).toContain('https://i.beemaps.com.mx');
+    });
+
+    it('does not include the invalid mid-host S3 wildcard', () => {
+      const res = middleware(makeRequest('/'));
+      const csp = res.headers.get('Content-Security-Policy');
+      expect(csp).not.toContain('*.s3.*.amazonaws.com');
+      expect(csp).toContain('https://*.s3.amazonaws.com');
+    });
+  });
 });
