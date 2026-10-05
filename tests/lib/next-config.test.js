@@ -14,4 +14,9 @@ describe('next.config image remotePatterns', () => {
     expect(hostnames).not.toContain('*.s3.*.amazonaws.com');
     expect(hostnames).toContain('*.s3.amazonaws.com');
   });
+
+  it('allows R2 property image hosts', () => {
+    expect(hostnames).toContain('**.r2.dev');
+    expect(hostnames).toContain('images.casa-mx.com');
+  });
 });

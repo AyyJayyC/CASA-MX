@@ -9,7 +9,8 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { propertySchema, propertyFormDefaults } from '../lib/validation/propertySchema';
-import { addProperty as addPropertyAPI, updateProperty as updatePropertyAPI, publishProperty as publishPropertyAPI } from '../lib/api/properties';
+import { addProperty as addPropertyAPI, updateProperty as updatePropertyAPI, publishProperty as publishPropertyAPI, uploadPropertyImage } from '../lib/api/properties';
+import { compressImage, isAccepted } from '../lib/media/compressImage';
 import { getUnifiedCatalog } from '../lib/api/locations.js';
 import { useAuth } from '../lib/auth/useAuth';
 import { useInvalidateProperties } from '../lib/queries/properties';
@@ -36,6 +37,9 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
   const [ownershipConfirmed, setOwnershipConfirmed] = useState(false);
   const [locationsCatalog, setLocationsCatalog] = useState(null);
   const photoInputRef = useRef(null);
+  // Maps an object-URL preview -> the compressed Blob to upload on submit.
+  const newPhotoBlobs = useRef(new Map());
+  const [compressing, setCompressing] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -85,6 +89,15 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
 
   const photoFiles = watch('photos') || [];
 
+  const revokeAllPreviews = useCallback(() => {
+    for (const url of newPhotoBlobs.current.keys()) {
+      try { URL.revokeObjectURL(url); } catch { /* ignore */ }
+    }
+    newPhotoBlobs.current.clear();
+  }, []);
+
+  useEffect(() => () => revokeAllPreviews(), [revokeAllPreviews]);
+
   const updateNumericField = useCallback(
     (fieldName) => (nextValue) => {
       setValue(fieldName, nextValue, { shouldDirty: true, shouldValidate: true });
@@ -123,42 +136,61 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
   });
 
   const handlePhotoFiles = async (event) => {
-    const files = Array.from(event.target.files || []);
-    if (!files.length) return;
+    const files = Array.from(event.target.files || []).filter(isAccepted);
+    if (!files.length) {
+      if (photoInputRef.current) photoInputRef.current.value = '';
+      return;
+    }
 
-    const imageFiles = files.filter((file) => file.type.startsWith('image/'));
-    const encodedFiles = await Promise.all(
-      imageFiles.map(
-        (file) =>
-          new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-          })
-      )
-    );
-
-    const currentPhotos = getValues('photos') || [];
-    const merged = [...currentPhotos, ...encodedFiles].slice(0, 10);
-    setValue('photos', merged, { shouldDirty: true, shouldValidate: true });
-
-    if (photoInputRef.current) {
-      photoInputRef.current.value = '';
+    setCompressing(true);
+    try {
+      const currentPhotos = getValues('photos') || [];
+      const previews = [];
+      for (const file of files) {
+        if (currentPhotos.length + previews.length >= 10) break;
+        const { blob } = await compressImage(file);
+        const preview = URL.createObjectURL(blob);
+        newPhotoBlobs.current.set(preview, blob);
+        previews.push(preview);
+      }
+      if (previews.length) {
+        setValue('photos', [...currentPhotos, ...previews].slice(0, 10), {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+      }
+    } catch (err) {
+      logger.logError(err, 'Error compressing image');
+      alert(err?.message || 'No se pudo procesar la imagen');
+    } finally {
+      setCompressing(false);
+      if (photoInputRef.current) {
+        photoInputRef.current.value = '';
+      }
     }
   };
 
   const removePhotoAt = (index) => {
     const currentPhotos = getValues('photos') || [];
+    const removed = currentPhotos[index];
+    if (removed && newPhotoBlobs.current.has(removed)) {
+      try { URL.revokeObjectURL(removed); } catch { /* ignore */ }
+      newPhotoBlobs.current.delete(removed);
+    }
     const nextPhotos = currentPhotos.filter((_, idx) => idx !== index);
     setValue('photos', nextPhotos, { shouldDirty: true, shouldValidate: true });
   };
+
+  const isHttpUrl = (value) =>
+    typeof value === 'string' && (value.startsWith('http://') || value.startsWith('https://'));
 
   function buildPayload(values, mode = 'save') {
     const payload = {
       ...values,
       listingType,
-      imageUrls: values.photos || [],
+      // Only real (already-hosted) URLs go to the API. Blob/data previews are
+      // uploaded separately and appended after their R2 URLs come back.
+      imageUrls: (values.photos || []).filter(isHttpUrl),
       issuesInvoice: values.issuesInvoice ?? false,
       petFriendly: values.petFriendly ?? false,
       petFee: values.petFriendly ? (values.petFee ?? null) : null,
@@ -192,16 +224,18 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
     return payload;
   }
 
-  async function onSubmit(values, mode = 'save') {
+  async function submitProperty(values, { publish = false } = {}) {
     try {
       setSubmitValidationError('');
       setLoading(true);
 
-      const payload = buildPayload(values, mode);
+      const existingUrls = (values.photos || []).filter(isHttpUrl);
+      const payload = buildPayload(values, publish ? 'save' : 'draft');
 
-      const created = isEditing
+      const draft = isEditing
         ? await updatePropertyAPI(propertyId, payload)
         : await addPropertyAPI(payload);
+      const id = isEditing ? propertyId : draft?.id;
 
       const addressData = {
         estado: (values.estado || "").trim().replace(/\s+/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
@@ -213,8 +247,27 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
         logger.logError(err, "Failed to save address to user store");
       }
 
-      setSuccess(created);
+      // Upload every newly compressed blob, in UI order (index 0 = cover).
+      const newUrls = [];
+      for (const preview of values.photos || []) {
+        const blob = newPhotoBlobs.current.get(preview);
+        if (!blob) continue;
+        const url = await uploadPropertyImage(id, blob, `foto-${Date.now()}.webp`);
+        newUrls.push(url);
+      }
+
+      const saved = await updatePropertyAPI(id, {
+        imageUrls: [...existingUrls, ...newUrls],
+      });
+
+      // Publishing happens only after every upload succeeded.
+      if (publish) {
+        await publishPropertyAPI(id);
+      }
+
+      setSuccess(publish ? (isEditing ? '¡Propiedad publicada!' : saved) : saved);
       reset({ ...propertyFormDefaults, listingType, photos: [] });
+      revokeAllPreviews();
       if (photoInputRef.current) {
         photoInputRef.current.value = '';
       }
@@ -226,6 +279,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
       }
     } catch (error) {
       logger.logError(error, 'Error publishing property');
+      // The draft is already saved; never publish after a failed upload.
       if (error?.code === 'EMAIL_NOT_VERIFIED') {
         alert('Debes verificar tu correo electrónico antes de publicar propiedades. Revisa tu correo y vuelve a intentarlo.');
       } else if (error?.code === 'INE_NOT_VERIFIED') {
@@ -236,6 +290,10 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
     } finally {
       setLoading(false);
     }
+  }
+
+  async function onSubmit(values) {
+    await submitProperty(values, { publish: true });
   }
 
   function getFirstErrorEntry(errorMap, path = '') {
@@ -528,6 +586,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
           photoFiles={photoFiles}
           handlePhotoFiles={handlePhotoFiles}
           removePhotoAt={removePhotoAt}
+          compressing={compressing}
         />
 
         {/* Financing Options Section */}
@@ -566,7 +625,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
             <>
               <button
                 type="button"
-                onClick={handleSubmit((data) => onSubmit(data, 'draft'))}
+                onClick={handleSubmit((data) => submitProperty(data, { publish: false }))}
                 disabled={loading}
                 className="flex-1 sm:flex-none px-8 py-3 bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700 border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 font-semibold rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-clay-400 focus:ring-offset-2 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
               >
@@ -574,24 +633,13 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
               </button>
               <button
                 type="button"
-                onClick={async () => {
+                onClick={() => {
                   const data = getValues();
                   if (!data.photos || data.photos.length === 0) {
                     setSubmitValidationError('Agrega al menos una foto para publicar');
                     return;
                   }
-                  setLoading(true);
-                  try {
-                    const payload = buildPayload(data);
-                    await updatePropertyAPI(propertyId, payload);
-                    await publishPropertyAPI(propertyId);
-                    setSuccess('¡Propiedad publicada!');
-                    if (onSave) onSave();
-                  } catch (err) {
-                    setSubmitValidationError(err.message || 'Error al publicar');
-                  } finally {
-                    setLoading(false);
-                  }
+                  submitProperty(data, { publish: true });
                 }}
                 disabled={loading}
                 className="flex-1 sm:flex-none px-8 py-3 bg-gradient-to-br from-clay-400 to-clay-600 hover:from-clay-500 hover:to-clay-700 disabled:from-clay-300 disabled:to-clay-500 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-clay-400 focus:ring-offset-2 flex items-center justify-center gap-2"
@@ -620,6 +668,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
             onClick={() => {
               reset({ ...propertyFormDefaults, listingType, photos: [] });
               setSuccess(null);
+              revokeAllPreviews();
               if (photoInputRef.current) {
                 photoInputRef.current.value = '';
               }

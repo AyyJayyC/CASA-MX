@@ -26,6 +26,15 @@ const nextConfig = {
         protocol: 'https',
         hostname: '*.githubusercontent.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.casa-mx.com',
+      },
+      {
+        // Public Cloudflare R2 bucket domain (pub-<id>.r2.dev in production).
+        protocol: 'https',
+        hostname: '**.r2.dev',
+      },
     ],
   },
   compiler: {
