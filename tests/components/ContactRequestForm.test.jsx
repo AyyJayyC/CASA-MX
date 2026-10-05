@@ -13,6 +13,12 @@ vi.mock('../../lib/api/requests', () => ({
 }));
 
 describe('ContactRequestForm', () => {
+  it('links to the privacy notice', () => {
+    render(<ContactRequestForm propertyId="prop-1" onSuccess={vi.fn()} />);
+    const link = screen.getByRole('link', { name: /aviso de privacidad/i });
+    expect(link).toHaveAttribute('href', '/aviso-legal');
+  });
+
   it('validates inputs before submit', async () => {
     requestsApi.addRequest.mockResolvedValue({ id: 'req-1' });
     const onSuccess = vi.fn();

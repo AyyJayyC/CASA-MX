@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import Link from "next/link";
 import { z } from "zod";
 import DocumentUpload from "./DocumentUpload";
 import PersonalSection from "./rental-form/PersonalSection";
@@ -171,7 +172,15 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
             ) : "Enviar Solicitud"}
           </button>
           <p className="mt-2 text-xs text-center text-neutral-600 dark:text-neutral-400">
-            Al enviar esta solicitud, aceptas compartir tu información con el propietario.
+            Al enviar esta solicitud, aceptas compartir tu información con el
+            propietario. Al enviar aceptas el{" "}
+            <Link
+              href="/aviso-legal"
+              className="underline hover:text-clay dark:hover:text-clay-400"
+            >
+              Aviso de Privacidad
+            </Link>
+            .
           </p>
         </div>
       </form>
