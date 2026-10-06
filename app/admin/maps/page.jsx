@@ -125,7 +125,7 @@ export default function AdminMapsPage() {
   }
 
   return (
-    <RequireRole role="admin">
+    <RequireRole roles={["admin"]}>
       <div className="p-6">
         <h1 className="text-2xl font-semibold mb-4">Maps — Usage & Limits</h1>
         <div className="mb-4">
