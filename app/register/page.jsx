@@ -21,6 +21,11 @@ const registerSchema = z.object({
       message: "Debes aceptar Términos y Privacidad para continuar",
     }),
   }),
+  isAdult: z.literal(true, {
+    errorMap: () => ({
+      message: "Debes confirmar que eres mayor de 18 años",
+    }),
+  }),
 });
 
 const AVAILABLE_ROLES = [
@@ -45,6 +50,7 @@ export default function RegisterPage() {
     defaultValues: {
       roles: selectedRoles,
       acceptLegal: false,
+      isAdult: false,
     },
   });
 
@@ -82,6 +88,7 @@ export default function RegisterPage() {
         password: data.password,
         roles,
         acceptLegal: data.acceptLegal,
+        isAdult: data.isAdult,
       });
 
       const requiresApproval = selectedRoles.some((role) => role === "admin");
@@ -379,6 +386,22 @@ export default function RegisterPage() {
                     />
                   </svg>
                   {errors.acceptLegal.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="flex items-start gap-3 text-sm text-neutral-700 dark:text-neutral-300">
+                <input
+                  type="checkbox"
+                  {...register("isAdult")}
+                  className="mt-0.5 h-4 w-4 rounded border-neutral-300 dark:border-neutral-700 text-clay focus:ring-clay"
+                />
+                <span>Confirmo que soy mayor de 18 años.</span>
+              </label>
+              {errors.isAdult && (
+                <p className="text-red-600 dark:text-red-400 text-sm mt-2">
+                  {errors.isAdult.message}
                 </p>
               )}
             </div>

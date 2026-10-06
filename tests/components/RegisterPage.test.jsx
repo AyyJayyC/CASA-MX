@@ -43,7 +43,8 @@ describe('RegisterPage', () => {
     fireEvent.change(screen.getByLabelText(/Nombre Completo/i), { target: { value: 'Test' } });
     fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'test@example.com' } });
     fireEvent.change(screen.getByLabelText(/Contraseña/i), { target: { value: 'TestPassword123' } });
-    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.click(screen.getByRole('checkbox', { name: /mayor de 18/i }));
+    fireEvent.click(screen.getByRole('checkbox', { name: /Acepto los/i }));
 
     fireEvent.click(submit);
 

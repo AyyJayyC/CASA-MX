@@ -60,6 +60,11 @@ const SocialLoginButtons = React.memo(function SocialLoginButtons({
     if (onError) onError(err?.message || fallback);
   };
 
+  // OAuth signups have no legal/age consent yet: send them to the consent step.
+  const goAfterLogin = (result) => {
+    router.push(result?.user?.consentRequired ? "/consent" : redirectTo);
+  };
+
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
@@ -71,8 +76,8 @@ const SocialLoginButtons = React.memo(function SocialLoginButtons({
         client_id: GOOGLE_CLIENT_ID,
         callback: async (response) => {
           try {
-            await loginWithGoogle(response.credential);
-            router.push(redirectTo);
+            const result = await loginWithGoogle(response.credential);
+            goAfterLogin(result);
           } catch (err) {
             fail(err, "Error al iniciar sesión con Google");
           }
@@ -107,8 +112,10 @@ const SocialLoginButtons = React.memo(function SocialLoginButtons({
         async (response) => {
           if (response.authResponse) {
             try {
-              await loginWithFacebook(response.authResponse.accessToken);
-              router.push(redirectTo);
+              const result = await loginWithFacebook(
+                response.authResponse.accessToken,
+              );
+              goAfterLogin(result);
             } catch (err) {
               fail(err, "Error al iniciar sesión con Facebook");
             }
@@ -146,8 +153,8 @@ const SocialLoginButtons = React.memo(function SocialLoginButtons({
               .filter(Boolean)
               .join(" ")
           : "";
-        await loginWithApple(id_token, code, fullName);
-        router.push(redirectTo);
+        const result = await loginWithApple(id_token, code, fullName);
+        goAfterLogin(result);
       } else {
         setLoading(false);
       }
