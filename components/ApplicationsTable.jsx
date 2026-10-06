@@ -8,6 +8,7 @@
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import ApplicationDetailsModal from "./ApplicationDetailsModal.jsx";
+import { CREDIT_UNLOCK_COST } from "@/lib/credits";
 import {
   getPropertyApplications,
   updateApplicationStatus,
@@ -265,7 +266,7 @@ export default function ApplicationsTable({
                         🔓{" "}
                         {unlocking === app.id
                           ? "Desbloqueando..."
-                          : "Ver contacto (1 crédito)"}
+                          : `Ver contacto (${CREDIT_UNLOCK_COST} créditos)`}
                       </button>
                     )}
                   </td>

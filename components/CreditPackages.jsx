@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useInvalidateCredits } from "@/lib/queries/credits";
 import * as creditsAPI from "@/lib/api/credits";
+import { CREDIT_UNLOCK_COST } from "@/lib/credits";
 
 const StripePaymentModal = dynamic(() => import("./StripePaymentModal"), {
   ssr: false,
@@ -15,7 +16,7 @@ const CREDIT_USES = [
   {
     icon: "👤",
     label: "Desbloquear el contacto de un comprador",
-    cost: "10 créditos",
+    cost: `${CREDIT_UNLOCK_COST} créditos`,
   },
   {
     icon: "🏠",

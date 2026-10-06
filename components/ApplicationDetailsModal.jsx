@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import ApplicantReviewSummary from "./ApplicantReviewSummary.jsx";
+import { CREDIT_UNLOCK_COST } from "@/lib/credits";
 
 const NegotiationPanel = dynamic(() => import("./NegotiationPanel.jsx"));
 
@@ -133,7 +134,7 @@ export default function ApplicationDetailsModal({
                     🔓{" "}
                     {isUnlocking
                       ? "Desbloqueando..."
-                      : "Ver contacto completo (1 crédito)"}
+                      : `Ver contacto completo (${CREDIT_UNLOCK_COST} créditos)`}
                   </button>
                 </div>
               )}

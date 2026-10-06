@@ -5,6 +5,7 @@ import { useSellerContactRequests } from "../lib/queries/requests";
 import { approveRequest } from "../lib/api/requests";
 import { useSpendCredit, useCreditsBalance } from "../lib/queries/credits";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import { CREDIT_UNLOCK_COST } from "@/lib/credits";
 
 function redactPhone(phone) {
   if (!phone) return "—";
@@ -174,7 +175,7 @@ export default function SellerContactRequests() {
                         >
                           {unlocking === req.id
                             ? "..."
-                            : "Ver datos (1 crédito)"}
+                            : `Ver datos (${CREDIT_UNLOCK_COST} créditos)`}
                         </button>
                       )}
                       {!isApproved && (
