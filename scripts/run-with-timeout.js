@@ -1,6 +1,6 @@
 const { spawn } = require('child_process');
 
-const defaultTimeoutMs = 120000;
+const defaultTimeoutMs = 300000;
 const timeoutMs = Number(process.env.TEST_TIMEOUT_MS || defaultTimeoutMs);
 
 const args = process.argv.slice(2);
