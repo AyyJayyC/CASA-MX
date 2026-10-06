@@ -13,6 +13,7 @@ import {
   getSubscriptionStatus,
 } from "@/lib/api/subscriptions";
 import VerificationBadges from "@/components/VerificationBadges";
+import AccountDeletion from "@/components/AccountDeletion";
 
 const DOC_LABELS = {
   official_id: "Identificación oficial (INE/IFE)",
@@ -341,6 +342,8 @@ export default function AccountPage() {
           onChange={handleFileChange}
         />
       </section>
+
+      <AccountDeletion />
 
       <div className="mt-6">
         <button
