@@ -53,6 +53,26 @@ export function middleware(request) {
     process.env.VERCEL_ENV === "production" ||
     (!process.env.VERCEL_ENV && process.env.NODE_ENV === "production");
 
+  // Referral capture: ?ref=<code> (legacy: ?compartio) → HttpOnly cookie for
+  // 30 days, then redirect to the clean URL so the code isn't shared onward.
+  const refCode =
+    request.nextUrl.searchParams.get("ref") ||
+    request.nextUrl.searchParams.get("compartio");
+  if (refCode) {
+    const cleanUrl = request.nextUrl.clone();
+    cleanUrl.searchParams.delete("ref");
+    cleanUrl.searchParams.delete("compartio");
+    const redirect = NextResponse.redirect(cleanUrl);
+    redirect.cookies.set("cmx_ref", refCode, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: isProd,
+      path: "/",
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+    });
+    return redirect;
+  }
+
   const response = NextResponse.next();
 
   if (isProd) {
