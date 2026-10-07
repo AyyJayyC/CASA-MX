@@ -340,6 +340,14 @@ export default function NavBar() {
                       Solicitudes
                     </Link>
                   ) : null}
+                  {!isClient && canPublish ? (
+                    <Link
+                      href="/dashboard/leads"
+                      className="px-3 py-1.5 rounded-lg text-sm font-medium text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800 transition-colors"
+                    >
+                      Leads
+                    </Link>
+                  ) : null}
                   <Link
                     href="/settings"
                     onClick={() => {

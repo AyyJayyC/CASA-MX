@@ -107,6 +107,7 @@ export default function SellerContactRequests() {
           const contact = unlockedContacts[req.id];
           const isApproved =
             approvedIds.has(req.id) || req.status === "contacted";
+          const isReferred = Boolean(req.referringAgentId);
 
           return (
             <div
@@ -144,20 +145,35 @@ export default function SellerContactRequests() {
                 <div className="border-t border-neutral-200 dark:border-neutral-800 pt-4">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                     <div className="flex-1 text-sm">
-                      <p className="text-neutral-600 dark:text-neutral-400">
-                        <span className="font-medium text-neutral-900 dark:text-neutral-100">
-                          {contact ? contact.fullName : redactName(req.name)}
-                        </span>
-                      </p>
-                      {contact ? (
-                        <p className="text-neutral-500 mt-0.5">
-                          {contact.phone}{" "}
-                          {contact.email && `· ${contact.email}`}
-                        </p>
+                      {isReferred ? (
+                        <>
+                          <p className="font-medium text-clay-700 dark:text-clay-300">
+                            Referido por{" "}
+                            {req.referringAgent?.name ?? "un agente"}
+                          </p>
+                          <p className="text-neutral-500 mt-1">
+                            Un agente hará una oferta por tu propiedad; el
+                            agente te contactará.
+                          </p>
+                        </>
                       ) : (
-                        <p className="text-neutral-500 mt-0.5">
-                          Tel: {redactPhone(req.phone)}
-                        </p>
+                        <>
+                          <p className="text-neutral-600 dark:text-neutral-400">
+                            <span className="font-medium text-neutral-900 dark:text-neutral-100">
+                              {contact ? contact.fullName : redactName(req.name)}
+                            </span>
+                          </p>
+                          {contact ? (
+                            <p className="text-neutral-500 mt-0.5">
+                              {contact.phone}{" "}
+                              {contact.email && `· ${contact.email}`}
+                            </p>
+                          ) : (
+                            <p className="text-neutral-500 mt-0.5">
+                              Tel: {redactPhone(req.phone)}
+                            </p>
+                          )}
+                        </>
                       )}
                       {req.message && (
                         <p className="text-neutral-500 mt-1 italic">
@@ -167,7 +183,7 @@ export default function SellerContactRequests() {
                     </div>
 
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      {!contact && (
+                      {!isReferred && !contact && (
                         <button
                           onClick={() => handleUnlock(req)}
                           disabled={unlocking === req.id}
