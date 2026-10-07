@@ -221,5 +221,12 @@ describe('Middleware', () => {
       expect(csp).not.toContain('*.s3.*.amazonaws.com');
       expect(csp).toContain('https://*.s3.amazonaws.com');
     });
+
+    it('allows R2 property image hosts', () => {
+      const res = middleware(makeRequest('/'));
+      const csp = res.headers.get('Content-Security-Policy');
+      expect(csp).toContain('https://*.r2.dev');
+      expect(csp).toContain('https://images.casa-mx.com');
+    });
   });
 });

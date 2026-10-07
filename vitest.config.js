@@ -47,7 +47,9 @@ export default defineConfig({
       '**/.{idea,git,cache,output,temp}/**',
       '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
       '**/e2e/**',
-      'tests/browser/**'
+      'tests/browser/**',
+      // Nested separate backend repo — not part of the frontend test suite.
+      'backend/**'
     ],
   }
 });

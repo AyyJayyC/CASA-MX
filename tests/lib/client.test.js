@@ -8,7 +8,7 @@ vi.mock('@/lib/api/auth', () => ({
   refreshAccessToken: vi.fn(),
 }));
 
-import { apiFetch } from '@/lib/api/client';
+import { apiFetch, apiFormData } from '@/lib/api/client';
 import * as auth from '@/lib/api/auth';
 
 globalThis.fetch = vi.fn();
@@ -84,5 +84,37 @@ describe('apiFetch', () => {
     ]);
 
     expect(auth.refreshAccessToken).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('apiFormData', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('POSTs FormData without setting Content-Type', async () => {
+    globalThis.fetch.mockResolvedValue({ status: 200, ok: true });
+    const form = new FormData();
+
+    await apiFormData('/properties/p1/images', form);
+
+    const [url, opts] = globalThis.fetch.mock.calls[0];
+    expect(url).toContain('/properties/p1/images');
+    expect(opts.method).toBe('POST');
+    expect(opts.body).toBe(form);
+    expect(opts.headers).not.toHaveProperty('Content-Type');
+    expect(opts.headers['x-csrf-token']).toBe('test-csrf-token');
+  });
+
+  it('retries once on 401 after refreshing the token', async () => {
+    globalThis.fetch
+      .mockResolvedValueOnce({ status: 401, ok: false })
+      .mockResolvedValueOnce({ status: 201, ok: true });
+    auth.refreshAccessToken.mockResolvedValue({ success: true });
+
+    const res = await apiFormData('/x', new FormData());
+
+    expect(globalThis.fetch).toHaveBeenCalledTimes(2);
+    expect(res.status).toBe(201);
   });
 });

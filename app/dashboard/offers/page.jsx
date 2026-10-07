@@ -7,6 +7,7 @@ import OfferRespondModal from "@/components/OfferRespondModal.jsx";
 import { getMySellerOffers } from "@/lib/api/offers.js";
 import { useSpendCredit } from "@/lib/queries/credits";
 import { FINANCING_LABELS } from "@/lib/constants/financing";
+import { CREDIT_UNLOCK_COST } from "@/lib/credits";
 
 const STATUS_LABELS = {
   pending: "Pendiente",
@@ -247,7 +248,7 @@ function SellerOffersContent() {
                         🔓{" "}
                         {unlocking === offer.id
                           ? "Desbloqueando..."
-                          : "Ver contacto (1 crédito)"}
+                          : `Ver contacto (${CREDIT_UNLOCK_COST} créditos)`}
                       </button>
                     )}
                   </div>

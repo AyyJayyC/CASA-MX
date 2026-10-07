@@ -34,7 +34,7 @@ async function apiFetch(path, options = {}) {
 
 export default function AdminCarouselPage() {
   return (
-    <RequireRole role="admin">
+    <RequireRole roles={["admin"]}>
       <CarouselManager />
     </RequireRole>
   );
