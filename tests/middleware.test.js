@@ -228,5 +228,11 @@ describe('Middleware', () => {
       expect(csp).toContain('https://*.r2.dev');
       expect(csp).toContain('https://images.casa-mx.com');
     });
+
+    it('allows catbox, where the publisher pipeline re-hosts photos', () => {
+      const res = middleware(makeRequest('/'));
+      const csp = res.headers.get('Content-Security-Policy');
+      expect(csp).toContain('https://files.catbox.moe');
+    });
   });
 });

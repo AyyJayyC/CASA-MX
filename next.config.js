@@ -35,6 +35,11 @@ const nextConfig = {
         protocol: 'https',
         hostname: '**.r2.dev',
       },
+      {
+        // Third-party host: the publisher pipeline re-hosts photos to catbox.
+        protocol: 'https',
+        hostname: 'files.catbox.moe',
+      },
     ],
   },
   compiler: {
