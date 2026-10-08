@@ -29,6 +29,17 @@ describe('API analytics provider', () => {
     expect(result.ok).toBe(true);
   });
 
+  it('track sends x-csrf-token read from the csrfToken cookie', async () => {
+    globalThis.fetch.mockResolvedValue({ ok: true });
+    document.cookie = 'csrfToken=analytics-csrf';
+    await apiProvider.track({ eventName: 'page_view' });
+
+    const [, opts] = globalThis.fetch.mock.calls[0];
+    expect(opts.headers['x-csrf-token']).toBe('analytics-csrf');
+
+    document.cookie = 'csrfToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  });
+
   it('track handles non-ok response', async () => {
     globalThis.fetch.mockResolvedValue({ ok: false, status: 500 });
     const result = await apiProvider.track({ eventName: 'test' });

@@ -13,12 +13,22 @@ import {
   useEffect,
   useCallback,
 } from "react";
+import { getCsrfToken } from "../api/csrf";
 
 const DebugContext = createContext(null);
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 const DEBUG_ENABLED =
   process.env.NODE_ENV !== "production" ||
   process.env.NEXT_PUBLIC_ENABLE_DEBUG_LOGGING === "true";
+
+// /debug/* is a non-GET API path, so it needs the CSRF header like any other.
+function debugHeaders() {
+  const token = getCsrfToken();
+  return {
+    "Content-Type": "application/json",
+    ...(token ? { "x-csrf-token": token } : {}),
+  };
+}
 
 export function DebugProvider({ children }) {
   const [sessionId, setSessionId] = useState(null);
@@ -40,7 +50,7 @@ export function DebugProvider({ children }) {
           try {
             const response = await fetch(`${API_BASE}/debug/session`, {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
+              headers: debugHeaders(),
               body: JSON.stringify({
                 userAgent: navigator.userAgent,
                 initialRoute: window.location.pathname,
@@ -76,7 +86,7 @@ export function DebugProvider({ children }) {
       try {
         await fetch(`${API_BASE}/debug/action`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: debugHeaders(),
           body: JSON.stringify({
             sessionId,
             actionType,
@@ -100,7 +110,7 @@ export function DebugProvider({ children }) {
       try {
         await fetch(`${API_BASE}/debug/error`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: debugHeaders(),
           body: JSON.stringify({
             sessionId,
             errorMessage: error?.message || String(error),

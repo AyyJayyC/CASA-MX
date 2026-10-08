@@ -3,6 +3,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth/useAuth";
+import { resendVerification } from "@/lib/api/auth";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
@@ -133,18 +134,10 @@ function ResendButton() {
     setSending(true);
     setError("");
     try {
-      const res = await fetch(`${BACKEND_URL}/auth/resend-verification`, {
-        method: "POST",
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setSent(true);
-      } else {
-        setError(data.error || "Error al enviar");
-      }
-    } catch {
-      setError("Error de conexión");
+      await resendVerification();
+      setSent(true);
+    } catch (err) {
+      setError(err.message || "Error al enviar");
     } finally {
       setSending(false);
     }

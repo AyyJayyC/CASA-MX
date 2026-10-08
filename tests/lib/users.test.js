@@ -103,4 +103,20 @@ describe('users API', () => {
     await users.getAuditLogs({ limit: 50 });
     expect(client.apiGet).toHaveBeenCalledWith('/admin/audit-logs?limit=50');
   });
+
+  it('changeEmail POSTs the new email (CSRF via the shared client)', async () => {
+    client.apiPost.mockResolvedValue({ success: true });
+    await users.changeEmail('nuevo@test.com');
+    expect(client.apiPost).toHaveBeenCalledWith('/users/me/change-email', {
+      newEmail: 'nuevo@test.com',
+    });
+  });
+
+  it('changePhone POSTs the new phone (CSRF via the shared client)', async () => {
+    client.apiPost.mockResolvedValue({ success: true });
+    await users.changePhone('+525512345678');
+    expect(client.apiPost).toHaveBeenCalledWith('/users/me/change-phone', {
+      phone: '+525512345678',
+    });
+  });
 });
