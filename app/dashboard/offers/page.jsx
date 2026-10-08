@@ -227,29 +227,44 @@ function SellerOffersContent() {
                     <div className="text-xs text-neutral-500 dark:text-neutral-400 mb-0.5">
                       Comprador
                     </div>
-                    <div className="font-medium text-neutral-800 dark:text-neutral-200">
-                      {offer.buyerName}
-                    </div>
-                    {getBuyerContact(offer) ? (
-                      <>
-                        <div className="text-xs text-neutral-400">
-                          {getBuyerContact(offer).email}
+                    {offer.referringAgentId ? (
+                      <div className="text-clay-700 dark:text-clay-300">
+                        <span className="text-xs font-medium">
+                          Referido por{" "}
+                          {offer.referringAgent?.name ?? "un agente"}
+                        </span>
+                        <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                          Un agente hará una oferta por tu propiedad; el agente
+                          te contactará.
                         </div>
-                        <div className="text-xs text-neutral-400">
-                          {getBuyerContact(offer).phone}
-                        </div>
-                      </>
+                      </div>
                     ) : (
-                      <button
-                        onClick={() => handleUnlockOffer(offer)}
-                        disabled={unlocking === offer.id}
-                        className="mt-0.5 text-xs font-medium text-clay-600 hover:text-clay-700 dark:text-clay-400 flex items-center gap-1 disabled:opacity-50"
-                      >
-                        🔓{" "}
-                        {unlocking === offer.id
-                          ? "Desbloqueando..."
-                          : `Ver contacto (${CREDIT_UNLOCK_COST} créditos)`}
-                      </button>
+                      <>
+                        <div className="font-medium text-neutral-800 dark:text-neutral-200">
+                          {offer.buyerName}
+                        </div>
+                        {getBuyerContact(offer) ? (
+                          <>
+                            <div className="text-xs text-neutral-400">
+                              {getBuyerContact(offer).email}
+                            </div>
+                            <div className="text-xs text-neutral-400">
+                              {getBuyerContact(offer).phone}
+                            </div>
+                          </>
+                        ) : (
+                          <button
+                            onClick={() => handleUnlockOffer(offer)}
+                            disabled={unlocking === offer.id}
+                            className="mt-0.5 text-xs font-medium text-clay-600 hover:text-clay-700 dark:text-clay-400 flex items-center gap-1 disabled:opacity-50"
+                          >
+                            🔓{" "}
+                            {unlocking === offer.id
+                              ? "Desbloqueando..."
+                              : `Ver contacto (${CREDIT_UNLOCK_COST} créditos)`}
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                   <div>

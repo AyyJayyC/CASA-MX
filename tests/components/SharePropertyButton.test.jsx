@@ -51,6 +51,19 @@ describe('SharePropertyButton', () => {
     });
   });
 
+  it('builds the share link with the ?ref= attribution param', async () => {
+    render(<SharePropertyButton propertyId="prop-1" propertyTitle="Casa bonita" />);
+    fireEvent.click(screen.getByText('Compartir'));
+    await waitFor(() => expect(screen.getByText('Copiar enlace')).toBeInTheDocument());
+    fireEvent.click(screen.getByText('Copiar enlace'));
+
+    await waitFor(() => {
+      const copied = navigator.clipboard.writeText.mock.calls[0][0];
+      expect(copied).toContain('?ref=USR001');
+      expect(copied).not.toContain('compartio=');
+    });
+  });
+
   it('shows "¡Enlace copiado!" on the button after copying', async () => {
     render(<SharePropertyButton propertyId="prop-1" propertyTitle="Casa bonita" />);
     fireEvent.click(screen.getByText('Compartir'));

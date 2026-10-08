@@ -63,6 +63,19 @@ export default function DesktopNavLinks({
           Vender
         </Link>
       )}
+      {canPublish && (
+        <Link
+          href="/dashboard/integrations"
+          className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
+            ${
+              isActivePath("/dashboard/integrations")
+                ? "bg-clay/10 text-clay"
+                : "text-ink-muted dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-slate-800"
+            }`}
+        >
+          API
+        </Link>
+      )}
       {!isAuthenticated && (
         <Link
           href="/publish-property"

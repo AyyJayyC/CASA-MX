@@ -74,11 +74,25 @@ export default function MobileMenu({
       {canPublish && (
         <>
           <MobileLink
+            href="/dashboard/leads"
+            onClick={onClose}
+            isActive={isActivePath("/dashboard/leads")}
+          >
+            Leads referidos
+          </MobileLink>
+          <MobileLink
             href="/publish-property"
             onClick={onClose}
             isActive={isActivePath("/publish-property")}
           >
             Vender
+          </MobileLink>
+          <MobileLink
+            href="/dashboard/integrations"
+            onClick={onClose}
+            isActive={isActivePath("/dashboard/integrations")}
+          >
+            🔑 API / Integraciones
           </MobileLink>
           <MobileLink
             href="/credits"

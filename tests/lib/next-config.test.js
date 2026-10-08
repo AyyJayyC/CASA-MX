@@ -19,4 +19,8 @@ describe('next.config image remotePatterns', () => {
     expect(hostnames).toContain('**.r2.dev');
     expect(hostnames).toContain('images.casa-mx.com');
   });
+
+  it('allows catbox, where the publisher pipeline re-hosts photos', () => {
+    expect(hostnames).toContain('files.catbox.moe');
+  });
 });

@@ -104,6 +104,14 @@ const SECTIONS = [
     roles: ["owner", "agent", "admin"],
   },
   {
+    href: "/dashboard/integrations",
+    title: "API / Integraciones",
+    description:
+      "Crea y revoca llaves para publicar propiedades desde tus propias integraciones.",
+    icon: "🔑",
+    roles: ["owner", "agent", "admin"],
+  },
+  {
     href: "/properties/import",
     title: "Importar propiedades",
     description: "Importa propiedades desde Excel en lote.",

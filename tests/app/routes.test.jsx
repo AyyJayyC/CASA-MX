@@ -28,6 +28,7 @@ const PAGES = [
   { name: 'DashboardApplications', file: 'app/dashboard/applications/page.jsx' },
   { name: 'DashboardContactRequests', file: 'app/dashboard/contact-requests/page.jsx' },
   { name: 'DashboardCRM', file: 'app/dashboard/crm/page.jsx' },
+  { name: 'DashboardIntegrations', file: 'app/dashboard/integrations/page.jsx' },
   { name: 'DashboardMyOffers', file: 'app/dashboard/my-offers/page.jsx' },
   { name: 'DashboardMyProperties', file: 'app/dashboard/my-properties/page.jsx' },
   { name: 'DashboardNotifications', file: 'app/dashboard/notifications/page.jsx' },
