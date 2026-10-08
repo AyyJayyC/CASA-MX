@@ -74,6 +74,7 @@ const KNOWN_ROUTES = new Set([
   '/dashboard/applications',
   '/dashboard/contact-requests',
   '/dashboard/crm',
+  '/dashboard/integrations',
   '/dashboard/leads',
   '/dashboard/my-offers',
   '/dashboard/my-properties',

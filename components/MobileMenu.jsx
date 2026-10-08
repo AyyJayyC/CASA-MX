@@ -88,6 +88,13 @@ export default function MobileMenu({
             Vender
           </MobileLink>
           <MobileLink
+            href="/dashboard/integrations"
+            onClick={onClose}
+            isActive={isActivePath("/dashboard/integrations")}
+          >
+            🔑 API / Integraciones
+          </MobileLink>
+          <MobileLink
             href="/credits"
             onClick={onClose}
             isActive={isActivePath("/credits")}
