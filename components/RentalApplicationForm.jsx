@@ -7,6 +7,7 @@ import PersonalSection from "./rental-form/PersonalSection";
 import EmploymentSection from "./rental-form/EmploymentSection";
 import PreferencesSection from "./rental-form/PreferencesSection";
 import ReferencesSection from "./rental-form/ReferencesSection";
+import { submitApplication } from "@/lib/api/applications";
 
 const applicationSchema = z.object({
   fullName: z.string().min(1, "El nombre completo es requerido"),
@@ -72,27 +73,17 @@ export default function RentalApplicationForm({ propertyId, monthlyRent, onSucce
 
     setIsSubmitting(true);
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/applications`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            propertyId,
-            ...result.data,
-            desiredMoveInDate: new Date(result.data.desiredMoveInDate).toISOString(),
-          }),
-        },
-      );
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Error al enviar la solicitud");
+      const application = await submitApplication({
+        propertyId,
+        ...result.data,
+        desiredMoveInDate: new Date(result.data.desiredMoveInDate).toISOString(),
+      });
 
       setSubmitStatus("success");
       setSubmitMessage("¡Solicitud enviada exitosamente! El propietario revisará tu aplicación pronto.");
-      if (data.application?.id) setCreatedApplicationId(data.application.id);
+      if (application?.id) setCreatedApplicationId(application.id);
       setFormData({ fullName: "", email: "", phone: "", employer: "", jobTitle: "", monthlyIncome: "", employmentDuration: "", desiredMoveInDate: "", desiredLeaseTerm: "", numberOfOccupants: "", reference1Name: "", reference1Phone: "", reference2Name: "", reference2Phone: "", offeredMonthlyRent: "", messageToLandlord: "" });
-      if (onSuccess) onSuccess(data);
+      if (onSuccess) onSuccess(application);
     } catch (error) {
       setSubmitStatus("error");
       setSubmitMessage(error.message || "Ocurrió un error al enviar la solicitud. Por favor intenta de nuevo.");

@@ -23,6 +23,7 @@ vi.mock('../../lib/api/agencies', () => ({
   getMyAgents: (...args) => mockGetAgents(...args),
   getMyAgencyMembership: (...args) => mockGetAgencyMembership(...args),
   getAgencyPricing: (...args) => mockGetAgencyPricing(...args),
+  addAgent: vi.fn(),
 }));
 
 vi.mock('../../lib/auth/useAuth', () => ({

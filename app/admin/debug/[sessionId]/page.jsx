@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { RequireRole } from "@/components/guards/RequireRole.jsx";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { getCsrfToken } from "@/lib/api/csrf";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -11,10 +12,12 @@ const API_BASE =
   "http://localhost:3001";
 
 function buildRequestOptions(options = {}) {
+  const token = getCsrfToken();
   return {
     credentials: "include",
     ...options,
     headers: {
+      ...(token ? { "x-csrf-token": token } : {}),
       ...(options.headers || {}),
     },
   };

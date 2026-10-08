@@ -8,6 +8,7 @@ import {
   getMyAgencyMembership,
   getMyAgents,
   getAgencyPricing,
+  addAgent,
 } from "@/lib/api/agencies";
 
 const FRONTEND_URL =
@@ -48,20 +49,10 @@ export default function AgencyPage() {
     setAddingAgent(true);
     setAddAgentError("");
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/agencies/me/agents`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(newAgent),
-        },
-      );
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error");
+      const created = await addAgent(newAgent);
       setAgentData((prev) => ({
         ...prev,
-        agents: [data.data, ...(prev.agents || [])],
+        agents: [created, ...(prev.agents || [])],
         total: (prev.total || 0) + 1,
       }));
       setNewAgent({ email: "", name: "", password: "" });

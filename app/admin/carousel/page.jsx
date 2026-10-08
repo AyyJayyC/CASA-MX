@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { BACKEND_URL } from "@/lib/api/client";
+import { getCsrfToken } from "@/lib/api/csrf";
 import { RequireRole } from "@/components/guards/RequireRole";
 
 const slideSchema = z.object({
@@ -20,9 +21,13 @@ const slideSchema = z.object({
 });
 
 async function apiFetch(path, options = {}) {
+  const token = getCsrfToken();
   const res = await fetch(`${BACKEND_URL}${path}`, {
     credentials: "include",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { "x-csrf-token": token } : {}),
+    },
     ...options,
   });
   if (!res.ok) {

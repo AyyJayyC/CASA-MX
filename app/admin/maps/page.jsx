@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { RequireRole } from "../../../components/guards/RequireRole";
+import { getCsrfToken } from "@/lib/api/csrf";
 
 const API_BASE = process.env.NEXT_PUBLIC_MAPS_PROXY || "http://localhost:3001";
 
@@ -19,7 +20,11 @@ export default function AdminMapsPage() {
   }, []);
 
   function authHeader() {
-    return { "Content-Type": "application/json" };
+    const token = getCsrfToken();
+    return {
+      "Content-Type": "application/json",
+      ...(token ? { "x-csrf-token": token } : {}),
+    };
   }
 
   async function fetchAll() {

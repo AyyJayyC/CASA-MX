@@ -9,6 +9,7 @@ import {
   normalizeSuggestionText,
 } from '../../lib/address-utils';
 import { logger } from '../../lib/logging/logger';
+import { getCsrfToken } from '../../lib/api/csrf';
 
 export default function AddressSection({
   register, errors, watch, setValue, getValues,
@@ -173,9 +174,13 @@ export default function AddressSection({
 
   const fillFromGeocode = useCallback(async (description, typedInput = '', selectedSuggestion = null) => {
     try {
+      const csrf = getCsrfToken();
       const res = await fetch(`${BACKEND_URL}/maps/geocode`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrf ? { 'x-csrf-token': csrf } : {}),
+        },
         credentials: 'include',
         body: JSON.stringify({ address: description }),
       });

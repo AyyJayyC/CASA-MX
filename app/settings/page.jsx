@@ -8,6 +8,8 @@ import {
   getUserProfile,
   updateUserProfile,
   uploadProfileAvatar,
+  changeEmail,
+  changePhone,
 } from "@/lib/api/users";
 import { getUserDocuments, uploadUserDocument } from "@/lib/api/userDocuments";
 import UserPreferences from "@/components/UserPreferences.jsx";
@@ -342,25 +344,12 @@ function SettingsContent() {
                             if (!newEmail) return;
                             setSaving(true);
                             try {
-                              const res = await fetch(
-                                `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/users/me/change-email`,
-                                {
-                                  method: "POST",
-                                  headers: {
-                                    "Content-Type": "application/json",
-                                  },
-                                  credentials: "include",
-                                  body: JSON.stringify({ newEmail }),
-                                },
+                              await changeEmail(newEmail);
+                              setEmailChangeMsg(
+                                "Revisa tu nuevo correo para verificar el cambio.",
                               );
-                              const data = await res.json();
-                              if (res.ok)
-                                setEmailChangeMsg(
-                                  "Revisa tu nuevo correo para verificar el cambio.",
-                                );
-                              else setEmailChangeMsg(data.error || "Error");
-                            } catch {
-                              setEmailChangeMsg("Error de conexión");
+                            } catch (err) {
+                              setEmailChangeMsg(err.message || "Error");
                             }
                             setSaving(false);
                           }}
@@ -461,29 +450,14 @@ function SettingsContent() {
                             if (!newPhone) return;
                             setSaving(true);
                             try {
-                              const res = await fetch(
-                                `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/users/me/change-phone`,
-                                {
-                                  method: "POST",
-                                  headers: {
-                                    "Content-Type": "application/json",
-                                  },
-                                  credentials: "include",
-                                  body: JSON.stringify({ phone: newPhone }),
-                                },
-                              );
-                              const data = await res.json();
-                              if (res.ok) {
-                                setForm((f) => ({ ...f, phone: newPhone }));
-                                setVerified((v) => ({ ...v, phone: true }));
-                                setChangingPhone(false);
-                                setPhoneChangeStep(null);
-                                setSuccess(true);
-                              } else {
-                                setError(data.error);
-                              }
-                            } catch {
-                              setError("Error de conexión");
+                              await changePhone(newPhone);
+                              setForm((f) => ({ ...f, phone: newPhone }));
+                              setVerified((v) => ({ ...v, phone: true }));
+                              setChangingPhone(false);
+                              setPhoneChangeStep(null);
+                              setSuccess(true);
+                            } catch (err) {
+                              setError(err.message || "Error");
                             }
                             setSaving(false);
                           }}

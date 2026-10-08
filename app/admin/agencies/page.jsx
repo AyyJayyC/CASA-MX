@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { RequireRole } from "@/components/guards/RequireRole.jsx";
-import { getAdminAgencies, updateAgency } from "@/lib/api/agencies";
+import { getAdminAgencies, updateAgency, createAgency } from "@/lib/api/agencies";
 
 const PLAN_LABELS = {
   inactive: "Inactivo",
@@ -11,7 +11,6 @@ const PLAN_LABELS = {
   custom: "Personalizado",
 };
 const PLANS = ["inactive", "basico", "pro", "empresarial", "custom"];
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 export default function AdminAgenciesPage() {
   const [agencies, setAgencies] = useState([]);
@@ -71,15 +70,8 @@ export default function AdminAgenciesPage() {
       if (createForm.plan === "custom") {
         body.agentLimit = createForm.agentLimit || 0;
       }
-      const res = await fetch(`${BACKEND_URL}/agencies`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(body),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error");
-      setAgencies((prev) => [data.data, ...prev]);
+      const res = await createAgency(body);
+      setAgencies((prev) => [res, ...prev]);
       setCreateForm({
         name: "",
         legalName: "",
