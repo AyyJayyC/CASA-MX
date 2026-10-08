@@ -147,14 +147,14 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
       const currentPhotos = getValues('photos') || [];
       const previews = [];
       for (const file of files) {
-        if (currentPhotos.length + previews.length >= 10) break;
+        if (currentPhotos.length + previews.length >= 25) break;
         const { blob } = await compressImage(file);
         const preview = URL.createObjectURL(blob);
         newPhotoBlobs.current.set(preview, blob);
         previews.push(preview);
       }
       if (previews.length) {
-        setValue('photos', [...currentPhotos, ...previews].slice(0, 10), {
+        setValue('photos', [...currentPhotos, ...previews].slice(0, 25), {
           shouldDirty: true,
           shouldValidate: true,
         });

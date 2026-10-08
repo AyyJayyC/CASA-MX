@@ -16,7 +16,7 @@ export default function MediaSection({
         <label htmlFor="photos-upload" className={labelClass}>
           Subir imágenes{' '}
           <span className="text-neutral-400 text-xs font-normal">
-            (máx 10, se comprime automáticamente)
+            (máx 25, se comprime automáticamente)
           </span>
         </label>
         <input
@@ -35,7 +35,7 @@ export default function MediaSection({
         <p className="mt-2 text-sm font-medium text-neutral-700 dark:text-neutral-300">
           {compressing
             ? 'Comprimiendo imágenes…'
-            : `${photoFiles.length} de 10 fotos cargadas`}
+            : `${photoFiles.length} de 25 fotos cargadas`}
         </p>
       </div>
 
