@@ -26,12 +26,12 @@ const CREDIT_USES = [
   {
     icon: "⭐",
     label: "Destacar tu propiedad en búsquedas",
-    cost: "300 créditos / día",
+    cost: "5 créditos / día",
   },
   {
     icon: "🔥",
     label: "Aparecer en el carrusel de la página principal",
-    cost: "2,000 créditos / día",
+    cost: "20 créditos / día",
   },
 ];
 
@@ -128,7 +128,7 @@ export default function CreditPackages() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {packages.map((pkg) => {
           const badge = BADGES[pkg.name];
-          const perCredit = (pkg.priceMXN / pkg.credits).toFixed(0);
+          const perCredit = (pkg.priceMXN / pkg.credits).toFixed(2);
           const isPopular = !!badge;
           return (
             <div
