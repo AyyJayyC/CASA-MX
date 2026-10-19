@@ -5,6 +5,9 @@ import { Badge } from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Input } from "@/components/ui/Input";
+import { Card } from "@/components/ui/Card";
+import { Select } from "@/components/ui/Select";
+import { Field } from "@/components/ui/Field";
 
 describe("Button", () => {
   it("renders its label and defaults to a non-submit button", () => {
@@ -141,6 +144,85 @@ describe("EmptyState", () => {
     expect(
       screen.getByRole("button", { name: "Limpiar filtros" }),
     ).toBeInTheDocument();
+  });
+});
+
+describe("Card", () => {
+  it("renders children with surface styling", () => {
+    render(
+      <Card>
+        <p>Contenido</p>
+      </Card>,
+    );
+    const card = screen.getByText("Contenido").parentElement;
+    expect(card?.className).toContain("bg-white");
+    expect(card?.className).toContain("rounded-lg");
+  });
+
+  it("removes padding when asked", () => {
+    render(<Card padding="none">Sin padding</Card>);
+    const card = screen.getByText("Sin padding");
+    expect(card.className).not.toContain("p-5");
+  });
+
+  it("merges caller classes", () => {
+    render(<Card className="col-span-2">x</Card>);
+    expect(screen.getByText("x").className).toContain("col-span-2");
+  });
+});
+
+describe("Select", () => {
+  it("renders options and forwards the change handler", () => {
+    const onChange = vi.fn();
+    render(
+      <Select aria-label="Estado" onChange={onChange}>
+        <option value="">Todos</option>
+        <option value="sonora">Sonora</option>
+      </Select>,
+    );
+    const select = screen.getByRole("combobox", { name: "Estado" });
+    expect(screen.getAllByRole("option")).toHaveLength(2);
+    fireEvent.change(select, { target: { value: "sonora" } });
+    expect(onChange).toHaveBeenCalled();
+  });
+
+  it("marks invalid selects", () => {
+    render(<Select aria-label="Estado" invalid />);
+    const select = screen.getByRole("combobox");
+    expect(select).toHaveAttribute("aria-invalid", "true");
+    expect(select.className).toContain("border-red");
+  });
+});
+
+describe("Field", () => {
+  it("associates the label with the control", () => {
+    render(
+      <Field id="email" label="Correo electrónico">
+        <Input id="email" />
+      </Field>,
+    );
+    expect(screen.getByLabelText("Correo electrónico")).toBeInTheDocument();
+  });
+
+  it("announces the error and links it to the control", () => {
+    render(
+      <Field id="email" label="Correo" error="Ingresa un correo válido">
+        <Input id="email" invalid />
+      </Field>,
+    );
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Ingresa un correo válido",
+    );
+    expect(screen.getByRole("alert")).toHaveAttribute("id", "email-error");
+  });
+
+  it("renders a hint when there is no error", () => {
+    render(
+      <Field id="phone" label="Teléfono" hint="10 dígitos">
+        <Input id="phone" />
+      </Field>,
+    );
+    expect(screen.getByText("10 dígitos")).toHaveAttribute("id", "phone-hint");
   });
 });
 
