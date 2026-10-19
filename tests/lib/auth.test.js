@@ -1,4 +1,10 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
+
+// These tests count fetch calls; a token cookie means no bootstrap request.
+vi.mock("@/lib/api/csrf", () => ({
+  getCsrfToken: () => "test-csrf-token",
+}));
+
 import {
   register,
   login,
