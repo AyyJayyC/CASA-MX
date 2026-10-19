@@ -785,8 +785,9 @@ Root cause verified 2026-10-18: no Sentry DSN was present in the production buil
 
 - `instrumentation.js` now reads `SENTRY_DSN` (private) with `NEXT_PUBLIC_SENTRY_DSN` as fallback. Client reads the public var, which is inlined at build time.
 - Set `NEXT_PUBLIC_SENTRY_DSN` + `SENTRY_DSN` in Vercel (Production, Preview, Development). **Redeploy is required** — the client DSN is baked into the bundle.
-- Free tier (5k errors/month) is sufficient. Do not migrate because of a config bug.
-- If self-hosting is ever required, **GlitchTip** speaks the Sentry protocol (same SDK, change the DSN only); **Bugsink** is a lighter alternative. Both are open source. PostHog would replace analytics + errors in one tool but duplicates the in-house pipeline below.
+- **Decision: self-hosted Bugsink.** It speaks the Sentry protocol, so the SDK stays and only the DSN changes. Stack lives in `ops/observability/` (Docker Compose + runbook). No per-seat or per-event billing.
+- Why not the others: GlitchTip needs 4 containers and 1–2 GB RAM; self-hosted Sentry needs 20–40 containers and 16 GB+; the Sentry free tier is $0 but not self-hosted.
+- Hosting: existing Docker host = $0; one Railway container = ~$5 (may fit plan credit); Oracle Cloud Always Free = $0 with self-managed ops. The only state is a Postgres volume; daily `pg_dump` documented in the runbook.
 - Optional later: `withSentryConfig` from `@sentry/nextjs/config` for source maps and a tunnel route (ad-blocker bypass). Not required for error capture.
 - Acceptance: throw a deliberate error on staging, see it in Sentry within 60 s, release tagged, email alert received.
 
