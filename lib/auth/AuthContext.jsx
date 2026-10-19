@@ -2,6 +2,7 @@
 
 import React, { createContext, useCallback, useEffect, useState } from "react";
 import * as authAPI from "@/lib/api/auth";
+import { ensureCsrfToken } from "@/lib/api/client";
 import analytics from "@/lib/analytics";
 import { EVENT_NAMES } from "@/lib/analytics/events";
 import { logger } from "@/lib/logging/logger";
@@ -57,6 +58,10 @@ export function AuthProvider({ children }) {
           setIsHydrated(true);
           return;
         }
+        // Parallel, not awaited: a new session needs a CSRF cookie before its
+        // first mutation (and before a refresh POST), but auth can load first.
+        ensureCsrfToken().catch(() => {});
+
         const initialSession = await authAPI.getSession();
         if (initialSession) {
           setSession(initialSession);
