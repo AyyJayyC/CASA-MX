@@ -7,90 +7,32 @@ const LOGIN_PASSWORD = process.env.PLAYWRIGHT_LOGIN_PASSWORD || "seller123";
 
 test.use({ baseURL: FRONTEND_URL });
 
-test.describe("Live Upload Flow", () => {
-  test.setTimeout(180000);
-
-  test("logs in via UI, selects Mexico address, and submits property", async ({
+/**
+ * Smoke coverage for the sale upload form. Submitting it needs photos and a
+ * map address, so the real publish path is covered by backend tests; here we
+ * only prove the form loads for an authenticated owner and accepts input.
+ */
+test.describe("Sale upload form", () => {
+  test("opens for an authenticated owner and accepts a title", async ({
     page,
   }) => {
     const uniqueTitle = `E2E Casa ${Date.now()}`;
-    let submitAlertMessage = "";
-
-    page.on("dialog", async (dialog) => {
-      submitAlertMessage = dialog.message();
-      try { await dialog.dismiss(); } catch {}
-    });
 
     await loginViaUI(page, {
       email: LOGIN_EMAIL,
       password: LOGIN_PASSWORD,
     });
 
+    await page.goto("/upload/sale", { waitUntil: "networkidle" });
+
     const titleInput = page.locator('input#title, input[name="title"]').first();
-    const publishButton = page.locator(
-      'button[type="submit"]:has-text("Publicar propiedad")',
-    );
-
-    // Retry with backoff — backend rate limits /auth/me under parallel load
-    let formReady = false;
-    for (let attempt = 0; attempt < 8 && !formReady; attempt += 1) {
-      await page.goto("/upload/sale", { waitUntil: "networkidle" });
-      await page.waitForTimeout(2000 * (attempt + 1));
-      formReady = await Promise.race([
-        titleInput.waitFor({ state: "visible", timeout: 5000 }).then(() => true).catch(() => false),
-        publishButton.waitFor({ state: "visible", timeout: 5000 }).then(() => true).catch(() => false),
-      ]);
-    }
-
-    expect(
-      formReady,
-      "No se pudo abrir /upload/sale — backend rate limited /auth/me after parallel test load",
-    ).toBeTruthy();
-
-    await expect(titleInput).toBeVisible({ timeout: 15000 });
-    await page.waitForTimeout(1500);
+    await expect(titleInput).toBeVisible({ timeout: 30000 });
 
     await titleInput.fill(uniqueTitle);
-    await page.waitForTimeout(500);
+    await expect(titleInput).toHaveValue(uniqueTitle);
 
-    const addressInput = page.locator(
-      'input[placeholder*="direcci"], input[name="address"], input[placeholder*="Direcci"]',
-    ).first();
-    if (await addressInput.isVisible().catch(() => false)) {
-      await addressInput.fill("Av. Reforma 222, Juarez, Cuauhtemoc, CDMX");
-      await page.waitForTimeout(2000);
-    }
-
-    const priceInput = page.locator(
-      'input[name="price"], input[placeholder*="recio"], input[placeholder*="recio"]',
-    ).first();
-    if (await priceInput.isVisible().catch(() => false)) {
-      await priceInput.fill("2500000");
-      await page.waitForTimeout(500);
-    }
-
-    const bedsInput = page.locator(
-      'input[name="bedrooms"], input[placeholder*="ecámaras"]',
-    ).first();
-    if (await bedsInput.isVisible().catch(() => false)) {
-      await bedsInput.fill("3");
-      await page.waitForTimeout(300);
-    }
-
-    const bathsInput = page.locator(
-      'input[name="bathrooms"], input[placeholder*="años"]',
-    ).first();
-    if (await bathsInput.isVisible().catch(() => false)) {
-      await bathsInput.fill("2");
-      await page.waitForTimeout(300);
-    }
-
-    if (await publishButton.isVisible().catch(() => false)) {
-      await publishButton.scrollIntoViewIfNeeded();
-      await page.waitForTimeout(500);
-      await publishButton.click();
-      await page.waitForTimeout(4000);
-      expect(submitAlertMessage.length > 0 || true).toBe(true);
-    }
+    await expect(
+      page.locator('button[type="submit"]:has-text("Publicar propiedad")'),
+    ).toBeVisible();
   });
 });

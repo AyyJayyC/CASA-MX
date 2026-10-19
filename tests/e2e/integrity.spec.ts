@@ -87,10 +87,17 @@ const CLIENT_PASSWORD = "buyer123";
 
       const token = (await loginRes.json()).token;
 
+      // The API enforces double-submit CSRF on mutations. Login is exempt, so
+      // fetch a fresh pair afterwards; the request context keeps the cookies.
+      const csrfRes = await request.get(`${BACKEND_URL}/auth/csrf`);
+      const setCookie = csrfRes.headers()["set-cookie"] || "";
+      const csrfToken = /csrfToken=([^;]+)/.exec(setCookie)?.[1] || "";
+
       // Try to create application with missing monthlyIncome
       const appRes = await request.post(`${BACKEND_URL}/applications`, {
         headers: {
           authorization: `Bearer ${token}`,
+          "x-csrf-token": csrfToken,
         },
         data: {
           propertyId: "some-uuid",
