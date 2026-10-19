@@ -33,5 +33,5 @@ When a change is made directly to `main` (production emergency fix), automatical
 
 ## Repos
 
-- Frontend: `C:\Users\axelj\casa-mx` → Vercel
-- Backend: `C:\Users\axelj\casa-mx-backend` → Railway
+- Frontend: `D:\Projects\casa-mx` → Vercel
+- Backend: `D:\Projects\casa-mx-backend` → Railway (separate repo, own git)
