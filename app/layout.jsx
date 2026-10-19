@@ -4,7 +4,7 @@
  */
 import "./globals.css";
 import Link from "next/link";
-import { Inter } from "next/font/google";
+import { inter, fraunces } from "../lib/fonts";
 import { NuqsAdapter } from "nuqs/adapters/next";
 import QueryProvider from "../lib/providers/QueryProvider";
 import { AuthProvider } from "../lib/auth/AuthContext.jsx";
@@ -17,12 +17,6 @@ import ErrorBoundary from "../components/ErrorBoundary.jsx";
 import ReferralTracker from "../components/ReferralTracker.jsx";
 import FooterYear from "../components/FooterYear.jsx";
 import CookieConsentBanner from "../components/CookieConsentBanner.jsx";
-
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  display: "swap",
-});
 
 export const viewport = {
   width: "device-width",
@@ -80,8 +74,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="es" className={inter.className}>
-      <body>
+    <html lang="es" className={`${inter.variable} ${fraunces.variable}`}>
+      <body className="font-sans">
           <DebugProvider>
             <ErrorBoundary>
               <AuthProvider>
