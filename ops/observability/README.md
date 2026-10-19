@@ -41,6 +41,9 @@ NEXT_PUBLIC_SENTRY_ENVIRONMENT=production
 Redeploy. The client DSN is inlined at build time, so changing the variable
 without a redeploy does nothing. The backend uses `SENTRY_DSN` the same way.
 
+CSP: `middleware.js` derives the DSN origin and appends it to `connect-src`, so
+a self-hosted Bugsink on any domain works without editing the policy by hand.
+
 Verify: the frontend and backend Sentry integrations should list a release and
 receive a deliberately thrown error within a minute.
 
