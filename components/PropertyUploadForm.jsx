@@ -34,7 +34,10 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
   const [submitValidationError, setSubmitValidationError] = useState('');
-  const [ownershipConfirmed, setOwnershipConfirmed] = useState(false);
+  // Publisher-sourced listings arrive with permission already granted by the
+  // API key holder, so the attestation starts checked and cannot be undone.
+  const fromPublisher = Boolean(initialValues?.externalId);
+  const [ownershipConfirmed, setOwnershipConfirmed] = useState(fromPublisher);
   const [locationsCatalog, setLocationsCatalog] = useState(null);
   const photoInputRef = useRef(null);
   // Maps an object-URL preview -> the compressed Blob to upload on submit.
@@ -609,10 +612,16 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
               type="checkbox"
               checked={ownershipConfirmed}
               onChange={(e) => setOwnershipConfirmed(e.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-neutral-300 text-clay-500 focus:ring-clay-400 shrink-0"
+              disabled={fromPublisher}
+              className="mt-0.5 h-4 w-4 rounded border-neutral-300 text-clay-500 focus:ring-clay-400 shrink-0 disabled:opacity-70"
             />
             <span className="text-sm text-neutral-700 dark:text-neutral-300 leading-snug">
               Certifico que soy el propietario o tengo permiso para publicar esta propiedad, y que la información proporcionada es verídica. Acepto que deberé subir documentos que acrediten la propiedad y que la publicación permanecerá pendiente de verificación hasta su revisión.
+              {fromPublisher && (
+                <span className="block mt-1 text-xs font-medium text-clay">
+                  Confirmado automáticamente: propiedad importada por el publicador.
+                </span>
+              )}
             </span>
           </label>
         </div>
