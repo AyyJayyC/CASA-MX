@@ -612,7 +612,7 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
               className="mt-0.5 h-4 w-4 rounded border-neutral-300 text-clay-500 focus:ring-clay-400 shrink-0"
             />
             <span className="text-sm text-neutral-700 dark:text-neutral-300 leading-snug">
-              Certifico que soy el propietario o tengo autorización legal para publicar esta propiedad, y que la información proporcionada es verídica. Acepto que deberé subir documentos que acrediten la propiedad y que la publicación permanecerá pendiente de verificación hasta su revisión.
+              Certifico que soy el propietario o tengo permiso para publicar esta propiedad, y que la información proporcionada es verídica. Acepto que deberé subir documentos que acrediten la propiedad y que la publicación permanecerá pendiente de verificación hasta su revisión.
             </span>
           </label>
         </div>
