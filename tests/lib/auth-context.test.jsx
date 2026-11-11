@@ -45,11 +45,18 @@ describe('AuthContext — Production Grade', () => {
     });
 
     it('hydrates from existing session', async () => {
-      authAPI.getSession.mockResolvedValue({ userId: 'u1', activeRole: 'client' });
-      authAPI.getUserById.mockResolvedValue({ id: 'u1', name: 'Hydrated', email: 'h@t.com', activeRole: 'client', roles: [] });
+      authAPI.getSession.mockResolvedValue({
+        userId: 'u1',
+        name: 'Hydrated',
+        email: 'h@t.com',
+        activeRole: 'client',
+        roles: [],
+      });
       const { result } = renderHook(() => React.useContext(AuthContext), { wrapper });
       await vi.waitFor(() => expect(result.current.isHydrated).toBe(true));
       expect(result.current.isAuthenticated).toBe(true);
+      expect(result.current.user.name).toBe('Hydrated');
+      expect(authAPI.getUserById).not.toHaveBeenCalled();
       expect(result.current.user.name).toBe('Hydrated');
     });
 
@@ -172,8 +179,13 @@ describe('AuthContext — Production Grade', () => {
 
   describe('refreshUser', () => {
     it('refreshUser updates session and user', async () => {
-      authAPI.getSession.mockResolvedValue({ userId: 'u1-active' });
-      authAPI.getUserById.mockResolvedValue({ id: 'u1', name: 'Refreshed', email: 'r@t.com', activeRole: 'owner' });
+      authAPI.getSession.mockResolvedValue({
+        userId: 'u1-active',
+        name: 'Refreshed',
+        email: 'r@t.com',
+        activeRole: 'owner',
+        roles: [],
+      });
       const { result } = renderHook(() => React.useContext(AuthContext), { wrapper });
       await vi.waitFor(() => expect(result.current.isHydrated).toBe(true));
       await act(async () => { await result.current.refreshUser(); });

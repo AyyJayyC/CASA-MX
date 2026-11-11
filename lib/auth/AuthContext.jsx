@@ -26,6 +26,29 @@ function buildSession(user) {
   };
 }
 
+/** Build the user object from the single /auth/me response. */
+function userFromSession(session) {
+  if (!session) return null;
+  return {
+    id: session.userId,
+    name: session.name,
+    email: session.email,
+    avatarUrl: session.avatarUrl,
+    emailVerified: session.emailVerified,
+    phoneVerified: session.phoneVerified,
+    officialIdUploaded: session.officialIdUploaded,
+    officialIdVerified: session.officialIdVerified,
+    paidSubscriber: session.paidSubscriber,
+    subscriptionStatus: session.subscriptionStatus,
+    subscriptionCurrentPeriodEnd: session.subscriptionCurrentPeriodEnd,
+    activeRole: session.activeRole,
+    roles: session.roles || [],
+    agency: session.agency,
+    ownedAgency: session.ownedAgency,
+    referralCode: session.referralCode || null,
+  };
+}
+
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [user, setUser] = useState(null);
@@ -41,7 +64,7 @@ export function AuthProvider({ children }) {
         setUser(null);
         return null;
       }
-      const nextUser = await authAPI.getUserById(nextSession.userId);
+      const nextUser = userFromSession(nextSession);
       setSession(nextSession);
       setUser(nextUser);
       return nextUser;
@@ -65,8 +88,7 @@ export function AuthProvider({ children }) {
         const initialSession = await authAPI.getSession();
         if (initialSession) {
           setSession(initialSession);
-          const initialUser = await authAPI.getUserById(initialSession.userId);
-          setUser(initialUser);
+          setUser(userFromSession(initialSession));
         }
       } catch (err) {
         logger.logError(err, "Failed to hydrate session");
