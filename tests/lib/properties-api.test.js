@@ -35,7 +35,7 @@ describe('properties API', () => {
   it('getProperties with empty filters returns data', async () => {
     client.apiGet.mockResolvedValue({ data: [{ id: 'p1' }] });
     const result = await properties.getProperties();
-    expect(client.apiGet).toHaveBeenCalledWith('/properties');
+    expect(client.apiGet).toHaveBeenCalledWith('/properties', {});
     expect(result).toHaveLength(1);
   });
 
