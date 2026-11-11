@@ -85,12 +85,7 @@ const RETIRE_REASONS = [
   },
 ];
 
-const REASON_LABELS = Object.fromEntries(
-  RETIRE_REASONS.map((r) => [r.value, r.label]),
-);
-const REASON_COLORS = Object.fromEntries(
-  RETIRE_REASONS.map((r) => [r.value, r.color]),
-);
+
 
 function RetireModal({ propertyId, propertyTitle, onClose, onDone }) {
   const [reason, setReason] = useState("");
@@ -380,7 +375,6 @@ export default function MyPropertiesPage() {
     : sorted;
 
   const drafts = filtered.filter((p) => p.status === "incompleto");
-  const published = filtered.filter((p) => p.status !== "incompleto");
 
   return (
     <RequireRole roles={["owner", "agent", "admin"]}>

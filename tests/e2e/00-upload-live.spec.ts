@@ -26,7 +26,8 @@ test.describe("Sale upload form", () => {
     await page.goto("/upload/sale", { waitUntil: "networkidle" });
 
     const titleInput = page.locator('input#title, input[name="title"]').first();
-    await expect(titleInput).toBeVisible({ timeout: 30000 });
+    // First hit compiles the route in `next dev`; allow a cold start.
+    await expect(titleInput).toBeVisible({ timeout: 60000 });
 
     await titleInput.fill(uniqueTitle);
     await expect(titleInput).toHaveValue(uniqueTitle);

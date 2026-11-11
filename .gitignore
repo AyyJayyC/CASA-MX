@@ -59,3 +59,6 @@ benchmark-result.json
 unentropy-report/
 # Backend submodule
 backend/
+
+# TypeScript incremental build info
+*.tsbuildinfo
