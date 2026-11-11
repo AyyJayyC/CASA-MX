@@ -228,6 +228,14 @@ export default function PropertyUploadForm({ listingType = 'for_sale', initialVa
   }
 
   async function submitProperty(values, { publish = false } = {}) {
+    // Create and edit both enforce the attestation for manual listings.
+    if (publish && !fromPublisher && !ownershipConfirmed) {
+      setSubmitValidationError(
+        'Confirma que eres el propietario o tienes permiso para publicar.',
+      );
+      return;
+    }
+
     try {
       setSubmitValidationError('');
       setLoading(true);

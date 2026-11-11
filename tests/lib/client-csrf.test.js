@@ -11,6 +11,7 @@ vi.mock("@/lib/api/auth", () => ({
 }));
 
 import { apiFetch, apiFormData, ensureCsrfToken } from "@/lib/api/client";
+import * as auth from "@/lib/api/auth";
 
 const ok = { status: 200, ok: true };
 const bootstrapOk = () => {
@@ -93,6 +94,24 @@ describe("CSRF bootstrap", () => {
     expect(globalThis.fetch.mock.calls[0][0]).toContain("/auth/csrf");
     expect(globalThis.fetch.mock.calls[1][1].headers["x-csrf-token"]).toBe(
       "fresh-token",
+    );
+  });
+
+  it("re-reads the CSRF token after a refresh before retrying", async () => {
+    state.token = "old-token";
+    globalThis.fetch
+      .mockResolvedValueOnce({ status: 401, ok: false })
+      .mockResolvedValueOnce(ok);
+    auth.refreshAccessToken.mockImplementation(async () => {
+      state.token = "new-token";
+      return { success: true };
+    });
+
+    await apiFetch("/x", { method: "POST", body: {} });
+
+    expect(globalThis.fetch).toHaveBeenCalledTimes(2);
+    expect(globalThis.fetch.mock.calls[1][1].headers["x-csrf-token"]).toBe(
+      "new-token",
     );
   });
 

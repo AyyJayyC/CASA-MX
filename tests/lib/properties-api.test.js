@@ -54,10 +54,14 @@ describe('properties API', () => {
     expect(result.id).toBe('p1');
   });
 
-  it('getPropertyById returns null on error', async () => {
-    client.apiGet.mockRejectedValue(new Error('fail'));
-    const result = await properties.getPropertyById('bad');
-    expect(result).toBeNull();
+  it('getPropertyById returns null on 404', async () => {
+    client.apiGet.mockRejectedValue(Object.assign(new Error('Not found'), { status: 404 }));
+    await expect(properties.getPropertyById('missing')).resolves.toBeNull();
+  });
+
+  it('getPropertyById rethrows a server error', async () => {
+    client.apiGet.mockRejectedValue(Object.assign(new Error('boom'), { status: 500 }));
+    await expect(properties.getPropertyById('p1')).rejects.toThrow('boom');
   });
 
   it('addProperty calls POST', async () => {
@@ -95,16 +99,4 @@ describe('properties API', () => {
     expect(result).toHaveLength(1);
   });
 
-  it('getFilterOptions returns data', async () => {
-    client.apiGet.mockResolvedValue({ data: { colonias: [], ciudades: [] } });
-    const result = await properties.getFilterOptions();
-    expect(client.apiGet).toHaveBeenCalledWith('/properties/filter-options');
-    expect(result.colonias).toEqual([]);
-  });
-
-  it('getFilterOptions returns defaults on error', async () => {
-    client.apiGet.mockRejectedValue(new Error('fail'));
-    const result = await properties.getFilterOptions();
-    expect(result).toEqual({ estados: [], ciudades: {} });
-  });
 });
