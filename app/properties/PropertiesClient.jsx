@@ -362,7 +362,7 @@ function PropertiesContent({ initialData }) {
             </FilterPanel>
           </aside>
 
-          <main className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0">
             {filters.swLat && (
               <div className="mb-4 p-3 bg-clay/10 dark:bg-clay-900/20 border border-clay-200 dark:border-clay-800 rounded-lg flex items-center justify-between">
                 <span className="text-sm text-clay dark:text-clay">
@@ -386,7 +386,7 @@ function PropertiesContent({ initialData }) {
               listingType={listingType}
               showPrivate={false}
             />
-          </main>
+          </div>
         </div>
       </div>
     </div>

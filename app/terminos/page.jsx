@@ -1,6 +1,6 @@
 export default function TerminosPage() {
   return (
-    <main className="max-w-3xl mx-auto px-4 py-12 prose dark:prose-invert">
+    <div className="max-w-3xl mx-auto px-4 py-12 prose dark:prose-invert">
       <h1>Términos y Condiciones de Uso</h1>
       <p className="text-sm text-gray-500">
         Última actualización: 21 de abril de 2026
@@ -80,6 +80,6 @@ export default function TerminosPage() {
         Para cualquier duda escriba a{" "}
         <a href="mailto:hola@casa-mx.com">hola@casa-mx.com</a>.
       </p>
-    </main>
+    </div>
   );
 }
