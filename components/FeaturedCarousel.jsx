@@ -22,6 +22,7 @@ const CarouselSlide = React.memo(function CarouselSlide({ property, isActive }) 
 
   return (
     <div
+      inert={isActive ? undefined : "true"}
       className={`absolute inset-0 transition-opacity duration-700 first:opacity-100 first:z-10 ${isActive ? "opacity-100 z-10" : "opacity-0 z-0"}`}
     >
       <div className="absolute inset-0">
@@ -32,6 +33,8 @@ const CarouselSlide = React.memo(function CarouselSlide({ property, isActive }) 
           className="object-cover"
           priority={isActive}
           sizes="100vw"
+          loading={isActive ? undefined : "lazy"}
+          fetchPriority={isActive ? undefined : "low"}
         />
       </div>
       {/* Top banner — thin, minimal image obstruction */}

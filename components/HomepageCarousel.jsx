@@ -81,6 +81,7 @@ function CustomSlidesCarousel({ slides }) {
       {slides.map((slide, i) => (
         <div
           key={slide.id}
+          inert={i === current ? undefined : "true"}
           className={`absolute inset-0 transition-opacity duration-700 first:opacity-100 first:z-10 ${i === current ? "opacity-100 z-10" : "opacity-0 z-0"}`}
         >
           <Image
@@ -89,6 +90,8 @@ function CustomSlidesCarousel({ slides }) {
             fill
             className="object-cover"
             sizes="100vw"
+            loading={i === 0 ? undefined : "lazy"}
+            fetchPriority={i === 0 ? undefined : "low"}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-8 sm:p-12 z-10">
