@@ -21,6 +21,7 @@ import CookieConsentBanner from "../components/CookieConsentBanner.jsx";
 export const viewport = {
   width: "device-width",
   initialScale: 1,
+  colorScheme: "light dark",
 };
 
 export const metadata = {
