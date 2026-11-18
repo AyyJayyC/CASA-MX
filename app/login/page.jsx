@@ -97,7 +97,8 @@ function LoginPage() {
               <input
                 id="email"
                 type="email"
-                autoComplete="email"
+                autoComplete="username"
+                required
                 {...register("email")}
                 className="w-full px-4 py-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-clay focus:border-transparent transition-all"
                 placeholder="tu@email.com"
@@ -123,6 +124,7 @@ function LoginPage() {
                 id="password"
                 type="password"
                 autoComplete="current-password"
+                required
                 {...register("password")}
                 className="w-full px-4 py-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-clay focus:border-transparent transition-all"
                 placeholder="Tu contraseña"
