@@ -10,3 +10,7 @@ Rules:
 - If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
 - Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+
+## Tests and lint
+
+Run `npm run test` and `npm run lint` from `D:\Projects\casa-mx`, not the `C:\Users\axelj\casa-mx` junction. Through the junction vitest fails to resolve `vitest.setup.js`, and `next lint` reports a false "No ESLint warnings or errors" (it misses ~60 real warnings).
