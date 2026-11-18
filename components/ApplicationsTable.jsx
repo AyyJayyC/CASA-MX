@@ -61,6 +61,7 @@ export default function ApplicationsTable({
   // API also returns non-null email/phone for leads unlocked in previous sessions.
   const [unlockedContacts, setUnlockedContacts] = useState({});
   const [unlocking, setUnlocking] = useState(null); // applicationId being unlocked
+  const [statusMessage, setStatusMessage] = useState("");
 
   // Resolve the effective contact for an application (session unlock OR already-unlocked from API).
   const getContact = (app) =>
@@ -115,7 +116,7 @@ export default function ApplicationsTable({
       setSelectedApp(null);
       setActionType(null);
     } catch (err) {
-      alert("Error: " + (err.message || "Error al actualizar solicitud"));
+      setStatusMessage("Error: " + (err.message || "Error al actualizar solicitud"));
     } finally {
       setIsSubmitting(false);
     }
@@ -130,9 +131,9 @@ export default function ApplicationsTable({
       }
     } catch (err) {
       if (err.status === 402) {
-        alert("Saldo insuficiente. Ve a Créditos para comprar más.");
+        setStatusMessage("Saldo insuficiente. Ve a Créditos para comprar más.");
       } else {
-        alert(err.message || "Error al desbloquear contacto");
+        setStatusMessage(err.message || "Error al desbloquear contacto");
       }
     } finally {
       setUnlocking(null);
@@ -200,6 +201,7 @@ export default function ApplicationsTable({
 
   return (
     <div className="space-y-6">
+      <div role="status" aria-live="polite" className="sr-only">{statusMessage}</div>
       {/* Desktop Table */}
       <div className="hidden lg:block bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-hidden">
         <table className="w-full">
