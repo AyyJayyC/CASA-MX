@@ -44,7 +44,7 @@ export default function ConsentPage() {
   }
 
   return (
-    <main className="max-w-lg mx-auto px-4 py-12">
+    <div className="max-w-lg mx-auto px-4 py-12">
       <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
         Antes de continuar
       </h1>
@@ -98,6 +98,6 @@ export default function ConsentPage() {
           {submitting ? "Guardando…" : "Continuar"}
         </button>
       </form>
-    </main>
+    </div>
   );
 }

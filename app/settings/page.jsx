@@ -165,7 +165,7 @@ function SettingsContent() {
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
-      <main className="max-w-2xl mx-auto px-4 py-10">
+      <div className="max-w-2xl mx-auto px-4 py-10">
         <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-6">
           Ajustes de perfil
         </h1>
@@ -533,7 +533,7 @@ function SettingsContent() {
             <UserPreferences />
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }

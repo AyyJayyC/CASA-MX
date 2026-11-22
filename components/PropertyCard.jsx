@@ -38,7 +38,7 @@ function getOwnerTags(tags) {
  * Property object expected to have: id, title, colonia, propertyType, price, description, imageUrl, owner
  * Rental properties also have: listingType, monthlyRent, furnished, utilitiesIncluded
  */
-const PropertyCard = React.memo(function PropertyCard({ property }) {
+const PropertyCard = React.memo(function PropertyCard({ property, priority = false }) {
   // Fallback image if none provided
   const fallbackImage = `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675"><rect width="100%" height="100%" fill="#e5e5e5"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#737373" font-family="Arial" font-size="32">Casa-MX.com</text></svg>')}`;
   const imageUrl =
@@ -90,14 +90,15 @@ const PropertyCard = React.memo(function PropertyCard({ property }) {
         aria-labelledby={`property-title-${property.id}`}
       >
         {/* Image Section with Price Badge */}
-        <div className="relative aspect-video bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
+        <div className="relative aspect-[4/3] bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
           <Image
             src={imageUrl}
             alt={`Imagen de ${property.title}`}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover"
-            loading="lazy"
+            loading={priority ? "eager" : "lazy"}
+            priority={priority}
             placeholder="blur"
             blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzAwIiBoZWlnaHQ9IjQ3NSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNzAwIiBoZWlnaHQ9IjQ3NSIgZmlsbD0iI2U1ZTVlNSIvPjwvc3ZnPg=="
           />

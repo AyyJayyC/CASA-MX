@@ -1,5 +1,6 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
+import { vi } from 'vitest';
 import PropertyImageGallery from '../../components/PropertyImageGallery.jsx';
 
 describe('PropertyImageGallery', () => {
@@ -20,11 +21,13 @@ describe('PropertyImageGallery', () => {
     expect(screen.queryByRole('button', { name: /Imagen siguiente/i })).not.toBeInTheDocument();
   });
 
-  it('navigates with buttons and keyboard while respecting boundaries', () => {
+  it('navigates with buttons while respecting boundaries', () => {
     render(<PropertyImageGallery images={images} title="Demo" />);
 
-    const previousButton = screen.getByRole('button', { name: /Imagen anterior/i });
-    const nextButton = screen.getByRole('button', { name: /Imagen siguiente/i });
+    const trigger = screen.getByRole('button', { name: /tamaño completo/i });
+    const hero = within(trigger.parentElement);
+    const previousButton = hero.getByRole('button', { name: /Imagen anterior/i });
+    const nextButton = hero.getByRole('button', { name: /Imagen siguiente/i });
 
     expect(previousButton).toBeDisabled();
     expect(nextButton).toBeEnabled();
@@ -34,14 +37,33 @@ describe('PropertyImageGallery', () => {
     expect(screen.getByText('2 de 3')).toBeInTheDocument();
     expect(previousButton).toBeEnabled();
 
-    fireEvent.keyDown(window, { key: 'ArrowRight' });
-    expect(screen.getByText('3 de 3')).toBeInTheDocument();
-    expect(nextButton).toBeDisabled();
+    fireEvent.click(previousButton);
+    expect(screen.getByText('1 de 3')).toBeInTheDocument();
+    expect(previousButton).toBeDisabled();
+  });
 
-    fireEvent.keyDown(window, { key: 'ArrowRight' });
+  it('opens a native dialog lightbox and navigates with arrow keys', () => {
+    const { container } = render(<PropertyImageGallery images={images} title="Demo" />);
+
+    const trigger = screen.getByRole('button', { name: /tamaño completo/i });
+    const dialogEl = container.querySelector('dialog');
+    dialogEl.showModal = vi.fn();
+    dialogEl.close = vi.fn();
+
+    fireEvent.click(trigger);
+    expect(dialogEl.showModal).toHaveBeenCalledTimes(1);
+
+    const labelledBy = dialogEl.getAttribute('aria-labelledby');
+    expect(labelledBy).toBe('gallery-lightbox-title');
+    const labelEl = document.getElementById(labelledBy);
+    expect(labelEl).not.toBeNull();
+    expect(container.contains(labelEl)).toBe(true);
+
+    fireEvent.keyDown(dialogEl, { key: 'ArrowRight' });
+    fireEvent.keyDown(dialogEl, { key: 'ArrowRight' });
     expect(screen.getByText('3 de 3')).toBeInTheDocument();
 
-    fireEvent.keyDown(window, { key: 'ArrowLeft' });
-    expect(screen.getByText('2 de 3')).toBeInTheDocument();
+    fireEvent.click(within(dialogEl).getByLabelText('Cerrar galería'));
+    expect(dialogEl.close).toHaveBeenCalled();
   });
 });

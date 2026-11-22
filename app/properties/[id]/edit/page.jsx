@@ -94,6 +94,7 @@ function EditProperty({ params }) {
     parkingType: property.parkingType || "",
     miniSplits: property.miniSplits || undefined,
     inventoryNotes: property.inventoryNotes || "",
+    externalId: property.externalId || null,
   };
 
   return (

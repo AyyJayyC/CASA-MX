@@ -4,7 +4,7 @@
  */
 import "./globals.css";
 import Link from "next/link";
-import { Inter } from "next/font/google";
+import { inter, fraunces } from "../lib/fonts";
 import { NuqsAdapter } from "nuqs/adapters/next";
 import QueryProvider from "../lib/providers/QueryProvider";
 import { AuthProvider } from "../lib/auth/AuthContext.jsx";
@@ -18,15 +18,10 @@ import ReferralTracker from "../components/ReferralTracker.jsx";
 import FooterYear from "../components/FooterYear.jsx";
 import CookieConsentBanner from "../components/CookieConsentBanner.jsx";
 
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  display: "swap",
-});
-
 export const viewport = {
   width: "device-width",
   initialScale: 1,
+  colorScheme: "light dark",
 };
 
 export const metadata = {
@@ -80,8 +75,9 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="es" className={inter.className}>
-      <body>
+    <html lang="es" className={`${inter.variable} ${fraunces.variable}`}>
+      <body className="font-sans">
+          <a href="#content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:text-ink focus:shadow">Saltar al contenido principal</a>
           <DebugProvider>
             <ErrorBoundary>
               <AuthProvider>
@@ -90,7 +86,7 @@ export default function RootLayout({ children }) {
                     <NavBar />
                   <EmailVerificationBanner />
                   <ReferralTracker />
-                  <main className="container max-w-7xl mt-8">{children}</main>
+                  <main id="content" tabIndex={-1} className="container max-w-7xl mt-8">{children}</main>
                   <footer className="mt-12 border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
                     <div className="container max-w-7xl py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-neutral-600 dark:text-neutral-400">
                       <p>

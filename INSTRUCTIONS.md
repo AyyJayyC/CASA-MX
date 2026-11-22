@@ -33,5 +33,12 @@ When a change is made directly to `main` (production emergency fix), automatical
 
 ## Repos
 
-- Frontend: `C:\Users\axelj\casa-mx` → Vercel
-- Backend: `C:\Users\axelj\casa-mx-backend` → Railway
+- Frontend: `D:\Projects\casa-mx` → Vercel
+- Backend: `D:\Projects\casa-mx-backend` → Railway (separate repo, own git)
+
+### Environments
+
+| | Frontend | API | Backend service |
+|---|---|---|---|
+| Production | https://casa-mx.com | https://api.casa-mx.com | Railway `production` (branch `main`) |
+| Staging | https://staging.casa-mx.com | https://api.staging.casa-mx.com | Railway `staging` (branch `staging`) |

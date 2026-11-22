@@ -49,6 +49,17 @@ export function middleware(request) {
     apiUrl = "http://localhost:3001";
   }
 
+  // Error reporting must be reachable from the browser. Self-hosted Bugsink
+  // and Sentry both send to the DSN's origin (https://<key>@<host>/1).
+  let sentryOrigin = "";
+  try {
+    if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
+      sentryOrigin = new URL(process.env.NEXT_PUBLIC_SENTRY_DSN).origin;
+    }
+  } catch {
+    sentryOrigin = "";
+  }
+
   const isProd =
     process.env.VERCEL_ENV === "production" ||
     (!process.env.VERCEL_ENV && process.env.NODE_ENV === "production");
@@ -83,7 +94,7 @@ export function middleware(request) {
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       `img-src 'self' data: blob: https://*.unsplash.com https://*.tile.openstreetmap.org https://maps.googleapis.com https://*.s3.amazonaws.com https://i.beemaps.com.mx https://*.googleusercontent.com https://*.r2.dev https://images.casa-mx.com https://files.catbox.moe ${apiUrl}`,
       "font-src 'self' https://fonts.gstatic.com",
-      `connect-src 'self' https://api.stripe.com https://*.tile.openstreetmap.org ${apiUrl}`,
+      `connect-src 'self' https://api.stripe.com https://*.tile.openstreetmap.org ${apiUrl} ${sentryOrigin}`,
       "frame-src https://js.stripe.com https://hooks.stripe.com https://accounts.google.com https://appleid.apple.com",
       "object-src 'none'",
       "base-uri 'self'",

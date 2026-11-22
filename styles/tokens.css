@@ -1,0 +1,62 @@
+/**
+ * CASA MX design tokens.
+ * Primitive palette first, then semantic roles. Components should use the
+ * semantic tokens; the primitive names stay for existing Tailwind classes.
+ */
+
+@theme {
+  --color-clay: #9a4e37;
+  --color-clay-400: #9a4e37;
+  --color-clay-500: #8f4e3a;
+  --color-clay-600: #7d4230;
+  --color-clay-700: #733828;
+  --color-clay-50: #e7cdc2;
+  --color-clay-100: #ddbdad;
+  --color-clay-900: #4c2416;
+  --color-sand: #eae4dd;
+  --color-sand-50: #f5f1ec;
+  --color-sand-100: #eae4dd;
+  --color-sand-200: #d9d0c7;
+  --color-sand-800: #6b6b6b;
+  --color-ink: #1c1b19;
+  --color-ink-muted: #595959;
+
+  --font-sans: var(--font-inter), "Inter", system-ui, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+}
+
+:root {
+  /* Surfaces */
+  --surface: #ffffff;
+  --surface-muted: #f5f1ec;
+  --border: #eae4dd;
+
+  /* Text */
+  --text-primary: #1c1b19;
+  --text-secondary: #6b6b6b;
+
+  /* Accent */
+  --accent: #9a4e37;
+  --accent-contrast: #ffffff;
+
+  /* Legacy aliases: existing rules read these directly. */
+  --bg-primary: #f5f1ec;
+  --bg-surface: #ffffff;
+  --border-color: #eae4dd;
+}
+
+.dark {
+  --surface: #2a2725;
+  --surface-muted: #1c1b19;
+  --border: #3d3935;
+
+  --text-primary: #f5f1ec;
+  --text-secondary: #a39e98;
+
+  --accent: #c98b72;
+  --accent-contrast: #1c1b19;
+
+  --bg-primary: #1c1b19;
+  --bg-surface: #2a2725;
+  --border-color: #3d3935;
+}

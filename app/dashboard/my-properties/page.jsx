@@ -1,8 +1,12 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth/useAuth";
-import { getMyProperties, updateProperty } from "@/lib/api/properties";
+import {
+  getMyProperties,
+  updateProperty,
+  publishProperty,
+} from "@/lib/api/properties";
 import { formatCurrency, formatNumber } from "@/lib/utils/format";
 import { RequireRole } from "@/components/guards/RequireRole.jsx";
 
@@ -81,12 +85,7 @@ const RETIRE_REASONS = [
   },
 ];
 
-const REASON_LABELS = Object.fromEntries(
-  RETIRE_REASONS.map((r) => [r.value, r.label]),
-);
-const REASON_COLORS = Object.fromEntries(
-  RETIRE_REASONS.map((r) => [r.value, r.color]),
-);
+
 
 function RetireModal({ propertyId, propertyTitle, onClose, onDone }) {
   const [reason, setReason] = useState("");
@@ -170,7 +169,7 @@ function RetireModal({ propertyId, propertyTitle, onClose, onDone }) {
   );
 }
 
-function DraftCard({ property, onRetire }) {
+function DraftCard({ property, onRetire, onPublish, publishing }) {
   let warnings = [];
   try {
     warnings = JSON.parse(property.inventoryNotes || "{}")?.warnings || [];
@@ -221,9 +220,16 @@ function DraftCard({ property, onRetire }) {
       )}
 
       <div className="flex gap-2 pt-1">
+        <button
+          onClick={() => onPublish(property)}
+          disabled={publishing}
+          className="px-3 py-1.5 text-xs font-medium bg-clay hover:bg-clay-500 text-white rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {publishing ? "Publicando..." : "Publicar"}
+        </button>
         <Link
           href={`/properties/${property.id}/edit`}
-          className="px-3 py-1.5 text-xs font-medium bg-clay hover:bg-clay-500 text-white rounded-lg transition-colors"
+          className="px-3 py-1.5 text-xs font-medium bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:border-clay rounded-lg transition-colors"
         >
           Completar
         </Link>
@@ -296,10 +302,12 @@ export default function MyPropertiesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [retireTarget, setRetireTarget] = useState(null);
+  const [publishingId, setPublishingId] = useState(null);
+  const [actionError, setActionError] = useState(null);
 
   const handleOpenRetire = (property) => setRetireTarget(property);
 
-  useEffect(() => {
+  const loadProperties = useCallback(async () => {
     if (!isAuthenticated || !user) return;
     setLoading(true);
     setError(null);
@@ -310,11 +318,32 @@ export default function MyPropertiesPage() {
     } else if (tab) {
       filters.status = tab;
     }
-    getMyProperties(filters)
-      .then((data) => setProperties(data || []))
-      .catch(() => setError("No se pudieron cargar tus propiedades"))
-      .finally(() => setLoading(false));
+    try {
+      const data = await getMyProperties(filters);
+      setProperties(data || []);
+    } catch {
+      setError("No se pudieron cargar tus propiedades");
+    } finally {
+      setLoading(false);
+    }
   }, [isAuthenticated, user, tab]);
+
+  useEffect(() => {
+    loadProperties();
+  }, [loadProperties]);
+
+  const handlePublish = async (property) => {
+    setPublishingId(property.id);
+    setActionError(null);
+    try {
+      await publishProperty(property.id);
+      await loadProperties();
+    } catch (err) {
+      setActionError(err.message || "No se pudo publicar la propiedad");
+    } finally {
+      setPublishingId(null);
+    }
+  };
 
   const handleRetireDone = (id) => {
     setProperties((p) => p.filter((prop) => prop.id !== id));
@@ -346,7 +375,6 @@ export default function MyPropertiesPage() {
     : sorted;
 
   const drafts = filtered.filter((p) => p.status === "incompleto");
-  const published = filtered.filter((p) => p.status !== "incompleto");
 
   return (
     <RequireRole roles={["owner", "agent", "admin"]}>
@@ -403,6 +431,15 @@ export default function MyPropertiesPage() {
         </div>
       )}
 
+      {actionError && (
+        <div
+          role="alert"
+          className="p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400"
+        >
+          {actionError}
+        </div>
+      )}
+
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -429,7 +466,13 @@ export default function MyPropertiesPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((p) =>
             p.status === "incompleto" ? (
-              <DraftCard key={p.id} property={p} onRetire={handleOpenRetire} />
+              <DraftCard
+                key={p.id}
+                property={p}
+                onRetire={handleOpenRetire}
+                onPublish={handlePublish}
+                publishing={publishingId === p.id}
+              />
             ) : (
               <PropertyCard
                 key={p.id}

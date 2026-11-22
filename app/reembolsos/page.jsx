@@ -6,7 +6,7 @@ export const metadata = {
 
 export default function ReembolsosPage() {
   return (
-    <main className="max-w-3xl mx-auto px-4 py-12 prose dark:prose-invert">
+    <div className="max-w-3xl mx-auto px-4 py-12 prose dark:prose-invert">
       <h1>Política de Reembolsos</h1>
       <p className="text-sm text-gray-500">
         Créditos prepagados de Casa-MX.com
@@ -40,6 +40,6 @@ export default function ReembolsosPage() {
         Para dudas sobre esta política escribe a{" "}
         <a href="mailto:facturacion@casa-mx.com">facturacion@casa-mx.com</a>.
       </p>
-    </main>
+    </div>
   );
 }
