@@ -90,7 +90,7 @@ const PropertyCard = React.memo(function PropertyCard({ property, priority = fal
         aria-labelledby={`property-title-${property.id}`}
       >
         {/* Image Section with Price Badge */}
-        <div className="relative aspect-video bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
+        <div className="relative aspect-[4/3] bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
           <Image
             src={imageUrl}
             alt={`Imagen de ${property.title}`}
